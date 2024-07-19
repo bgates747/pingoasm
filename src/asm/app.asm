@@ -58,7 +58,7 @@ csty: equ 40
 camd: equ 128*1 ; 32767/256 * bar
 camx: dl 0*camd
 camy: dl 0*camd
-camz: dl 0*camd
+camz: dl -10*camd
 
 camdx: dl 0x000000
 camdy: dl 0x000000
@@ -85,7 +85,7 @@ objrz: dl 0
 objd: equ 128*1 ; 32767/256 * bar
 objx: dl 0*objd
 objy: dl 0*objd
-objz: dl -5*objd
+objz: dl 0*objd
 
 objdx: dl 0x000000
 objdy: dl 0x000000
