@@ -1,0 +1,69 @@
+GIMP Palette
+Name: colors64HSV
+Columns: 4
+#
+#
+0 0 0 Black
+85 85 85 Gray
+170 170 170 Light gray
+255 255 255 White
+255 170 170 Light pink
+170 85 85 Rosy brown
+255 85 85 Salmon
+85 0 0 Maroon
+170 0 0 Dark red
+255 0 0 Red
+255 85 0 Dark orange
+255 170 85 Light salmon
+170 85 0 Golden brown
+255 170 0 Orange
+255 255 170 Light yellow
+170 170 85 Tan
+255 255 85 Pale yellow
+85 85 0 Dark khaki
+170 170 0 Olive
+255 255 0 Yellow
+170 255 0 Bright green
+170 255 85 Pale lime green
+85 170 0 Chartreuse
+85 255 0 Lawn green
+170 255 170 Pale light green
+85 170 85 Medium sea green
+85 255 85 Light green
+0 85 0 Dark olive green
+0 170 0 Dark green
+0 255 0 Lime
+0 255 85 Light spring green
+85 255 170 Pale green
+0 170 85 Spring green
+0 255 170 Medium spring green
+170 255 255 Light cyan
+85 170 170 Light sea green
+85 255 255 Pale turquoise
+0 85 85 Darker teal
+0 170 170 Teal
+0 255 255 Aqua
+0 170 255 Sky blue
+85 170 255 Deep sky blue
+0 85 170 Azure
+0 85 255 Lighter azure
+170 170 255 Light steel blue
+85 85 170 Slate blue
+85 85 255 Light slate blue
+0 0 85 Navy (darkest blue)
+0 0 170 Dark blue
+0 0 255 Blue
+85 0 255 Electric indigo
+170 85 255 Medium purple
+85 0 170 Indigo
+170 0 255 Medium blue
+255 170 255 Lavender pink
+170 85 170 Medium orchid
+255 85 255 Bright magenta
+85 0 85 Violet
+170 0 170 Dark magenta
+255 0 255 Magenta
+255 0 170 Deep pink
+255 85 170 Orchid
+170 0 85 Medium violet
+255 0 85 Hot pink
