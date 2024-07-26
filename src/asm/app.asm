@@ -50,21 +50,21 @@ obj_scale: equ 256
 objbmid: equ 256
 tgtbmid: equ 257
 
-cstw: equ 256
-csth: equ 192
-cstx: equ 32
-csty: equ 40
+cstw: equ 240 ; 256
+csth: equ 160 ; 128
+cstx: equ 40  ; 32
+csty: equ 32  ; 20
 
 camd: equ 128*1 ; 32767/256 * bar
-camx: dl 0*camd
-camy: dl 0*camd
-camz: dl -10*camd
+camx: dl  0*camd
+camy: dl  64 ; 0.5*camd
+camz: dl -3*camd
 
 camdx: dl 0x000000
 camdy: dl 0x000000
 camdz: dl 0x000000
 
-camdr: equ 91*1 ; 32767/360*foo
+camdr: equ 91*5 ; 32767/360*foo
 camrx: dl 0x000000
 camry: dl 0x000000
 camrz: dl 0x000000
@@ -73,7 +73,7 @@ camdrx: dl 0x000000
 camdry: dl 0x000000
 camdrz: dl 0x000000
 
-objdr: equ 91*1 ; 32767/360*foo
+objdr: equ 91*5 ; 32767/360*foo
 objdrx: dl 0
 objdry: dl 0
 objdrz: dl 0
@@ -179,10 +179,12 @@ mainloop:
 
     jp get_input
 get_input_return:
-    and a ; zero means we need to rotate and or move the camera
-    jp nz,@no_move
+    ; and a ; zero means we need to rotate and or move the camera
+    ; jp nz,@no_move
     ; call rotate_camera
     ; call move_camera
+    ld hl,camdr
+    ld (camdry),hl
     call rotate_camera_local
     call move_camera_local
     ; call rotate_object
