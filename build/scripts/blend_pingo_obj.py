@@ -2,11 +2,16 @@ import bpy
 import os
 
 # Set the directory where the OBJ files will be exported
-export_directory = "/home/smith/Agon/mystuff/agon-testing/ez80/src/blender"
+export_directory = "/home/smith/Agon/mystuff/pingoasm/src/blender"
 
 # Ensure the directory exists
 if not os.path.exists(export_directory):
     os.makedirs(export_directory)
+
+# Save the current Blender file
+original_file_path = bpy.data.filepath
+temp_file_path = bpy.path.abspath("//temp_backup.blend")
+bpy.ops.wm.save_as_mainfile(filepath=temp_file_path)
 
 # Get the current collection
 collection = bpy.context.collection
@@ -18,7 +23,15 @@ for obj in collection.objects:
         bpy.ops.object.select_all(action='DESELECT')
         bpy.context.view_layer.objects.active = obj
         obj.select_set(True)
-        
+
+        # Check if normalization is needed
+        max_coord = max(max(v.co) for v in obj.data.vertices)
+        min_coord = min(min(v.co) for v in obj.data.vertices)
+        if max_coord > 1 or min_coord < -1:
+            # Normalize the vertex locations between -1 and 1
+            for v in obj.data.vertices:
+                v.co = v.co.normalized()
+
         # Scale by -1 along the Z axis
         bpy.ops.transform.resize(value=(1, 1, -1))
         bpy.ops.object.transform_apply(scale=True)
@@ -28,7 +41,7 @@ for obj in collection.objects:
         bpy.ops.mesh.select_all(action='SELECT')
         bpy.ops.mesh.normals_make_consistent(inside=False)
         bpy.ops.object.mode_set(mode='OBJECT')
-        
+
         # Adjust UVs to account for axis inversion
         for uv_layer in obj.data.uv_layers:
             for uv in uv_layer.data:
@@ -66,5 +79,8 @@ for obj in collection.objects:
 
 # Ensure the selection state is clean
 bpy.ops.object.select_all(action='DESELECT')
+
+# Restore the original Blender file
+bpy.ops.wm.open_mainfile(filepath=temp_file_path)
 
 print("Export completed successfully.")

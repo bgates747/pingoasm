@@ -104,8 +104,8 @@ def parse_obj_file(filepath):
 
 
 if __name__ == '__main__':
-    src_dir = 'ez80/src/blender'
-    tgt_dir = 'ez80/src/asm'
+    src_dir = 'src/blender'
+    tgt_dir = 'src/asm'
     blender_executable = '/Applications/Blender.app/Contents/MacOS/Blender'
     blender_local_prefs_path = None
 
@@ -118,8 +118,9 @@ if __name__ == '__main__':
         # ['earthico2', 'earthico160x76.png'],
         # ['heavytank', 'ferdinand.png'],
         # ['larasm', 'Lara.png'],
-        ['Lara','Lara.png'],
+        # ['Lara','Lara.png'],
         # ['glock', 'glock.png'],
+        ['Viking', 'viking.png'],
     ]
 
     for thing in do_these_things:
