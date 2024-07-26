@@ -25,12 +25,14 @@ for obj in collection.objects:
         obj.select_set(True)
 
         # Check if normalization is needed
-        max_coord = max(max(v.co) for v in obj.data.vertices)
-        min_coord = min(min(v.co) for v in obj.data.vertices)
-        if max_coord > 1 or min_coord < -1:
+        max_abs_coord = max(abs(v.co.x) for v in obj.data.vertices)
+        max_abs_coord = max(max_abs_coord, max(abs(v.co.y) for v in obj.data.vertices))
+        max_abs_coord = max(max_abs_coord, max(abs(v.co.z) for v in obj.data.vertices))
+        if max_abs_coord > 1:
             # Normalize the vertex locations between -1 and 1
-            for v in obj.data.vertices:
-                v.co = v.co.normalized()
+            scale_factor = 1 / max_abs_coord
+            bpy.ops.transform.resize(value=(scale_factor, scale_factor, scale_factor))
+            bpy.ops.object.transform_apply(scale=True)
 
         # Scale by -1 along the Z axis
         bpy.ops.transform.resize(value=(1, 1, -1))

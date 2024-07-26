@@ -1,5 +1,7 @@
 from agonImages import img_to_rgba8
 from PIL import Image as pil
+import os
+import shutil
 
 def write_data(base_filename, vertices, faces, texture_coords, texture_vertex_indices, tgt_filepath, uv_texture_rgba8, img_size):
     # Write header data to the target file
@@ -50,7 +52,7 @@ def write_data(base_filename, vertices, faces, texture_coords, texture_vertex_in
         for item in texture_vertex_indices:
             file.write(f'\tdw {", ".join(map(str, item))}\n')
 
-        file.write(f'\n{base_filename}_texture: db "{uv_texture_rgba8}",0\n')
+        file.write(f'\n{base_filename}_texture: db "{os.path.basename(uv_texture_rgba8)}",0\n')
                     
 def make_texture_rgba(uv_texture_png):
     uv_texture_rgba8 = uv_texture_png.replace('.png', '.rgba8')
@@ -129,6 +131,9 @@ if __name__ == '__main__':
         obj_filepath = f'{src_dir}/{base_filename}.obj'
 
         img_size, uv_texture_rgba8 = make_texture_rgba(f'{src_dir}/{uv_texture_png}')
+        # copy rgba8 file from source to target directory
+        rgba8_base_filename = os.path.basename(uv_texture_rgba8)
+        shutil.copyfile(f'{uv_texture_rgba8}', f'{tgt_dir}/{rgba8_base_filename}')
         
         # Export the .obj file manually from Blender GUI
 
