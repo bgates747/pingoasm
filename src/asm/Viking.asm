@@ -1,9 +1,9 @@
 Viking_vertices_n: equ 2554
 Viking_indices_n: equ 11484
 Viking_uvs_n: equ 3564
-Viking_texture_width: equ 1024
-Viking_texture_height: equ 1024
-Viking_texture_size: equ 4194304
+Viking_texture_width: equ 256
+Viking_texture_height: equ 256
+Viking_texture_size: equ 262144
 
 ; -- VERTICES --
 Viking_vertices:
