@@ -8,18 +8,37 @@ import matplotlib.colors as mcolors
 data = """
 Title: Viking Model 240x160
 Unoptimized:
-10 frames in 1565 ms = 6.41 fps. Render time: 156 ms/frame = 6.41 fps
-10 frames in 1549 ms = 6.49 fps. Render time: 154 ms/frame = 6.49 fps
+
+10 frames in 1564 ms = 6.41 fps. Render time: 156 ms/frame = 6.41 fps
+10 frames in 1548 ms = 6.49 fps. Render time: 154 ms/frame = 6.49 fps
 10 frames in 1646 ms = 6.10 fps. Render time: 164 ms/frame = 6.10 fps
 10 frames in 1597 ms = 6.29 fps. Render time: 159 ms/frame = 6.29 fps
 10 frames in 1586 ms = 6.33 fps. Render time: 158 ms/frame = 6.33 fps
-10 frames in 1575 ms = 6.37 fps. Render time: 157 ms/frame = 6.37 fps
-10 frames in 1607 ms = 6.25 fps. Render time: 160 ms/frame = 6.25 fps
-10 frames in 1555 ms = 6.45 fps. Render time: 155 ms/frame = 6.45 fps
-10 frames in 1552 ms = 6.45 fps. Render time: 155 ms/frame = 6.45 fps
-10 frames in 1626 ms = 6.17 fps. Render time: 162 ms/frame = 6.17 fps
+10 frames in 1569 ms = 6.41 fps. Render time: 156 ms/frame = 6.41 fps
+10 frames in 1605 ms = 6.25 fps. Render time: 160 ms/frame = 6.25 fps
+10 frames in 1554 ms = 6.45 fps. Render time: 155 ms/frame = 6.45 fps
+10 frames in 1550 ms = 6.45 fps. Render time: 155 ms/frame = 6.45 fps
+10 frames in 1623 ms = 6.17 fps. Render time: 162 ms/frame = 6.17 fps
 10 frames in 1614 ms = 6.21 fps. Render time: 161 ms/frame = 6.21 fps
 10 frames in 1595 ms = 6.29 fps. Render time: 159 ms/frame = 6.29 fps
+10 frames in 1554 ms = 6.45 fps. Render time: 155 ms/frame = 6.45 fps
+10 frames in 1620 ms = 6.17 fps. Render time: 162 ms/frame = 6.17 fps
+10 frames in 1547 ms = 6.49 fps. Render time: 154 ms/frame = 6.49 fps
+10 frames in 1562 ms = 6.41 fps. Render time: 156 ms/frame = 6.41 fps
+10 frames in 1597 ms = 6.29 fps. Render time: 159 ms/frame = 6.29 fps
+10 frames in 1631 ms = 6.13 fps. Render time: 163 ms/frame = 6.13 fps
+10 frames in 1597 ms = 6.29 fps. Render time: 159 ms/frame = 6.29 fps
+10 frames in 1547 ms = 6.49 fps. Render time: 154 ms/frame = 6.49 fps
+10 frames in 1621 ms = 6.17 fps. Render time: 162 ms/frame = 6.17 fps
+10 frames in 1551 ms = 6.45 fps. Render time: 155 ms/frame = 6.45 fps
+10 frames in 1570 ms = 6.37 fps. Render time: 157 ms/frame = 6.37 fps
+10 frames in 1574 ms = 6.37 fps. Render time: 157 ms/frame = 6.37 fps
+10 frames in 1647 ms = 6.10 fps. Render time: 164 ms/frame = 6.10 fps
+10 frames in 1597 ms = 6.29 fps. Render time: 159 ms/frame = 6.29 fps
+10 frames in 1548 ms = 6.49 fps. Render time: 154 ms/frame = 6.49 fps
+10 frames in 1612 ms = 6.21 fps. Render time: 161 ms/frame = 6.21 fps
+10 frames in 1563 ms = 6.41 fps. Render time: 156 ms/frame = 6.41 fps
+10 frames in 1568 ms = 6.41 fps. Render time: 156 ms/frame = 6.41 fps
 Optimized:
 10 frames in 1528 ms = 6.58 fps. Render time: 152 ms/frame = 6.58 fps
 10 frames in 1453 ms = 6.90 fps. Render time: 145 ms/frame = 6.90 fps

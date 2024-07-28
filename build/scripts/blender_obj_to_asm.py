@@ -2,13 +2,16 @@ from agonImages import img_to_rgba8
 from PIL import Image as pil
 import os
 import shutil
+import os
+from PIL import Image as pil
 
-def write_data(base_filename, vertices, faces, texture_coords, texture_vertex_indices, tgt_filepath, uv_texture_rgba8, img_size):
+def write_data(base_filename, vertices, faces, texture_coords, texture_vertex_indices, normals, normal_indices, tgt_filepath, uv_texture_rgba8, img_size):
     # Write header data to the target file
     with open(tgt_filepath, 'w') as file:
-        file.write(f'{base_filename}_vertices_n: equ {len(vertices)}\n')
         file.write(f'{base_filename}_indices_n: equ {len(faces) * 3}\n')
+        file.write(f'{base_filename}_vertices_n: equ {len(vertices)}\n')
         file.write(f'{base_filename}_uvs_n: equ {len(texture_coords)}\n')
+        file.write(f'{base_filename}_normals_n: equ {len(normals)}\n')
 
         with open(uv_texture_rgba8, 'rb') as img_file:
             img_data = img_file.read()
@@ -52,8 +55,21 @@ def write_data(base_filename, vertices, faces, texture_coords, texture_vertex_in
         for item in texture_vertex_indices:
             file.write(f'\tdw {", ".join(map(str, item))}\n')
 
+        # Write the normals
+        file.write(f'\n; -- NORMALS --\n')
+        file.write(f'{base_filename}_normals:\n')
+        for item in normals:
+            item = [round(coord * 32767) for coord in item]
+            file.write(f'\tdw {", ".join(map(str, item))}\n')
+
+        # Write the normal indices
+        file.write(f'\n; -- NORMAL INDICES --\n')
+        file.write(f'{base_filename}_normal_indices:\n')
+        for item in normal_indices:
+            file.write(f'\tdw {", ".join(map(str, item))}\n')
+
         file.write(f'\n{base_filename}_texture: db "{os.path.basename(uv_texture_rgba8)}",0\n')
-                    
+
 def make_texture_rgba(uv_texture_png):
     uv_texture_rgba8 = uv_texture_png.replace('.png', '.rgba8')
     img = pil.open(uv_texture_png)
@@ -80,6 +96,8 @@ def parse_obj_file(filepath):
     faces = []
     texture_coords = []
     texture_vertex_indices = []
+    normals = []
+    normal_indices = []
 
     with open(filepath, 'r') as file:
         for line in file:
@@ -90,20 +108,26 @@ def parse_obj_file(filepath):
                 vertices.append([sanitize_coord(float(parts[1])), sanitize_coord(float(parts[2])), sanitize_coord(float(parts[3]))])
             elif parts[0] == 'vt':
                 texture_coords.append([sanitize_uv(float(parts[1])), sanitize_uv(float(parts[2]))])
+            elif parts[0] == 'vn':
+                normals.append([sanitize_coord(float(parts[1])), sanitize_coord(float(parts[2])), sanitize_coord(float(parts[3]))])
             elif parts[0] == 'f':
                 face = []
                 tex_indices = []
+                nor_indices = []
                 for part in parts[1:]:
-                    v, vt, _ = (part.split('/') + [None, None])[:3]
+                    v, vt, vn = (part.split('/') + [None, None, None])[:3]
                     face.append(int(v) - 1)
                     if vt:
                         tex_indices.append(int(vt) - 1)
+                    if vn:
+                        nor_indices.append(int(vn) - 1)
                 faces.append(face)
                 if tex_indices:
                     texture_vertex_indices.append(tex_indices)
+                if nor_indices:
+                    normal_indices.append(nor_indices)
 
-    return vertices, faces, texture_coords, texture_vertex_indices
-
+    return vertices, faces, texture_coords, texture_vertex_indices, normals, normal_indices
 
 if __name__ == '__main__':
     src_dir = 'src/blender'
@@ -122,7 +146,7 @@ if __name__ == '__main__':
         # ['larasm', 'Lara.png'],
         # ['Lara','Lara.png'],
         # ['glock', 'glock.png'],
-        ['Viking', 'viking.png'],
+        ['viking_mod', 'viking.png'],
     ]
 
     for thing in do_these_things:
@@ -138,8 +162,9 @@ if __name__ == '__main__':
         # Export the .obj file manually from Blender GUI
 
         # Parse the .obj file
-        vertices, faces, texture_coords, texture_vertex_indices = parse_obj_file(obj_filepath)
+        vertices, faces, texture_coords, texture_vertex_indices, normals, normal_indices = parse_obj_file(obj_filepath)
 
-        write_data(base_filename, vertices, faces, texture_coords, texture_vertex_indices, tgt_filepath, uv_texture_rgba8, img_size)
+        write_data(base_filename, vertices, faces, texture_coords, texture_vertex_indices, normals, normal_indices, tgt_filepath, uv_texture_rgba8, img_size)
 
-        print(f'Modified  code has been written to {tgt_filepath}')
+        print(f'Modified code has been written to {tgt_filepath}')
+

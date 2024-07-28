@@ -123,6 +123,12 @@ stc:
 stci:
     STCI sid, mid, model_uv_indices, model_indices_n
 
+sn:
+    SN sid, mid, model_normals, model_normals_n
+
+smni:
+    SMNI sid, mid, model_normal_indices, model_indices_n
+
 ctb:
     CTB tgtbmid, cstw, csth
 
