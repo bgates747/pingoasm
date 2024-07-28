@@ -57,7 +57,7 @@ csty: equ 32  ; 20
 
 camd: equ 128*1 ; 32767/256 * bar
 camx: dl  0*camd
-camy: dl  64 ; 0.5*camd
+camy: dl  0*camd
 camz: dl -3*camd
 
 camdx: dl 0x000000
@@ -85,7 +85,7 @@ objrz: dl 0
 objd: equ 128*1 ; 32767/256 * bar
 objx: dl 0*objd
 objy: dl 0*objd
-objz: dl 0*objd
+objz: dl 5*objd
 
 objdx: dl 0x000000
 objdy: dl 0x000000
@@ -185,19 +185,18 @@ mainloop:
 
     jp get_input
 get_input_return:
-    ; and a ; zero means we need to rotate and or move the camera
-    ; jp nz,@no_move
+    and a ; zero means we need to rotate and or move the camera
+    jp nz,no_move
     ; call rotate_camera
     ; call move_camera
-    ld hl,camdr
-    ld (camdry),hl
+    ; ld hl,camdr
+    ; ld (camdry),hl
     call rotate_camera_local
     call move_camera_local
-    ; call rotate_object
-    ; call move_object
+    call rotate_object
+    call move_object
     ; call rotate_object_local
     ; call move_object_local
-@no_move:
 
     call printNewLine
     ld a,(dithering_type)
@@ -213,6 +212,8 @@ dispbmp:
 
     ; call vdu_vblank
     call vdu_flip
+
+no_move:
 
     jp mainloop
 
