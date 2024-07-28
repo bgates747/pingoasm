@@ -1,13 +1,13 @@
-model_indices_n: equ 144
-model_vertices_n: equ 30
-model_uvs_n: equ 88
-model_normals_n: equ 21
-model_texture_width: equ 34
-model_texture_height: equ 34
-model_texture_size: equ 4624
+heavytank5_indices_n: equ 144
+heavytank5_vertices_n: equ 30
+heavytank5_uvs_n: equ 88
+heavytank5_normals_n: equ 21
+heavytank5_texture_width: equ 34
+heavytank5_texture_height: equ 34
+heavytank5_texture_size: equ 4624
 
 ; -- VERTICES --
-model_vertices:
+heavytank5_vertices:
 	dw 15728, 13107, -32767
 	dw 13107, 0, -19660
 	dw 16056, 13434, 32767
@@ -40,7 +40,7 @@ model_vertices:
 	dw 18022, 14745, -9830
 
 ; -- FACE VERTEX INDICES --
-model_vertex_indices:
+heavytank5_vertex_indices:
 	dw 13, 9, 2
 	dw 4, 7, 6
 	dw 26, 23, 22
@@ -91,7 +91,7 @@ model_vertex_indices:
 	dw 10, 12, 8
 
 ; -- TEXTURE UV COORDINATES --
-model_uvs:
+heavytank5_uvs:
 	dw 19604, 64508
 	dw 2614, 30535
 	dw 64665, 52863
@@ -182,7 +182,7 @@ model_uvs:
 	dw 20183, 41769
 
 ; -- TEXTURE VERTEX INDICES --
-model_uv_indices:
+heavytank5_uv_indices:
 	dw 39, 26, 7
 	dw 13, 19, 17
 	dw 76, 68, 64
@@ -233,7 +233,7 @@ model_uv_indices:
 	dw 30, 36, 24
 
 ; -- NORMALS --
-model_normals:
+heavytank5_normals:
 	dw 30395, 11852, 3044
 	dw -32184, -6154, -131
 	dw 0, 0, 32767
@@ -257,7 +257,7 @@ model_normals:
 	dw -29559, 14060, 1478
 
 ; -- NORMAL INDICES --
-model_normal_indices:
+heavytank5_normal_indices:
 	dw 0, 0, 0
 	dw 1, 1, 1
 	dw 2, 2, 2
@@ -307,4 +307,4 @@ model_normal_indices:
 	dw 19, 19, 19
 	dw 20, 20, 20
 
-model_texture: db "blenderaxes.rgba8",0
+heavytank5_texture: db "blenderaxes.rgba8",0
