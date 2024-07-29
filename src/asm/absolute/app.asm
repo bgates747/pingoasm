@@ -163,6 +163,9 @@ preloop:
 ; set initial camera position
     call move_camera
 
+; render inital scene
+    jp rendbmp
+
 mainloop:
     call vdu_cls
 
@@ -187,14 +190,14 @@ mainloop:
 get_input_return:
     and a ; zero means we need to rotate and or move the camera
     jp nz,no_move
-    ; call rotate_camera
-    ; call move_camera
+    call rotate_camera
+    call move_camera
     ; ld hl,camdr
     ; ld (camdry),hl
-    call rotate_camera_local
-    call move_camera_local
-    call rotate_object
-    call move_object
+    ; call rotate_camera_local
+    ; call move_camera_local
+    ; call rotate_object
+    ; call move_object
     ; call rotate_object_local
     ; call move_object_local
 

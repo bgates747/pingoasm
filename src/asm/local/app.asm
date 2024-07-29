@@ -163,6 +163,9 @@ preloop:
 ; set initial camera position
     call move_camera
 
+; render inital scene
+    jp rendbmp
+
 mainloop:
     call vdu_cls
 
