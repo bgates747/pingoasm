@@ -6,9 +6,8 @@ import matplotlib.colors as mcolors
 
 # Sample data as a multi-line text argument (placeholder for real user input)
 data = """
-Title: Viking Model 240x160
-Unoptimized:
-
+Title: Pingo Output Resolution 240x160
+Viking Unoptimized:
 10 frames in 1564 ms = 6.41 fps. Render time: 156 ms/frame = 6.41 fps
 10 frames in 1548 ms = 6.49 fps. Render time: 154 ms/frame = 6.49 fps
 10 frames in 1646 ms = 6.10 fps. Render time: 164 ms/frame = 6.10 fps
@@ -39,19 +38,59 @@ Unoptimized:
 10 frames in 1612 ms = 6.21 fps. Render time: 161 ms/frame = 6.21 fps
 10 frames in 1563 ms = 6.41 fps. Render time: 156 ms/frame = 6.41 fps
 10 frames in 1568 ms = 6.41 fps. Render time: 156 ms/frame = 6.41 fps
-Optimized:
-10 frames in 1528 ms = 6.58 fps. Render time: 152 ms/frame = 6.58 fps
-10 frames in 1453 ms = 6.90 fps. Render time: 145 ms/frame = 6.90 fps
-10 frames in 1547 ms = 6.49 fps. Render time: 154 ms/frame = 6.49 fps
-10 frames in 1505 ms = 6.67 fps. Render time: 150 ms/frame = 6.67 fps
-10 frames in 1491 ms = 6.71 fps. Render time: 149 ms/frame = 6.71 fps
-10 frames in 1479 ms = 6.80 fps. Render time: 147 ms/frame = 6.80 fps
-10 frames in 1509 ms = 6.67 fps. Render time: 150 ms/frame = 6.67 fps
-10 frames in 1456 ms = 6.90 fps. Render time: 145 ms/frame = 6.90 fps
-10 frames in 1457 ms = 6.90 fps. Render time: 145 ms/frame = 6.90 fps
-10 frames in 1525 ms = 6.58 fps. Render time: 152 ms/frame = 6.58 fps
-10 frames in 1520 ms = 6.58 fps. Render time: 152 ms/frame = 6.58 fps
-10 frames in 1501 ms = 6.67 fps. Render time: 150 ms/frame = 6.67 fps
+HeavyTank Unoptimized:
+10 frames in 697 ms = 14.49 fps. Render time: 69 ms/frame = 14.49 fps
+10 frames in 789 ms = 12.82 fps. Render time: 78 ms/frame = 12.82 fps
+10 frames in 798 ms = 12.66 fps. Render time: 79 ms/frame = 12.66 fps
+10 frames in 760 ms = 13.16 fps. Render time: 76 ms/frame = 13.16 fps
+10 frames in 777 ms = 12.99 fps. Render time: 77 ms/frame = 12.99 fps
+10 frames in 790 ms = 12.66 fps. Render time: 79 ms/frame = 12.66 fps
+10 frames in 775 ms = 12.99 fps. Render time: 77 ms/frame = 12.99 fps
+10 frames in 686 ms = 14.71 fps. Render time: 68 ms/frame = 14.71 fps
+10 frames in 783 ms = 12.82 fps. Render time: 78 ms/frame = 12.82 fps
+10 frames in 792 ms = 12.66 fps. Render time: 79 ms/frame = 12.66 fps
+10 frames in 783 ms = 12.82 fps. Render time: 78 ms/frame = 12.82 fps
+10 frames in 758 ms = 13.33 fps. Render time: 75 ms/frame = 13.33 fps
+10 frames in 792 ms = 12.66 fps. Render time: 79 ms/frame = 12.66 fps
+10 frames in 785 ms = 12.82 fps. Render time: 78 ms/frame = 12.82 fps
+10 frames in 689 ms = 14.71 fps. Render time: 68 ms/frame = 14.71 fps
+10 frames in 770 ms = 12.99 fps. Render time: 77 ms/frame = 12.99 fps
+10 frames in 787 ms = 12.82 fps. Render time: 78 ms/frame = 12.82 fps
+10 frames in 798 ms = 12.66 fps. Render time: 79 ms/frame = 12.66 fps
+HeavyTank Pre-Computed Normals:
+10 frames in 729 ms = 13.89 fps. Render time: 72 ms/frame = 13.89 fps
+10 frames in 786 ms = 12.82 fps. Render time: 78 ms/frame = 12.82 fps
+10 frames in 800 ms = 12.50 fps. Render time: 80 ms/frame = 12.50 fps
+10 frames in 738 ms = 13.70 fps. Render time: 73 ms/frame = 13.70 fps
+10 frames in 792 ms = 12.66 fps. Render time: 79 ms/frame = 12.66 fps
+10 frames in 788 ms = 12.82 fps. Render time: 78 ms/frame = 12.82 fps
+10 frames in 743 ms = 13.51 fps. Render time: 74 ms/frame = 13.51 fps
+10 frames in 704 ms = 14.29 fps. Render time: 70 ms/frame = 14.29 fps
+10 frames in 787 ms = 12.82 fps. Render time: 78 ms/frame = 12.82 fps
+10 frames in 797 ms = 12.66 fps. Render time: 79 ms/frame = 12.66 fps
+10 frames in 748 ms = 13.51 fps. Render time: 74 ms/frame = 13.51 fps
+10 frames in 784 ms = 12.82 fps. Render time: 78 ms/frame = 12.82 fps
+10 frames in 788 ms = 12.82 fps. Render time: 78 ms/frame = 12.82 fps
+10 frames in 765 ms = 13.16 fps. Render time: 76 ms/frame = 13.16 fps
+10 frames in 688 ms = 14.71 fps. Render time: 68 ms/frame = 14.71 fps
+10 frames in 783 ms = 12.82 fps. Render time: 78 ms/frame = 12.82 fps
+10 frames in 791 ms = 12.66 fps. Render time: 79 ms/frame = 12.66 fps
+10 frames in 767 ms = 13.16 fps. Render time: 76 ms/frame = 13.16 fps
+10 frames in 767 ms = 13.16 fps. Render time: 76 ms/frame = 13.16 fps
+10 frames in 791 ms = 12.66 fps. Render time: 79 ms/frame = 12.66 fps
+10 frames in 780 ms = 12.82 fps. Render time: 78 ms/frame = 12.82 fps
+10 frames in 685 ms = 14.71 fps. Render time: 68 ms/frame = 14.71 fps
+10 frames in 773 ms = 12.99 fps. Render time: 77 ms/frame = 12.99 fps
+10 frames in 787 ms = 12.82 fps. Render time: 78 ms/frame = 12.82 fps
+10 frames in 788 ms = 12.82 fps. Render time: 78 ms/frame = 12.82 fps
+10 frames in 749 ms = 13.51 fps. Render time: 74 ms/frame = 13.51 fps
+10 frames in 793 ms = 12.66 fps. Render time: 79 ms/frame = 12.66 fps
+10 frames in 786 ms = 12.82 fps. Render time: 78 ms/frame = 12.82 fps
+10 frames in 695 ms = 14.49 fps. Render time: 69 ms/frame = 14.49 fps
+10 frames in 756 ms = 13.33 fps. Render time: 75 ms/frame = 13.33 fps
+10 frames in 784 ms = 12.82 fps. Render time: 78 ms/frame = 12.82 fps
+10 frames in 799 ms = 12.66 fps. Render time: 79 ms/frame = 12.66 fps
+10 frames in 739 ms = 13.70 fps. Render time: 73 ms/frame = 13.70 fps
 """
 
 
@@ -108,5 +147,5 @@ bars = ax.bar(bar_locations, fps_means, alpha=0.7, color=color_cycle)
 ax.set_ylabel('Frames Per Second (FPS)')
 ax.set_title(title)
 plt.legend(bars, legend_labels, loc='upper center', bbox_to_anchor=(0.5, -0.1), fancybox=True, shadow=True, ncol=1)
-plt.subplots_adjust(bottom=0.2)  # Increase the bottom margin
+plt.subplots_adjust(bottom=0.3)  # Increase the bottom margin
 plt.show()
