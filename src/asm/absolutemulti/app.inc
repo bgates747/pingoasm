@@ -14,6 +14,7 @@
 @end:
     ENDMACRO
 
+; DEFINE MESH VERTICES
     MACRO SV SID, VXID, VERTICES, VERTICES_N
     ld hl,@beg
     ld bc,@end-@beg
@@ -31,6 +32,7 @@
     rst.lil $18
     ENDMACRO
 
+; DEFINE MESH VERTEX INDICES
     MACRO SMVI SID, VXID, VERTEX_INDICES, INDICES_N
     ld hl,@beg
     ld bc,@end-@beg
@@ -48,6 +50,7 @@
     rst.lil $18
     ENDMACRO
 
+; DEFINE MESH TEXTURE COORDINATES
     MACRO STC SID, UVID, UVS, UVS_N
     ld hl,@beg
     ld bc,@end-@beg
@@ -65,6 +68,7 @@
     rst.lil $18
     ENDMACRO
 
+; SET MESH TEXTURE COORDINATE INDEXES
     MACRO STCI SID, UVID, UV_INDICES, INDICES_N
     ld hl,@beg
     ld bc,@end-@beg
@@ -82,6 +86,7 @@
     rst.lil $18
     ENDMACRO
 
+; DEFINE MESH NORMALS
     MACRO SN SID, NMID, NORMALS, NORMALS_N
     ld hl,@beg
     ld bc,@end-@beg
@@ -99,6 +104,7 @@
     rst.lil $18
     ENDMACRO
 
+; SET MESH NORMAL INDEXES
     MACRO SMNI SID, NMID, NORMAL_INDICES, INDICES_N
     ld hl,@beg
     ld bc,@end-@beg
@@ -117,6 +123,7 @@
     ENDMACRO
 
 ; TODO: THROWS invalid operand mnemonic error
+; CREATE MESH
     MACRO SM, MID, VXID, UVID, NMID, INDICES_N 
     ld hl,@beg
     ld bc,@end-@beg
@@ -135,6 +142,7 @@
 @end:
     ENDMACRO
 
+; CREATE OBJECT
     MACRO CO SID, OID, MID, BMID
     ld hl,@beg
     ld bc,@end-@beg
@@ -151,6 +159,7 @@
 @end:
     ENDMACRO
 
+; SET OBJECT XYZ SCALE FACTORS
     MACRO SO SID, OID, SCALEX, SCALEY, SCALEZ
     ld hl,@beg
     ld bc,@end-@beg
@@ -168,6 +177,7 @@
 @end:
     ENDMACRO
 
+; CREATE RENDER TARGET BITMAP
     MACRO CTB BMID, SCENE_WIDTH, SCENE_HEIGHT
     ld hl,@beg
     ld bc,@end-@beg
@@ -186,6 +196,7 @@
 @end:
     ENDMACRO
 
+; RENDER TO TARGET BITMAP
     MACRO RENDBMP SID, BMID
     ld hl,@beg
     ld bc,@end-@beg
@@ -200,6 +211,7 @@
 @end:
     ENDMACRO
 
+; DISPLAY RENDER TARGET BITMAP
     MACRO DISPBMP BMID, X, Y
     ld hl,@beg
     ld bc,@end-@beg
