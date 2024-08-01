@@ -1,0 +1,41 @@
+Pingo 3D Demonstration Application
+----------------------------------
+
+Files:
+======
+
+Assembly files
+--------------
+- app.asm: the main application file, links to all the other include files.
+- app.inc: macros and functons specific to this application.
+- input.inc: handles user keyboard input.
+- model.inc: contains the 3D vertex and texture data for the 3D object to render.
+
+Image files
+-----------
+- the various blenderaxes files are what provide the texturing for the 3D object. It is 34x34 pixels in dimension. The .xcf file is the original GIMP file containing various layers from which the exported .png image was derived. It uses the Agon 64 color palette. The .rgba2 and .rgba8 files are conversions of the .png image into the native Agon bitmap formats. The .rgba8 file is the one being uploaded by default, but this can be changed in the source code if desired.
+
+How To Use
+==========
+Running
+-------
+- To run the included binary, cd into the directory containing it and all the include files. Load and run.
+- Controls:
+-- WASD move the camera in the horizontal more or less how one would expect in a FPS game. Pg Up and Down move the camera in the vertical.
+-- Q and E rotate the camera along its view axis (Z), counter-clockwise and clockwise respectively.
+-- Left and Right rotate the camera around the object in the horizontal plane, about the scene's Y-axis. IOW, they cause the camera to orbit around the object, which is located by default at the origin of the 3D scene, while contantly pointing at the origin.
+-- Up and Down arrows rotate the camera in the vertical axis parallel to its view axis, in the same orbital fashion as the Left/Right arrows.
+-- Spacebar cycles the dithering method if you have obtained the fork of pingo which includes the dithering function. Otherwise VDP ignores the command and does nothing.
+-- Esc quits the application and exits to MOS.
+
+Assembling
+----------
+- From the directory containing all the includes and art assets, 'ez80asm app.asm <target.bin>' does the trick.
+
+Editing 3D object
+-----------------
+- model.inc is the only file which needs to be changed to modify the mesh and/or texture files and uv mappings.
+
+Application Configuraton
+------------------------
+- various global constants defining the scene, object scale, movement and rotation increments, etc. are near the top of app.asm

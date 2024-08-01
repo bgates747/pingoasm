@@ -41,7 +41,7 @@ exit:
     include "app.inc"
     include "input.inc"
     ; include "inputobj.inc"
-    include "model.inc"
+    include "heavytank5.asm"
 
 sid: equ 100
 mid: equ 1
@@ -116,10 +116,6 @@ main:
 ccs:
     CCS sid, cstw, csth
 
-; create render target bitmap
-ctb:
-    CTB tgtbmid, cstw, csth
-
 ; create mesh vertices
 sv:
     SV sid, mid, model_vertices, model_vertices_n
@@ -144,39 +140,9 @@ sn:
 smni:
     SMNI sid, mid, model_normal_indices, model_indices_n
 
-; create mesh
-sm:
-    ; SM sid, mid, vxid, uvid, nmid, model_indices_n
-    ld hl,@beg
-    ld bc,@end-@beg
-    rst.lil $18
-    jp @end
-@beg:
-;   VDU 23, 0, &A0, sid; &49, 131, mid; vxid; uvid; nmid; n; :  Create Mesh
-    db 23,0,$A0
-    dw sid
-    db $49,131
-    dw mid
-    dw vxid
-    dw uvid
-    dw nmid
-    dw model_indices_n
-@end:
-
-; create material
-cmtl:
-    ld hl,@beg
-    ld bc,@end-@beg
-    rst.lil $18
-    jp @end
-@beg:
-; VDU 23, 0, &A0, sid; &49, 132, mtlid; bmid; :  Create Material
-    db 23,0,$A0
-    dw sid
-    db $49,132
-    dw mtlid
-    dw objbmid
-@end:
+; create render target bitmap
+ctb:
+    CTB tgtbmid, cstw, csth
 
 ; create object
 co:
