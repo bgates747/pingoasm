@@ -1,13 +1,13 @@
-model_mod_indices_n: equ 11484
-model_mod_vertices_n: equ 2554
-model_mod_uvs_n: equ 3561
-model_mod_normals_n: equ 2400
-model_mod_texture_width: equ 256
-model_mod_texture_height: equ 256
-model_mod_texture_size: equ 262144
+model_indices_n: equ 11484
+model_vertices_n: equ 2554
+model_uvs_n: equ 3561
+model_normals_n: equ 2400
+model_texture_width: equ 256
+model_texture_height: equ 256
+model_texture_size: equ 262144
 
 ; -- VERTICES --
-model_mod_vertices:
+model_vertices:
 	dw 54, 25287, -15841
 	dw -6103, 22298, -15841
 	dw -6103, 22298, -20324
@@ -2564,7 +2564,7 @@ model_mod_vertices:
 	dw -5203, 9442, -9476
 
 ; -- FACE VERTEX INDICES --
-model_mod_vertex_indices:
+model_vertex_indices:
 	dw 0, 1, 2
 	dw 0, 2, 3
 	dw 4, 0, 3
@@ -6395,7 +6395,7 @@ model_mod_vertex_indices:
 	dw 2552, 2551, 2553
 
 ; -- TEXTURE UV COORDINATES --
-model_mod_uvs:
+model_uvs:
 	dw 17740, 9394
 	dw 13336, 24658
 	dw 13339, 9303
@@ -9959,7 +9959,7 @@ model_mod_uvs:
 	dw 35042, 47480
 
 ; -- TEXTURE VERTEX INDICES --
-model_mod_uv_indices:
+model_uv_indices:
 	dw 0, 2, 5
 	dw 0, 5, 6
 	dw 8, 0, 6
@@ -13790,7 +13790,7 @@ model_mod_uv_indices:
 	dw 3559, 3558, 3560
 
 ; -- NORMALS --
-model_mod_normals:
+model_normals:
 	dw 14309, -29477, 0
 	dw -16462, -28334, 0
 	dw -32760, 691, 0
@@ -16193,7 +16193,7 @@ model_mod_normals:
 	dw -15938, 7, -28629
 
 ; -- NORMAL INDICES --
-model_mod_normal_indices:
+model_normal_indices:
 	dw 0, 0, 0
 	dw 0, 0, 0
 	dw 1, 1, 1
@@ -20023,4 +20023,4 @@ model_mod_normal_indices:
 	dw 2398, 2398, 2398
 	dw 2399, 2399, 2399
 
-model_mod_texture: db "viking.rgba8",0
+model_texture: db "viking.rgba8",0
