@@ -49,6 +49,7 @@ oid: equ 1
 vxid: equ 1
 uvid: equ 1
 nmid: equ 1
+mtlid: equ 1
 obj_scale: equ 256
 objbmid: equ 256
 tgtbmid: equ 257
@@ -147,15 +148,30 @@ sm:
     rst.lil $18
     jp @end
 @beg:
-;   VDU 23, 0, &A0, sid; &49, 5, mid; vxid; uvid; nmid; n; :  Create Mesh
+;   VDU 23, 0, &A0, sid; &49, 131, mid; vxid; uvid; nmid; n; :  Create Mesh
     db 23,0,$A0
     dw sid
-    db $49,5
+    db $49,131
     dw mid
     dw vxid
     dw uvid
     dw nmid
     dw model_indices_n
+@end:
+
+; create material
+cmtl:
+    ld hl,@beg
+    ld bc,@end-@beg
+    rst.lil $18
+    jp @end
+@beg:
+; VDU 23, 0, &A0, sid; &49, 132, mtlid; bmid; :  Create Material
+    db 23,0,$A0
+    dw sid
+    db $49,132
+    dw mtlid
+    dw objbmid
 @end:
 
 ; create render target bitmap
@@ -164,7 +180,7 @@ ctb:
 
 ; create object
 co:
-    CO sid, oid, mid, objbmid
+    CO sid, oid, mid, mtlid
 
 ; set object scale
 so:

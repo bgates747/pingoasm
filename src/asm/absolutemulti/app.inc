@@ -143,19 +143,19 @@
     ENDMACRO
 
 ; CREATE OBJECT
-    MACRO CO SID, OID, MID, BMID
+    MACRO CO SID, OID, MID, MTLID
     ld hl,@beg
     ld bc,@end-@beg
     rst.lil $18
     jp @end
 @beg:
-;   VDU 23,0, &A0, sid%; &49, 5, oid%; mid%; bmid%; Create Object
+;   VDU 23, 0, &A0, sid; &49, 5, oid; mid; mtlid; :  Create Object
     db 23,0,$A0
     dw SID
     db $49,5
     dw OID
     dw MID
-    dw BMID 
+    dw MTLID 
 @end:
     ENDMACRO
 
