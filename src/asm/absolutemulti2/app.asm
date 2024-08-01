@@ -46,10 +46,6 @@ exit:
 sid: equ 100
 mid: equ 1
 oid: equ 1
-vxid: equ 1
-uvid: equ 1
-nmid: equ 1
-mtlid: equ 1
 obj_scale: equ 256
 objbmid: equ 256
 tgtbmid: equ 257
@@ -146,7 +142,7 @@ ctb:
 
 ; create object
 co:
-    CO sid, oid, mid, mtlid
+    CO sid, oid, mid, objbmid
 
 ; set object scale
 so:
