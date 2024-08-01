@@ -39,8 +39,8 @@ exit:
     ret 
 
     include "app.inc"
-    include "input.inc"
-    ; include "inputobj.inc"
+    ; include "input.inc"
+    include "inputobj.inc"
     ; include "heavytank5.asm"
     include "viking_mod.asm"
 
