@@ -39,10 +39,12 @@ exit:
     ret 
 
     include "app.inc"
-    include "input.inc"
+
+    include "inputcam.inc"
     ; include "inputobj.inc"
-    ; include "heavytank5.asm"
-    include "viking_mod.asm"
+
+    include "heavytank5.asm"
+    ; include "viking_mod.asm"
 
 sid: equ 100
 mid: equ 1
@@ -168,11 +170,25 @@ preloop:
     db 18,0,20+128
 @end:
 
+    ld a,8+128 ; 320x240x64 double-buffered
+    call vdu_set_screen_mode
+
 ; set initial object position
-    call move_object
+    ; call move_object
+    ld hl,sid
+    ld ix,oid
+    ld bc,(objx)
+    ld de,(objy)
+    ld iy,(objz)
+    call sod
 
 ; set initial camera position
-    call move_camera
+    ; call move_camera
+    ld hl,sid
+    ld bc,(camx)
+    ld de,(camy)
+    ld iy,(camz)
+    call scd
 
 ; render inital scene
     jp rendbmp
@@ -201,22 +217,17 @@ mainloop:
 get_input_return:
     and a ; zero means we need to rotate and or move the camera
     jp nz,no_move
-    call rotate_camera
-    call move_camera
-    ; ld hl,camdr
-    ; ld (camdry),hl
-    ; call rotate_camera_local
-    ; call move_camera_local
+    call rotate_camera_loc
+    call move_camera_loc
+
     ; call rotate_object
     ; call move_object
-    ; call rotate_object_local
-    ; call move_object_local
 
-    call printNewLine
-    ld a,(dithering_type)
-    ld hl,0
-    ld l,a
-    call printDec
+    ; call printNewLine
+    ; ld a,(dithering_type)
+    ; ld hl,0
+    ; ld l,a
+    ; call printDec
 
 rendbmp:
     RENDBMP sid, tgtbmid
