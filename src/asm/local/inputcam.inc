@@ -39,7 +39,7 @@ get_input:
 ; 66 A move left
     bit 1,(ix+8)
     jr z,@A
-    ld hl,camd ; TODO: THIS IS INVERTED FROM WHAT IT SHOULD BE
+    ld hl,-camd
     ld (camdx),hl
     xor a
 @A:
@@ -47,7 +47,7 @@ get_input:
     bit 2,(ix+6)
     jr z,@D
     ld hl,(camdx)
-    ld de,-camd ; TODO: THIS IS INVERTED FROM WHAT IT SHOULD BE
+    ld de,camd 
     add hl,de 
     ld (camdx),hl
     xor a

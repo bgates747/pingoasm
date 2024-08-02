@@ -40,8 +40,8 @@ exit:
 
     include "app.inc"
 
-    include "inputcam.inc"
-    ; include "inputobj.inc"
+    ; include "inputcam.inc"
+    include "inputobj.inc"
 
     include "heavytank5.asm"
     ; include "viking_mod.asm"
@@ -88,7 +88,7 @@ objrz: dl 0
 objd: equ 128*1 ; 32767/256 * bar
 objx: dl 0*objd
 objy: dl 0 ; -42 ; -1/3*objd
-objz: dl 5*objd
+objz: dl -5*objd
 
 objdx: dl 0x000000
 objdy: dl 0x000000
@@ -99,8 +99,8 @@ filetype: equ 0 ; rgba8
 dithering_type: db 0x00 ; 0=none, 1=bayer ordered matrix, 2=floyd-steinberg
 
 main:
-    ld a,8+128 ; 320x240x64 double-buffered
-    call vdu_set_screen_mode
+;    ld a,8+128 ; 320x240x64 double-buffered
+;    call vdu_set_screen_mode
 
 ; load image file to a buffer and make it a bitmap
     ld a,filetype
@@ -157,6 +157,8 @@ so:
     call vdu_set_dither
 
 preloop:
+    ld a,8+128 ; 320x240x64 double-buffered
+    call vdu_set_screen_mode
     ld hl,@beg
     ld bc,@end-@beg
     rst.lil $18
@@ -170,8 +172,6 @@ preloop:
     db 18,0,20+128
 @end:
 
-    ld a,8+128 ; 320x240x64 double-buffered
-    call vdu_set_screen_mode
 
 ; set initial object position
     ; call move_object
@@ -189,6 +189,7 @@ preloop:
     call scdabs
 
 ; render inital scene
+    call vdu_cls
     jp rendbmp
 
 mainloop:
@@ -215,11 +216,11 @@ mainloop:
 get_input_return:
     and a ; zero means we need to rotate and or move the camera
     jp nz,no_move
-    call rotate_camera_loc
-    call move_camera_loc
+    ; call rotate_camera_loc
+    ; call move_camera_loc
 
-    ; call rotate_object
-    ; call move_object
+    call rotate_object_loc
+    call move_object_loc
 
     ; call printNewLine
     ; ld a,(dithering_type)
