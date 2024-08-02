@@ -175,20 +175,18 @@ preloop:
 
 ; set initial object position
     ; call move_object
-    ld hl,sid
-    ld ix,oid
+    ld hl,oid
     ld bc,(objx)
     ld de,(objy)
     ld iy,(objz)
-    call sod
+    call sodabs
 
 ; set initial camera position
     ; call move_camera
-    ld hl,sid
     ld bc,(camx)
     ld de,(camy)
     ld iy,(camz)
-    call scd
+    call scdabs
 
 ; render inital scene
     jp rendbmp

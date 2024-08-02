@@ -209,7 +209,7 @@
 
 ; set pingo camera distance
 ; inputs: bc distx, de disty, iy distz
-scd:
+scdabs:
     ld (@x),bc
     ld (@y),de
     ld (@z),iy
@@ -229,7 +229,7 @@ scd:
 
 ; set pingo camera rotation angkes
 ; inputs: bc anglex, de angley, iy anglez
-scr:
+scrabs:
     ld (@rx),bc
     ld (@ry),de
     ld (@rz),iy
@@ -249,7 +249,7 @@ scr:
 
 ; set pingo object distance
 ; inputs: hl oid, bc distx, de disty, iy distz
-sod:
+sodabs:
     ld (@oid),hl
     ld (@x),bc
     ld (@y),de
@@ -271,7 +271,7 @@ sod:
 
 ; set pingo object rotation angkes
 ; inputs: hl oid, bc anglex, de angley, iy anglez
-sor:
+sorabs:
     ld (@oid),hl
     ld (@rx),bc
     ld (@ry),de
@@ -285,6 +285,90 @@ sor:
         db 23, 0, $A0
         dw sid
         db $49, 13
+@oid:   dw 0
+@rx:    dw 0
+@ry:    dw 0
+@rz:    dw 0
+@end:   db 0 ; padding
+
+; set pingo camera distance relative
+; inputs: bc distx, de disty, iy distz
+scdrel:
+    ld (@x),bc
+    ld (@y),de
+    ld (@z),iy
+    ld hl,@beg
+    ld bc,@end-@beg
+    rst.lil $18
+    ret
+@beg:
+;   360 VDU 23,0, &A0, sid%; &49, 153, distx; disty; distz; Set Camera XYZ Translation Distances Relative
+    db 23,0,$A0
+    dw sid
+    db $49,153
+@x: dw 0x0000
+@y: dw 0x0000
+@z: dw 0x0000
+@end: db 0x00 ; padding
+
+; set pingo camera rotation angkes relative
+; inputs: bc anglex, de angley, iy anglez
+scrrel:
+    ld (@rx),bc
+    ld (@ry),de
+    ld (@rz),iy
+    ld hl,@beg
+    ld bc,@end-@beg
+    rst.lil $18
+    ret
+@beg:
+; VDU 23, 0, &A0, sid; &49, 149, anglex; angley; anglez; : Set Camera XYZ Rotation Angles Relative
+        db 23,0,$A0
+        dw sid
+        db $49,149
+@rx:    dw 0x0000
+@ry:    dw 0x0000
+@rz:    dw 0x0000
+@end:   db 0x00 ; padding
+
+; set pingo object distance
+; inputs: hl oid, bc distx, de disty, iy distz
+sodrel:
+    ld (@oid),hl
+    ld (@x),bc
+    ld (@y),de
+    ld (@z),iy
+    ld hl,@beg
+    ld bc,@end-@beg
+    rst.lil $18
+    ret
+@beg:
+; VDU 23, 0, &A0, sid; &49, 145, oid; distx; disty; distz; : Set Object XYZ Translation Distances Relative
+        db 23, 0, $A0
+        dw sid
+        db $49, 145
+@oid:   dw 0
+@x:     dw 0
+@y:     dw 0
+@z:     dw 0
+@end:   db 0 ; padding
+
+; set pingo object rotation angkes
+; inputs: hl oid, bc anglex, de angley, iy anglez
+sorrel:
+    ld (@oid),hl
+    ld (@rx),bc
+    ld (@ry),de
+    ld (@rz),iy
+    ld hl,@beg
+    ld bc,@end-@beg
+    rst.lil $18
+    ret
+@beg:
+;  1120 VDU 23, 0, &A0, sid%; &49, 141, oid%; rx; ry; rz; Set Object XYZ Rotation Angles Relative
+        db 23, 0, $A0
+        dw sid
+        db $49, 141
 @oid:   dw 0
 @rx:    dw 0
 @ry:    dw 0
