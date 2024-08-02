@@ -39,8 +39,8 @@ exit:
     ret 
 
     include "app.inc"
-    ; include "input.inc"
-    include "inputobj.inc"
+    include "input.inc"
+    ; include "inputobj.inc"
     ; include "heavytank5.asm"
     include "viking_mod.asm"
 
@@ -86,7 +86,7 @@ objrz: dl 0
 objd: equ 128*1 ; 32767/256 * bar
 objx: dl 0*objd
 objy: dl 0 ; -42 ; -1/3*objd
-objz: dl 0*objd
+objz: dl 5*objd
 
 objdx: dl 0x000000
 objdy: dl 0x000000

@@ -14,13 +14,14 @@
 @end:
     ENDMACRO
 
+; DEFINE MESH VERTICES
     MACRO SV SID, MID, VERTICES, VERTICES_N
     ld hl,@beg
     ld bc,@end-@beg
     rst.lil $18
     jp @end
 @beg:
-;   VDU 23,0, &A0, SID%; &49, 1, MID%; VERTICES%; Define Mesh Vertices
+;   VDU 23,0, &A0, sid%; &49, 1, mid%; VERTICES%; Define Mesh Vertices
     db 23,0,$A0
     dw SID
     db $49,1
@@ -31,6 +32,7 @@
     rst.lil $18
     ENDMACRO
 
+; DEFINE MESH VERTEX INDICES
     MACRO SMVI SID, MID, VERTEX_INDICES, INDICES_N
     ld hl,@beg
     ld bc,@end-@beg
@@ -48,13 +50,14 @@
     rst.lil $18
     ENDMACRO
 
+; DEFINE MESH TEXTURE COORDINATES
     MACRO STC SID, MID, UVS, UVS_N
     ld hl,@beg
     ld bc,@end-@beg
     rst.lil $18
     jp @end
 @beg:
-;   VDU 23,0, &A0, sid%; &49, 3, mid%; model_uvs%;
+;   VDU 23, 0, &A0, sid; &49, 3, mid; n; u0; v0; ... :  Define Mesh Texture Coordinates
     db 23,0,$A0
     dw SID
     db $49,3
@@ -65,13 +68,14 @@
     rst.lil $18
     ENDMACRO
 
+; SET MESH TEXTURE COORDINATE INDEXES
     MACRO STCI SID, MID, UV_INDICES, INDICES_N
     ld hl,@beg
     ld bc,@end-@beg
     rst.lil $18
     jp @end
 @beg:
-;   VDU 23,0, &A0, sid%; &49, 4, mid%; model_indices%; 
+;   VDU 23, 0, &A0, sid; &49, 4, mid; n; i0; ... :  Set Texture Coordinate Indexes
     db 23,0,$A0
     dw SID
     db $49,4
@@ -82,48 +86,50 @@
     rst.lil $18
     ENDMACRO
 
-    MACRO SN SID, MID, NORMALS, NORMALS_N
-    ld hl,@beg
-    ld bc,@end-@beg
-    rst.lil $18
-    jp @end
-@beg:
-;   VDU 23,0, &A0, SID%; &49, 129, MID%; NORMALS%; Define Mesh Normals
-    db 23,0,$A0
-    dw SID
-    db $49,129
-    dw MID, NORMALS_N
-@end:
-    ld hl,NORMALS
-    ld bc,NORMALS_N*6 ; 3 coordinates per normal, 2 bytes per coordinate
-    rst.lil $18
-    ENDMACRO
+; ; DEFINE MESH NORMALS
+;     MACRO SN SID, MID, NORMALS, NORMALS_N
+;     ld hl,@beg
+;     ld bc,@end-@beg
+;     rst.lil $18
+;     jp @end
+; @beg:
+; ;   VDU 23, 0, &A0, sid; &49, 129, mid; n; x0; y0; z0; ... :  Define Mesh Normals
+;     db 23,0,$A0
+;     dw SID
+;     db $49,129
+;     dw MID, NORMALS_N
+; @end:
+;     ld hl,NORMALS
+;     ld bc,NORMALS_N*6 ; 3 coordinates per normal, 2 bytes per coordinate
+;     rst.lil $18
+;     ENDMACRO
 
-    MACRO SMNI SID, MID, NORMAL_INDICES, INDICES_N
-    ld hl,@beg
-    ld bc,@end-@beg
-    rst.lil $18
-    jp @end
-@beg:
-;   VDU 23,0, &A0, SID%; &49, 130, MID%; NORMAL_INDICES%; Set Mesh Normal Indices
-    db 23,0,$A0
-    dw SID
-    db $49,130
-    dw MID, INDICES_N
-@end:
-    ld hl,NORMAL_INDICES
-    ld bc,INDICES_N*2 ; 2 bytes per index
-    rst.lil $18
-    ENDMACRO
+; ; SET MESH NORMAL INDEXES
+;     MACRO SMNI SID, MID, NORMAL_INDICES, INDICES_N
+;     ld hl,@beg
+;     ld bc,@end-@beg
+;     rst.lil $18
+;     jp @end
+; @beg:
+; ;   VDU 23, 0, &A0, sid; &49, 130, mid; n; i0; ... :  Set Mesh Normal Indexes
+;     db 23,0,$A0
+;     dw SID
+;     db $49,130
+;     dw MID, INDICES_N
+; @end:
+;     ld hl,NORMAL_INDICES
+;     ld bc,INDICES_N*2 ; 2 bytes per index
+;     rst.lil $18
+;     ENDMACRO
 
-
+; CREATE OBJECT
     MACRO CO SID, OID, MID, BMID
     ld hl,@beg
     ld bc,@end-@beg
     rst.lil $18
     jp @end
 @beg:
-;   VDU 23,0, &A0, sid%; &49, 5, oid%; mid%; bmid%; Create Object
+;   VDU 23, 0, &A0, sid; &49, 5, oid; mid; bmid; :  Create Object
     db 23,0,$A0
     dw SID
     db $49,5
@@ -133,6 +139,7 @@
 @end:
     ENDMACRO
 
+; SET OBJECT XYZ SCALE FACTORS
     MACRO SO SID, OID, SCALEX, SCALEY, SCALEZ
     ld hl,@beg
     ld bc,@end-@beg
@@ -150,6 +157,7 @@
 @end:
     ENDMACRO
 
+; CREATE RENDER TARGET BITMAP
     MACRO CTB BMID, SCENE_WIDTH, SCENE_HEIGHT
     ld hl,@beg
     ld bc,@end-@beg
@@ -168,6 +176,7 @@
 @end:
     ENDMACRO
 
+; RENDER TO TARGET BITMAP
     MACRO RENDBMP SID, BMID
     ld hl,@beg
     ld bc,@end-@beg
@@ -182,6 +191,7 @@
 @end:
     ENDMACRO
 
+; DISPLAY RENDER TARGET BITMAP
     MACRO DISPBMP BMID, X, Y
     ld hl,@beg
     ld bc,@end-@beg

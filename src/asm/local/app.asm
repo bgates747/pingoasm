@@ -41,7 +41,8 @@ exit:
     include "app.inc"
     include "input.inc"
     ; include "inputobj.inc"
-    include "model.inc"
+    ; include "heavytank5.asm"
+    include "viking_mod.asm"
 
 sid: equ 100
 mid: equ 1
@@ -84,7 +85,7 @@ objrz: dl 0
 
 objd: equ 128*1 ; 32767/256 * bar
 objx: dl 0*objd
-objy: dl 0*objd
+objy: dl 0 ; -42 ; -1/3*objd
 objz: dl 5*objd
 
 objdx: dl 0x000000
@@ -108,33 +109,43 @@ main:
     ld iy,model_texture
     call vdu_load_img
     
+; create control structure
 ccs:
     CCS sid, cstw, csth
 
+; create mesh vertices
 sv:
     SV sid, mid, model_vertices, model_vertices_n
 
+; create mesh vertex indices
 smvi:
     SMVI sid, mid, model_vertex_indices, model_indices_n
 
+; create texture coordinates
 stc:
     STC sid, mid, model_uvs, model_uvs_n
 
+; create texture coordinate indices
 stci:
     STCI sid, mid, model_uv_indices, model_indices_n
 
-sn:
-    SN sid, mid, model_normals, model_normals_n
+; ; create normals
+; sn:
+;     SN sid, mid, model_normals, model_normals_n
 
-smni:
-    SMNI sid, mid, model_normal_indices, model_indices_n
+; ; create normal indices
+; smni:
+;     SMNI sid, mid, model_normal_indices, model_indices_n
 
+; create render target bitmap
 ctb:
     CTB tgtbmid, cstw, csth
 
+; create object
 co:
     CO sid, oid, mid, objbmid
 
+; set object scale
 so:
     SO sid, oid, obj_scale, obj_scale, obj_scale
 
@@ -190,14 +201,14 @@ mainloop:
 get_input_return:
     and a ; zero means we need to rotate and or move the camera
     jp nz,no_move
-    ; call rotate_camera
-    ; call move_camera
+    call rotate_camera
+    call move_camera
     ; ld hl,camdr
     ; ld (camdry),hl
-    call rotate_camera_local
-    call move_camera_local
-    call rotate_object
-    call move_object
+    ; call rotate_camera_local
+    ; call move_camera_local
+    ; call rotate_object
+    ; call move_object
     ; call rotate_object_local
     ; call move_object_local
 
