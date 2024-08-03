@@ -148,7 +148,8 @@ if __name__ == '__main__':
         # ['glock', 'glock.png'],
         # ['viking_mod', 'viking.png'],
         # ['heavytank5', 'blenderaxes.png'],
-        ['navball','navball320x160.png']
+        # ['navball','navball320x160.png']
+        ['LaraCroft', 'Lara.png']
     ]
 
     for thing in do_these_things:
