@@ -39,7 +39,7 @@ get_input:
 ; 66 A move left
     bit 1,(ix+8)
     jr z,@A
-    ld hl,objd
+    ld hl,-objd
     ld (objdx),hl
     xor a
 @A:
@@ -47,7 +47,7 @@ get_input:
     bit 2,(ix+6)
     jr z,@D
     ld hl,(objdx)
-    ld de,-objd 
+    ld de,objd 
     add hl,de 
     ld (objdx),hl
     xor a
@@ -57,7 +57,7 @@ get_input:
 ; 64 PgUp move up
     bit 7,(ix+7)
     jr z,@PgUp
-    ld hl,-objd
+    ld hl,objd
     ld (objdy),hl
     xor a
 @PgUp:
@@ -65,7 +65,7 @@ get_input:
     bit 6,(ix+9)
     jr z,@PgDn
     ld hl,(objdy)
-    ld de,objd
+    ld de,-objd
     add hl,de 
     ld (objdy),hl
     xor a
@@ -76,7 +76,7 @@ get_input:
 ; 17 Q roll left
     bit 0,(ix+2)
     jr z,@Q
-    ld hl,-objdr 
+    ld hl,objdr 
     ld (objdrz),hl
     xor a
 @Q:
@@ -84,7 +84,7 @@ get_input:
     bit 2,(ix+4)
     jr z,@E
     ld hl,(objdrz)
-    ld de,objdr 
+    ld de,-objdr 
     add hl,de 
     ld (objdrz),hl
     xor a
@@ -94,7 +94,7 @@ get_input:
 ; 58 Up pitch down
     bit 1,(ix+7)
     jr z,@Up
-    ld hl,objdr
+    ld hl,-objdr
     ld (objdrx),hl
     xor a
 @Up:
@@ -102,7 +102,7 @@ get_input:
     bit 1,(ix+5)
     jr z,@Down
     ld hl,(objdrx)
-    ld de,-objdr
+    ld de,objdr
     add hl,de 
     ld (objdrx),hl
     xor a
