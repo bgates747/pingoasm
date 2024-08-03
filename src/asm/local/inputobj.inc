@@ -21,7 +21,7 @@ get_input:
 ; 34 W move forward
     bit 1,(ix+4)
     jr z,@W
-    ld hl,objd
+    ld hl,-objd
     ld (objdz),hl
     xor a
 @W: 
@@ -29,7 +29,7 @@ get_input:
     bit 1,(ix+10)
     jr z,@S
     ld hl,(objdz)
-    ld de,-objd
+    ld de,objd
     add hl,de 
     ld (objdz),hl
     xor a
@@ -39,7 +39,7 @@ get_input:
 ; 66 A move left
     bit 1,(ix+8)
     jr z,@A
-    ld hl,-objd
+    ld hl,objd
     ld (objdx),hl
     xor a
 @A:
@@ -47,7 +47,7 @@ get_input:
     bit 2,(ix+6)
     jr z,@D
     ld hl,(objdx)
-    ld de,objd 
+    ld de,-objd 
     add hl,de 
     ld (objdx),hl
     xor a
@@ -76,7 +76,7 @@ get_input:
 ; 17 Q roll left
     bit 0,(ix+2)
     jr z,@Q
-    ld hl,objdr ; note the sign difference from the other two axes
+    ld hl,-objdr ; note the sign difference from the other two axes
     ld (objdrz),hl
     xor a
 @Q:
@@ -84,7 +84,7 @@ get_input:
     bit 2,(ix+4)
     jr z,@E
     ld hl,(objdrz)
-    ld de,-objdr ; note the sign difference from the other two axes
+    ld de,objdr ; note the sign difference from the other two axes
     add hl,de 
     ld (objdrz),hl
     xor a
