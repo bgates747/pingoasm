@@ -331,6 +331,21 @@ scrrel:
 @rz:    dw 0x0000
 @end:   db 0x00 ; padding
 
+; VDU 23, 0, &A0, sid; &49, 42, oid; : Rotate Camera Locally to track a specified object
+; inputs: hl oid
+cto:
+    ld (@oid),hl
+    ld hl,@beg
+    ld bc,@end-@beg
+    rst.lil $18
+    ret
+@beg:
+    db 23, 0, $A0
+    dw sid
+    db $49, 42
+@oid:   dw 0
+@end:   db 0 ; padding
+
 ; set pingo object distance
 ; inputs: hl oid, bc distx, de disty, iy distz
 sodrel:
