@@ -39,7 +39,7 @@ get_input:
 ; 66 A move left
     bit 1,(ix+8)
     jr z,@A
-    ld hl,-camd
+    ld hl,camd
     ld (camdx),hl
     xor a
 @A:
@@ -47,7 +47,7 @@ get_input:
     bit 2,(ix+6)
     jr z,@D
     ld hl,(camdx)
-    ld de,camd 
+    ld de,-camd 
     add hl,de 
     ld (camdx),hl
     xor a
@@ -57,7 +57,7 @@ get_input:
 ; 64 PgUp move up
     bit 7,(ix+7)
     jr z,@PgUp
-    ld hl,camd
+    ld hl,-camd
     ld (camdy),hl
     xor a
 @PgUp:
@@ -65,7 +65,7 @@ get_input:
     bit 6,(ix+9)
     jr z,@PgDn
     ld hl,(camdy)
-    ld de,-camd
+    ld de,camd
     add hl,de 
     ld (camdy),hl
     xor a
@@ -76,7 +76,7 @@ get_input:
 ; 17 Q roll left
     bit 0,(ix+2)
     jr z,@Q
-    ld hl,camdr ; note the sign difference from the other two axes
+    ld hl,-camdr 
     ld (camdrz),hl
     xor a
 @Q:
@@ -84,7 +84,7 @@ get_input:
     bit 2,(ix+4)
     jr z,@E
     ld hl,(camdrz)
-    ld de,-camdr ; note the sign difference from the other two axes
+    ld de,camdr 
     add hl,de 
     ld (camdrz),hl
     xor a
@@ -96,7 +96,7 @@ get_input:
 ; 58 Up tilt down
     bit 1,(ix+7)
     jr z,@Up
-    ld hl,-camdr
+    ld hl,camdr
     ld (camdrx),hl
     xor a
 @Up:
@@ -104,7 +104,7 @@ get_input:
     bit 1,(ix+5)
     jr z,@Down
     ld hl,(camdrx)
-    ld de,camdr
+    ld de,-camdr
     add hl,de 
     ld (camdrx),hl
     xor a

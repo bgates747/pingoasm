@@ -40,8 +40,8 @@ exit:
 
     include "app.inc"
 
-    ; include "inputcam.inc"
-    include "inputobj.inc"
+    include "inputcam.inc"
+    ;include "inputobj.inc"
 
     include "heavytank5.asm"
     ; include "viking_mod.asm"
@@ -216,11 +216,11 @@ mainloop:
 get_input_return:
     and a ; zero means we need to rotate and or move the camera
     jp nz,no_move
-    ; call rotate_camera_loc
-    ; call move_camera_loc
+    call rotate_camera_loc
+    call move_camera_loc
 
-    call rotate_object_loc
-    call move_object_loc
+    ; call rotate_object_loc
+    ; call move_object_loc
 
     ; call printNewLine
     ; ld a,(dithering_type)
