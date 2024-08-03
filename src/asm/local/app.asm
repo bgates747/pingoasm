@@ -43,8 +43,9 @@ exit:
     ; include "inputcam.inc"
     include "inputobj.inc"
 
-    include "heavytank5.asm"
+    ; include "heavytank5.asm"
     ; include "viking_mod.asm"
+    include "navball.asm"
 
 sid: equ 100
 mid: equ 1
@@ -221,6 +222,10 @@ get_input_return:
 
     call rotate_object_loc
     call move_object_loc
+
+    ; call rotate_object_abs
+    ; call move_object_abs
+    
     ld hl,oid
     call cto ; camera track object
 
