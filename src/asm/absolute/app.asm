@@ -39,9 +39,12 @@ exit:
     ret 
 
     include "app.inc"
-    include "input.inc"
-    ; include "inputobj.inc"
-    include "model.inc"
+
+    ; include "inputcam.inc"
+    include "inputobj.inc"
+
+    include "heavytank5.asm"
+    ; include "viking_mod.asm"
 
 sid: equ 100
 mid: equ 1
@@ -84,8 +87,8 @@ objrz: dl 0
 
 objd: equ 128*1 ; 32767/256 * bar
 objx: dl 0*objd
-objy: dl 0*objd
-objz: dl 5*objd
+objy: dl 0 ; -42 ; -1/3*objd
+objz: dl -5*objd
 
 objdx: dl 0x000000
 objdy: dl 0x000000
@@ -96,8 +99,8 @@ filetype: equ 0 ; rgba8
 dithering_type: db 0x00 ; 0=none, 1=bayer ordered matrix, 2=floyd-steinberg
 
 main:
-    ld a,8+128 ; 320x240x64 double-buffered
-    call vdu_set_screen_mode
+;    ld a,8+128 ; 320x240x64 double-buffered
+;    call vdu_set_screen_mode
 
 ; load image file to a buffer and make it a bitmap
     ld a,filetype
@@ -108,33 +111,43 @@ main:
     ld iy,model_texture
     call vdu_load_img
     
+; create control structure
 ccs:
     CCS sid, cstw, csth
 
+; create mesh vertices
 sv:
     SV sid, mid, model_vertices, model_vertices_n
 
+; create mesh vertex indices
 smvi:
     SMVI sid, mid, model_vertex_indices, model_indices_n
 
+; create texture coordinates
 stc:
     STC sid, mid, model_uvs, model_uvs_n
 
+; create texture coordinate indices
 stci:
     STCI sid, mid, model_uv_indices, model_indices_n
 
-sn:
-    SN sid, mid, model_normals, model_normals_n
+; ; create normals
+; sn:
+;     SN sid, mid, model_normals, model_normals_n
 
-smni:
-    SMNI sid, mid, model_normal_indices, model_indices_n
+; ; create normal indices
+; smni:
+;     SMNI sid, mid, model_normal_indices, model_indices_n
 
+; create render target bitmap
 ctb:
     CTB tgtbmid, cstw, csth
 
+; create object
 co:
     CO sid, oid, mid, objbmid
 
+; set object scale
 so:
     SO sid, oid, obj_scale, obj_scale, obj_scale
 
@@ -144,6 +157,8 @@ so:
     call vdu_set_dither
 
 preloop:
+    ld a,8+128 ; 320x240x64 double-buffered
+    call vdu_set_screen_mode
     ld hl,@beg
     ld bc,@end-@beg
     rst.lil $18
@@ -157,13 +172,24 @@ preloop:
     db 18,0,20+128
 @end:
 
+
 ; set initial object position
-    call move_object
+    ; call move_object
+    ld hl,oid
+    ld bc,(objx)
+    ld de,(objy)
+    ld iy,(objz)
+    call sodabs
 
 ; set initial camera position
-    call move_camera
+    ; call move_camera
+    ld bc,(camx)
+    ld de,(camy)
+    ld iy,(camz)
+    call scdabs
 
 ; render inital scene
+    call vdu_cls
     jp rendbmp
 
 mainloop:
@@ -190,22 +216,22 @@ mainloop:
 get_input_return:
     and a ; zero means we need to rotate and or move the camera
     jp nz,no_move
-    call rotate_camera
-    call move_camera
-    ; ld hl,camdr
-    ; ld (camdry),hl
-    ; call rotate_camera_local
-    ; call move_camera_local
-    ; call rotate_object
-    ; call move_object
-    ; call rotate_object_local
-    ; call move_object_local
+    ;call rotate_camera_loc
+    ;call move_camera_loc
 
-    call printNewLine
-    ld a,(dithering_type)
-    ld hl,0
-    ld l,a
-    call printDec
+    ; call rotate_object_loc
+    ; call move_object_loc
+
+    call rotate_object_abs
+    call move_object_abs
+    ld hl,oid
+    call cto ; camera track object
+
+    ; call printNewLine
+    ; ld a,(dithering_type)
+    ; ld hl,0
+    ; ld l,a
+    ; call printDec
 
 rendbmp:
     RENDBMP sid, tgtbmid

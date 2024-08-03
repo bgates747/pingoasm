@@ -1,12 +1,12 @@
-viking_vertices_n: equ 2554
-viking_indices_n: equ 11484
-viking_uvs_n: equ 2500
-viking_texture_width: equ 256
-viking_texture_height: equ 256
-viking_texture_size: equ 262144
+model_vertices_n: equ 2554
+model_indices_n: equ 11484
+model_uvs_n: equ 2500
+model_texture_width: equ 256
+model_texture_height: equ 256
+model_texture_size: equ 262144
 
 ; -- VERTICES --
-viking_vertices:
+model_vertices:
 	dw 54, 25287, -15841
 	dw -6103, 22298, -15841
 	dw -6103, 22298, -20324
@@ -2563,7 +2563,7 @@ viking_vertices:
 	dw -5203, 9442, -9476
 
 ; -- FACE VERTEX INDICES --
-viking_vertex_indices:
+model_vertex_indices:
 	dw 0, 1, 2
 	dw 0, 2, 3
 	dw 4, 0, 3
@@ -6394,7 +6394,7 @@ viking_vertex_indices:
 	dw 2552, 2551, 2553
 
 ; -- TEXTURE UV COORDINATES --
-viking_uvs:
+model_uvs:
 	dw 17740, 9394
 	dw 13339, 9303
 	dw 13339, 6534
@@ -8897,7 +8897,7 @@ viking_uvs:
 	dw 35042, 47480
 
 ; -- TEXTURE VERTEX INDICES --
-viking_uv_indices:
+model_uv_indices:
 	dw 0, 1, 2
 	dw 0, 2, 3
 	dw 1, 0, 3
@@ -12727,4 +12727,4 @@ viking_uv_indices:
 	dw 2494, 2498, 2497
 	dw 2497, 2498, 2499
 
-viking_texture: db "viking.rgba8",0
+model_texture: db "viking.rgba8",0

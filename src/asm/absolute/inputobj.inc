@@ -21,7 +21,7 @@ get_input:
 ; 34 W move forward
     bit 1,(ix+4)
     jr z,@W
-    ld hl,objd
+    ld hl,-objd
     ld (objdz),hl
     xor a
 @W: 
@@ -29,7 +29,7 @@ get_input:
     bit 1,(ix+10)
     jr z,@S
     ld hl,(objdz)
-    ld de,-objd
+    ld de,objd
     add hl,de 
     ld (objdz),hl
     xor a
@@ -39,7 +39,7 @@ get_input:
 ; 66 A move left
     bit 1,(ix+8)
     jr z,@A
-    ld hl,objd ; TODO: THIS IS INVERTED FROM WHAT IT SHOULD BE
+    ld hl,-objd
     ld (objdx),hl
     xor a
 @A:
@@ -47,7 +47,7 @@ get_input:
     bit 2,(ix+6)
     jr z,@D
     ld hl,(objdx)
-    ld de,-objd ; TODO: THIS IS INVERTED FROM WHAT IT SHOULD BE
+    ld de,objd 
     add hl,de 
     ld (objdx),hl
     xor a
@@ -76,7 +76,7 @@ get_input:
 ; 17 Q roll left
     bit 0,(ix+2)
     jr z,@Q
-    ld hl,objdr
+    ld hl,objdr 
     ld (objdrz),hl
     xor a
 @Q:
@@ -91,34 +91,32 @@ get_input:
 @E:
 
 ; rotate object x axis
-; TODO: THIS SEEMS TO ORBIT THE OBJECT AROUND THE OBJECT
-; ABOUT THE WORLD X-AXIS
-; 58 Up tilt down
+; 58 Up pitch down
     bit 1,(ix+7)
     jr z,@Up
-    ld hl,objdr
+    ld hl,-objdr
     ld (objdrx),hl
     xor a
 @Up:
-; 42 Down tilt up
+; 42 Down pitch up
     bit 1,(ix+5)
     jr z,@Down
     ld hl,(objdrx)
-    ld de,-objdr
+    ld de,objdr
     add hl,de 
     ld (objdrx),hl
     xor a
 @Down:
 
 ; rotate object y axis
-; 26 Left pan left
+; 26 Left yaw left
     bit 1,(ix+3)
     jr z,@Left
     ld hl,objdr
     ld (objdry),hl
     xor a
 @Left:
-; 122 Right pan right
+; 122 Right yaw right
     bit 1,(ix+15)
     jr z,@Right
     ld hl,(objdry)

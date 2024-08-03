@@ -14,13 +14,14 @@
 @end:
     ENDMACRO
 
+; DEFINE MESH VERTICES
     MACRO SV SID, MID, VERTICES, VERTICES_N
     ld hl,@beg
     ld bc,@end-@beg
     rst.lil $18
     jp @end
 @beg:
-;   VDU 23,0, &A0, SID%; &49, 1, MID%; VERTICES%; Define Mesh Vertices
+;   VDU 23,0, &A0, sid%; &49, 1, mid%; VERTICES%; Define Mesh Vertices
     db 23,0,$A0
     dw SID
     db $49,1
@@ -31,6 +32,7 @@
     rst.lil $18
     ENDMACRO
 
+; DEFINE MESH VERTEX INDICES
     MACRO SMVI SID, MID, VERTEX_INDICES, INDICES_N
     ld hl,@beg
     ld bc,@end-@beg
@@ -48,13 +50,14 @@
     rst.lil $18
     ENDMACRO
 
+; DEFINE MESH TEXTURE COORDINATES
     MACRO STC SID, MID, UVS, UVS_N
     ld hl,@beg
     ld bc,@end-@beg
     rst.lil $18
     jp @end
 @beg:
-;   VDU 23,0, &A0, sid%; &49, 3, mid%; model_uvs%;
+;   VDU 23, 0, &A0, sid; &49, 3, mid; n; u0; v0; ... :  Define Mesh Texture Coordinates
     db 23,0,$A0
     dw SID
     db $49,3
@@ -65,13 +68,14 @@
     rst.lil $18
     ENDMACRO
 
+; SET MESH TEXTURE COORDINATE INDEXES
     MACRO STCI SID, MID, UV_INDICES, INDICES_N
     ld hl,@beg
     ld bc,@end-@beg
     rst.lil $18
     jp @end
 @beg:
-;   VDU 23,0, &A0, sid%; &49, 4, mid%; model_indices%; 
+;   VDU 23, 0, &A0, sid; &49, 4, mid; n; i0; ... :  Set Texture Coordinate Indexes
     db 23,0,$A0
     dw SID
     db $49,4
@@ -82,13 +86,14 @@
     rst.lil $18
     ENDMACRO
 
+; DEFINE MESH NORMALS
     MACRO SN SID, MID, NORMALS, NORMALS_N
     ld hl,@beg
     ld bc,@end-@beg
     rst.lil $18
     jp @end
 @beg:
-;   VDU 23,0, &A0, SID%; &49, 129, MID%; NORMALS%; Define Mesh Normals
+;   VDU 23, 0, &A0, sid; &49, 129, mid; n; x0; y0; z0; ... :  Define Mesh Normals
     db 23,0,$A0
     dw SID
     db $49,129
@@ -99,13 +104,14 @@
     rst.lil $18
     ENDMACRO
 
+; SET MESH NORMAL INDEXES
     MACRO SMNI SID, MID, NORMAL_INDICES, INDICES_N
     ld hl,@beg
     ld bc,@end-@beg
     rst.lil $18
     jp @end
 @beg:
-;   VDU 23,0, &A0, SID%; &49, 130, MID%; NORMAL_INDICES%; Set Mesh Normal Indices
+;   VDU 23, 0, &A0, sid; &49, 130, mid; n; i0; ... :  Set Mesh Normal Indexes
     db 23,0,$A0
     dw SID
     db $49,130
@@ -116,14 +122,14 @@
     rst.lil $18
     ENDMACRO
 
-
+; CREATE OBJECT
     MACRO CO SID, OID, MID, BMID
     ld hl,@beg
     ld bc,@end-@beg
     rst.lil $18
     jp @end
 @beg:
-;   VDU 23,0, &A0, sid%; &49, 5, oid%; mid%; bmid%; Create Object
+;   VDU 23, 0, &A0, sid; &49, 5, oid; mid; bmid; :  Create Object
     db 23,0,$A0
     dw SID
     db $49,5
@@ -133,6 +139,7 @@
 @end:
     ENDMACRO
 
+; SET OBJECT XYZ SCALE FACTORS
     MACRO SO SID, OID, SCALEX, SCALEY, SCALEZ
     ld hl,@beg
     ld bc,@end-@beg
@@ -150,6 +157,7 @@
 @end:
     ENDMACRO
 
+; CREATE RENDER TARGET BITMAP
     MACRO CTB BMID, SCENE_WIDTH, SCENE_HEIGHT
     ld hl,@beg
     ld bc,@end-@beg
@@ -168,6 +176,7 @@
 @end:
     ENDMACRO
 
+; RENDER TO TARGET BITMAP
     MACRO RENDBMP SID, BMID
     ld hl,@beg
     ld bc,@end-@beg
@@ -182,6 +191,7 @@
 @end:
     ENDMACRO
 
+; DISPLAY RENDER TARGET BITMAP
     MACRO DISPBMP BMID, X, Y
     ld hl,@beg
     ld bc,@end-@beg
@@ -198,15 +208,11 @@
     ENDMACRO
 
 ; set pingo camera distance
-; inputs: hl sid, bc distx, de disty, iy distz
-scd:
-    ld a,l
-    ld (@sid),a
-    ld a,h
-    ld (@sid+1),a
-    ld (@camx),bc
-    ld (@camy),de
-    ld (@camz),iy
+; inputs: bc distx, de disty, iy distz
+scdabs:
+    ld (@x),bc
+    ld (@y),de
+    ld (@z),iy
     ld hl,@beg
     ld bc,@end-@beg
     rst.lil $18
@@ -214,36 +220,175 @@ scd:
 @beg:
 ;   360 VDU 23,0, &A0, sid%; &49, 25, distx; disty; distz; Set Camera XYZ Translation Distances
     db 23,0,$A0
-@sid: dw 0x0000
+    dw sid
     db $49,25
-@camx: dw 0x0000
-@camy: dw 0x0000
-@camz: dw 0x0000
+@x: dw 0x0000
+@y: dw 0x0000
+@z: dw 0x0000
 @end: db 0x00 ; padding
 
 ; set pingo camera rotation angkes
-; inputs: hl sid, bc anglex, de angley, iy anglez
-scr:
-    ld a,l
-    ld (@sid),a
-    ld a,h
-    ld (@sid+1),a
-    ld (@camrx),bc
-    ld (@camry),de
-    ld (@camrz),iy
+; inputs: bc anglex, de angley, iy anglez
+scrabs:
+    ld (@rx),bc
+    ld (@ry),de
+    ld (@rz),iy
     ld hl,@beg
     ld bc,@end-@beg
     rst.lil $18
     ret
 @beg:
 ; VDU 23, 0, &A0, sid; &49, 21, anglex; angley; anglez; : Set Camera XYZ Rotation Angles
+        db 23,0,$A0
+        dw sid
+        db $49,18
+@rx:    dw 0x0000
+@ry:    dw 0x0000
+@rz:    dw 0x0000
+@end:   db 0x00 ; padding
+
+; set pingo object distance
+; inputs: hl oid, bc distx, de disty, iy distz
+sodabs:
+    ld (@oid),hl
+    ld (@x),bc
+    ld (@y),de
+    ld (@z),iy
+    ld hl,@beg
+    ld bc,@end-@beg
+    rst.lil $18
+    ret
+@beg:
+; VDU 23, 0, &A0, sid; &49, 17, oid; distx; disty; distz; : Set Object XYZ Translation Distances
+        db 23, 0, $A0
+        dw sid
+        db $49, 17
+@oid:   dw 0
+@x:     dw 0
+@y:     dw 0
+@z:     dw 0
+@end:   db 0 ; padding
+
+; set pingo object rotation angkes
+; inputs: hl oid, bc anglex, de angley, iy anglez
+sorabs:
+    ld (@oid),hl
+    ld (@rx),bc
+    ld (@ry),de
+    ld (@rz),iy
+    ld hl,@beg
+    ld bc,@end-@beg
+    rst.lil $18
+    ret
+@beg:
+;  1120 VDU 23, 0, &A0, sid%; &49, 13, oid%; rx; ry; rz; Set Object XYZ Rotation Angles
+        db 23, 0, $A0
+        dw sid
+        db $49, 13
+@oid:   dw 0
+@rx:    dw 0
+@ry:    dw 0
+@rz:    dw 0
+@end:   db 0 ; padding
+
+; set pingo camera distance relative
+; inputs: bc distx, de disty, iy distz
+scdrel:
+    ld (@x),bc
+    ld (@y),de
+    ld (@z),iy
+    ld hl,@beg
+    ld bc,@end-@beg
+    rst.lil $18
+    ret
+@beg:
+;   360 VDU 23,0, &A0, sid%; &49, 153, distx; disty; distz; Set Camera XYZ Translation Distances Relative
     db 23,0,$A0
-@sid: dw 0x0000
-    db $49,18
-@camrx: dw 0x0000
-@camry: dw 0x0000
-@camrz: dw 0x0000
+    dw sid
+    db $49,153
+@x: dw 0x0000
+@y: dw 0x0000
+@z: dw 0x0000
 @end: db 0x00 ; padding
+
+; set pingo camera rotation angkes relative
+; inputs: bc anglex, de angley, iy anglez
+scrrel:
+    ld (@rx),bc
+    ld (@ry),de
+    ld (@rz),iy
+    ld hl,@beg
+    ld bc,@end-@beg
+    rst.lil $18
+    ret
+@beg:
+; VDU 23, 0, &A0, sid; &49, 149, anglex; angley; anglez; : Set Camera XYZ Rotation Angles Relative
+        db 23,0,$A0
+        dw sid
+        db $49,149
+@rx:    dw 0x0000
+@ry:    dw 0x0000
+@rz:    dw 0x0000
+@end:   db 0x00 ; padding
+
+; VDU 23, 0, &A0, sid; &49, 42, oid; : Rotate Camera Locally to track a specified object
+; inputs: hl oid
+cto:
+    ld (@oid),hl
+    ld hl,@beg
+    ld bc,@end-@beg
+    rst.lil $18
+    ret
+@beg:
+    db 23, 0, $A0
+    dw sid
+    db $49, 42
+@oid:   dw 0
+@end:   db 0 ; padding
+
+; set pingo object distance
+; inputs: hl oid, bc distx, de disty, iy distz
+sodrel:
+    ld (@oid),hl
+    ld (@x),bc
+    ld (@y),de
+    ld (@z),iy
+    ld hl,@beg
+    ld bc,@end-@beg
+    rst.lil $18
+    ret
+@beg:
+; VDU 23, 0, &A0, sid; &49, 145, oid; distx; disty; distz; : Set Object XYZ Translation Distances Relative
+        db 23, 0, $A0
+        dw sid
+        db $49, 145
+@oid:   dw 0
+@x:     dw 0
+@y:     dw 0
+@z:     dw 0
+@end:   db 0 ; padding
+
+; set pingo object rotation angkes
+; inputs: hl oid, bc anglex, de angley, iy anglez
+sorrel:
+    ld (@oid),hl
+    ld (@rx),bc
+    ld (@ry),de
+    ld (@rz),iy
+    ld hl,@beg
+    ld bc,@end-@beg
+    rst.lil $18
+    ret
+@beg:
+;  1120 VDU 23, 0, &A0, sid%; &49, 141, oid%; rx; ry; rz; Set Object XYZ Rotation Angles Relative
+        db 23, 0, $A0
+        dw sid
+        db $49, 141
+@oid:   dw 0
+@rx:    dw 0
+@ry:    dw 0
+@rz:    dw 0
+@end:   db 0 ; padding
 
 cycle_dithering:
     ld a,(dithering_type)
@@ -253,31 +398,26 @@ cycle_dithering:
     xor a
 @set:
     ld (dithering_type),a
-    ld hl,sid
 ; fall through to vdu_set_dither
 
 ; set dithering type
-; inputs: a = dithering type/optons, hl = sid
+; inputs: a = dithering type/optons
 ; dithering types bits 0-1: 00 none (default), 01 bayer ordered matrix, 10 floyd-steinberg
 vdu_set_dither:
 ; VDU 23, 0, &A0, sid; &49, 41, type
     ld (@dt),a
-    ld a,l
-    ld (@sid),a
-    ld a,h
-    ld (@sid+1),a
     ld hl,@beg
     ld bc,@end-@beg
     rst.lil $18
     ret
 @beg:
-    db 23,0,$A0
-@sid: dw 0x0000
-    db $49,41
-@dt: db 0x00
+        db 23,0,$A0
+        dw sid
+        db $49,41
+@dt:    db 0x00
 @end:
 
-move_object:
+move_object_abs:
     call printNewLine
 
     ld hl,(objx)
@@ -316,7 +456,7 @@ move_object:
 @z:     dw 0
 @end:   db 0 ; padding
 
-rotate_object:
+rotate_object_abs:
 ;  1080 objrx=objrx+objdrx: IF objrx>=pi2 THEN objrx=objrx-pi2
     ld hl,(objrx)
     ld de,(objdrx)
@@ -354,85 +494,7 @@ rotate_object:
 @rz:    dw 0
 @end:   db 0 ; padding
 
-
-move_object_local:
-    call printNewLine
-
-    ld hl,(objx)
-    ld de,(objdx)
-    add hl,de
-    ld (@x),de
-    ld (objx),hl
-    call printDec
-
-    ld hl,(objy)
-    ld de,(objdy)
-    add hl,de
-    ld (@y),de
-    ld (objy),hl
-    call printDec
-
-    ld hl,(objz)
-    ld de,(objdz)
-    add hl,de
-    ld (@z),de
-    ld (objz),hl
-    call printDec
-
-    ld hl,@beg
-    ld bc,@end-@beg
-    rst.lil $18
-    ret
-@beg:
-; VDU 23, 0, &A0, sid; &49, 145, oid; distx; disty; distz :  Set Object XYZ Translation Distances
-        db 23, 0, $A0
-        dw sid
-        db $49, 145
-        dw oid
-@x:     dw 0
-@y:     dw 0
-@z:     dw 0
-@end:   db 0 ; padding
-
-rotate_object_local:
-;  1080 objrx=objrx+objdrx: IF objrx>=pi2 THEN objrx=objrx-pi2
-    ld hl,(objrx)
-    ld de,(objdrx)
-    add hl,de
-    ld (@rx),de
-    ld (objrx),hl
-    call printDec
-;  1090 objry=objry+objdry: IF objry>=pi2 THEN objry=objry-pi2
-    ld hl,(objry)
-    ld de,(objdry)
-    add hl,de
-    ld (@ry),de
-    ld (objry),hl
-    call printDec
-;  1100 objrz=objrz+objdrz: IF objrz>=pi2 THEN objrz=objrz-pi2
-    ld hl,(objrz)
-    ld de,(objdrz)
-    add hl,de
-    ld (@rz),de
-    ld (objrz),hl
-    call printDec
-
-    ld hl,@beg
-    ld bc,@end-@beg
-    rst.lil $18
-    ret
-@beg:
-; VDU 23, 0, &A0, sid; &49, 141, oid; anglex; angley; anglez; :  Set Object XYZ Rotation Angles Local
-        db 23, 0, $A0
-        dw sid
-        db $49, 141
-        dw oid
-@rx:    dw 0
-@ry:    dw 0
-@rz:    dw 0
-@end:   db 0 ; padding
-
-rotate_camera:
+rotate_camera_abs:
     call printNewLine
 
 ;  1080 camrx=camrx+camdrx: IF camrx>=pi2 THEN camrx=camrx-pi2
@@ -471,7 +533,7 @@ rotate_camera:
 @rz:    dw 0
 @end:   db 0 ; padding
 
-move_camera:
+move_camera_abs:
     call printNewLine
 
     ld hl,(camx)
@@ -509,7 +571,85 @@ move_camera:
 @z:     dw 0
 @end:   db 0 ; padding
 
-rotate_camera_local:
+
+move_object_loc:
+    call printNewLine
+
+    ld hl,(objx)
+    ld de,(objdx)
+    add hl,de
+    ld (@x),de
+    ld (objx),hl
+    call printDec
+
+    ld hl,(objy)
+    ld de,(objdy)
+    add hl,de
+    ld (@y),de
+    ld (objy),hl
+    call printDec
+
+    ld hl,(objz)
+    ld de,(objdz)
+    add hl,de
+    ld (@z),de
+    ld (objz),hl
+    call printDec
+
+    ld hl,@beg
+    ld bc,@end-@beg
+    rst.lil $18
+    ret
+@beg:
+; VDU 23, 0, &A0, sid; &49, 145, oid; distx; disty; distz :  Set Object XYZ Translation Distances
+        db 23, 0, $A0
+        dw sid
+        db $49, 145
+        dw oid
+@x:     dw 0
+@y:     dw 0
+@z:     dw 0
+@end:   db 0 ; padding
+
+rotate_object_loc:
+;  1080 objrx=objrx+objdrx: IF objrx>=pi2 THEN objrx=objrx-pi2
+    ld hl,(objrx)
+    ld de,(objdrx)
+    add hl,de
+    ld (@rx),de
+    ld (objrx),hl
+    call printDec
+;  1090 objry=objry+objdry: IF objry>=pi2 THEN objry=objry-pi2
+    ld hl,(objry)
+    ld de,(objdry)
+    add hl,de
+    ld (@ry),de
+    ld (objry),hl
+    call printDec
+;  1100 objrz=objrz+objdrz: IF objrz>=pi2 THEN objrz=objrz-pi2
+    ld hl,(objrz)
+    ld de,(objdrz)
+    add hl,de
+    ld (@rz),de
+    ld (objrz),hl
+    call printDec
+
+    ld hl,@beg
+    ld bc,@end-@beg
+    rst.lil $18
+    ret
+@beg:
+; VDU 23, 0, &A0, sid; &49, 141, oid; anglex; angley; anglez; :  Set Object XYZ Rotation Angles Local
+        db 23, 0, $A0
+        dw sid
+        db $49, 141
+        dw oid
+@rx:    dw 0
+@ry:    dw 0
+@rz:    dw 0
+@end:   db 0 ; padding
+
+rotate_camera_loc:
     call printNewLine
 
     ld hl,(camrx)
@@ -547,7 +687,7 @@ rotate_camera_local:
 @rz:    dw 0
 @end:   db 0 ; padding
 
-move_camera_local:
+move_camera_loc:
     call printNewLine
 
     ld hl,(camx)
