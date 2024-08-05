@@ -1,6 +1,6 @@
    10 REM orientation.bas
    20 REM Sample app to show Pingo 3D axes on Agon
-   30 dist = 1 * 32767.0/256.0
+   30 dist = -4 * 32767.0/256.0
    40 REM -- VERTICES --
    50 arrow_vertices%=14
    60 DATA -1,0.1,-0.1, 0.5,0.1,-0.1
@@ -91,9 +91,9 @@
  6680 VDU 23, 0, &A0, sid%; &49, 9, oid1%; scale; scale; scale; : REM Set Object XYZ Scale Factors
  6682 VDU 23, 0, &A0, sid%; &49, 9, oid2%; scale; scale; scale; : REM Set Object XYZ Scale Factors
  6684 VDU 23, 0, &A0, sid%; &49, 9, oid3%; scale; scale; scale; : REM Set Object XYZ Scale Factors
- 6686 VDU 23, 0, &A0, sid; &48, 17, oid1; dist; dist; dist : REM Set Object XYZ Translation Distances
- 6687 VDU 23, 0, &A0, sid; &48, 17, oid2; dist; dist; dist : REM Set Object XYZ Translation Distances
- 6688 VDU 23, 0, &A0, sid; &48, 17, oid3; dist; dist; dist : REM Set Object XYZ Translation Distances
+ 6686 VDU 23, 0, &A0, sid%; &49, 17, oid1%; dist; dist; dist; : REM Set Object XYZ Translation Distances
+ 6687 VDU 23, 0, &A0, sid%; &49, 17, oid2%; dist; dist; dist; : REM Set Object XYZ Translation Distances
+ 6688 VDU 23, 0, &A0, sid%; &49, 17, oid3%; dist; dist; dist; : REM Set Object XYZ Translation Distances
  6690 PRINT "Create target bitmap"
  6700 VDU 23, 27, 0, bmido% : REM Select output bitmap
  6710 VDU 23, 27, 2, scene_width%; scene_height%; &0000; &00C0; : REM Create solid color bitmap
