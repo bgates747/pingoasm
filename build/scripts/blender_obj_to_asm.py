@@ -150,7 +150,7 @@ if __name__ == '__main__':
         # ['heavytank5', 'blenderaxes.png'],
         # ['navball','navball320x160.png']
         # ['LaraCroft', 'Lara.png']
-        ['wolf3d', 'thumb_12.png']
+        ['wolf_map', 'wolf_tex.png']
     ]
 
     for thing in do_these_things:
