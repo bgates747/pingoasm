@@ -43,11 +43,17 @@ push_a_button: db "Press any key to continue.",0
 
     include "app.inc"
 
+; control includes
     ; include "inputcam.inc"
     include "inputobj.inc"
+; end control includes
 
+; model includes
     include "heavytank5.asm"
     ; include "viking_mod.asm"
+    ; include "LaraCroft.asm"
+    ; include "crash.asm"
+; end model includes
 
 sid: equ 100
 mid: equ 1
