@@ -137,20 +137,12 @@ if __name__ == '__main__':
 
     # base_filename, uv_texture_png
     do_these_things = [
-        # ['cube', '2x2.png'],
-        # ['sliced', '2x2.png'],
-        # ['earthico', 'earthico160x76.png'],
-        # ['earthico1', 'earthico160x76.png'],
-        # ['earthico2', 'earthico160x76.png'],
-        # ['heavytank', 'ferdinand.png'],
-        # ['larasm', 'Lara.png'],
-        # ['Lara','Lara.png'],
-        # ['glock', 'glock.png'],
         # ['viking_mod', 'viking.png'],
         # ['heavytank5', 'blenderaxes.png'],
         # ['navball','navball320x160.png']
         # ['LaraCroft', 'Lara.png']
-        ['wolf_map', 'wolf_tex.png']
+        # ['wolf_map', 'wolf_tex.png']
+        ['crash', 'crashtex.png']
     ]
 
     for thing in do_these_things:
