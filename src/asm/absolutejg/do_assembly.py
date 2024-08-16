@@ -29,7 +29,7 @@ def process_and_assemble(filepath):
             working_lines = lines[:]
 
             # Uncomment the current line
-            working_lines[j] = working_lines[j].lstrip(';')
+            working_lines[j] = '    ' + working_lines[j].lstrip('; ')
 
             # Debug print the current line being processed
             print(f"Processing: {working_lines[j].strip()}")
