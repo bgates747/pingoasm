@@ -53,6 +53,7 @@ push_a_button: db "Press any key to continue.",0
     include "navball.inc"
     ; include "viking_mod.inc"
     ; include "wolf_map.inc"
+    ; include "heavytank5.inc"
 ; end model includes
 
 sid: equ 100

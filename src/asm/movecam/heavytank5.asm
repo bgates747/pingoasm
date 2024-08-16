@@ -44,16 +44,16 @@ push_a_button: db "Press any key to continue.",0
     include "vdu_pingo.inc"
 
 ; control includes
-    ; include "inputcam.inc"
-    include "inputobj.inc"; end control includes
+    include "inputcam.inc"    ; include "inputobj.inc"
+; end control includes
 
 ; model includes
 ;    ; include "crash.inc"
 ;    ; include "LaraCroft.inc"
-    include "navball.inc"
-    ; include "viking_mod.inc"
-    ; include "wolf_map.inc"
-    ; include "heavytank5.inc"
+;    ; include "navball.inc"
+;    ; include "viking_mod.inc"
+;    ; include "wolf_map.inc"
+    include "heavytank5.inc"
 ; end model includes
 
 sid: equ 100
