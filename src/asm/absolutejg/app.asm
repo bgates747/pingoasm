@@ -49,7 +49,7 @@ push_a_button: db "Press any key to continue.",0
 ; end control includes
 
 ; model includes
-    include "heavytank5.asm"
+    ; include "heavytank5.asm"
     ; include "viking_mod.asm"
     ; include "LaraCroft.asm"
     ; include "crash.asm"
