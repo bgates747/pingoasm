@@ -38,12 +38,18 @@ exit:
 
     ret 
 
+vdp_version: db "pingo3Djg2.9.2Alpha1",0
+push_a_button: db "Press any key to continue.",0
+
     include "app.inc"
 
-    include "inputcam.inc"
-    ; include "inputobj.inc"
+; control includes
+    ; include "inputcam.inc"
+    include "inputobj.inc"
+; end control includes
 
-    include "heavytank5.asm"
+; model includes
+    ; include "heavytank5.asm"
     ; include "viking_mod.asm"
     ; include "navball.asm"
     ; include "LaraCroft.asm"
@@ -101,8 +107,15 @@ filetype: equ 0 ; rgba8
 dithering_type: db 0x00 ; 0=none, 1=bayer ordered matrix, 2=floyd-steinberg
 
 main:
-;    ld a,8+128 ; 320x240x64 double-buffered
-;    call vdu_set_screen_mode
+; print version
+    ld hl,vdp_version
+    call printString
+    call printNewLine
+    
+; wait for keypress
+    ld hl,push_a_button
+    call printString
+    call waitKeypress
 
 ; load image file to a buffer and make it a bitmap
     ld a,filetype
@@ -127,11 +140,11 @@ smvi:
 
 ; create texture coordinates
 stc:
-    STC sid, mid, model_uvs, model_uvs_n
+    STC sid, oid, model_uvs, model_uvs_n
 
 ; create texture coordinate indices
 stci:
-    STCI sid, mid, model_uv_indices, model_indices_n
+    STCI sid, oid, model_uv_indices, model_indices_n
 
 ; ; create normals
 ; sn:
@@ -228,7 +241,7 @@ get_input_return:
     ; call move_object_abs
 
     ld hl,oid
-    call cto ; camera track object
+    ; call cto ; camera track object
 
     ; call printNewLine
     ; ld a,(dithering_type)

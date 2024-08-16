@@ -50,36 +50,36 @@
     rst.lil $18
     ENDMACRO
 
-; DEFINE MESH TEXTURE COORDINATES
-    MACRO STC SID, MID, UVS, UVS_N
+; DEFINE OBJECT TEXTURE COORDINATES
+    MACRO STC SID, OID, UVS, UVS_N
     ld hl,@beg
     ld bc,@end-@beg
     rst.lil $18
     jp @end
 @beg:
-;   VDU 23, 0, &A0, sid; &49, 3, mid; n; u0; v0; ... :  Define Mesh Texture Coordinates
+;   VDU 23, 0, &A0, sid; &49, 3, oid; n; u0; v0; ... :  Define Object Texture Coordinates
     db 23,0,$A0
     dw SID
     db $49,3
-    dw MID, UVS_N
+    dw OID, UVS_N
 @end:
     ld hl,UVS
     ld bc,UVS_N*4 ; 2 coordinates per uv, 2 bytes per coordinate
     rst.lil $18
     ENDMACRO
 
-; SET MESH TEXTURE COORDINATE INDEXES
-    MACRO STCI SID, MID, UV_INDICES, INDICES_N
+; SET OBJECT TEXTURE COORDINATE INDEXES
+    MACRO STCI SID, OID, UV_INDICES, INDICES_N
     ld hl,@beg
     ld bc,@end-@beg
     rst.lil $18
     jp @end
 @beg:
-;   VDU 23, 0, &A0, sid; &49, 4, mid; n; i0; ... :  Set Texture Coordinate Indexes
+;   VDU 23, 0, &A0, sid; &49, 4, oid; n; i0; ... :  Set Object Texture Coordinate Indexes
     db 23,0,$A0
     dw SID
     db $49,4
-    dw MID, INDICES_N
+    dw OID, INDICES_N
 @end:
     ld hl,UV_INDICES
     ld bc,INDICES_N*2 ; 2 bytes per index

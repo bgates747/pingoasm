@@ -45,7 +45,7 @@ push_a_button: db "Press any key to continue.",0
 
 ; control includes
     ; include "inputcam.inc"
-    include "inputobj.inc"
+    ; include "inputobj.inc"
 ; end control includes
 
 ; model includes
@@ -67,10 +67,10 @@ csth: equ 160 ; 128
 cstx: equ 40  ; 32
 csty: equ 32  ; 20
 
-camd: equ 128*1 ; 32767/256 * bar
+camd: equ 32*1 ; 32767/256 * bar
 camx: dl  0*camd
 camy: dl  0*camd
-camz: dl -3*camd
+camz: dl  0*camd
 
 camdx: dl 0x000000
 camdy: dl 0x000000
@@ -94,10 +94,10 @@ objrx: dl 0
 objry: dl 0
 objrz: dl 0
 
-objd: equ 128*1 ; 32767/256 * bar
+objd: equ 32*1 ; 32767/256 * bar
 objx: dl 0*objd
 objy: dl 0 ; -42 ; -1/3*objd
-objz: dl -5*objd
+objz: dl -10*objd
 
 objdx: dl 0x000000
 objdy: dl 0x000000
