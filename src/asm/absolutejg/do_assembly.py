@@ -1,14 +1,25 @@
 import os
 import subprocess
 
-def process_file(filepath):
+def comment_all_lines(lines, start_idx, end_idx):
+    """Comment out all lines in the block."""
+    for i in range(start_idx, end_idx):
+        if not lines[i].strip().startswith(';'):
+            lines[i] = f";{lines[i]}"
+
+def process_and_assemble(filepath):
+    # Read the original file and save its contents in memory
     with open(filepath, 'r') as file:
-        lines = file.readlines()
+        original_lines = file.readlines()
+
+    # Make a working copy of the original lines
+    lines = original_lines[:]
 
     in_block = False
     start_idx = None
     end_idx = None
 
+    # Identify the block to process
     for i, line in enumerate(lines):
         if line.strip().startswith('; model includes'):
             in_block = True
@@ -18,18 +29,31 @@ def process_file(filepath):
             break
 
     if in_block and start_idx is not None and end_idx is not None:
-        # Uncomment the first include line if it's commented
-        if lines[start_idx].strip().startswith(';'):
-            lines[start_idx] = lines[start_idx].replace(';', '', 1)
+        # Comment out all lines in the block first
+        comment_all_lines(lines, start_idx, end_idx)
 
-        # Comment all other lines in the block
-        for j in range(start_idx + 1, end_idx):
-            if not lines[j].strip().startswith(';'):
-                lines[j] = f";{lines[j]}"
+        # Process each line in the block
+        for j in range(start_idx, end_idx):
+            # Uncomment the current line
+            lines[j] = lines[j].lstrip(';')
 
-    # Write back the changes to the file
+            # Extract the base file name for the bin output file
+            include_file = lines[j].strip().split('"')[1]  # Extract the file name inside quotes
+            output_file = os.path.splitext(os.path.basename(include_file))[0] + ".bin"
+
+            # Write the modified lines back to the file
+            with open(filepath, 'w') as file:
+                file.writelines(lines)
+
+            # Assemble the program
+            assemble_program(filepath, output_file)
+
+            # Re-comment the current line before moving to the next one
+            lines[j] = f";{lines[j]}"
+
+    # Restore the original file
     with open(filepath, 'w') as file:
-        file.writelines(lines)
+        file.writelines(original_lines)
 
 def assemble_program(asm_filepath, output_filename):
     # Save the current working directory
@@ -52,7 +76,6 @@ def assemble_program(asm_filepath, output_filename):
 
 if __name__ == "__main__":
     asm_file_path = "src/asm/absolutejg/app.asm"
-    output_file = "includename.bin"
 
-    process_file(asm_file_path)
-    assemble_program(asm_file_path, output_file)
+    # Process the file and assemble each include file
+    process_and_assemble(asm_file_path)
