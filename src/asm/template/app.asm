@@ -38,7 +38,7 @@ exit:
 
     ret 
 
-vdp_version: db "pingo3Djg2.9.2Alpha2",0
+vdp_version: db "pingo3Dbrg2.9.2Alpha2",0
 push_a_button: db "Press any key to continue.",0
 
     include "vdu_pingo.inc"
@@ -60,7 +60,8 @@ push_a_button: db "Press any key to continue.",0
 sid: equ 100
 mid: equ 1
 oid: equ 1
-obj_scale: equ 256
+scale_factor: equ 1
+obj_scale: equ 256*scale_factor
 objbmid: equ 256
 tgtbmid: equ 257
 
@@ -69,7 +70,7 @@ csth: equ 160 ; 128
 cstx: equ 40  ; 32
 csty: equ 32  ; 20
 
-camd: equ 32*1 ; 32767/256 * bar
+camd: equ 4*scale_factor ; 32767/256 * bar
 camx: dl  0*camd
 camy: dl  0*camd
 camz: dl  0*camd
@@ -96,7 +97,7 @@ objrx: dl 0
 objry: dl 0
 objrz: dl 0
 
-objd: equ 32*1 ; 32767/256 * foo
+objd: equ 4*scale_factor ; 32767/256 * foo
 objx: dl 0*objd
 objy: dl 0*objd
 objz: dl -10*objd
