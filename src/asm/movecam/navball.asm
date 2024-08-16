@@ -38,7 +38,7 @@ exit:
 
     ret 
 
-vdp_version: db "pingo3Djg2.9.2Alpha1",0
+vdp_version: db "pingo3Djg2.9.2Alpha2",0
 push_a_button: db "Press any key to continue.",0
 
     include "vdu_pingo.inc"
