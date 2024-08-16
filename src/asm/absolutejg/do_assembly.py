@@ -1,12 +1,6 @@
 import os
 import subprocess
 
-def comment_all_lines(lines, start_idx, end_idx):
-    """Comment out all lines in the block."""
-    for i in range(start_idx, end_idx):
-        if not lines[i].strip().startswith(';'):
-            lines[i] = f";{lines[i]}"
-
 def process_and_assemble(filepath):
     # Read the original file and save its contents in memory
     with open(filepath, 'r') as file:
@@ -29,27 +23,34 @@ def process_and_assemble(filepath):
             break
 
     if in_block and start_idx is not None and end_idx is not None:
-        # Comment out all lines in the block first
-        comment_all_lines(lines, start_idx, end_idx)
-
         # Process each line in the block
         for j in range(start_idx, end_idx):
+            # Work with a fresh copy of the lines each time
+            working_lines = lines[:]
+
             # Uncomment the current line
-            lines[j] = lines[j].lstrip(';')
+            working_lines[j] = working_lines[j].lstrip(';')
+
+            # Debug print the current line being processed
+            print(f"Processing: {working_lines[j].strip()}")
 
             # Extract the base file name for the bin output file
-            include_file = lines[j].strip().split('"')[1]  # Extract the file name inside quotes
+            include_file = working_lines[j].strip().split('"')[1]  # Extract the file name inside quotes
             output_file = os.path.splitext(os.path.basename(include_file))[0] + ".bin"
 
             # Write the modified lines back to the file
             with open(filepath, 'w') as file:
-                file.writelines(lines)
+                file.writelines(working_lines)
 
             # Assemble the program
-            assemble_program(filepath, output_file)
+            try:
+                assemble_program(filepath, output_file)
+            except subprocess.CalledProcessError as e:
+                print(f"Error during assembly of {include_file}: {e}")
+                break  # Exit the loop if there's an error
 
-            # Re-comment the current line before moving to the next one
-            lines[j] = f";{lines[j]}"
+            # Re-comment the current line in the original copy
+            lines[j] = f";{lines[j].lstrip(';')}"
 
     # Restore the original file
     with open(filepath, 'w') as file:
