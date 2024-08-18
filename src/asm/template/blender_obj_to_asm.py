@@ -147,7 +147,7 @@ if __name__ == '__main__':
         ['checkerboard', 'checkerboard.png'],
         ['trirainbow', 'trirainbow.png'],
         ['cow', 'checkerboard.png'],
-        ['jet', 'jet_uv.png'],
+        ['jet', 'jet.png'],
     ]
 
     # delete the build directory and recreate it

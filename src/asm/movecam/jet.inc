@@ -3999,4 +3999,4 @@ model_normal_indices:
 	dw 343, 343, 343
 	dw 344, 344, 344
 
-model_texture: db "jet_uv.rgba8",0
+model_texture: db "jet.rgba8",0
