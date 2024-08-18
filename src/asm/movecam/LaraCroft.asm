@@ -38,13 +38,14 @@ exit:
 
     ret 
 
-vdp_version: db "pingo3Dbrg2.9.2Alpha2",0
+vdp_version: db "Pingo 3D BRG 2.9.2 Alpha 4",0
 push_a_button: db "Press any key to continue.",0
 
     include "vdu_pingo.inc"
 
 ; control includes
     include "inputcam.inc"    ; include "inputobj.inc"
+    ; include "inputair.inc"
 ; end control includes
 
 ; model includes
@@ -52,15 +53,18 @@ push_a_button: db "Press any key to continue.",0
     include "LaraCroft.inc"
     ; include "navball.inc"
     ; include "viking_mod.inc"
-    ; include "wolf_map.inc"
     ; include "heavytank5.inc"
+    ; include "ship.inc"
+    ; include "checkerboard.inc"
+    ; include "trirainbow.inc"
+    ; include "cow.inc"
+    ; include "jet.inc"
 ; end model includes
 
 sid: equ 100
 mid: equ 1
 oid: equ 1
-scale_factor: equ 1
-obj_scale: equ 256*scale_factor
+obj_scale: equ 256
 objbmid: equ 256
 tgtbmid: equ 257
 
@@ -69,7 +73,7 @@ csth: equ 160 ; 128
 cstx: equ 40  ; 32
 csty: equ 32  ; 20
 
-camd: equ 4*scale_factor ; 32767/256 * bar
+camd: equ 32*1 ; 32767/256 * bar
 camx: dl  0*camd
 camy: dl  0*camd
 camz: dl  0*camd
@@ -96,10 +100,10 @@ objrx: dl 0
 objry: dl 0
 objrz: dl 0
 
-objd: equ 4*scale_factor ; 32767/256 * foo
+objd: equ 32*1 ; 32767/256 * bar
 objx: dl 0*objd
-objy: dl 0*objd
-objz: dl -10*objd
+objy: dl 0 ; -42 ; -1/3*objd
+objz: dl -20*objd
 
 objdx: dl 0x000000
 objdy: dl 0x000000
@@ -115,10 +119,11 @@ main:
     call printString
     call printNewLine
     
-; wait for keypress
-    ld hl,push_a_button
-    call printString
-    call waitKeypress
+; ; TODO: fix this
+; ; wait for keypress
+;     ld hl,push_a_button
+;     call printString
+;     call waitKeypress
 
 ; load image file to a buffer and make it a bitmap
     ld a,filetype

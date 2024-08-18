@@ -143,6 +143,11 @@ if __name__ == '__main__':
         ['LaraCroft', 'Lara.png'],
         ['wolf_map', 'wolf_tex.png'],
         ['crash', 'crashtex.png'],
+        ['ship', 'ship_1c.png'],
+        ['checkerboard', 'checkerboard.png'],
+        ['trirainbow', 'trirainbow.png'],
+        ['cow', 'checkerboard.png'],
+        ['jet', 'jet_uv.png'],
     ]
 
     # delete the build directory and recreate it
