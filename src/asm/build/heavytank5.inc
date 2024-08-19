@@ -4,7 +4,7 @@ model_uvs_n: equ 88
 model_normals_n: equ 21
 model_texture_width: equ 34
 model_texture_height: equ 34
-model_texture_size: equ 4624
+model_texture_size: equ 1156
 
 ; -- VERTICES --
 model_vertices:
@@ -307,4 +307,4 @@ model_normal_indices:
 	dw 19, 19, 19
 	dw 20, 20, 20
 
-model_texture: db "blenderaxes.rgba8",0
+model_texture: db "blenderaxes.rgba2",0

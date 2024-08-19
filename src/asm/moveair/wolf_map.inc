@@ -4,7 +4,7 @@ model_uvs_n: equ 638
 model_normals_n: equ 4
 model_texture_width: equ 160
 model_texture_height: equ 160
-model_texture_size: equ 102400
+model_texture_size: equ 25600
 
 ; -- VERTICES --
 model_vertices:
@@ -1978,4 +1978,4 @@ model_normal_indices:
 	dw 1, 1, 1
 	dw 1, 1, 1
 
-model_texture: db "wolf_tex.rgba8",0
+model_texture: db "wolf_tex.rgba2",0

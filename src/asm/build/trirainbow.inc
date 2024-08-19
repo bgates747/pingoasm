@@ -4,7 +4,7 @@ model_uvs_n: equ 20
 model_normals_n: equ 6
 model_texture_width: equ 277
 model_texture_height: equ 240
-model_texture_size: equ 265920
+model_texture_size: equ 66480
 
 ; -- VERTICES --
 model_vertices:
@@ -94,4 +94,4 @@ model_normal_indices:
 	dw 4, 4, 4
 	dw 5, 5, 5
 
-model_texture: db "trirainbow.rgba8",0
+model_texture: db "trirainbow.rgba2",0

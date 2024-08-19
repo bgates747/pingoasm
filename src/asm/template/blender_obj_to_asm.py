@@ -1,11 +1,11 @@
-from agonImages import img_to_rgba8
+from agonImages import img_to_rgba2
 from PIL import Image as pil
 import os
 import shutil
 import os
 from PIL import Image as pil
 
-def write_data(base_filename, vertices, faces, texture_coords, texture_vertex_indices, normals, normal_indices, tgt_filepath, uv_texture_rgba8, img_size):
+def write_data(base_filename, vertices, faces, texture_coords, texture_vertex_indices, normals, normal_indices, tgt_filepath, uv_texture_rgba2, img_size):
     # Write header data to the target file
     with open(tgt_filepath, 'w') as file:
         file.write(f'model_indices_n: equ {len(faces) * 3}\n')
@@ -13,7 +13,7 @@ def write_data(base_filename, vertices, faces, texture_coords, texture_vertex_in
         file.write(f'model_uvs_n: equ {len(texture_coords)}\n')
         file.write(f'model_normals_n: equ {len(normals)}\n')
 
-        with open(uv_texture_rgba8, 'rb') as img_file:
+        with open(uv_texture_rgba2, 'rb') as img_file:
             img_data = img_file.read()
             img_width, img_height = img_size
             filesize = len(img_data)
@@ -68,14 +68,14 @@ def write_data(base_filename, vertices, faces, texture_coords, texture_vertex_in
         for item in normal_indices:
             file.write(f'\tdw {", ".join(map(str, item))}\n')
 
-        file.write(f'\nmodel_texture: db "{os.path.basename(uv_texture_rgba8)}",0\n')
+        file.write(f'\nmodel_texture: db "{os.path.basename(uv_texture_rgba2)}",0\n')
 
 def make_texture_rgba(uv_texture_png):
-    uv_texture_rgba8 = uv_texture_png.replace('.png', '.rgba8')
+    uv_texture_rgba2 = uv_texture_png.replace('.png', '.rgba2')
     img = pil.open(uv_texture_png)
     img_size = img.size
-    img_to_rgba8(img, uv_texture_rgba8)
-    return img_size, uv_texture_rgba8
+    img_to_rgba2(img, uv_texture_rgba2)
+    return img_size, uv_texture_rgba2
 
 def sanitize_uv(coord):
     coord = round(coord, 6)
@@ -160,17 +160,17 @@ if __name__ == '__main__':
         tgt_filepath = f'{build_dir}/{base_filename}.inc'
         obj_filepath = f'{src_dir}/{base_filename}.obj'
 
-        img_size, uv_texture_rgba8 = make_texture_rgba(f'{src_dir}/{uv_texture_png}')
-        # copy rgba8 file from source to target directory
-        rgba8_base_filename = os.path.basename(uv_texture_rgba8)
-        shutil.copyfile(f'{uv_texture_rgba8}', f'{build_dir}/{rgba8_base_filename}')
+        img_size, uv_texture_rgba2 = make_texture_rgba(f'{src_dir}/{uv_texture_png}')
+        # copy rgba2 file from source to target directory
+        rgba2_base_filename = os.path.basename(uv_texture_rgba2)
+        shutil.copyfile(f'{uv_texture_rgba2}', f'{build_dir}/{rgba2_base_filename}')
         # copy png file from source to target directory
         shutil.copyfile(f'{src_dir}/{uv_texture_png}', f'{build_dir}/{uv_texture_png}')
         
         # Parse the .obj file
         vertices, faces, texture_coords, texture_vertex_indices, normals, normal_indices = parse_obj_file(obj_filepath)
 
-        write_data(base_filename, vertices, faces, texture_coords, texture_vertex_indices, normals, normal_indices, tgt_filepath, uv_texture_rgba8, img_size)
+        write_data(base_filename, vertices, faces, texture_coords, texture_vertex_indices, normals, normal_indices, tgt_filepath, uv_texture_rgba2, img_size)
 
         print(f'Modified code has been written to {tgt_filepath}')
 

@@ -956,65 +956,6 @@ vdu_set_screen_mode:
 @arg: db 0  ; screen mode parameter
 @end:
 
-; convert an uploaded rgba2222 image to an rgba8888 image
-; https://discord.com/channels/1158535358624039014/1158536711148675072/1257757461729771771
-; ok, so the "expand bitmap" can be used, when coupled with a "reverse" - the expanded bitmap _doesn't_ come out "right" otherwise, cos of endian-ness
-; the "expand bitmap" command is:
-; VDU 23,0,&A0,targetBufferID%;&48,2,sourceBufferId%;0,&7F,&BF,&FF
-; and then to reverse the byte order to fix endian-ness:
-; VDU 23,0,&A0,targetBufferID%;24,4,4;
-; finally you'd need to set that buffer to be an RGBA8888 format bitmap:
-; VDU 23,27,&20,targetBufferID%;
-; VDU 23,27,&21,width%;height%;0
-; inputs: hl=BufferId, bc=width, de=height
-; prerequisites: buffer loaded with rgba2222 data and consolidated with `VDU 23, 0, &A0, bufferId; 14` (which vdu_load_img does)
-vdu_rgba2_to_8:
-; load bufferIds
-    ld a,l
-    ld (@sourceBufferId),a
-    ld (@targetBufferID0),a
-    ld (@targetBufferID1),a
-    ld (@targetBufferID2),a
-    ld a,h
-    ld (@sourceBufferId+1),a
-    ld (@targetBufferID0+1),a
-    ld (@targetBufferID1+1),a
-    ld (@targetBufferID2+1),a
-; load width and height
-    ld (@width),bc
-    ld (@height),de
-; load image format (rgba8888)
-    xor a ; zero
-    ld (@fmt),a
-    ld hl,@cmd
-    ld bc,@end-@cmd
-    rst.lil $18
-    ret
-; VDU 23,0,&A0,targetBufferID%;&48,2,sourceBufferId%;0,&7F,&BF,&FF
-@cmd:       db 23,0,0xA0
-@targetBufferID0:  
-            dw 0x0000
-            db 0x48, 2 ; expand bitmap
-@sourceBufferId:            
-            dw 0x0000 ; source buffer
-            db 0x00,0x7F,0xBF,0xFF ; deep magic
-; VDU 23,0,&A0,targetBufferID%;24,4,4;
-            db 23,0,0xA0
-@targetBufferID1:  
-            dw 0x0000
-            db 24,4,4 ; moar deep magic
-; TODO: this call may be redundant if we got here from vdu_load_img
-; VDU 23,27,&20,targetBufferID%; : Select bitmap (using a buffer ID)
-            db 23,27,0x20
-@targetBufferID2:  
-            dw 0x0000
-; VDU 23,27,&21,width%;height%;0
-            db 23,27,0x21
-@width:     dw 0x0000
-@height:    dw 0x0000
-@fmt:       db 0x00 ; rgba8888
-@end:
-
 ; VDU 23, 0, &C0, n: Turn logical screen scaling on and off *
 ; inputs: a is scaling mode, 1=on, 0=off
 ; note: default setting on boot is scaling ON
@@ -1048,10 +989,7 @@ vdu_buff_select:
 ; 1 	RGBA2222 (1-bytes per pixel)
 ; 2 	Mono/Mask (1-bit per pixel)
 ; 3 	Reserved for internal use by VDP (“native” format)
-; 129   RGBA2222 to RGBA8888 (requires a series of VDU commands implemented here by vdu_rgba2_to_8)
 vdu_bmp_create:
-    cp 129 ; special case for converting rgba2222 to rgba8888
-    jp z,vdu_rgba2_to_8 ; returns to caller from there
     ld (@width),bc
     ld (@height),de
     ld (@fmt),a
@@ -1064,11 +1002,6 @@ vdu_bmp_create:
 @height:    dw 0x0000
 @fmt:       db 0x00
 @end:
-
-; &E8-&EF 	232-239 	Bitmap plot §
-plot_bmp: equ 0xE8
-; 5 	Plot absolute in current foreground colour
-dr_abs_fg: equ 5
 
 ; https://agonconsole8.github.io/agon-docs/VDP---PLOT-Commands.html
 ; &E8-&EF 	232-239 	Bitmap plot §
@@ -1087,6 +1020,94 @@ vdu_plot_bmp:
 @x0: 	dw 0x0000
 @y0: 	dw 0x0000
 @end:   db 0x00 ; padding
+
+; load an rgba2222 image file to a working buffer and make it an rgba8888 bitmap in a target buffer
+; inputs: bc,de image width,height ; hl = targetBufferId ; ix = file size ; iy = pointer to filename
+vdu_load_img_rgba2_to_8:
+; backup the target buffer id and image dimensions
+    push hl
+    push de
+    push bc
+; load the rgba2 image to working buffer 65534
+    ld hl,65534 ; temporary working buffer id
+	call vdu_load_buffer_from_file
+; restore the image dimensions and target buffer id
+    pop bc
+    pop de
+    pop hl
+; fall through to vdu_rgba2_to_8
+
+; https://discord.com/channels/1158535358624039014/1158536711148675072/1257757461729771771
+; ok, so the "expand bitmap" can be used, when coupled with a "reverse" - the expanded bitmap _doesn't_ come out "right" otherwise, cos of endian-ness
+; the "expand bitmap" command is:
+; VDU 23,0,&A0,targetBufferID%;&48,2,sourceBufferId%;0,&7F,&BF,&FF
+; and then to reverse the byte order to fix endian-ness:
+; VDU 23,0,&A0,targetBufferID%;24,4,4;
+; finally you'd need to set that buffer to be an RGBA8888 format bitmap:
+; VDU 23,27,&20,targetBufferID%;
+; VDU 23,27,&21,width%;height%;0
+; -------------------------------------------------------------------
+; inputs: bc,de image width,height ; hl = targetBufferId
+; prerequisites: rgba2 image data loaded into workingBufferId 65534
+vdu_rgba2_to_8:
+; load the image dimensions and buffer id parameters
+    ld (@width),bc
+    ld (@height),de
+    ld (@bufferId0),hl
+    ld (@bufferId2),hl
+    ld (@bufferId1),hl
+; clean up bytes that got stomped on by the ID loads
+    ld a,0x48
+    ld (@bufferId0+2),a
+    ld a,23
+    ld (@bufferId1+2),a
+    ld a,24
+    ld (@bufferId2+2),a
+    xor a
+    ld (@height+2),a
+; send the vdu command strings
+    ld hl,@beg
+    ld bc,@end-@beg
+    rst.lil $18
+    ret
+@beg:
+; Command 14: Consolidate blocks in a buffer
+; VDU 23, 0, &A0, bufferId; 14
+    db 23,0,0xA0
+    dw 65534 ; workingBufferId
+    db 14 ; consolidate blocks
+; the "expand bitmap" command is:
+; VDU 23,0,&A0,targetBufferID%;&48,2,sourceBufferId%;0,&7F,&BF,&FF
+    db 23,0,0xA0
+@bufferId0: dw 0x0000 ; targetBufferId
+    db 0x48 ; given as decimal command 72 in the docs
+    db 2 ; options mask: %00000011 is the number of bits per pixel in the source bitmap
+    dw 65534 ; sourceBufferId
+    db 0x00,0x7F,0xBF,0xFF ; expanding to bytes by bit-shifting?
+; reverse the byte order to fix endian-ness:
+; Command 24: Reverse the order of data of blocks within a buffer
+; VDU 23, 0, &A0, bufferId; 24, options, [valueSize;] [chunkSize;]
+; VDU 23,0,&A0,targetBufferID%;24,4,4;
+    db 23,0,0xA0
+@bufferId2:    dw 0x0000 ; targetBufferId
+    db 24 ; reverse byte order
+    db 4 ; option: Reverse data of the value size within chunk of data of the specified size
+    dw 4 ; size (4 bytes)
+; finally you'd need to set that buffer to be an RGBA8888 format bitmap:
+; VDU 23,27,&20,targetBufferID%;
+    db 23,27,0x20 ; select bitmap
+@bufferId1: dw 0x0000 ; targetBufferId
+; VDU 23,27,&21,width%;height%;0
+    db 23,27,0x21 ; create bitmap from buffer
+@width: dw 0x0000
+@height: dw 0x0000
+    db 0x00 ; rgba8888 format
+@end:
+
+; &E8-&EF 	232-239 	Bitmap plot §
+plot_bmp: equ 0xE8
+; 5 	Plot absolute in current foreground colour
+dr_abs_fg: equ 5
 
 ; inputs: hl = bufferId, ix = file size ; iy = pointer to filename
 vdu_load_buffer_from_file:

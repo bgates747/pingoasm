@@ -100,6 +100,6 @@ if __name__ == "__main__":
     inputair_dir = "src/asm/moveair"
 
     # Process the file and assemble each include file
-    process_and_assemble(asm_template_dir, asm_template_filepath, build_dir, 'cam', inputcam_dir)
-    process_and_assemble(asm_template_dir, asm_template_filepath, build_dir, 'obj', inputobj_dir)
+    # process_and_assemble(asm_template_dir, asm_template_filepath, build_dir, 'cam', inputcam_dir)
+    # process_and_assemble(asm_template_dir, asm_template_filepath, build_dir, 'obj', inputobj_dir)
     process_and_assemble(asm_template_dir, asm_template_filepath, build_dir, 'air', inputair_dir)

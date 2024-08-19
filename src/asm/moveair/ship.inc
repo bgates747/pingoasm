@@ -4,7 +4,7 @@ model_uvs_n: equ 253
 model_normals_n: equ 154
 model_texture_width: equ 16
 model_texture_height: equ 16
-model_texture_size: equ 1024
+model_texture_size: equ 256
 
 ; -- VERTICES --
 model_vertices:
@@ -1748,4 +1748,4 @@ model_normal_indices:
 	dw 139, 139, 139
 	dw 140, 140, 140
 
-model_texture: db "ship_1c.rgba8",0
+model_texture: db "ship_1c.rgba2",0

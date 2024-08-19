@@ -4,7 +4,7 @@ model_uvs_n: equ 3561
 model_normals_n: equ 2400
 model_texture_width: equ 256
 model_texture_height: equ 256
-model_texture_size: equ 262144
+model_texture_size: equ 65536
 
 ; -- VERTICES --
 model_vertices:
@@ -20023,4 +20023,4 @@ model_normal_indices:
 	dw 2398, 2398, 2398
 	dw 2399, 2399, 2399
 
-model_texture: db "viking.rgba8",0
+model_texture: db "viking.rgba2",0

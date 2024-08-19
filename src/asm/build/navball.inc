@@ -4,7 +4,7 @@ model_uvs_n: equ 559
 model_normals_n: equ 530
 model_texture_width: equ 320
 model_texture_height: equ 160
-model_texture_size: equ 204800
+model_texture_size: equ 51200
 
 ; -- VERTICES --
 model_vertices:
@@ -4475,4 +4475,4 @@ model_normal_indices:
 	dw 510, 510, 510
 	dw 511, 511, 511
 
-model_texture: db "navball320x160.rgba8",0
+model_texture: db "navball320x160.rgba2",0

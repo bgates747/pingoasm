@@ -4,7 +4,7 @@ model_uvs_n: equ 4
 model_normals_n: equ 1
 model_texture_width: equ 256
 model_texture_height: equ 256
-model_texture_size: equ 262144
+model_texture_size: equ 65536
 
 ; -- VERTICES --
 model_vertices:
@@ -39,4 +39,4 @@ model_normal_indices:
 	dw 0, 0, 0
 	dw 0, 0, 0
 
-model_texture: db "checkerboard.rgba8",0
+model_texture: db "checkerboard.rgba2",0

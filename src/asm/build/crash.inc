@@ -4,7 +4,7 @@ model_uvs_n: equ 888
 model_normals_n: equ 472
 model_texture_width: equ 128
 model_texture_height: equ 128
-model_texture_size: equ 65536
+model_texture_size: equ 16384
 
 ; -- VERTICES --
 model_vertices:
@@ -3959,4 +3959,4 @@ model_normal_indices:
 	dw 70, 460, 458
 	dw 458, 460, 262
 
-model_texture: db "crashtex.rgba8",0
+model_texture: db "crashtex.rgba2",0

@@ -2,9 +2,9 @@ model_indices_n: equ 2208
 model_vertices_n: equ 370
 model_uvs_n: equ 738
 model_normals_n: equ 659
-model_texture_width: equ 128
-model_texture_height: equ 128
-model_texture_size: equ 65536
+model_texture_width: equ 512
+model_texture_height: equ 512
+model_texture_size: equ 262144
 
 ; -- VERTICES --
 model_vertices:
@@ -3999,4 +3999,4 @@ model_normal_indices:
 	dw 343, 343, 343
 	dw 344, 344, 344
 
-model_texture: db "jet.rgba8",0
+model_texture: db "jet.rgba2",0

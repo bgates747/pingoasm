@@ -4,7 +4,7 @@ model_uvs_n: equ 1578
 model_normals_n: equ 436
 model_texture_width: equ 256
 model_texture_height: equ 184
-model_texture_size: equ 188416
+model_texture_size: equ 47104
 
 ; -- VERTICES --
 model_vertices:
@@ -5194,4 +5194,4 @@ model_normal_indices:
 	dw 434, 434, 434
 	dw 435, 435, 435
 
-model_texture: db "Lara.rgba8",0
+model_texture: db "Lara.rgba2",0

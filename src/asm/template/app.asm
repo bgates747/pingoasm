@@ -69,10 +69,10 @@ obj_scale: equ 256
 objbmid: equ 256
 tgtbmid: equ 257
 
-cstw: equ 240
-csth: equ 180
-cstx: equ 40
-csty: equ 30
+cstw: equ 256
+csth: equ 192
+cstx: equ 32
+csty: equ 24
 
 camd: equ 32*1 ; 32767/256 * bar
 camx: dl  0*camd
@@ -110,9 +110,6 @@ objdx: dl 0x000000
 objdy: dl 0x000000
 objdz: dl 0x000000
 
-; filetype: equ 129 ; rgba2 to rgba8
-filetype: equ 0 ; rgba8
-
 dithering_type: db 0x00 ; 0=none, 1=bayer ordered matrix, 2=floyd-steinberg
 
 main:
@@ -128,13 +125,12 @@ main:
 ;     call waitKeypress
 
 ; load texture file to a buffer and make it a bitmap
-    ld a,filetype
     ld bc,model_texture_width
     ld de,model_texture_height
     ld hl,objbmid
     ld ix,model_texture_size
     ld iy,model_texture
-    call vdu_load_img
+    call vdu_load_img_rgba2_to_8
     
 ; create control structure
 ccs:
