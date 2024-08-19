@@ -2,9 +2,9 @@ model_indices_n: equ 2208
 model_vertices_n: equ 370
 model_uvs_n: equ 738
 model_normals_n: equ 659
-model_texture_width: equ 256
-model_texture_height: equ 256
-model_texture_size: equ 262144
+model_texture_width: equ 128
+model_texture_height: equ 128
+model_texture_size: equ 65536
 
 ; -- VERTICES --
 model_vertices:
@@ -1193,8 +1193,8 @@ model_uvs:
 	dw 19998, 36461
 	dw 8165, 56832
 	dw 8482, 46759
-	dw 51255, 50510
-	dw 52389, 51686
+	dw 46023, 5975
+	dw 47157, 7151
 	dw 9340, 56320
 	dw 9787, 55251
 	dw 51255, 46627
@@ -1348,10 +1348,10 @@ model_uvs:
 	dw 50938, 53553
 	dw 19998, 40437
 	dw 50938, 55983
-	dw 51255, 47744
+	dw 46023, 3209
 	dw 51819, 55725
 	dw 5399, 55725
-	dw 52136, 47744
+	dw 46904, 3209
 	dw 52416, 54826
 	dw 5399, 54826
 	dw 5399, 53671
@@ -1571,7 +1571,7 @@ model_uvs:
 	dw 42649, 28036
 	dw 44279, 27959
 	dw 9994, 48732
-	dw 50122, 51686
+	dw 44890, 7151
 	dw 9658, 47270
 	dw 10104, 48339
 	dw 33556, 46390
@@ -1704,7 +1704,7 @@ model_uvs:
 	dw 5716, 49057
 	dw 50057, 55725
 	dw 5716, 47866
-	dw 50374, 47744
+	dw 45142, 3209
 	dw 49460, 54826
 	dw 5716, 48764
 	dw 5716, 49919

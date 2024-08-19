@@ -956,6 +956,65 @@ vdu_set_screen_mode:
 @arg: db 0  ; screen mode parameter
 @end:
 
+; convert an uploaded rgba2222 image to an rgba8888 image
+; https://discord.com/channels/1158535358624039014/1158536711148675072/1257757461729771771
+; ok, so the "expand bitmap" can be used, when coupled with a "reverse" - the expanded bitmap _doesn't_ come out "right" otherwise, cos of endian-ness
+; the "expand bitmap" command is:
+; VDU 23,0,&A0,targetBufferID%;&48,2,sourceBufferId%;0,&7F,&BF,&FF
+; and then to reverse the byte order to fix endian-ness:
+; VDU 23,0,&A0,targetBufferID%;24,4,4;
+; finally you'd need to set that buffer to be an RGBA8888 format bitmap:
+; VDU 23,27,&20,targetBufferID%;
+; VDU 23,27,&21,width%;height%;0
+; inputs: hl=BufferId, bc=width, de=height
+; prerequisites: buffer loaded with rgba2222 data and consolidated with `VDU 23, 0, &A0, bufferId; 14` (which vdu_load_img does)
+vdu_rgba2_to_8:
+; load bufferIds
+    ld a,l
+    ld (@sourceBufferId),a
+    ld (@targetBufferID0),a
+    ld (@targetBufferID1),a
+    ld (@targetBufferID2),a
+    ld a,h
+    ld (@sourceBufferId+1),a
+    ld (@targetBufferID0+1),a
+    ld (@targetBufferID1+1),a
+    ld (@targetBufferID2+1),a
+; load width and height
+    ld (@width),bc
+    ld (@height),de
+; load image format (rgba8888)
+    xor a ; zero
+    ld (@fmt),a
+    ld hl,@cmd
+    ld bc,@end-@cmd
+    rst.lil $18
+    ret
+; VDU 23,0,&A0,targetBufferID%;&48,2,sourceBufferId%;0,&7F,&BF,&FF
+@cmd:       db 23,0,0xA0
+@targetBufferID0:  
+            dw 0x0000
+            db 0x48, 2 ; expand bitmap
+@sourceBufferId:            
+            dw 0x0000 ; source buffer
+            db 0x00,0x7F,0xBF,0xFF ; deep magic
+; VDU 23,0,&A0,targetBufferID%;24,4,4;
+            db 23,0,0xA0
+@targetBufferID1:  
+            dw 0x0000
+            db 24,4,4 ; moar deep magic
+; TODO: this call may be redundant if we got here from vdu_load_img
+; VDU 23,27,&20,targetBufferID%; : Select bitmap (using a buffer ID)
+            db 23,27,0x20
+@targetBufferID2:  
+            dw 0x0000
+; VDU 23,27,&21,width%;height%;0
+            db 23,27,0x21
+@width:     dw 0x0000
+@height:    dw 0x0000
+@fmt:       db 0x00 ; rgba8888
+@end:
+
 ; VDU 23, 0, &C0, n: Turn logical screen scaling on and off *
 ; inputs: a is scaling mode, 1=on, 0=off
 ; note: default setting on boot is scaling ON
@@ -989,7 +1048,10 @@ vdu_buff_select:
 ; 1 	RGBA2222 (1-bytes per pixel)
 ; 2 	Mono/Mask (1-bit per pixel)
 ; 3 	Reserved for internal use by VDP (“native” format)
+; 129   RGBA2222 to RGBA8888 (requires a series of VDU commands implemented here by vdu_rgba2_to_8)
 vdu_bmp_create:
+    cp 129 ; special case for converting rgba2222 to rgba8888
+    jp z,vdu_rgba2_to_8 ; returns to caller from there
     ld (@width),bc
     ld (@height),de
     ld (@fmt),a

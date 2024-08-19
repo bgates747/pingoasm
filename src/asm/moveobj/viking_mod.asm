@@ -68,10 +68,10 @@ obj_scale: equ 256
 objbmid: equ 256
 tgtbmid: equ 257
 
-cstw: equ 240 ; 256
-csth: equ 160 ; 128
-cstx: equ 40  ; 32
-csty: equ 32  ; 20
+cstw: equ 240
+csth: equ 180
+cstx: equ 40
+csty: equ 30
 
 camd: equ 32*1 ; 32767/256 * bar
 camx: dl  0*camd
@@ -109,6 +109,7 @@ objdx: dl 0x000000
 objdy: dl 0x000000
 objdz: dl 0x000000
 
+; filetype: equ 129 ; rgba2 to rgba8
 filetype: equ 0 ; rgba8
 
 dithering_type: db 0x00 ; 0=none, 1=bayer ordered matrix, 2=floyd-steinberg
@@ -125,7 +126,7 @@ main:
 ;     call printString
 ;     call waitKeypress
 
-; load image file to a buffer and make it a bitmap
+; load texture file to a buffer and make it a bitmap
     ld a,filetype
     ld bc,model_texture_width
     ld de,model_texture_height
