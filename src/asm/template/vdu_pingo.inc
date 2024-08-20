@@ -418,28 +418,28 @@ vdu_set_dither:
 @end:
 
 move_object_abs:
-    call printNewLine
+    ; call printNewLine
 
     ld hl,(objx)
     ld de,(objdx)
     add hl,de
     ld (@x),hl
     ld (objx),hl
-    call printDec
+    ; call printDec
 
     ld hl,(objy)
     ld de,(objdy)
     add hl,de
     ld (@y),hl
     ld (objy),hl
-    call printDec
+    ; call printDec
 
     ld hl,(objz)
     ld de,(objdz)
     add hl,de
     ld (@z),hl
     ld (objz),hl
-    call printDec
+    ; call printDec
 
     ld hl,@beg
     ld bc,@end-@beg
@@ -463,21 +463,21 @@ rotate_object_abs:
     add hl,de
     ld (@rx),hl
     ld (objrx),hl
-    call printDec
+    ; call printDec
 ;  1090 objry=objry+objdry: IF objry>=pi2 THEN objry=objry-pi2
     ld hl,(objry)
     ld de,(objdry)
     add hl,de
     ld (@ry),hl
     ld (objry),hl
-    call printDec
+    ; call printDec
 ;  1100 objrz=objrz+objdrz: IF objrz>=pi2 THEN objrz=objrz-pi2
     ld hl,(objrz)
     ld de,(objdrz)
     add hl,de
     ld (@rz),hl
     ld (objrz),hl
-    call printDec
+    ; call printDec
 
     ld hl,@beg
     ld bc,@end-@beg
@@ -495,7 +495,7 @@ rotate_object_abs:
 @end:   db 0 ; padding
 
 rotate_camera_abs:
-    call printNewLine
+    ; call printNewLine
 
 ;  1080 camrx=camrx+camdrx: IF camrx>=pi2 THEN camrx=camrx-pi2
     ld hl,(camrx)
@@ -503,21 +503,21 @@ rotate_camera_abs:
     add hl,de
     ld (@rx),hl
     ld (camrx),hl
-    call printDec
+    ; call printDec
 ;  1090 camry=camry+camdry: IF camry>=pi2 THEN camry=camry-pi2
     ld hl,(camry)
     ld de,(camdry)
     add hl,de
     ld (@ry),hl
     ld (camry),hl
-    call printDec
+    ; call printDec
 ;  1100 camrz=camrz+camdrz: IF camrz>=pi2 THEN camrz=camrz-pi2
     ld hl,(camrz)
     ld de,(camdrz)
     add hl,de
     ld (@rz),hl
     ld (camrz),hl
-    call printDec
+    ; call printDec
 
     ld hl,@beg
     ld bc,@end-@beg
@@ -534,28 +534,28 @@ rotate_camera_abs:
 @end:   db 0 ; padding
 
 move_camera_abs:
-    call printNewLine
+    ; call printNewLine
 
     ld hl,(camx)
     ld de,(camdx)
     add hl,de
     ld (@x),hl
     ld (camx),hl
-    call printDec
+    ; call printDec
 
     ld hl,(camy)
     ld de,(camdy)
     add hl,de
     ld (@y),hl
     ld (camy),hl
-    call printDec
+    ; call printDec
 
     ld hl,(camz)
     ld de,(camdz)
     add hl,de
     ld (@z),hl
     ld (camz),hl
-    call printDec
+    ; call printDec
 
     ld hl,@beg
     ld bc,@end-@beg
@@ -573,28 +573,28 @@ move_camera_abs:
 
 
 move_object_loc:
-    call printNewLine
+    ; call printNewLine
 
     ld hl,(objx)
     ld de,(objdx)
     add hl,de
     ld (@x),de
     ld (objx),hl
-    call printDec
+    ; call printDec
 
     ld hl,(objy)
     ld de,(objdy)
     add hl,de
     ld (@y),de
     ld (objy),hl
-    call printDec
+    ; call printDec
 
     ld hl,(objz)
     ld de,(objdz)
     add hl,de
     ld (@z),de
     ld (objz),hl
-    call printDec
+    ; call printDec
 
     ld hl,@beg
     ld bc,@end-@beg
@@ -618,21 +618,21 @@ rotate_object_loc:
     add hl,de
     ld (@rx),de
     ld (objrx),hl
-    call printDec
+    ; call printDec
 ;  1090 objry=objry+objdry: IF objry>=pi2 THEN objry=objry-pi2
     ld hl,(objry)
     ld de,(objdry)
     add hl,de
     ld (@ry),de
     ld (objry),hl
-    call printDec
+    ; call printDec
 ;  1100 objrz=objrz+objdrz: IF objrz>=pi2 THEN objrz=objrz-pi2
     ld hl,(objrz)
     ld de,(objdrz)
     add hl,de
     ld (@rz),de
     ld (objrz),hl
-    call printDec
+    ; call printDec
 
     ld hl,@beg
     ld bc,@end-@beg
@@ -650,28 +650,28 @@ rotate_object_loc:
 @end:   db 0 ; padding
 
 rotate_camera_loc:
-    call printNewLine
+    ; call printNewLine
 
     ld hl,(camrx)
     ld de,(camdrx)
     add hl,de
     ld (@rx),de
     ld (camrx),hl
-    call printDec
+    ; call printDec
 
     ld hl,(camry)
     ld de,(camdry)
     add hl,de
     ld (@ry),de
     ld (camry),hl
-    call printDec
+    ; call printDec
 
     ld hl,(camrz)
     ld de,(camdrz)
     add hl,de
     ld (@rz),de
     ld (camrz),hl
-    call printDec
+    ; call printDec
 
     ld hl,@beg
     ld bc,@end-@beg
@@ -688,28 +688,28 @@ rotate_camera_loc:
 @end:   db 0 ; padding
 
 move_camera_loc:
-    call printNewLine
+    ; call printNewLine
 
     ld hl,(camx)
     ld de,(camdx)
     add hl,de
     ld (@x),de
     ld (camx),hl
-    call printDec
+    ; call printDec
 
     ld hl,(camy)
     ld de,(camdy)
     add hl,de
     ld (@y),de
     ld (camy),hl
-    call printDec
+    ; call printDec
 
     ld hl,(camz)
     ld de,(camdz)
     add hl,de
     ld (@z),de
     ld (camz),hl
-    call printDec
+    ; call printDec
 
     ld hl,@beg
     ld bc,@end-@beg

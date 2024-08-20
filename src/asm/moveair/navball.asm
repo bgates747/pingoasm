@@ -59,6 +59,8 @@ push_a_button: db "Press any key to continue.",0
     ; include "trirainbow.inc"
     ; include "cow.inc"
     ; include "jet.inc"
+    ; include "middle_harbor_drone.inc"
+    ; include "equirectangular.inc"
 ; end model includes
 
 sid: equ 100
@@ -67,6 +69,7 @@ oid: equ 1
 obj_scale: equ 256
 objbmid: equ 256
 tgtbmid: equ 257
+bkgbmid: equ 258
 
 cstw: equ 256
 csth: equ 192
@@ -111,6 +114,11 @@ objdz: dl 0x000000
 
 dithering_type: db 0x00 ; 0=none, 1=bayer ordered matrix, 2=floyd-steinberg
 
+bkg_texture_width: equ cstw
+bkg_texture_height: equ csth
+bkg_texture_size: equ bkg_texture_width*bkg_texture_height
+bkg_texture: db "runways.rgba2",0
+
 main:
 ; print version
     ld hl,vdp_version
@@ -130,6 +138,15 @@ main:
     ld ix,model_texture_size
     ld iy,model_texture
     call vdu_load_img_rgba2_to_8
+
+; load background image to a buffer and make it a bitmap
+    ld bc,bkg_texture_width
+    ld de,bkg_texture_height
+    ld hl,bkgbmid
+    ld ix,bkg_texture_size
+    ld iy,bkg_texture
+    ld a,1 ; rgba2
+    call vdu_load_img
     
 ; create control structure
 ccs:
@@ -192,6 +209,10 @@ preloop:
     db 18,0,20+128
 @end:
 
+; clear the screen twice to set both buffers to background color
+    call vdu_cls
+    call vdu_flip
+    call vdu_cls
 
 ; set initial object position
     ; call move_object
@@ -213,7 +234,13 @@ preloop:
     jp rendbmp
 
 mainloop:
-    call vdu_cls
+    ; call vdu_cls
+; plot background image
+    ld hl,bkgbmid
+    call vdu_buff_select
+    ld bc,cstx
+    ld de,csty
+    call vdu_plot_bmp
 
     ld hl,0
     ld (objdx),hl

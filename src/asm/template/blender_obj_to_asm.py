@@ -139,7 +139,7 @@ if __name__ == '__main__':
     do_these_things = [
         ['viking_mod', 'viking.png'],
         ['heavytank5', 'blenderaxes.png'],
-        ['navball', 'navball320x160.png'],
+        ['navball', 'navball640x320.png'],
         ['LaraCroft', 'Lara.png'],
         ['wolf_map', 'wolf_tex.png'],
         ['crash', 'crashtex.png'],
@@ -148,6 +148,8 @@ if __name__ == '__main__':
         ['trirainbow', 'trirainbow.png'],
         ['cow', 'checkerboard.png'],
         ['jet', 'jet.png'],
+        ['middle_harbor_drone', 'middle_harbor.png'],
+        ['equirectangular', 'equirectangular.png'],
     ]
 
     # delete the build directory and recreate it
