@@ -1,9 +1,20 @@
 
 ; ============ KEYBOARD INPUT ============
-get_input:
+do_input:
+; reset control object movement and rotation deltas
+    ld hl,0
+    
+    ld (objdx),hl
+    ld (objdy),hl
+    ld (objdz),hl
+
+    ld (objdrx),hl
+    ld (objdry),hl
+    ld (objdrz),hl
 
 ; get user keyboard input
-	MOSCALL mos_getkbmap
+	; MOSCALL mos_getkbmap
+    ld ix,keyboard_masks
 
 ; ------ QUIT ------
 ; 113 Escape
@@ -134,14 +145,5 @@ get_input:
 
     call rotate_object_abs
     call move_object_abs
-
-    ; ld hl,oid
-    ; call cto ; camera track object
-
-    ; call printNewLine
-    ; ld a,(dithering_type)
-    ; ld hl,0
-    ; ld l,a
-    ; call printDec
 
     jp rendbmp

@@ -2,10 +2,21 @@
 throttle: dl 0x000000 ; unsigned 8-bit integer 255 = 100% throttle
 
 ; ============ KEYBOARD INPUT ============
-get_input:
+do_input:
+; reset control object movement and rotation deltas
+    ld hl,0
+
+    ld (objdx),hl
+    ld (objdy),hl
+    ld (objdz),hl
+
+    ld (objdrx),hl
+    ld (objdry),hl
+    ld (objdrz),hl
 
 ; get user keyboard input
-	MOSCALL mos_getkbmap
+	; MOSCALL mos_getkbmap
+    ld ix,keyboard_masks
 
 ; ------ QUIT ------
 ; 113 Escape

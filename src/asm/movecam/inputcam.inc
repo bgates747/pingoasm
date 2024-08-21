@@ -1,9 +1,20 @@
 
 ; ============ KEYBOARD INPUT ============
-get_input:
+do_input:
+; reset control object movement and rotation deltas
+    ld hl,0
+
+    ld (camdx),hl
+    ld (camdy),hl
+    ld (camdz),hl
+
+    ld (camdrx),hl
+    ld (camdry),hl
+    ld (camdrz),hl
 
 ; get user keyboard input
-	MOSCALL mos_getkbmap
+	; MOSCALL mos_getkbmap
+    ld ix,keyboard_masks
 
 ; ------ QUIT ------
 ; 113 Escape

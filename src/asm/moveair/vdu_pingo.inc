@@ -890,6 +890,18 @@ vdu_cursor_forward:
 	rst.lil $10  
 	ret
 
+; VDU 31, x, y: Move text cursor to x, y text position (TAB(x, y))
+; inputs: c=x, b=y 8-bit unsigned integers
+vdu_move_cursor:
+    ld (@x0),bc
+	ld hl,@cmd         
+	ld bc,@end-@cmd    
+	rst.lil $18         
+	ret
+@cmd: 	db 31
+@x0:	db 0
+@y0: 	db 0
+@end: 	db 0 ; padding
 
 ; VDU 12: Clear text area (CLS)
 vdu_cls:

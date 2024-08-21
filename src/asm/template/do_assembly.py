@@ -17,12 +17,29 @@ def process_and_assemble(asm_template_dir, asm_template_filepath, build_dir, inp
     # Copy the the input include file to the tgt_dir
     shutil.copy(input_include_filepath, tgt_dir)
 
-    # Copy vdu_pingo.inc from the asm_template_dir to the tgt_dir
-    shutil.copy(f"{asm_template_dir}/vdu_pingo.inc", tgt_dir)
-
     # Read the template assembly file
     with open(asm_template_filepath, 'r') as file:
         lines = file.readlines()
+
+    # Read the application includes block and copy each include file to the tgt_dir
+    in_block = False
+    start_idx = None
+    end_idx = None
+
+    # Identify the block to process
+    for i, line in enumerate(lines):
+        if line.strip().startswith('; application includes'):
+            in_block = True
+            start_idx = i + 1
+        elif line.strip().startswith('; end application includes'):
+            end_idx = i
+            break
+
+    if in_block and start_idx is not None and end_idx is not None:
+        # Process each line in the block
+        for j in range(start_idx, end_idx):
+            filename = lines[j].strip().split('"')[1]  # Extract the file name inside quotes
+            shutil.copy(f"{asm_template_dir}/{filename}", tgt_dir)
 
     # Uncomment the control include line in the template assembly file based on the input_type parameter
     for i, line in enumerate(lines):
@@ -30,7 +47,7 @@ def process_and_assemble(asm_template_dir, asm_template_filepath, build_dir, inp
             lines[i] = f'    include "{input_include_filename}"'
             break
 
-    # Fin the model includes block and process each include file
+    # Find the model includes block and process each include file
     in_block = False
     start_idx = None
     end_idx = None

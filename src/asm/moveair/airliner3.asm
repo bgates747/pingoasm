@@ -38,16 +38,19 @@ exit:
 
     ret 
 
-vdp_version: db "Pingo 3D BRG 2.9.2 Alpha 4",0
+vdp_version: db "Pingo 3D BRG 2.9.2 Alpha 5",0
 push_a_button: db "Press any key to continue.",0
 
+; application includes
+    include "input.inc"
+    include "timer.inc"
     include "vdu_pingo.inc"
+; end application includes
 
 ; control includes
     ; include "inputcam.inc"
     ; include "inputobj.inc"
-    include "inputair.inc"    ; include "t38.inc"
-; end control includes
+    include "inputair.inc"; end control includes
 
 ; model includes
 ;    ; include "jet.inc"
@@ -67,6 +70,7 @@ push_a_button: db "Press any key to continue.",0
     ; include "middle_harbor_drone.inc"
     ; include "equirectangular.inc"
     ; include "runway_numbers.inc"
+    ; include "t38.inc"
 ; end placeholder includes
 
 sid: equ 100
@@ -235,12 +239,30 @@ preloop:
     ld iy,(camz)
     call scdabs
 
+; initialize main loop timer
+main_loop_timer_reset: equ 12 ; 120ths of a second
+    ld hl,main_loop_timer_reset
+    call tmr_main_loop_set
+
 ; render inital scene
-    call vdu_cls
     jp rendbmp
 
 mainloop:
-    call vdu_cls
+    call reset_keys
+
+waitloop:
+    call set_keys
+    call tmr_main_loop_get
+    jp z, do_input
+    jp m, do_input
+    jp waitloop
+
+rendbmp:
+    RENDBMP sid, tgtbmid
+
+dispbmp:
+    call vdu_cls ; clear screen
+
 ; ; plot background image
 ;     ld hl,bkgbmid
 ;     call vdu_buff_select
@@ -248,36 +270,12 @@ mainloop:
 ;     ld de,csty
 ;     call vdu_plot_bmp
 
-    ld hl,0
-    ld (objdx),hl
-    ld (objdy),hl
-    ld (objdz),hl
-
-    ld (objdrx),hl
-    ld (objdry),hl
-    ld (objdrz),hl
-
-    ld (camdx),hl
-    ld (camdy),hl
-    ld (camdz),hl
-
-    ld (camdrx),hl
-    ld (camdry),hl
-    ld (camdrz),hl
-
-    jp get_input
-
-rendbmp:
-    RENDBMP sid, tgtbmid
-
-dispbmp:
-    DISPBMP tgtbmid, cstx, csty
-
-    ; call vdu_vblank
-    call vdu_flip
+    DISPBMP tgtbmid, cstx, csty ; plot render target bitmap
+    call vdu_flip ; flip the screen buffer
 
 no_move:
-
+    ld hl,main_loop_timer_reset
+    call tmr_main_loop_set
     jp mainloop
 
 main_end:
