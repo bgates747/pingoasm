@@ -150,6 +150,9 @@ if __name__ == '__main__':
         ['jet', 'jet.png'],
         ['middle_harbor_drone', 'middle_harbor.png'],
         ['equirectangular', 'equirectangular.png'],
+        ['runway_numbers', 'pixel_white.png'],
+        ['airliner3', 'airliner2.png'],
+        ['t38', 't38.png'],
     ]
 
     # delete the build directory and recreate it

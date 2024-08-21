@@ -129,11 +129,11 @@ get_input:
     and a ; zero means we need to rotate and or move the camera
     jp nz,no_move
 
-    call rotate_object_loc
-    call move_object_loc
+    ; call rotate_object_loc
+    ; call move_object_loc
 
-    ; call rotate_object_abs
-    ; call move_object_abs
+    call rotate_object_abs
+    call move_object_abs
 
     ; ld hl,oid
     ; call cto ; camera track object

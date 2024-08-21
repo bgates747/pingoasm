@@ -108,8 +108,8 @@ get_input:
     call rotate_object_loc
     call move_object_loc
 
-    ; ld hl,oid
-    ; call cto ; camera track object
+    ld hl,oid
+    call cto ; camera track object
 
     ; call printNewLine
     ; ld a,(dithering_type)

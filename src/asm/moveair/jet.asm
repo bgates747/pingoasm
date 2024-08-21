@@ -49,19 +49,25 @@ push_a_button: db "Press any key to continue.",0
     include "inputair.inc"; end control includes
 
 ; model includes
-;    ; include "crash.inc"
-;    ; include "LaraCroft.inc"
-;    ; include "navball.inc"
-;    ; include "viking_mod.inc"
-;    ; include "heavytank5.inc"
-;    ; include "ship.inc"
-;    ; include "checkerboard.inc"
-;    ; include "trirainbow.inc"
-;    ; include "cow.inc"
     include "jet.inc"
+    ; include "airliner3.inc"
+    ; include "t38.inc"
+; end model includes
+
+; placeholder includes
+    ; include "crash.inc"
+    ; include "LaraCroft.inc"
+    ; include "navball.inc"
+    ; include "viking_mod.inc"
+    ; include "heavytank5.inc"
+    ; include "ship.inc"
+    ; include "checkerboard.inc"
+    ; include "trirainbow.inc"
+    ; include "cow.inc"
     ; include "middle_harbor_drone.inc"
     ; include "equirectangular.inc"
-; end model includes
+    ; include "runway_numbers.inc"
+; end placeholder includes
 
 sid: equ 100
 mid: equ 1
@@ -139,14 +145,14 @@ main:
     ld iy,model_texture
     call vdu_load_img_rgba2_to_8
 
-; load background image to a buffer and make it a bitmap
-    ld bc,bkg_texture_width
-    ld de,bkg_texture_height
-    ld hl,bkgbmid
-    ld ix,bkg_texture_size
-    ld iy,bkg_texture
-    ld a,1 ; rgba2
-    call vdu_load_img
+; ; load background image to a buffer and make it a bitmap
+;     ld bc,bkg_texture_width
+;     ld de,bkg_texture_height
+;     ld hl,bkgbmid
+;     ld ix,bkg_texture_size
+;     ld iy,bkg_texture
+;     ld a,1 ; rgba2
+;     call vdu_load_img
     
 ; create control structure
 ccs:
@@ -234,13 +240,13 @@ preloop:
     jp rendbmp
 
 mainloop:
-    ; call vdu_cls
-; plot background image
-    ld hl,bkgbmid
-    call vdu_buff_select
-    ld bc,cstx
-    ld de,csty
-    call vdu_plot_bmp
+    call vdu_cls
+; ; plot background image
+;     ld hl,bkgbmid
+;     call vdu_buff_select
+;     ld bc,cstx
+;     ld de,csty
+;     call vdu_plot_bmp
 
     ld hl,0
     ld (objdx),hl
