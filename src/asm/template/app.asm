@@ -47,12 +47,12 @@ push_a_button: db "Press any key to continue.",0
     ; include "inputcam.inc"
     ; include "inputobj.inc"
     ; include "inputair.inc"
+    ; include "t38.inc"
 ; end control includes
 
 ; model includes
     ; include "jet.inc"
     ; include "airliner3.inc"
-    ; include "t38.inc"
 ; end model includes
 
 ; placeholder includes

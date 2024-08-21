@@ -137,22 +137,22 @@ if __name__ == '__main__':
 
     # base_filename, uv_texture_png
     do_these_things = [
-        ['viking_mod', 'viking.png'],
-        ['heavytank5', 'blenderaxes.png'],
-        ['navball', 'navball640x320.png'],
-        ['LaraCroft', 'Lara.png'],
-        ['wolf_map', 'wolf_tex.png'],
-        ['crash', 'crashtex.png'],
-        ['ship', 'ship_1c.png'],
-        ['checkerboard', 'checkerboard.png'],
-        ['trirainbow', 'trirainbow.png'],
-        ['cow', 'checkerboard.png'],
+        # ['viking_mod', 'viking.png'],
+        # ['heavytank5', 'blenderaxes.png'],
+        # ['navball', 'navball640x320.png'],
+        # ['LaraCroft', 'Lara.png'],
+        # ['wolf_map', 'wolf_tex.png'],
+        # ['crash', 'crashtex.png'],
+        # ['ship', 'ship_1c.png'],
+        # ['checkerboard', 'checkerboard.png'],
+        # ['trirainbow', 'trirainbow.png'],
+        # ['cow', 'checkerboard.png'],
+        # ['middle_harbor_drone', 'middle_harbor.png'],
+        # ['equirectangular', 'equirectangular.png'],
+        # ['runway_numbers', 'pixel_white.png'],
+        # ['t38', 't38.png'],
         ['jet', 'jet.png'],
-        ['middle_harbor_drone', 'middle_harbor.png'],
-        ['equirectangular', 'equirectangular.png'],
-        ['runway_numbers', 'pixel_white.png'],
         ['airliner3', 'airliner2.png'],
-        ['t38', 't38.png'],
     ]
 
     # delete the build directory and recreate it
