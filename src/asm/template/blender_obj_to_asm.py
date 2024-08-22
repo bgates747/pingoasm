@@ -2,8 +2,6 @@ from agonImages import img_to_rgba2
 from PIL import Image as pil
 import os
 import shutil
-import os
-from PIL import Image as pil
 
 def write_data(base_filename, vertices, faces, texture_coords, texture_vertex_indices, normals, normal_indices, tgt_filepath, uv_texture_rgba2, img_size):
     # Write header data to the target file
@@ -140,9 +138,9 @@ if __name__ == '__main__':
         # ['viking_mod', 'viking.png'],
         # ['heavytank5', 'blenderaxes.png'],
         # ['navball', 'navball640x320.png'],
-        # ['LaraCroft', 'Lara.png'],
+        ['LaraCroft', 'Lara.png'],
         # ['wolf_map', 'wolf_tex.png'],
-        # ['crash', 'crashtex.png'],
+        ['crash', 'crashtex.png'],
         # ['ship', 'ship_1c.png'],
         # ['checkerboard', 'checkerboard.png'],
         # ['trirainbow', 'trirainbow.png'],
@@ -153,6 +151,7 @@ if __name__ == '__main__':
         # ['t38', 't38.png'],
         ['jet', 'jet.png'],
         ['airliner3', 'airliner2.png'],
+        # ['koak', 'koak.png'],
     ]
 
     # delete the build directory and recreate it
@@ -178,4 +177,3 @@ if __name__ == '__main__':
         write_data(base_filename, vertices, faces, texture_coords, texture_vertex_indices, normals, normal_indices, tgt_filepath, uv_texture_rgba2, img_size)
 
         print(f'Modified code has been written to {tgt_filepath}')
-

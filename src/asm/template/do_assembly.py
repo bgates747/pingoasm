@@ -1,6 +1,8 @@
 import os
 import subprocess
 import shutil
+from agonImages import img_to_rgba2
+from PIL import Image as pil
 
 def process_and_assemble(asm_template_dir, asm_template_filepath, build_dir, input_type, tgt_dir):
     # Delete tgt_dir if it exists and recreate it
@@ -108,7 +110,15 @@ def assemble_program(main_asm_filename, output_bin_filename, tgt_dir):
         # Restore the original working directory
         os.chdir(original_directory)
 
+def make_rgba(png_filepath):
+    rgba2_filepath = png_filepath.replace('.png', '.rgba2')
+    img = pil.open(png_filepath)
+    img_size = img.size
+    img_to_rgba2(img, rgba2_filepath)
+    return img_size, rgba2_filepath
+
 if __name__ == "__main__":
+    img_src_dir = 'src/blender'    
     asm_template_dir = "src/asm/template"
     asm_template_filepath = f"{asm_template_dir}/app.asm"
     build_dir = "src/asm/build"
@@ -120,3 +130,13 @@ if __name__ == "__main__":
     process_and_assemble(asm_template_dir, asm_template_filepath, build_dir, 'cam', inputcam_dir)
     process_and_assemble(asm_template_dir, asm_template_filepath, build_dir, 'obj', inputobj_dir)
     process_and_assemble(asm_template_dir, asm_template_filepath, build_dir, 'air', inputair_dir)
+
+    fsim_images = [
+        'fspanel.png', 
+        'fs3d.png'
+    ]
+    for img_filename in fsim_images:
+        img_size, rgba2_filepath = make_rgba(f'{img_src_dir}/{img_filename}')
+        rgba2_base_filename = os.path.basename(rgba2_filepath)
+        shutil.copyfile(f'{rgba2_filepath}', f'{inputair_dir}/{rgba2_base_filename}')
+        print(f'RGBA2 file has been written to {inputair_dir}/{rgba2_base_filename}')

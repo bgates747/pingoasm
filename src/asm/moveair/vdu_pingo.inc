@@ -917,6 +917,12 @@ vdu_flip:
 @cmd: db 23,0,0xC3
 @end:
 
+; VDU 16: Clear graphics area (CLG)
+vdu_clg:
+    ld a,16
+	rst.lil $10  
+	ret
+
 vdu_vblank:		PUSH 	IX			; Wait for VBLANK interrupt
 			MOSCALL	mos_sysvars		; Fetch pointer to system variables
 			LD	A, (IX + sysvar_time + 0)
@@ -924,6 +930,28 @@ vdu_vblank:		PUSH 	IX			; Wait for VBLANK interrupt
 			JR	Z, @wait
 			POP	IX
 			RET
+
+; VDU 24, left; bottom; right; top;: Set graphics viewport 
+; NOTE: the order of the y-coordinate parameters are inverted
+; 	because we have turned off logical screen scaling
+; inputs: bc=x0,de=y0,ix=x1,iy=y1
+; outputs; nothing
+; destroys: a might make it out alive
+vdu_set_gfx_viewport:
+    ld (@x0),bc
+    ld (@y1),iy
+	ld (@x1),ix
+	ld (@y0),de
+	ld hl,@cmd
+	ld bc,@end-@cmd
+	rst.lil $18
+	ret
+@cmd:   db 24 ; set graphics viewport command
+@x0: 	dw 0x0000 ; set by bc
+@y1: 	dw 0x0000 ; set by iy
+@x1: 	dw 0x0000 ; set by ix
+@y0: 	dw 0x0000 ; set by de
+@end:   db 0x00	  ; padding
 
 ; load an image file to a buffer and make it a bitmap
 ; inputs: a = image type ; bc,de image width,height ; hl = bufferId ; ix = file size ; iy = pointer to filename

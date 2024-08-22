@@ -2,6 +2,7 @@ import colorsys
 import numpy as np
 from PIL import Image
 import struct
+import os
 
 colors64 = [
     (0, 0, 0), # 0 Black
@@ -335,26 +336,51 @@ def rgba2_to_img(src_file_path, dim_x, dim_y):
     return image
 
 if __name__ == "__main__":
-    base_filename = 'Lara'
-    src_png_file = f'ez80/src/blender/{base_filename}.png'
-    tgt_png_file = f'ez80/src/blender/{base_filename}.png'
-    tgt_rgba8_file = f'ez80/src/blender/{base_filename}.rgba8'
-    tgt_rgba2_file = f'ez80/src/blender/{base_filename}.rgba2'
-    pil_img = Image.open(src_png_file)
-    pil_img = convert_to_agon_palette(pil_img, 64, 'HSV', transparent_color=None)
-    # pil_img = convert_to_agon_palette(pil_img, 64, 'RGB', transparent_color=None)
-    # pil_img.save(tgt_png_file)
-    img_to_rgba8(pil_img, tgt_rgba8_file)
-    img_to_rgba2(pil_img, tgt_rgba2_file)
+    # Set your parameters here directly
+    filepath = "src/blender/koak.png"  # Replace with your image path
+    numcolors = 64  # Set to 16 or 64
+    method = "HSV"  # Set to "RGB" or "HSV"
 
-    # rgba2_file = "tgt/3.rgba2"
-    # bmp_file = "tgt/3.bmp"
-    # png_file = "tgt/3b.png"
-    # pil_img = Image.open(bmp_file)
-    # transparent_color = (255,255,255) ; # White
-    # pil_img = convert_to_agon_palette(pil_img, 64, 'HSV', transparent_color)
-    # img_to_rgba2(pil_img, rgba2_file)
-    # height = pil_img.height
-    # width = pil_img.width
-    # pil_img2 = rgba2_to_img(rgba2_file, width, height)
-    # pil_img2.save(png_file)
+    try:
+        image = Image.open(filepath)
+        converted_image = convert_to_agon_palette(image, numcolors, method)
+
+        # Display the original and converted images
+        image.show(title="Original Image")
+        converted_image.show(title="Converted Image")
+
+        # Save the converted image
+        base, ext = os.path.splitext(filepath)
+        new_filename = f"{base}.py.{method.lower()}.{numcolors}{ext}"
+        converted_image.save(new_filename)
+        print(f"Converted image saved as {new_filename}")
+
+    except Exception as e:
+        print(f"Error: {str(e)}")
+
+
+
+# if __name__ == "__main__":
+#     base_filename = 'Lara'
+#     src_png_file = f'ez80/src/blender/{base_filename}.png'
+#     tgt_png_file = f'ez80/src/blender/{base_filename}.png'
+#     tgt_rgba8_file = f'ez80/src/blender/{base_filename}.rgba8'
+#     tgt_rgba2_file = f'ez80/src/blender/{base_filename}.rgba2'
+#     pil_img = Image.open(src_png_file)
+#     pil_img = convert_to_agon_palette(pil_img, 64, 'HSV', transparent_color=None)
+#     # pil_img = convert_to_agon_palette(pil_img, 64, 'RGB', transparent_color=None)
+#     # pil_img.save(tgt_png_file)
+#     img_to_rgba8(pil_img, tgt_rgba8_file)
+#     img_to_rgba2(pil_img, tgt_rgba2_file)
+
+#     # rgba2_file = "tgt/3.rgba2"
+#     # bmp_file = "tgt/3.bmp"
+#     # png_file = "tgt/3b.png"
+#     # pil_img = Image.open(bmp_file)
+#     # transparent_color = (255,255,255) ; # White
+#     # pil_img = convert_to_agon_palette(pil_img, 64, 'HSV', transparent_color)
+#     # img_to_rgba2(pil_img, rgba2_file)
+#     # height = pil_img.height
+#     # width = pil_img.width
+#     # pil_img2 = rgba2_to_img(rgba2_file, width, height)
+#     # pil_img2.save(png_file)

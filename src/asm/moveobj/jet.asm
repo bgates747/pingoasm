@@ -55,6 +55,8 @@ push_a_button: db "Press any key to continue.",0
 ; model includes
     include "jet.inc"
     ; include "airliner3.inc"
+    ; include "crash.inc"
+    ; include "LaraCroft.inc"
 ; end model includes
 
 ; placeholder includes
@@ -72,62 +74,6 @@ push_a_button: db "Press any key to continue.",0
     ; include "runway_numbers.inc"
     ; include "t38.inc"
 ; end placeholder includes
-
-sid: equ 100
-mid: equ 1
-oid: equ 1
-obj_scale: equ 256
-objbmid: equ 256
-tgtbmid: equ 257
-bkgbmid: equ 258
-
-cstw: equ 256
-csth: equ 192
-cstx: equ 32
-csty: equ 24
-
-camd: equ 32*1 ; 32767/256 * bar
-camx: dl  0*camd
-camy: dl  0*camd
-camz: dl  0*camd
-
-camdx: dl 0x000000
-camdy: dl 0x000000
-camdz: dl 0x000000
-
-camdr: equ 91*5 ; 32767/360*foo
-camrx: dl 0x000000
-camry: dl 0x000000
-camrz: dl 0x000000
-
-camdrx: dl 0x000000
-camdry: dl 0x000000
-camdrz: dl 0x000000
-
-objdr: equ 91*5 ; 32767/360*foo
-objdrx: dl 0
-objdry: dl 0
-objdrz: dl 0
-
-objrx: dl 0
-objry: dl 0
-objrz: dl 0
-
-objd: equ 32*1 ; 32767/256 * bar
-objx: dl 0*objd
-objy: dl 0 ; -42 ; -1/3*objd
-objz: dl -20*objd
-
-objdx: dl 0x000000
-objdy: dl 0x000000
-objdz: dl 0x000000
-
-dithering_type: db 0x00 ; 0=none, 1=bayer ordered matrix, 2=floyd-steinberg
-
-bkg_texture_width: equ cstw
-bkg_texture_height: equ csth
-bkg_texture_size: equ bkg_texture_width*bkg_texture_height
-bkg_texture: db "runways.rgba2",0
 
 main:
 ; print version
@@ -148,15 +94,6 @@ main:
     ld ix,model_texture_size
     ld iy,model_texture
     call vdu_load_img_rgba2_to_8
-
-; ; load background image to a buffer and make it a bitmap
-;     ld bc,bkg_texture_width
-;     ld de,bkg_texture_height
-;     ld hl,bkgbmid
-;     ld ix,bkg_texture_size
-;     ld iy,bkg_texture
-;     ld a,1 ; rgba2
-;     call vdu_load_img
     
 ; create control structure
 ccs:
@@ -219,10 +156,8 @@ preloop:
     db 18,0,20+128
 @end:
 
-; clear the screen twice to set both buffers to background color
-    call vdu_cls
-    call vdu_flip
-    call vdu_cls
+; call app special init
+    call app_special_init
 
 ; set initial object position
     ; call move_object
@@ -258,20 +193,7 @@ waitloop:
     jp waitloop
 
 rendbmp:
-    RENDBMP sid, tgtbmid
-
-dispbmp:
-    call vdu_cls ; clear screen
-
-; ; plot background image
-;     ld hl,bkgbmid
-;     call vdu_buff_select
-;     ld bc,cstx
-;     ld de,csty
-;     call vdu_plot_bmp
-
-    DISPBMP tgtbmid, cstx, csty ; plot render target bitmap
-    call vdu_flip ; flip the screen buffer
+    call app_special_render
 
 no_move:
     ld hl,main_loop_timer_reset
