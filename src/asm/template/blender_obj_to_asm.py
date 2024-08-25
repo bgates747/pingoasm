@@ -152,6 +152,7 @@ if __name__ == '__main__':
         ['jet', 'jet.png'],
         ['airliner3', 'airliner2.png'],
         # ['koak', 'koak.png'],
+        ['manhattan', 'manhattan720x360dith.png'],
     ]
 
     # delete the build directory and recreate it

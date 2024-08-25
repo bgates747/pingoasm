@@ -171,7 +171,7 @@ dispbmp:
 sid: equ 100
 mid: equ 1
 oid: equ 1
-obj_scale: equ 256
+obj_scale: equ 1024
 objbmid: equ 256
 tgtbmid: equ 257
 
@@ -208,9 +208,9 @@ objry: dl 0
 objrz: dl 0
 
 objd: equ 32*1 ; 32767/256 * bar
-objx: dl 0*objd
-objy: dl 0 ; -42 ; -1/3*objd
-objz: dl -20*objd
+objx: dl 0
+objy: dl 0
+objz: dl 0
 
 objdx: dl 0x000000
 objdy: dl 0x000000

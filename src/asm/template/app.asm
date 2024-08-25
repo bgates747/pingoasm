@@ -38,7 +38,7 @@ exit:
 
     ret 
 
-vdp_version: db "Pingo 3D BRG 2.9.2 Alpha 5",0
+vdp_version: db "Pingo 3D BRG 2.9.2 Alpha 6",0
 push_a_button: db "Press any key to continue.",0
 
 ; application includes
@@ -58,6 +58,7 @@ push_a_button: db "Press any key to continue.",0
     ; include "airliner3.inc"
     ; include "crash.inc"
     ; include "LaraCroft.inc"
+    ; include "manhattan.inc"
 ; end model includes
 
 ; placeholder includes
