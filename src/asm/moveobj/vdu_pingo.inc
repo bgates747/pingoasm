@@ -923,13 +923,16 @@ vdu_clg:
 	rst.lil $10  
 	ret
 
-vdu_vblank:		PUSH 	IX			; Wait for VBLANK interrupt
-			MOSCALL	mos_sysvars		; Fetch pointer to system variables
-			LD	A, (IX + sysvar_time + 0)
-@wait:			CP 	A, (IX + sysvar_time + 0)
-			JR	Z, @wait
-			POP	IX
-			RET
+; Wait for VBLANK interrupt
+vdu_vblank:		
+    PUSH 	IX			
+	MOSCALL	mos_sysvars
+	LD	A, (IX + sysvar_time + 0)
+@wait:		
+    CP 	A, (IX + sysvar_time + 0)
+    JR	Z, @wait
+    POP	IX
+    RET
 
 ; VDU 24, left; bottom; right; top;: Set graphics viewport 
 ; NOTE: the order of the y-coordinate parameters are inverted
