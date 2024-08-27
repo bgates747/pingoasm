@@ -48,18 +48,18 @@ push_a_button: db "Press any key to continue.",0
 ; end application includes
 
 ; control includes
-    include "inputcam.inc"    ; include "inputobj.inc"
-    ; include "inputair.inc"
+    ; include "inputcam.inc"
+    include "inputobj.inc"    ; include "inputair.inc"
 ; end control includes
 
 ; model includes
 ;    ; include "jet.inc"
 ;    ; include "airliner3.inc"
 ;    ; include "crash.inc"
-    include "LaraCroft.inc"
-    ; include "manhattan.inc"
-    ; include "cube.inc"
-    ; include "tri.inc"
+;    ; include "LaraCroft.inc"
+;    ; include "manhattan.inc"
+;    ; include "cube.inc"
+    include "tri.inc"
 ; end model includes
 
 ; placeholder includes
