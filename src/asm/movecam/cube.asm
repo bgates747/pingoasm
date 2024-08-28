@@ -60,6 +60,7 @@ push_a_button: db "Press any key to continue.",0
 ;    ; include "manhattan.inc"
     include "cube.inc"
     ; include "tri.inc"
+    ; include "heavytank.inc"
 ; end model includes
 
 ; placeholder includes
@@ -67,7 +68,6 @@ push_a_button: db "Press any key to continue.",0
     ; include "LaraCroft.inc"
     ; include "navball.inc"
     ; include "viking_mod.inc"
-    ; include "heavytank5.inc"
     ; include "ship.inc"
     ; include "checkerboard.inc"
     ; include "trirainbow.inc"

@@ -1,6 +1,6 @@
 # Blender 3.4.1
 # www.blender.org
-mtllib heavytank.mtl
+mtllib heavytank6.mtl
 o heavytank5
 v 0.480000 0.400000 -1.000000
 v 0.400000 -0.000000 -0.600000

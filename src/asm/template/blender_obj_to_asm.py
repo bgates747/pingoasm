@@ -136,7 +136,7 @@ if __name__ == '__main__':
     # base_filename, uv_texture_png
     do_these_things = [
         # ['viking_mod', 'viking.png'],
-        # ['heavytank5', 'blenderaxes.png'],
+        ['heavytank', 'blenderaxes.png'],
         # ['navball', 'navball640x320.png'],
         ['LaraCroft', 'Lara.png'],
         # ['wolf_map', 'wolf_tex.png'],
