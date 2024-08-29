@@ -12802,4 +12802,4 @@ model_normals:
 ; -- NORMAL INDICES --
 model_normal_indices:
 
-model_texture: db "airliner2.rgba2",0
+model_texture: db "airliner.rgba2",0

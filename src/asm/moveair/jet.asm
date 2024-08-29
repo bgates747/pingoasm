@@ -38,7 +38,7 @@ exit:
 
     ret 
 
-vdp_version: db "Pingo 3D BRG 2.9.2 Alpha 6",0
+vdp_version: db "ScratchPingo 3D 2.10.0 Alpha 6",0
 push_a_button: db "Press any key to continue.",0
 
 ; application includes
@@ -54,18 +54,18 @@ push_a_button: db "Press any key to continue.",0
 
 ; model includes
     include "jet.inc"
-    ; include "airliner3.inc"
+    ; include "airliner.inc"
     ; include "crash.inc"
     ; include "LaraCroft.inc"
-    ; include "manhattan.inc"
     ; include "cube.inc"
     ; include "tri.inc"
     ; include "heavytank.inc"
+    ; include "wolf_map.inc"
 ; end model includes
 
 ; placeholder includes
-    ; include "crash.inc"
-    ; include "LaraCroft.inc"
+    ; include "koak.inc"
+    ; include "manhattan.inc"
     ; include "navball.inc"
     ; include "viking_mod.inc"
     ; include "ship.inc"
