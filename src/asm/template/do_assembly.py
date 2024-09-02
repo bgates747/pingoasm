@@ -132,8 +132,8 @@ if __name__ == "__main__":
     process_and_assemble(asm_template_dir, asm_template_filepath, build_dir, 'air', inputair_dir)
 
     fsim_images = [
-        'fspanel.png', 
-        'fs3d.png'
+        'fsimpanel.png', 
+        'fsimviewport.png'
     ]
     for img_filename in fsim_images:
         img_size, rgba2_filepath = make_rgba(f'{img_src_dir}/{img_filename}')

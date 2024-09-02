@@ -169,7 +169,7 @@ do_input:
 3dview_width: equ 320
 3dview_height: equ 148
 3dview_size: equ 3dview_width*3dview_height
-3dview_file: db "fs3d.rgba2",0
+3dview_file: db "fsimviewport.rgba2",0
 3dview_x: equ 0
 3dview_y: equ 0
 
@@ -177,7 +177,7 @@ panel_bmid: equ 259
 panel_width: equ 320
 panel_height: equ 92
 panel_size: equ panel_width*panel_height
-panel_file: db "fspanel.rgba2",0
+panel_file: db "fsimpanel.rgba2",0
 panel_x: equ 0
 panel_y: equ 148
 

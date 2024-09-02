@@ -140,11 +140,11 @@ do_input:
     and a ; zero means we need to rotate and or move the camera
     jp nz,no_move
 
-    ; call rotate_object_loc
-    ; call move_object_loc
+    call rotate_object_loc
+    call move_object_loc
 
-    call rotate_object_abs
-    call move_object_abs
+    ; call rotate_object_abs
+    ; call move_object_abs
 
     jp rendbmp
 
@@ -158,8 +158,8 @@ app_special_init:
 app_special_render:
     RENDBMP sid, tgtbmid
 dispbmp:
-    call vdu_clg ; clear screen
-    DISPBMP tgtbmid, cstx, csty ; plot render target bitmap
+    ; call vdu_clg ; clear screen
+    ; DISPBMP tgtbmid, cstx, csty ; plot render target bitmap
     call vdu_flip ; flip the screen buffer
     ret
 
@@ -172,7 +172,7 @@ objbmid: equ 256
 tgtbmid: equ 257
 
 cstw: equ 320
-csth: equ 148
+csth: equ 240
 cstx: equ 0
 csty: equ 0
 

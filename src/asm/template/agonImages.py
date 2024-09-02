@@ -337,9 +337,9 @@ def rgba2_to_img(src_file_path, dim_x, dim_y):
 
 if __name__ == "__main__":
     # Set your parameters here directly
-    filepath = "src/blender/koak.png"  # Replace with your image path
+    filepath = "src/blender/fsimviewport.png"  # Replace with your image path
     numcolors = 64  # Set to 16 or 64
-    method = "HSV"  # Set to "RGB" or "HSV"
+    method = "RGB"  # Set to "RGB" or "HSV"
 
     try:
         image = Image.open(filepath)

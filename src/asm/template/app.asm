@@ -38,7 +38,7 @@ exit:
 
     ret 
 
-vdp_version: db "ScratchPingo 3D 2.10.0 Alpha 6",0
+vdp_version: db "ScratchPingo 3D 2.10.0 Alpha 7",0
 push_a_button: db "Press any key to continue.",0
 
 ; application includes
@@ -62,6 +62,7 @@ push_a_button: db "Press any key to continue.",0
     ; include "tri.inc"
     ; include "heavytank.inc"
     ; include "wolf_map.inc"
+    ; include "earthuv.inc"
 ; end model includes
 
 ; placeholder includes

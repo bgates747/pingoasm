@@ -176,7 +176,7 @@ objbmid: equ 256
 tgtbmid: equ 257
 
 cstw: equ 320
-csth: equ 148
+csth: equ 240
 cstx: equ 0
 csty: equ 0
 

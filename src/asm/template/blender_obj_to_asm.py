@@ -155,6 +155,7 @@ if __name__ == '__main__':
         ['manhattan', 'manhattan720x360dith.png'],
         ['cube', 'blenderaxes.png'],
         ['tri', 'blenderaxes.png'],
+        ['earthuv', 'earthuv.png'],
     ]
 
     # delete the build directory and recreate it
