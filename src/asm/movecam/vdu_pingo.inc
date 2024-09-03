@@ -157,7 +157,7 @@
 @end:
     ENDMACRO
 
-; CREATE RENDER TARGET BITMAP
+; CREATE RENDER TARGET BITMAP RGBA8888 FORMAT
     MACRO CTB BMID, SCENE_WIDTH, SCENE_HEIGHT
     ld hl,@beg
     ld bc,@end-@beg
@@ -171,8 +171,29 @@
     db 23,27,2
     dw SCENE_WIDTH
     dw SCENE_HEIGHT
-    dw $0000
-    dw $00C0
+    ; ff00ffff dark magenta full alpha
+    db 0xff ; red
+    db 0x00 ; green
+    db 0xff ; blue
+    db 0xff ; alpha
+@end:
+    ENDMACRO
+
+; CREATE RENDER TARGET BITMAP RGBA2222 FORMAT
+    MACRO CTB2 BMID, SCENE_WIDTH, SCENE_HEIGHT
+    ld hl,@beg
+    ld bc,@end-@beg
+    rst.lil $18
+    jp @end
+@beg:
+;   VDU 23, 27, &20, bmid2% Select output bitmap
+    db 23,27,$20
+    dw BMID
+;   VDU 23, 27, &22, cstw%; csth%; color : Create solid color bitmap
+    db 23,27,0x22
+    dw SCENE_WIDTH
+    dw SCENE_HEIGHT
+    db %11110011 ; magenta
 @end:
     ENDMACRO
 
@@ -204,6 +225,19 @@
 ;   VDU 23, 27, 3, 0; 0; Display output bitmap
     db 23,27,3 
     dw X,Y
+@end:
+    ENDMACRO
+
+; VDU 23, 0, &A0, sid; &49, 0, 255 :  Run Tests
+    MACRO RUN_TESTS SID
+    ld hl,@beg
+    ld bc,@end-@beg
+    rst.lil $18
+    jp @end
+@beg:
+    db 23,0,$A0
+    dw SID 
+    db $49,255
 @end:
     ENDMACRO
 

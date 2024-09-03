@@ -97,7 +97,8 @@ main:
     ld hl,objbmid
     ld ix,model_texture_size
     ld iy,model_texture
-    call vdu_load_img_rgba2_to_8
+    ld a,1 ; rgba2222
+    call vdu_load_img
     
 ; create control structure
 ccs:
@@ -127,9 +128,9 @@ stci:
 ; smni:
 ;     SMNI sid, mid, model_normal_indices, model_indices_n
 
-; create render target bitmap
-ctb:
-    CTB tgtbmid, cstw, csth
+; create render target bitmap rgba2222 format
+ctb2:
+    CTB2 tgtbmid, cstw, csth
 
 ; create object
 co:
