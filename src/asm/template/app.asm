@@ -100,6 +100,10 @@ main:
     ld iy,model_texture
     ld a,1 ; rgba2222
     call vdu_load_img
+
+; create render target bitmap rgba2222 format
+ctb2:
+    CTB2 tgtbmid, cstw, csth
     
 ; create control structure
 ccs:
@@ -128,10 +132,6 @@ stci:
 ; ; create normal indices
 ; smni:
 ;     SMNI sid, mid, model_normal_indices, model_indices_n
-
-; create render target bitmap rgba2222 format
-ctb2:
-    CTB2 tgtbmid, cstw, csth
 
 ; create object
 co:
