@@ -158,8 +158,8 @@ app_special_init:
 app_special_render:
     RENDBMP sid, tgtbmid
 dispbmp:
-    ; call vdu_clg ; clear screen
-    ; DISPBMP tgtbmid, cstx, csty ; plot render target bitmap
+    call vdu_clg ; clear screen
+    DISPBMP tgtbmid, cstx, csty ; plot render target bitmap
     call vdu_flip ; flip the screen buffer
     ret
 
