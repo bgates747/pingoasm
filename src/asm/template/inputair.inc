@@ -224,7 +224,7 @@ app_special_init:
 app_special_render:
     RENDBMP sid, tgtbmid
 dispbmp:
-    call vdu_clg ; clear screen
+    ; call vdu_clg ; clear screen
     ld hl,3dview_bmid
     call vdu_buff_select
     ld bc,3dview_x
