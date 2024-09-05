@@ -165,6 +165,14 @@ do_input:
 ;     xor a
 ; @E:
 
+3dpano_bmid: equ 260
+3dpano_width: equ 512
+3dpano_height: equ 128
+3dpano_size: equ 3dpano_width*3dpano_height
+3dpano_file: db "middle_harbor_pano.rgba2",0
+3dpano_x: equ 0
+3dpano_y: equ 0
+
 3dview_bmid: equ 258
 3dview_width: equ 320
 3dview_height: equ 148
@@ -182,6 +190,15 @@ panel_x: equ 0
 panel_y: equ 148
 
 app_special_images:
+; load 3d viewport image to a buffer and make it a bitmap
+    ld bc,3dpano_width
+    ld de,3dpano_height
+    ld hl,3dpano_bmid
+    ld ix,3dpano_size
+    ld iy,3dpano_file
+    ld a,1 ; rgba2
+    call vdu_load_img
+
 ; load 3d viewport image to a buffer and make it a bitmap
     ld bc,3dview_width
     ld de,3dview_height
