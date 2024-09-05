@@ -153,6 +153,10 @@ do_input:
 
     jp rendbmp
 
+app_special_images:
+
+    ret
+
 app_special_init:
 ; clear the screen twice to set both buffers to background color
     call vdu_clg

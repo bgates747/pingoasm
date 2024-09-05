@@ -101,6 +101,8 @@ main:
     ld a,1 ; rgba2222
     call vdu_load_img
 
+    call app_special_images
+
 ; create render target bitmap rgba2222 format
 ctb2:
     CTB2 tgtbmid, cstw, csth

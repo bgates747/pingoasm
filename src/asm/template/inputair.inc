@@ -181,7 +181,7 @@ panel_file: db "fsimpanel.rgba2",0
 panel_x: equ 0
 panel_y: equ 148
 
-app_special_init:
+app_special_images:
 ; load 3d viewport image to a buffer and make it a bitmap
     ld bc,3dview_width
     ld de,3dview_height
@@ -200,6 +200,9 @@ app_special_init:
     ld a,1 ; rgba2
     call vdu_load_img
 
+    ret
+
+app_special_init:
 ; draw instrument panel in both image buffers
     ld hl,panel_bmid
     call vdu_buff_select
