@@ -63,6 +63,7 @@ push_a_button: db "Press any key to continue.",0
     ; include "heavytank.inc"
     ; include "wolf_map.inc"
     ; include "earthuv.inc"
+    ; include "earthuvinv.inc"
 ; end model includes
 
 ; placeholder includes
