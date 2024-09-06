@@ -56,14 +56,14 @@ push_a_button: db "Press any key to continue.",0
 ;    ; include "jet.inc"
 ;    ; include "airliner.inc"
 ;    ; include "crash.inc"
-    include "LaraCroft.inc"
-    ; include "cube.inc"
-    ; include "tri.inc"
-    ; include "heavytank.inc"
-    ; include "wolf_map.inc"
-    ; include "earthuv.inc"
-    ; include "earthuvinv.inc"
-    ; include "cyl.inc"
+;    ; include "LaraCroft.inc"
+;    ; include "cube.inc"
+;    ; include "tri.inc"
+;    ; include "heavytank.inc"
+;    ; include "wolf_map.inc"
+;    ; include "earthuv.inc"
+;    ; include "earthuvinv.inc"
+    include "cyl.inc"
 ; end model includes
 
 ; placeholder includes
