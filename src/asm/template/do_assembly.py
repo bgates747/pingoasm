@@ -135,6 +135,7 @@ if __name__ == "__main__":
         'fsimpanel.png', 
         'fsimviewport.png',
         'middle_harbor_pano.png',
+        'earthuv.png',
     ]
     for img_filename in fsim_images:
         img_size, rgba2_filepath = make_rgba(f'{img_src_dir}/{img_filename}')
