@@ -53,8 +53,8 @@ push_a_button: db "Press any key to continue.",0
 
 ; model includes
     include "jet.inc"
-    ; include "earthuvinv.inc"
-    include "cyl.inc"
+    include "earthuvinv.inc"
+    ; include "cyl.inc"
 ; end model includes
 
 main:

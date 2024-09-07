@@ -2,9 +2,9 @@ model_indices_n: equ 192
 model_vertices_n: equ 64
 model_uvs_n: equ 66
 model_normals_n: equ 32
-model_texture_width: equ 360
-model_texture_height: equ 180
-model_texture_size: equ 64800
+model_texture_width: equ 720
+model_texture_height: equ 360
+model_texture_size: equ 259200
 
 ; -- VERTICES --
 model_vertices:

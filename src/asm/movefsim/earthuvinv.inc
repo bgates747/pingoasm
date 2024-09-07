@@ -21,9 +21,9 @@ pano_indices_n: equ 2880
 pano_vertices_n: equ 482
 pano_uvs_n: equ 559
 pano_normals_n: equ 530
-pano_texture_width: equ 360
-pano_texture_height: equ 180
-pano_texture_size: equ 64800
+pano_texture_width: equ 720
+pano_texture_height: equ 360
+pano_texture_size: equ 259200
 
 ; -- VERTICES --
 pano_vertices:
