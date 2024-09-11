@@ -202,8 +202,8 @@ app_special_init:
 ; set graphics viewport to 3d view
     ld bc,0
     ld de,0
-    ld ix,pano_texture_width-1
-    ld iy,pano_texture_height-1
+    ld ix,320-1
+    ld iy,148-1
     call vdu_set_gfx_viewport
     ret
 

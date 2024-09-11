@@ -7,15 +7,16 @@ from PIL import Image as pil
 def process_and_assemble(asm_template_dir, asm_template_filepath, build_dir, input_type, tgt_dir):
     # Delete tgt_dir if it exists and recreate it
     if os.path.exists(tgt_dir):
+        print(f"Deleting existing directory: {tgt_dir}")
         shutil.rmtree(tgt_dir)
+    os.makedirs(tgt_dir)
 
     # Copy all files from the build_dir to tgt_dir
-    shutil.copytree(build_dir, tgt_dir)
+    # shutil.copytree(build_dir, tgt_dir)
 
     # Generate the input include filename and filepath based on the input_type parameter
     input_include_filename = f"input{input_type}.inc"
     input_include_filepath = f"{asm_template_dir}/{input_include_filename}"
-
     # Copy the the input include file to the tgt_dir
     shutil.copy(input_include_filepath, tgt_dir)
 
@@ -75,10 +76,22 @@ def process_and_assemble(asm_template_dir, asm_template_filepath, build_dir, inp
             # Debug print the current line being processed
             print(f"Processing: {working_lines[j].strip()}")
 
-            # Extract the base file name for the bin output file
-            include_file = working_lines[j].strip().split('"')[1]  # Extract the file name inside quotes
+            # Extract the base file name
+            include_file = working_lines[j].strip().split('"')[1]
+            # Set the output binary file name
             output_bin_filename = os.path.splitext(os.path.basename(include_file))[0] + ".bin"
             main_asm_filename = output_bin_filename.replace(".bin", ".asm")
+
+            # Copy include file from build_dir to tgt_dir
+            include_filepath = f"{build_dir}/{include_file}"
+            shutil.copy(include_filepath, tgt_dir)
+
+            # Extract the model texture filename if it exists and copy from build_dir to tgt_dir
+            with open(include_filepath, 'r') as file:
+                for line in file:
+                    if line.strip().__contains__('_texture: db'):
+                        texture_filename = line.strip().split('"')[1]
+                        shutil.copy(f"{build_dir}/{texture_filename}", tgt_dir)
 
             # Write the modified lines to the main assembly file
             main_assembly_filepath = f"{tgt_dir}/{main_asm_filename}"

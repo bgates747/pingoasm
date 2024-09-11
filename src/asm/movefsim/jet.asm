@@ -53,7 +53,7 @@ push_a_button: db "Press any key to continue.",0
 
 ; model includes
     include "jet.inc"
-    include "earthuvinv.inc"
+    include "koak28lr.inc"
     ; include "cyl.inc"
 ; end model includes
 
@@ -75,15 +75,6 @@ main:
     ld hl,jet_bmid
     ld ix,jet_texture_size
     ld iy,jet_texture
-    ld a,1 ; rgba2222
-    call vdu_load_img
-
-; load texture file to a buffer and make it a bitmap
-    ld bc,pano_texture_width
-    ld de,pano_texture_height
-    ld hl,pano_bmid
-    ld ix,pano_texture_size
-    ld iy,pano_texture
     ld a,1 ; rgba2222
     call vdu_load_img
 
@@ -116,23 +107,23 @@ sojet:
     SO sid, jet_oid, jet_obj_scale, jet_obj_scale, jet_obj_scale
 
 ; create mesh vertices
-svpano:
-    SV sid, pano_mid, pano_vertices, pano_vertices_n
+svkoak28lr:
+    SV sid, koak28lr_mid, koak28lr_vertices, koak28lr_vertices_n
 ; create mesh vertex indices
-smvipano:
-    SMVI sid, pano_mid, pano_vertex_indices, pano_indices_n
-; create texture coordinates
-stcpano:
-    STC sid, pano_oid, pano_uvs, pano_uvs_n
-; create texture coordinate indices
-stcipano:
-    STCI sid, pano_oid, pano_uv_indices, pano_indices_n
+smvikoak28lr:
+    SMVI sid, koak28lr_mid, koak28lr_vertex_indices, koak28lr_indices_n
+; ; create texture coordinates
+; stckoak28lr:
+;     STC sid, koak28lr_oid, koak28lr_uvs, koak28lr_uvs_n
+; ; create texture coordinate indices
+; stcikoak28lr:
+;     STCI sid, koak28lr_oid, koak28lr_uv_indices, koak28lr_indices_n
 ; create object
-copano:
-    CO sid, pano_oid, pano_mid, pano_bmid
+cokoak28lr:
+    CO sid, koak28lr_oid, koak28lr_mid, 0
 ; set object scale
-sopano:
-    SO sid, pano_oid, pano_obj_scale, pano_obj_scale, pano_obj_scale
+sokoak28lr:
+    SO sid, koak28lr_oid, koak28lr_obj_scale, koak28lr_obj_scale, koak28lr_obj_scale
 
 ; set dithering type
     ld a,(dithering_type)
@@ -168,10 +159,10 @@ preloop:
 
 ; set initial object position
     ; call move_jet_object
-    ld hl,pano_oid
-    ld bc,(pano_objx)
-    ld de,(pano_objy)
-    ld iy,(pano_objz)
+    ld hl,koak28lr_oid
+    ld bc,(koak28lr_objx)
+    ld de,(koak28lr_objy)
+    ld iy,(koak28lr_objz)
     call sodabs
 
 ; set initial camera position

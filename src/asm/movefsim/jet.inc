@@ -14,7 +14,7 @@ jet_objrz: dl 0
 
 jet_objd: equ 32*1 ; 32767/256 * bar
 jet_objx: dl 0*jet_objd
-jet_objy: dl 0 ; -42 ; -1/3*objd
+jet_objy: dl 1*jet_objd
 jet_objz: dl -20*jet_objd
 
 jet_objdx: dl 0x000000

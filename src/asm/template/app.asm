@@ -55,20 +55,10 @@ push_a_button: db "Press any key to continue.",0
 
 ; model includes
     ; include "jet.inc"
-    ; include "airliner.inc"
-    ; include "crash.inc"
-    ; include "LaraCroft.inc"
-    ; include "cube.inc"
-    ; include "tri.inc"
-    ; include "heavytank.inc"
-    ; include "wolf_map.inc"
-    ; include "earthuv.inc"
-    ; include "earthuvinv.inc"
-    ; include "cyl.inc"
+    ; include "koak28lr.inc"
 ; end model includes
 
 ; placeholder includes
-    ; include "koak.inc"
     ; include "manhattan.inc"
     ; include "navball.inc"
     ; include "viking_mod.inc"
@@ -80,6 +70,16 @@ push_a_button: db "Press any key to continue.",0
     ; include "equirectangular.inc"
     ; include "runway_numbers.inc"
     ; include "t38.inc"
+    ; include "airliner.inc"
+    ; include "crash.inc"
+    ; include "LaraCroft.inc"
+    ; include "cube.inc"
+    ; include "tri.inc"
+    ; include "heavytank.inc"
+    ; include "wolf_map.inc"
+    ; include "earthuv.inc"
+    ; include "earthuvinv.inc"
+    ; include "cyl.inc"
 ; end placeholder includes
 
 main:
