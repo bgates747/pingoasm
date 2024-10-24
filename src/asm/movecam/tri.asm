@@ -48,14 +48,38 @@ push_a_button: db "Press any key to continue.",0
 ; end application includes
 
 ; control includes
-    include "inputair.inc"
+    include "inputcam.inc"    ; include "inputobj.inc"
+    ; include "inputair.inc"
 ; end control includes
 
 ; model includes
-    include "jet.inc"
-    include "koak28lr.inc"
-    ; include "cyl.inc"
+;    ; include "jet.inc"
+;    ; include "koak28lr.inc"
+;    ; include "cube.inc"
+;    ; include "earthuv.inc"
+    include "tri.inc"
 ; end model includes
+
+; placeholder includes
+    ; include "manhattan.inc"
+    ; include "navball.inc"
+    ; include "viking_mod.inc"
+    ; include "ship.inc"
+    ; include "checkerboard.inc"
+    ; include "trirainbow.inc"
+    ; include "cow.inc"
+    ; include "middle_harbor_drone.inc"
+    ; include "equirectangular.inc"
+    ; include "runway_numbers.inc"
+    ; include "t38.inc"
+    ; include "airliner.inc"
+    ; include "crash.inc"
+    ; include "LaraCroft.inc"
+    ; include "heavytank.inc"
+    ; include "wolf_map.inc"
+    ; include "earthuvinv.inc"
+    ; include "cyl.inc"
+; end placeholder includes
 
 main:
 ; print version
@@ -70,11 +94,11 @@ main:
 ;     call waitKeypress
 
 ; load texture file to a buffer and make it a bitmap
-    ld bc,jet_texture_width
-    ld de,jet_texture_height
-    ld hl,jet_bmid
-    ld ix,jet_texture_size
-    ld iy,jet_texture
+    ld bc,model_texture_width
+    ld de,model_texture_height
+    ld hl,objbmid
+    ld ix,model_texture_size
+    ld iy,model_texture
     ld a,1 ; rgba2222
     call vdu_load_img
 
@@ -83,47 +107,42 @@ main:
 ; create render target bitmap rgba2222 format
 ctb2:
     CTB2 tgtbmid, cstw, csth
+    
 ; create control structure
 ccs:
     CCS sid, cstw, csth
 
 ; create mesh vertices
-svjet:
-    SV sid, jet_mid, jet_vertices, jet_vertices_n
-; create mesh vertex indices
-smvijet:
-    SMVI sid, jet_mid, jet_vertex_indices, jet_indices_n
-; create texture coordinates
-stcjet:
-    STC sid, jet_oid, jet_uvs, jet_uvs_n
-; create texture coordinate indices
-stcijet:
-    STCI sid, jet_oid, jet_uv_indices, jet_indices_n
-; create object
-cojet:
-    CO sid, jet_oid, jet_mid, jet_bmid
-; set object scale
-sojet:
-    SO sid, jet_oid, jet_obj_scale, jet_obj_scale, jet_obj_scale
+sv:
+    SV sid, mid, model_vertices, model_vertices_n
 
-; create mesh vertices
-svkoak28lr:
-    SV sid, koak28lr_mid, koak28lr_vertices, koak28lr_vertices_n
 ; create mesh vertex indices
-smvikoak28lr:
-    SMVI sid, koak28lr_mid, koak28lr_vertex_indices, koak28lr_indices_n
-; ; create texture coordinates
-; stckoak28lr:
-;     STC sid, koak28lr_oid, koak28lr_uvs, koak28lr_uvs_n
-; ; create texture coordinate indices
-; stcikoak28lr:
-;     STCI sid, koak28lr_oid, koak28lr_uv_indices, koak28lr_indices_n
+smvi:
+    SMVI sid, mid, model_vertex_indices, model_indices_n
+
+; create texture coordinates
+stc:
+    STC sid, oid, model_uvs, model_uvs_n
+
+; create texture coordinate indices
+stci:
+    STCI sid, oid, model_uv_indices, model_indices_n
+
+; ; create normals
+; sn:
+;     SN sid, mid, model_normals, model_normals_n
+
+; ; create normal indices
+; smni:
+;     SMNI sid, mid, model_normal_indices, model_indices_n
+
 ; create object
-cokoak28lr:
-    CO sid, koak28lr_oid, koak28lr_mid, 0
+co:
+    CO sid, oid, mid, objbmid
+
 ; set object scale
-sokoak28lr:
-    SO sid, koak28lr_oid, koak28lr_obj_scale, koak28lr_obj_scale, koak28lr_obj_scale
+so:
+    SO sid, oid, obj_scale, obj_scale, obj_scale
 
 ; set dithering type
     ld a,(dithering_type)
@@ -150,19 +169,11 @@ preloop:
     call app_special_init
 
 ; set initial object position
-    ; call move_jet_object
-    ld hl,jet_oid
-    ld bc,(jet_objx)
-    ld de,(jet_objy)
-    ld iy,(jet_objz)
-    call sodabs
-
-; set initial object position
-    ; call move_jet_object
-    ld hl,koak28lr_oid
-    ld bc,(koak28lr_objx)
-    ld de,(koak28lr_objy)
-    ld iy,(koak28lr_objz)
+    ; call move_object
+    ld hl,oid
+    ld bc,(objx)
+    ld de,(objy)
+    ld iy,(objz)
     call sodabs
 
 ; set initial camera position

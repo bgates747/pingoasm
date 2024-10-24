@@ -1,13 +1,26 @@
-model_indices_n: equ 2580
-model_vertices_n: equ 1592
-model_uvs_n: equ 1730
-model_normals_n: equ 1
-model_texture_width: equ 34
-model_texture_height: equ 34
-model_texture_size: equ 1156
+koak28lr_mid: equ 1
+koak28lr_oid: equ 1
+koak28lr_obj_scale: equ 65535
+
+koak28lr_objrx: dl 0
+koak28lr_objry: dl 0
+koak28lr_objrz: dl 0
+
+koak28lr_objd: equ 32*1 ; 32767/256 * bar
+koak28lr_objx: dl 0
+koak28lr_objy: dl 0 
+koak28lr_objz: dl 0
+
+koak28lr_objdx: dl 0x000000
+koak28lr_objdy: dl 0x000000
+koak28lr_objdz: dl 0x000000
+
+koak28lr_indices_n: equ 2580
+koak28lr_vertices_n: equ 1592
+koak28lr_normals_n: equ 1
 
 ; -- VERTICES --
-model_vertices:
+koak28lr_vertices:
 	dw -382, 0, 723
 	dw -320, 0, 723
 	dw -382, 0, -91
@@ -1602,7 +1615,7 @@ model_vertices:
 	dw -5823, 0, -32226
 
 ; -- FACE VERTEX INDICES --
-model_vertex_indices:
+koak28lr_vertex_indices:
 	dw 5, 2, 0
 	dw 7, 3, 1
 	dw 9, 11, 8
@@ -2465,7 +2478,7 @@ model_vertex_indices:
 	dw 1588, 1589, 1590
 
 ; -- TEXTURE UV COORDINATES --
-model_uvs:
+koak28lr_uvs:
 	dw 0, 0
 	dw 0, 0
 	dw 0, 65335
@@ -4198,7 +4211,7 @@ model_uvs:
 	dw 0, 0
 
 ; -- TEXTURE VERTEX INDICES --
-model_uv_indices:
+koak28lr_uv_indices:
 	dw 5, 2, 0
 	dw 7, 3, 1
 	dw 9, 11, 8
@@ -5061,11 +5074,11 @@ model_uv_indices:
 	dw 1726, 1727, 1728
 
 ; -- NORMALS --
-model_normals:
+koak28lr_normals:
 	dw 0, 32767, 0
 
 ; -- NORMAL INDICES --
-model_normal_indices:
+koak28lr_normal_indices:
 	dw 0, 0, 0
 	dw 0, 0, 0
 	dw 0, 0, 0
@@ -5926,3 +5939,5 @@ model_normal_indices:
 	dw 0, 0, 0
 	dw 0, 0, 0
 	dw 0, 0, 0
+
+koak28lr_texture: db "blenderaxes.rgba2",0

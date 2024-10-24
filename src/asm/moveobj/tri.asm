@@ -54,10 +54,10 @@ push_a_button: db "Press any key to continue.",0
 
 ; model includes
 ;    ; include "jet.inc"
-    include "koak28lr.inc"
-    ; include "cube.inc"
-    ; include "earthuv.inc"
-    ; include "tri.inc"
+;    ; include "koak28lr.inc"
+;    ; include "cube.inc"
+;    ; include "earthuv.inc"
+    include "tri.inc"
 ; end model includes
 
 ; placeholder includes

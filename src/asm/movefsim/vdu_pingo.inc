@@ -57,7 +57,7 @@
     rst.lil $18
     jp @end
 @beg:
-;   VDU 23, 0, &A0, sid; &49, 3, jet_oid; n; u0; v0; ... :  Define Object Texture Coordinates
+;   VDU 23, 0, &A0, sid; &49, 3, oid; n; u0; v0; ... :  Define Object Texture Coordinates
     db 23,0,$A0
     dw SID
     db $49,3
@@ -75,7 +75,7 @@
     rst.lil $18
     jp @end
 @beg:
-;   VDU 23, 0, &A0, sid; &49, 4, jet_oid; n; i0; ... :  Set Object Texture Coordinate Indexes
+;   VDU 23, 0, &A0, sid; &49, 4, oid; n; i0; ... :  Set Object Texture Coordinate Indexes
     db 23,0,$A0
     dw SID
     db $49,4
@@ -129,7 +129,7 @@
     rst.lil $18
     jp @end
 @beg:
-;   VDU 23, 0, &A0, sid; &49, 5, jet_oid; mid; bmid; :  Create Object
+;   VDU 23, 0, &A0, sid; &49, 5, oid; mid; bmid; :  Create Object
     db 23,0,$A0
     dw SID
     db $49,5
@@ -146,7 +146,7 @@
     rst.lil $18
     jp @end
 @beg:
-;   VDU 23, 0, &A0, sid%; &49, 9, jet_oid%; scale; scale; scale; Set Object XYZ Scale Factors
+;   VDU 23, 0, &A0, sid%; &49, 9, oid%; scale; scale; scale; Set Object XYZ Scale Factors
     db 23,0,$A0
     dw SID
     db $49,9
@@ -282,9 +282,9 @@ scrabs:
 @end:   db 0x00 ; padding
 
 ; set pingo object distance
-; inputs: hl jet_oid, bc distx, de disty, iy distz
+; inputs: hl oid, bc distx, de disty, iy distz
 sodabs:
-    ld (@jet_oid),hl
+    ld (@oid),hl
     ld (@x),bc
     ld (@y),de
     ld (@z),iy
@@ -293,20 +293,20 @@ sodabs:
     rst.lil $18
     ret
 @beg:
-; VDU 23, 0, &A0, sid; &49, 17, jet_oid; distx; disty; distz; : Set Object XYZ Translation Distances
+; VDU 23, 0, &A0, sid; &49, 17, oid; distx; disty; distz; : Set Object XYZ Translation Distances
         db 23, 0, $A0
         dw sid
         db $49, 17
-@jet_oid:   dw 0
+@oid:   dw 0
 @x:     dw 0
 @y:     dw 0
 @z:     dw 0
 @end:   db 0 ; padding
 
 ; set pingo object rotation angkes
-; inputs: hl jet_oid, bc anglex, de angley, iy anglez
+; inputs: hl oid, bc anglex, de angley, iy anglez
 sorabs:
-    ld (@jet_oid),hl
+    ld (@oid),hl
     ld (@rx),bc
     ld (@ry),de
     ld (@rz),iy
@@ -315,11 +315,11 @@ sorabs:
     rst.lil $18
     ret
 @beg:
-;  1120 VDU 23, 0, &A0, sid%; &49, 13, jet_oid%; rx; ry; rz; Set Object XYZ Rotation Angles
+;  1120 VDU 23, 0, &A0, sid%; &49, 13, oid%; rx; ry; rz; Set Object XYZ Rotation Angles
         db 23, 0, $A0
         dw sid
         db $49, 13
-@jet_oid:   dw 0
+@oid:   dw 0
 @rx:    dw 0
 @ry:    dw 0
 @rz:    dw 0
@@ -365,10 +365,10 @@ scrrel:
 @rz:    dw 0x0000
 @end:   db 0x00 ; padding
 
-; VDU 23, 0, &A0, sid; &49, 42, jet_oid; : Rotate Camera Locally to track a specified object
-; inputs: hl jet_oid
+; VDU 23, 0, &A0, sid; &49, 42, oid; : Rotate Camera Locally to track a specified object
+; inputs: hl oid
 cto:
-    ld (@jet_oid),hl
+    ld (@oid),hl
     ld hl,@beg
     ld bc,@end-@beg
     rst.lil $18
@@ -377,13 +377,13 @@ cto:
     db 23, 0, $A0
     dw sid
     db $49, 42
-@jet_oid:   dw 0
+@oid:   dw 0
 @end:   db 0 ; padding
 
 ; set pingo object distance
-; inputs: hl jet_oid, bc distx, de disty, iy distz
+; inputs: hl oid, bc distx, de disty, iy distz
 sodrel:
-    ld (@jet_oid),hl
+    ld (@oid),hl
     ld (@x),bc
     ld (@y),de
     ld (@z),iy
@@ -392,20 +392,20 @@ sodrel:
     rst.lil $18
     ret
 @beg:
-; VDU 23, 0, &A0, sid; &49, 145, jet_oid; distx; disty; distz; : Set Object XYZ Translation Distances Relative
+; VDU 23, 0, &A0, sid; &49, 145, oid; distx; disty; distz; : Set Object XYZ Translation Distances Relative
         db 23, 0, $A0
         dw sid
         db $49, 145
-@jet_oid:   dw 0
+@oid:   dw 0
 @x:     dw 0
 @y:     dw 0
 @z:     dw 0
 @end:   db 0 ; padding
 
 ; set pingo object rotation angkes
-; inputs: hl jet_oid, bc anglex, de angley, iy anglez
+; inputs: hl oid, bc anglex, de angley, iy anglez
 sorrel:
-    ld (@jet_oid),hl
+    ld (@oid),hl
     ld (@rx),bc
     ld (@ry),de
     ld (@rz),iy
@@ -414,11 +414,11 @@ sorrel:
     rst.lil $18
     ret
 @beg:
-;  1120 VDU 23, 0, &A0, sid%; &49, 141, jet_oid%; rx; ry; rz; Set Object XYZ Rotation Angles Relative
+;  1120 VDU 23, 0, &A0, sid%; &49, 141, oid%; rx; ry; rz; Set Object XYZ Rotation Angles Relative
         db 23, 0, $A0
         dw sid
         db $49, 141
-@jet_oid:   dw 0
+@oid:   dw 0
 @rx:    dw 0
 @ry:    dw 0
 @rz:    dw 0
@@ -450,83 +450,6 @@ vdu_set_dither:
         db $49,41
 @dt:    db 0x00
 @end:
-
-move_jet_object_abs:
-    ; call printNewLine
-
-    ld hl,(jet_objx)
-    ld de,(jet_objdx)
-    add hl,de
-    ld (@x),hl
-    ld (jet_objx),hl
-    ; call printDec
-
-    ld hl,(jet_objy)
-    ld de,(jet_objdy)
-    add hl,de
-    ld (@y),hl
-    ld (jet_objy),hl
-    ; call printDec
-
-    ld hl,(jet_objz)
-    ld de,(jet_objdz)
-    add hl,de
-    ld (@z),hl
-    ld (jet_objz),hl
-    ; call printDec
-
-    ld hl,@beg
-    ld bc,@end-@beg
-    rst.lil $18
-    ret
-@beg:
-; VDU 23, 0, &A0, sid; &49, 17, jet_oid; distx; disty; distz; : Set Object XYZ Translation Distances
-        db 23, 0, $A0
-        dw sid
-        db $49, 17
-        dw jet_oid
-@x:     dw 0
-@y:     dw 0
-@z:     dw 0
-@end:   db 0 ; padding
-
-rotate_object_abs:
-;  1080 objrx=objrx+objdrx: IF objrx>=pi2 THEN objrx=objrx-pi2
-    ld hl,(jet_objrx)
-    ld de,(jet_objdrx)
-    add hl,de
-    ld (@rx),hl
-    ld (jet_objrx),hl
-    ; call printDec
-;  1090 jet_objry=jet_objry+jet_objdry: IF jet_objry>=pi2 THEN jet_objry=jet_objry-pi2
-    ld hl,(jet_objry)
-    ld de,(jet_objdry)
-    add hl,de
-    ld (@ry),hl
-    ld (jet_objry),hl
-    ; call printDec
-;  1100 jet_objrz=jet_objrz+jet_objdrz: IF jet_objrz>=pi2 THEN jet_objrz=jet_objrz-pi2
-    ld hl,(jet_objrz)
-    ld de,(jet_objdrz)
-    add hl,de
-    ld (@rz),hl
-    ld (jet_objrz),hl
-    ; call printDec
-
-    ld hl,@beg
-    ld bc,@end-@beg
-    rst.lil $18
-    ret
-@beg:
-;  1120 VDU 23, 0, &A0, sid%; &49, 13, jet_oid%; rx; ry; rz; Set jet_object XYZ Rotation Angles
-        db 23, 0, $A0
-        dw sid
-        db $49, 13
-        dw jet_oid
-@rx:    dw 0
-@ry:    dw 0
-@rz:    dw 0
-@end:   db 0 ; padding
 
 rotate_camera_abs:
     ; call printNewLine
@@ -568,8 +491,6 @@ rotate_camera_abs:
 @end:   db 0 ; padding
 
 move_camera_abs:
-    ; call printNewLine
-
     ld hl,(camx)
     ld de,(camdx)
     add hl,de
@@ -596,7 +517,7 @@ move_camera_abs:
     rst.lil $18
     ret
 @beg:
-;   VDU 23, 0, &A0, sid; &48, 25; distx; disty; distz :  Set Camera XYZ Translation Distances
+;   VDU 23, 0, &A0, sid; &48, 25; distx; disty; distz :  Set Camera XYZ Translation Distances 
         db 23, 0, $A0
         dw sid
         db $49, 25
@@ -606,106 +527,57 @@ move_camera_abs:
 @end:   db 0 ; padding
 
 
-move_jet_object_loc:
-    ; call printNewLine
-
-    ld hl,(jet_objx)
-    ld de,(jet_objdx)
-    add hl,de
-    ld (@x),de
-    ld (jet_objx),hl
-    ; call printDec
-
-    ld hl,(jet_objy)
-    ld de,(jet_objdy)
-    add hl,de
+move_object_loc:
+    ld (@oid),hl
+    ld (@x),bc
     ld (@y),de
-    ld (jet_objy),hl
-    ; call printDec
-
-    ld hl,(jet_objz)
-    ld de,(jet_objdz)
-    add hl,de
-    ld (@z),de
-    ld (jet_objz),hl
-    ; call printDec
+    ld (@z),iy
 
     ld hl,@beg
     ld bc,@end-@beg
     rst.lil $18
     ret
 @beg:
-; VDU 23, 0, &A0, sid; &49, 145, jet_oid; distx; disty; distz :  Set Object XYZ Translation Distances
+; VDU 23, 0, &A0, sid; &49, 145, oid; distx; disty; distz :  Set Object XYZ Translation Distances Local
         db 23, 0, $A0
         dw sid
         db $49, 145
-        dw jet_oid
+@oid:   dw 0
 @x:     dw 0
 @y:     dw 0
 @z:     dw 0
 @end:   db 0 ; padding
 
 rotate_object_loc:
-;  1080 jet_objrx=jet_objrx+jet_objdrx: IF jet_objrx>=pi2 THEN jet_objrx=jet_objrx-pi2
-    ld hl,(jet_objrx)
-    ld de,(jet_objdrx)
-    add hl,de
-    ld (@rx),de
-    ld (jet_objrx),hl
-    ; call printDec
-;  1090 jet_objry=jet_objry+jet_objdry: IF jet_objry>=pi2 THEN jet_objry=jet_objry-pi2
-    ld hl,(jet_objry)
-    ld de,(jet_objdry)
-    add hl,de
+    ld (@oid),hl
+    ld (@rx),bc
     ld (@ry),de
-    ld (jet_objry),hl
-    ; call printDec
-;  1100 jet_objrz=jet_objrz+jet_objdrz: IF jet_objrz>=pi2 THEN jet_objrz=jet_objrz-pi2
-    ld hl,(jet_objrz)
-    ld de,(jet_objdrz)
-    add hl,de
-    ld (@rz),de
-    ld (jet_objrz),hl
-    ; call printDec
+    ld (@rz),iy
 
     ld hl,@beg
     ld bc,@end-@beg
     rst.lil $18
     ret
 @beg:
-; VDU 23, 0, &A0, sid; &49, 141, jet_oid; anglex; angley; anglez; :  Set Object XYZ Rotation Angles Local
+; VDU 23, 0, &A0, sid; &49, 141, oid; anglex; angley; anglez; :  Set Object XYZ Rotation Angles Local
         db 23, 0, $A0
         dw sid
         db $49, 141
-        dw jet_oid
+@oid:   dw 0
 @rx:    dw 0
 @ry:    dw 0
 @rz:    dw 0
 @end:   db 0 ; padding
 
 rotate_camera_loc:
-    ; call printNewLine
-
-    ld hl,(camrx)
     ld de,(camdrx)
-    add hl,de
     ld (@rx),de
-    ld (camrx),hl
-    ; call printDec
 
-    ld hl,(camry)
     ld de,(camdry)
-    add hl,de
     ld (@ry),de
-    ld (camry),hl
-    ; call printDec
 
-    ld hl,(camrz)
     ld de,(camdrz)
-    add hl,de
     ld (@rz),de
-    ld (camrz),hl
-    ; call printDec
 
     ld hl,@beg
     ld bc,@end-@beg
@@ -722,28 +594,14 @@ rotate_camera_loc:
 @end:   db 0 ; padding
 
 move_camera_loc:
-    ; call printNewLine
-
-    ld hl,(camx)
     ld de,(camdx)
-    add hl,de
     ld (@x),de
-    ld (camx),hl
-    ; call printDec
 
-    ld hl,(camy)
     ld de,(camdy)
-    add hl,de
     ld (@y),de
-    ld (camy),hl
-    ; call printDec
 
-    ld hl,(camz)
     ld de,(camdz)
-    add hl,de
     ld (@z),de
-    ld (camz),hl
-    ; call printDec
 
     ld hl,@beg
     ld bc,@end-@beg

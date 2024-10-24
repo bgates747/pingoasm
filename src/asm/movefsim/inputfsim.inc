@@ -1,18 +1,18 @@
-; ============ INPUTAIR.INC ============
+; ============ INPUTFSIM.INC ============
 throttle: dl 0x000000 ; unsigned 8-bit integer 255 = 100% throttle
 
 ; ============ KEYBOARD INPUT ============
 do_input:
-; reset control object movement and rotation deltas
+; reset control camera movement and rotation deltas
     ld hl,0
 
-    ld (jet_objdx),hl
-    ld (jet_objdy),hl
-    ld (jet_objdz),hl
+    ld (camdx),hl
+    ld (camdy),hl
+    ld (camdz),hl
 
-    ld (jet_objdrx),hl
-    ld (jet_objdry),hl
-    ld (jet_objdrz),hl
+    ld (camdrx),hl
+    ld (camdry),hl
+    ld (camdrz),hl
 
 ; get user keyboard input
 	; MOSCALL mos_getkbmap
@@ -55,47 +55,45 @@ do_input:
     ld (throttle),hl
 @S:
 
-    ld de,(throttle)
-    ld hl,0
-    xor a ; clear carry
-    sbc hl,de ; subtract throttle from 0
-    ld (jet_objdz),hl
+    ld hl,(throttle)
+    add hl,hl
+    ld (camdz),hl
 
 
-; ------ ROTATE jet_objECT ------
-; rotate jet_object pitch axis
+; ------ ROTATE camera ------
+; rotate camera pitch axis
 ; 58 Up pitch down
     bit 1,(ix+7)
     jr z,@Up
-    ld hl,-jet_objdr
-    ld (jet_objdrx),hl
+    ld hl,camdr
+    ld (camdrx),hl
     xor a
 @Up:
 ; 42 Down pitch up
     bit 1,(ix+5)
     jr z,@Down
-    ld hl,(jet_objdrx)
-    ld de,jet_objdr
+    ld hl,(camdrx)
+    ld de,-camdr
     add hl,de 
-    ld (jet_objdrx),hl
+    ld (camdrx),hl
     xor a
 @Down:
 
-; rotate jet_object roll axis
+; rotate camera roll axis
 ; 26 Left roll left
     bit 1,(ix+3)
     jr z,@Left
-    ld hl,jet_objdr*2 
-    ld (jet_objdrz),hl
+    ld hl,-camdr*2 
+    ld (camdrz),hl
     xor a
 @Left:
 ; 122 Right roll right
     bit 1,(ix+15)
     jr z,@Right
-    ld hl,(jet_objdrz)
-    ld de,-jet_objdr*2 
+    ld hl,(camdrz)
+    ld de,camdr*2 
     add hl,de 
-    ld (jet_objdrz),hl
+    ld (camdrz),hl
     xor a
 @Right:
 
@@ -103,67 +101,23 @@ do_input:
 ; 66 A yaw left
     bit 1,(ix+8)
     jr z,@A
-    ld hl,jet_objdr
-    ld (jet_objdry),hl
+    ld hl,-camdr
+    ld (camdry),hl
     xor a
 @A:
 ; 51 D yaw right
     bit 2,(ix+6)
     jr z,@D
-    ld hl,(jet_objdry)
-    ld de,-jet_objdr
+    ld hl,(camdry)
+    ld de,camdr
     add hl,de 
-    ld (jet_objdry),hl
+    ld (camdry),hl
 @D:
 
-    call rotate_object_loc
-    call move_jet_object_loc
-
-    ld hl,jet_oid
-    call cto ; camera track object
-
-    ; call printNewLine
-    ; ld a,(dithering_type)
-    ; ld hl,0
-    ; ld l,a
-    ; call printDec
+    call rotate_camera_loc
+    call move_camera_loc
 
     jp rendbmp
-
-
-; ; controls not defined for now
-; ; move object y axis
-; ; 64 PgUp move up
-;     bit 7,(ix+7)
-;     jr z,@PgUp
-;     ld hl,objd
-;     ld (objdy),hl
-;     xor a
-; @PgUp:
-; ; 79 PgDn move down
-;     bit 6,(ix+9)
-;     jr z,@PgDn
-;     ld hl,(objdy)
-;     ld de,-objd
-;     add hl,de 
-;     ld (objdy),hl
-;     xor a
-; @PgDn:
-
-
-; ; controls not defined for now
-; ; 17 Q 
-;     bit 0,(ix+2)
-;     jr z,@Q
-
-;     xor a
-; @Q:
-; ; 35 E 
-;     bit 2,(ix+4)
-;     jr z,@E
-
-;     xor a
-; @E:
 
 panel_bmid: equ 259
 panel_width: equ 320
@@ -208,6 +162,12 @@ app_special_init:
     ret
 
 app_special_render:
+    ld hl,panel_bmid
+    call vdu_buff_select
+    call vdu_clg
+    ld bc,panel_x
+    ld de,panel_y
+    call vdu_plot_bmp
     RENDBMP sid, tgtbmid
 dispbmp:
     DISPBMP tgtbmid, cstx, csty ; plot render target bitmap
@@ -224,7 +184,7 @@ csty: equ 0
 
 camd: equ 32*1 ; 32767/256 * bar
 camx: dl  0*camd
-camy: dl  0*camd
+camy: dl  -2*camd
 camz: dl  0*camd
 
 camdx: dl 0x000000

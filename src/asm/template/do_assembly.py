@@ -137,21 +137,21 @@ if __name__ == "__main__":
     build_dir = "src/asm/build"
     inputcam_dir = "src/asm/movecam"
     inputobj_dir = "src/asm/moveobj"
-    inputair_dir = "src/asm/moveair"
+    # inputair_dir = "src/asm/moveair"
 
     # Process the file and assemble each include file
     process_and_assemble(asm_template_dir, asm_template_filepath, build_dir, 'cam', inputcam_dir)
     process_and_assemble(asm_template_dir, asm_template_filepath, build_dir, 'obj', inputobj_dir)
-    process_and_assemble(asm_template_dir, asm_template_filepath, build_dir, 'air', inputair_dir)
+    # process_and_assemble(asm_template_dir, asm_template_filepath, build_dir, 'air', inputair_dir)
 
-    fsim_images = [
-        'fsimpanel.png', 
-        'fsimviewport.png',
-        'middle_harbor_pano.png',
-        'earthuv.png',
-    ]
-    for img_filename in fsim_images:
-        img_size, rgba2_filepath = make_rgba(f'{img_src_dir}/{img_filename}')
-        rgba2_base_filename = os.path.basename(rgba2_filepath)
-        shutil.copyfile(f'{rgba2_filepath}', f'{inputair_dir}/{rgba2_base_filename}')
-        print(f'RGBA2 file has been written to {inputair_dir}/{rgba2_base_filename}')
+    # fsim_images = [
+    #     'fsimpanel.png', 
+    #     'fsimviewport.png',
+    #     'middle_harbor_pano.png',
+    #     'earthuv.png',
+    # ]
+    # for img_filename in fsim_images:
+    #     img_size, rgba2_filepath = make_rgba(f'{img_src_dir}/{img_filename}')
+    #     rgba2_base_filename = os.path.basename(rgba2_filepath)
+    #     shutil.copyfile(f'{rgba2_filepath}', f'{inputair_dir}/{rgba2_base_filename}')
+    #     print(f'RGBA2 file has been written to {inputair_dir}/{rgba2_base_filename}')

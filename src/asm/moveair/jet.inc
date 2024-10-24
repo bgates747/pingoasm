@@ -1,13 +1,36 @@
-model_indices_n: equ 2208
-model_vertices_n: equ 370
-model_uvs_n: equ 738
-model_normals_n: equ 659
-model_texture_width: equ 512
-model_texture_height: equ 512
-model_texture_size: equ 262144
+jet_mid: equ 2
+jet_oid: equ 2
+jet_obj_scale: equ 256
+jet_bmid: equ 256
+
+jet_objdr: equ 91*5 ; 32767/360*foo
+jet_objdrx: dl 0
+jet_objdry: dl 0
+jet_objdrz: dl 0
+
+jet_objrx: dl 0
+jet_objry: dl 0
+jet_objrz: dl 0
+
+jet_objd: equ 32*1 ; 32767/256 * bar
+jet_objx: dl 0*jet_objd
+jet_objy: dl -1*jet_objd
+jet_objz: dl -20*jet_objd
+
+jet_objdx: dl 0x000000
+jet_objdy: dl 0x000000
+jet_objdz: dl 0x000000
+
+jet_indices_n: equ 2208
+jet_vertices_n: equ 370
+jet_uvs_n: equ 738
+jet_normals_n: equ 659
+jet_texture_width: equ 512
+jet_texture_height: equ 512
+jet_texture_size: equ 262144
 
 ; -- VERTICES --
-model_vertices:
+jet_vertices:
 	dw -5304, -1113, 25439
 	dw -409, -2405, -32767
 	dw -3471, -256, -9547
@@ -380,7 +403,7 @@ model_vertices:
 	dw 3907, -1497, -8902
 
 ; -- FACE VERTEX INDICES --
-model_vertex_indices:
+jet_vertex_indices:
 	dw 38, 22, 21
 	dw 151, 25, 148
 	dw 150, 15, 37
@@ -1119,7 +1142,7 @@ model_vertex_indices:
 	dw 243, 367, 366
 
 ; -- TEXTURE UV COORDINATES --
-model_uvs:
+jet_uvs:
 	dw 25647, 41732
 	dw 23607, 4773
 	dw 54865, 48494
@@ -1860,7 +1883,7 @@ model_uvs:
 	dw 33299, 41732
 
 ; -- TEXTURE VERTEX INDICES --
-model_uv_indices:
+jet_uv_indices:
 	dw 67, 36, 33
 	dw 266, 42, 263
 	dw 265, 25, 64
@@ -2599,7 +2622,7 @@ model_uv_indices:
 	dw 477, 733, 730
 
 ; -- NORMALS --
-model_normals:
+jet_normals:
 	dw -27505, -15987, -7844
 	dw 0, 0, -32767
 	dw -28825, 15260, 3139
@@ -3261,7 +3284,7 @@ model_normals:
 	dw 21387, -10633, -22432
 
 ; -- NORMAL INDICES --
-model_normal_indices:
+jet_normal_indices:
 	dw 3, 3, 3
 	dw 16, 16, 16
 	dw 18, 18, 18
@@ -3999,4 +4022,4 @@ model_normal_indices:
 	dw 343, 343, 343
 	dw 344, 344, 344
 
-model_texture: db "jet.rgba2",0
+jet_texture: db "jet.rgba2",0

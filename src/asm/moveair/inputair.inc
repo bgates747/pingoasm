@@ -6,13 +6,13 @@ do_input:
 ; reset control object movement and rotation deltas
     ld hl,0
 
-    ld (objdx),hl
-    ld (objdy),hl
-    ld (objdz),hl
+    ld (jet_objdx),hl
+    ld (jet_objdy),hl
+    ld (jet_objdz),hl
 
-    ld (objdrx),hl
-    ld (objdry),hl
-    ld (objdrz),hl
+    ld (jet_objdrx),hl
+    ld (jet_objdry),hl
+    ld (jet_objdrz),hl
 
 ; get user keyboard input
 	; MOSCALL mos_getkbmap
@@ -59,43 +59,43 @@ do_input:
     ld hl,0
     xor a ; clear carry
     sbc hl,de ; subtract throttle from 0
-    ld (objdz),hl
+    ld (jet_objdz),hl
 
 
-; ------ ROTATE OBJECT ------
-; rotate object pitch axis
+; ------ ROTATE jet_objECT ------
+; rotate jet_object pitch axis
 ; 58 Up pitch down
     bit 1,(ix+7)
     jr z,@Up
-    ld hl,-objdr
-    ld (objdrx),hl
+    ld hl,-jet_objdr
+    ld (jet_objdrx),hl
     xor a
 @Up:
 ; 42 Down pitch up
     bit 1,(ix+5)
     jr z,@Down
-    ld hl,(objdrx)
-    ld de,objdr
+    ld hl,(jet_objdrx)
+    ld de,jet_objdr
     add hl,de 
-    ld (objdrx),hl
+    ld (jet_objdrx),hl
     xor a
 @Down:
 
-; rotate object roll axis
+; rotate jet_object roll axis
 ; 26 Left roll left
     bit 1,(ix+3)
     jr z,@Left
-    ld hl,objdr*2 
-    ld (objdrz),hl
+    ld hl,jet_objdr*2 
+    ld (jet_objdrz),hl
     xor a
 @Left:
 ; 122 Right roll right
     bit 1,(ix+15)
     jr z,@Right
-    ld hl,(objdrz)
-    ld de,-objdr*2 
+    ld hl,(jet_objdrz)
+    ld de,-jet_objdr*2 
     add hl,de 
-    ld (objdrz),hl
+    ld (jet_objdrz),hl
     xor a
 @Right:
 
@@ -103,23 +103,23 @@ do_input:
 ; 66 A yaw left
     bit 1,(ix+8)
     jr z,@A
-    ld hl,objdr
-    ld (objdry),hl
+    ld hl,jet_objdr
+    ld (jet_objdry),hl
     xor a
 @A:
 ; 51 D yaw right
     bit 2,(ix+6)
     jr z,@D
-    ld hl,(objdry)
-    ld de,-objdr
+    ld hl,(jet_objdry)
+    ld de,-jet_objdr
     add hl,de 
-    ld (objdry),hl
+    ld (jet_objdry),hl
 @D:
 
     call rotate_object_loc
-    call move_object_loc
+    call move_jet_object_loc
 
-    ld hl,oid
+    ld hl,jet_oid
     call cto ; camera track object
 
     ; call printNewLine
@@ -165,22 +165,6 @@ do_input:
 ;     xor a
 ; @E:
 
-3dpano_bmid: equ 260
-3dpano_width: equ 512
-3dpano_height: equ 128
-3dpano_size: equ 3dpano_width*3dpano_height
-3dpano_file: db "middle_harbor_pano.rgba2",0
-3dpano_x: equ 0
-3dpano_y: equ 0
-
-3dview_bmid: equ 258
-3dview_width: equ 320
-3dview_height: equ 148
-3dview_size: equ 3dview_width*3dview_height
-3dview_file: db "fsimviewport.rgba2",0
-3dview_x: equ 0
-3dview_y: equ 0
-
 panel_bmid: equ 259
 panel_width: equ 320
 panel_height: equ 92
@@ -190,24 +174,6 @@ panel_x: equ 0
 panel_y: equ 148
 
 app_special_images:
-; load 3d viewport image to a buffer and make it a bitmap
-    ld bc,3dpano_width
-    ld de,3dpano_height
-    ld hl,3dpano_bmid
-    ld ix,3dpano_size
-    ld iy,3dpano_file
-    ld a,1 ; rgba2
-    call vdu_load_img
-
-; load 3d viewport image to a buffer and make it a bitmap
-    ld bc,3dview_width
-    ld de,3dview_height
-    ld hl,3dview_bmid
-    ld ix,3dview_size
-    ld iy,3dview_file
-    ld a,1 ; rgba2
-    call vdu_load_img
-
 ; load instrument panel image to a buffer and make it a bitmap
     ld bc,panel_width
     ld de,panel_height
@@ -234,32 +200,21 @@ app_special_init:
     call vdu_plot_bmp
 
 ; set graphics viewport to 3d view
-    ld bc,3dview_x
-    ld de,3dview_y
-    ld ix,3dview_x+3dview_width-1
-    ld iy,3dview_y+3dview_height-1
+    ld bc,0
+    ld de,0
+    ld ix,320-1
+    ld iy,148-1
     call vdu_set_gfx_viewport
     ret
 
 app_special_render:
     RENDBMP sid, tgtbmid
 dispbmp:
-    ; call vdu_clg ; clear screen
-    ; ld hl,3dview_bmid
-    ; call vdu_buff_select
-    ; ld bc,3dview_x
-    ; ld de,3dview_y
-    ; call vdu_plot_bmp
     DISPBMP tgtbmid, cstx, csty ; plot render target bitmap
     call vdu_flip ; flip the screen buffer
     ret
 
-
 sid: equ 100
-mid: equ 1
-oid: equ 1
-obj_scale: equ 256
-objbmid: equ 256
 tgtbmid: equ 257
 
 cstw: equ 320
@@ -269,7 +224,7 @@ csty: equ 0
 
 camd: equ 32*1 ; 32767/256 * bar
 camx: dl  0*camd
-camy: dl  0*camd
+camy: dl  -1*camd
 camz: dl  0*camd
 
 camdx: dl 0x000000
@@ -284,23 +239,5 @@ camrz: dl 0x000000
 camdrx: dl 0x000000
 camdry: dl 0x000000
 camdrz: dl 0x000000
-
-objdr: equ 91*5 ; 32767/360*foo
-objdrx: dl 0
-objdry: dl 0
-objdrz: dl 0
-
-objrx: dl 0
-objry: dl 0
-objrz: dl 0
-
-objd: equ 32*1 ; 32767/256 * bar
-objx: dl 0*objd
-objy: dl 0 ; -42 ; -1/3*objd
-objz: dl -20*objd
-
-objdx: dl 0x000000
-objdy: dl 0x000000
-objdz: dl 0x000000
 
 dithering_type: db 0x00 ; 0=none, 1=bayer ordered matrix, 2=floyd-steinberg

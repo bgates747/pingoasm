@@ -1,0 +1,13 @@
+Title: earthuv baseline
+Render to 320x240 took 211 ms (4.74 FPS)
+Render to 320x240 took 210 ms (4.76 FPS)
+Render to 320x240 took 211 ms (4.74 FPS)
+Render to 320x240 took 211 ms (4.74 FPS)
+
+Title: earthuv precomp transform matrices
+Render to 320x240 took 209 ms (4.78 FPS)
+Render to 320x240 took 208 ms (4.81 FPS)
+Render to 320x240 took 209 ms (4.78 FPS)
+Render to 320x240 took 210 ms (4.76 FPS)
+
+

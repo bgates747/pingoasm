@@ -55,6 +55,9 @@ push_a_button: db "Press any key to continue.",0
 ; model includes
 ;    ; include "jet.inc"
     include "koak28lr.inc"
+    ; include "cube.inc"
+    ; include "earthuv.inc"
+    ; include "tri.inc"
 ; end model includes
 
 ; placeholder includes
@@ -72,11 +75,8 @@ push_a_button: db "Press any key to continue.",0
     ; include "airliner.inc"
     ; include "crash.inc"
     ; include "LaraCroft.inc"
-    ; include "cube.inc"
-    ; include "tri.inc"
     ; include "heavytank.inc"
     ; include "wolf_map.inc"
-    ; include "earthuv.inc"
     ; include "earthuvinv.inc"
     ; include "cyl.inc"
 ; end placeholder includes
@@ -93,16 +93,16 @@ main:
 ;     call printString
 ;     call waitKeypress
 
-; ; load texture file to a buffer and make it a bitmap
-;     ld bc,model_texture_width
-;     ld de,model_texture_height
-;     ld hl,objbmid
-;     ld ix,model_texture_size
-;     ld iy,model_texture
-;     ld a,1 ; rgba2222
-;     call vdu_load_img
+; load texture file to a buffer and make it a bitmap
+    ld bc,model_texture_width
+    ld de,model_texture_height
+    ld hl,objbmid
+    ld ix,model_texture_size
+    ld iy,model_texture
+    ld a,1 ; rgba2222
+    call vdu_load_img
 
-;     call app_special_images
+    call app_special_images
 
 ; create render target bitmap rgba2222 format
 ctb2:
@@ -120,13 +120,13 @@ sv:
 smvi:
     SMVI sid, mid, model_vertex_indices, model_indices_n
 
-; ; create texture coordinates
-; stc:
-;     STC sid, oid, model_uvs, model_uvs_n
+; create texture coordinates
+stc:
+    STC sid, oid, model_uvs, model_uvs_n
 
-; ; create texture coordinate indices
-; stci:
-;     STCI sid, oid, model_uv_indices, model_indices_n
+; create texture coordinate indices
+stci:
+    STCI sid, oid, model_uv_indices, model_indices_n
 
 ; ; create normals
 ; sn:
@@ -138,7 +138,7 @@ smvi:
 
 ; create object
 co:
-    CO sid, oid, mid, 0
+    CO sid, oid, mid, objbmid
 
 ; set object scale
 so:
@@ -180,8 +180,7 @@ preloop:
     ; call move_camera
     ld bc,(camx)
     ld de,(camy)
-    ; ld iy,(camz)
-    ld iy,camd*1
+    ld iy,(camz)
     call scdabs
 
 ; initialize main loop timer
