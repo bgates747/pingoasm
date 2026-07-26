@@ -1,6 +1,34 @@
-import subprocess
 import os
 import shutil
+import subprocess
+
+
+def find_blender(blender_executable=None):
+    """Return a usable Blender executable on Linux or macOS."""
+    if blender_executable:
+        executable = shutil.which(blender_executable)
+        if executable:
+            return executable
+        if os.path.isfile(blender_executable) and os.access(
+            blender_executable, os.X_OK
+        ):
+            return blender_executable
+        raise FileNotFoundError(
+            f"Blender executable is not usable: {blender_executable}"
+        )
+
+    macos_blender = "/Applications/Blender.app/Contents/MacOS/Blender"
+    if os.path.isfile(macos_blender) and os.access(macos_blender, os.X_OK):
+        return macos_blender
+
+    for executable_name in ("blender", "Blender"):
+        executable = shutil.which(executable_name)
+        if executable:
+            return executable
+
+    raise FileNotFoundError(
+        "Blender executable not found on PATH or in the standard macOS app."
+    )
 
 def do_blender(blender_file_path, blender_script_path, blender_executable=None, blender_local_prefs_path=None, *args):
     """
@@ -13,15 +41,7 @@ def do_blender(blender_file_path, blender_script_path, blender_executable=None, 
     :param blender_local_prefs_path: Optional path to a directory containing the userpref.blend file.
     :param args: Arbitrary list of additional arguments to pass to the Blender script.
     """
-    # Set default Blender executable path if not provided
-    if not blender_executable:
-        default_blender_path = "/Applications/Blender.app/Contents/MacOS/Blender"
-        if os.path.exists(default_blender_path):
-            blender_executable = default_blender_path
-        else:
-            blender_executable = shutil.which("Blender")
-            if not blender_executable:
-                raise FileNotFoundError("Blender executable not found. Please provide the correct path.")
+    blender_executable = find_blender(blender_executable)
     
     # Environment variables for Blender
     env_vars = os.environ.copy()
@@ -40,7 +60,7 @@ def do_blender(blender_file_path, blender_script_path, blender_executable=None, 
     ] + [str(arg) for arg in args]  # Convert all arguments to strings and append
     
     print(' '.join(cmd))
-    subprocess.run(cmd, env=env_vars)
+    return subprocess.run(cmd, env=env_vars, check=True)
 
 def check_blender_version(blender_executable=None):
     """
@@ -48,27 +68,16 @@ def check_blender_version(blender_executable=None):
     
     :param blender_executable: Path to the Blender executable.
     """
-    # Set default Blender executable path if not provided
-    if not blender_executable:
-        default_blender_path = "/Applications/Blender.app/Contents/MacOS/Blender"
-        if os.path.exists(default_blender_path):
-            blender_executable = default_blender_path
-        else:
-            blender_executable = shutil.which("Blender")
-            if not blender_executable:
-                raise FileNotFoundError("Blender executable not found. Please provide the correct path.")
+    blender_executable = find_blender(blender_executable)
     
     # Command to check Blender version
     cmd = [blender_executable, "--version"]
     
-    result = subprocess.run(cmd, capture_output=True, text=True)
+    result = subprocess.run(
+        cmd, capture_output=True, text=True, check=True
+    )
     print(result.stdout)
+    return result.stdout
 
 if __name__ == "__main__":
-    blender_executable = None
-    blender_local_prefs_path = None
-
-    blender_file_path = "ez80/src/blender/cube.blend"
-    blender_script_path = "ez80/build/scripts/blend_export.py"
-    output_file = 'ez80/build/scripts/vertices_from_blender.py'
-    do_blender(blender_file_path, blender_script_path, blender_executable, None, output_file)
+    check_blender_version()
