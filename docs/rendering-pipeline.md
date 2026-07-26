@@ -12,8 +12,17 @@ src/blender/
 build/scripts/
     Blender automation, extraction, conversion, image processing, and probes
 
-src/asm/
-    client source plus the runtime assets packaged beside each executable
+apps/_common/
+    shared assembly and the generic model-viewer template
+
+apps/<name>/src/
+    flat authoritative or generated application assembly
+
+apps/<name>/tgt/
+    flat ignored binaries and RGBA2 runtime textures
+
+src/asm/models/
+    temporary model definitions and texture library
 ```
 
 The emulator repository may invoke this pipeline, but it must not own copies
@@ -105,6 +114,14 @@ entry points still contain former `ez80/` paths, macOS Blender paths, or
 machine-specific absolute paths. Treat those as historical scripts requiring
 parameterization before reuse; do not copy their paths into new automation.
 
+Utilities formerly mixed into `src/asm/template` now live under
+`build/scripts/legacy/template`. They were moved intact to clarify that
+`apps/_common` contains assembly shared by applications; moving them did not
+promote the historical utilities to supported pipeline entry points.
+
+The former `src/asm/apps5` generated package collection is historical and now
+lives under `archive/asm/apps5`.
+
 The first modernization target is one end-to-end, argument-driven path:
 
 ```text
@@ -117,4 +134,6 @@ The first modernization target is one end-to-end, argument-driven path:
 ```
 
 Generated output should be written explicitly, never overwrite a source
-`.blend`, and record its input paths and Blender version.
+`.blend`, and record its generator and input provenance. Generated `.asm` and
+`.inc` files must carry the standard warning banner described in
+`docs/assembly-build-pipeline.md`.

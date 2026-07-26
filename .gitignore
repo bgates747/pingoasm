@@ -17,6 +17,9 @@
 # Ignore Agon autoexec files
 autoexec*.txt
 
+# Generated application runtime packages
+/apps/*/tgt/
+
 ## BOILERPLATE PYTHON TEMPLATE ##
 # Ignore Stupid Windows Thumbs.db files
 Thumbs.db
