@@ -198,16 +198,18 @@ change per commit so every regression can be attributed or reverted cleanly.
       the texture and `v = 1` is the top. PNG and raw RGBA texture memory remain
       top-row first. The sampler performs the sole conversion with the
       equivalent of `image_y = (1 - v) × (height - 1)`.
+      **Implemented and hardware-qualified on `pingo-codex`:** every cube face
+      now selects the intended atlas region and appears upright under the
+      Blender model's designed rotations.
    9. Preserve TurboVega's published VDU command meanings at the bridge. If an
       internal renderer ever adopts different conventions, all conversion
       belongs at that boundary and must not leak into application data,
       controls, models, or texture assets.
 
-   The `pingo-codex` branch now satisfies the camera-pose and viewport-Y rules.
-   The remaining renderer negates texture V during interpolation and wraps
-   texture Y by the texture width rather than its height. Those are
-   implementation defects to correct against mathematical and visual
-   regression tests, not alternative conventions.
+   The `pingo-codex` branch now satisfies the camera-pose, viewport-Y, and
+   texture-row rules. Texture Y uses the actual texture height. The remaining
+   major UV defect is perspective interpolation, to be corrected against
+   mathematical and visual regression tests.
 
    > **Margin note — The Author:** “Whoever invented such a stupid convention
    > needs to be dragged out back and shot.”
@@ -288,12 +290,14 @@ change per commit so every regression can be attributed or reverted cleanly.
     Acceptance requires the cube texture to remain geometrically stable as a
     face recedes in depth, with no affine swimming or skew.
 
-12. **Separate UV orientation from geometry orientation.**
+12. **Separate UV orientation from geometry orientation. — Complete**
 
-    After perspective correction, test U direction, V direction, bitmap row
-    order, and triangle winding independently. Never repair an upside-down
-    model by silently flipping texture V, or repair a mirrored texture by
-    reversing geometry.
+    U direction, V direction, bitmap row order, and geometry orientation were
+    tested independently before perspective correction. Hardware confirms that
+    the intended texture maps to all six cube faces. Vertical faces read
+    upright; top and bottom rotate into view upright under the X-axis-only test
+    designed in Blender. Geometry was not reflected to obtain this result.
+    Perspective distortion remains separately tracked by item 11.
 
 ### Priority 5: worthwhile renderer improvements
 
