@@ -214,20 +214,22 @@ identifiers.
 
 ## Deployment
 
-For emulator deployment, `build/scripts/deploy.py` completely clears the
-selected project-local emulated SD card and copies:
+For emulator use, `build/scripts/deploy.py` creates or repairs a live
+filesystem link from the selected profile:
 
 ```text
-apps/
+/mystuff/pingoasm/apps
 ```
 
 to:
 
 ```text
-/mystuff/pingoasm/apps/
+~/Agon/mystuff/pingoasm/apps
 ```
 
-It preserves the selected profile's user-controlled `autoexec.txt` unchanged.
+The emulator therefore sees rebuilt binaries immediately without a deployment
+copy. The script preserves the selected profile's user-controlled
+`autoexec.txt` unchanged.
 The `emulator` target selects the existing extended-Pingo profile at
 `pingoasm/emulator`. The `baseline-emulator` target selects the independent
 VDP 2.15 plus TurboVega-final profile at
@@ -239,11 +241,10 @@ The current extended emulator configuration loads:
 /mystuff/pingoasm/apps/moveair/tgt/jet.bin
 ```
 
-Each emulator SD contains only its preserved `autoexec.txt` and the copied
-Pingo application tree. Hardware deployment remains narrower: it replaces one
+Hardware deployment is the only application-file copy: it replaces one
 selected `apps/<app>/tgt` at the matching hardware SD path.
 
-The deployed cube was verified byte-identical to the newly built local target.
+The emulator-visible cube is the local target itself through the live link.
 The obsolete `/mystuff/pingoasm/samples/moveobj` emulator path was removed.
 
 ## Verification

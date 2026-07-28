@@ -69,7 +69,7 @@ csty: equ 0
 
 camx: dl 0
 camy: dl 0
-camz: dl -25*128
+camz: dl 25*128
 camdx: dl 0
 camdy: dl 0
 camdz: dl 0

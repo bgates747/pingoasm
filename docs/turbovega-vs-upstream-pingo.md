@@ -157,7 +157,7 @@ change per commit so every regression can be attributed or reverted cleanly.
 
 ### Priority 2: low-risk corrections and guardrails
 
-4. **Coordinate convention: decided and stated; enforcement pending.**
+4. **Coordinate convention: decided and stated; enforcement in progress.**
 
    The authoritative public VDU and world convention is:
 
@@ -200,11 +200,11 @@ change per commit so every regression can be attributed or reverted cleanly.
       belongs at that boundary and must not leak into application data,
       controls, models, or texture assets.
 
-   The current TurboVega baseline does not yet satisfy these rules: it copies
-   the camera transform directly into `camera_view`, omits the viewport Y flip,
-   negates texture V during interpolation, and wraps texture Y by the texture
-   width rather than its height. Those are implementation defects to correct
-   against mathematical and visual regression tests, not alternative
+   The `pingo-codex` branch now satisfies the camera-pose rule by inverting the
+   pose once at the VDU bridge. The remaining renderer still omits the viewport
+   Y flip, negates texture V during interpolation, and wraps texture Y by the
+   texture width rather than its height. Those are implementation defects to
+   correct against mathematical and visual regression tests, not alternative
    conventions.
 
    > **Margin note — The Author:** “Whoever invented such a stupid convention
@@ -243,16 +243,19 @@ change per commit so every regression can be attributed or reverted cleanly.
    on the right, and `-X` on the left under the chosen convention, without
    relying on compensating UV or image flips.
 
-9. **Separate camera pose from view-matrix semantics.**
+9. **Separate camera pose from view-matrix semantics. — Complete**
 
    TurboVega's wire protocol supplies the transform consumed directly as the
    view matrix. Latest upstream stores a camera pose and inverts it internally.
-   Choose one internal representation, name it accurately, and perform any
-   conversion exactly once at the VDU boundary.
+   The public and bridge representation is now the camera pose. The
+   `pingo-codex` VDU bridge inverts it exactly once when assigning the
+   renderer's world-to-view matrix.
 
-   Acceptance requires camera movement and object movement to remain distinct:
-   rotating an object must rotate it about its own origin, while rotating the
-   camera must alter the view around the camera's origin.
+   Hardware qualification with the strict cube fixture confirmed that a camera
+   pose at `(0, 0, +25)` again renders the cube. X and Z translations behave
+   correctly. The remaining Y-translation and X/Z-rotation reversals form the
+   exact pattern expected from the separately tracked viewport Y reflection;
+   they are not evidence for another camera inversion.
 
 10. **Verify transform composition order.**
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Deploy Pingo applications to the emulator or hardware SD card."""
+"""Link Pingo applications into emulators or copy them to hardware SD."""
 
 from __future__ import annotations
 
@@ -45,18 +45,18 @@ def replace_deployment(source: Path, destination: Path) -> None:
     print(f"Deployed {source} to {destination}")
 
 
-def clear_directory(directory: Path, preserve: frozenset[str] = frozenset()) -> None:
-    if directory.is_symlink() or not directory.is_dir():
-        raise SystemExit(f"Refusing unsafe emulator SD path: {directory}")
-    for child in directory.iterdir():
-        if child.name in preserve:
-            continue
-        if child.is_symlink() or child.is_file():
-            child.unlink()
-        elif child.is_dir():
-            shutil.rmtree(child)
-        else:
-            raise SystemExit(f"Refusing unexpected SD entry: {child}")
+def replace_apps_link(destination: Path) -> None:
+    if destination.is_symlink():
+        destination.unlink()
+    elif destination.exists():
+        if not destination.is_dir():
+            raise SystemExit(
+                f"Refusing non-directory emulator app path: {destination}"
+            )
+        shutil.rmtree(destination)
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    destination.symlink_to(APPS_ROOT, target_is_directory=True)
+    print(f"Linked {destination} to {APPS_ROOT}")
 
 
 def deploy_to_emulator(sdcard: Path, setup_profile: str) -> None:
@@ -70,12 +70,8 @@ def deploy_to_emulator(sdcard: Path, setup_profile: str) -> None:
     if not required.is_file():
         raise SystemExit(f"Required default application is missing: {required}")
 
-    # autoexec.txt is user-controlled runtime configuration.
-    clear_directory(sdcard, preserve=frozenset({"autoexec.txt"}))
     destination = sdcard / DEPLOY_RELATIVE_ROOT
-    destination.parent.mkdir(parents=True)
-    shutil.copytree(APPS_ROOT, destination)
-    print(f"Deployed {APPS_ROOT} to {destination}")
+    replace_apps_link(destination)
 
 
 def deploy_to_hardware(sample: str, sd_mount: Path) -> None:
@@ -96,9 +92,9 @@ def deploy_to_hardware(sample: str, sd_mount: Path) -> None:
 def main() -> None:
     parser = argparse.ArgumentParser(
         description=(
-            "Replace the complete app tree on the emulator SD, deploy one "
-            "app target to hardware, or do both. The historical baseline "
-            "emulator is an explicit, independent destination."
+            "Link the canonical app tree into an emulator SD, copy one app "
+            "target to hardware, or do both. The historical baseline emulator "
+            "is an explicit, independent destination."
         )
     )
     parser.add_argument(

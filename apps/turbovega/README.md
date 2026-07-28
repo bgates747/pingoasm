@@ -48,9 +48,10 @@ than a copy of the later Pingo command surface.
 
 TurboVega decodes scale as unsigned 8.8 fixed point (`value / 256`) and
 translation as signed world units (`value * 256 / 32767`). The fixture uses
-scale word `5 * 256` (`5.0x`) and camera Z word `-25 * 128` (approximately
-`-25.0`). These are the known-good scale/distance values from TurboVega's
-orientation sample.
+scale word `5 * 256` (`5.0x`) and camera Z word `+25 * 128` (approximately
+`+25.0`). The positive camera value deliberately follows the project's decided
+pose semantics rather than TurboVega's historical view-transform
+compensation.
 
 Build from `apps/turbovega/src`:
 
@@ -91,11 +92,11 @@ near-plane triangle clipping; preventing the test triangle from reaching or
 crossing the camera avoids turning an intentional control test into undefined
 projection behavior.
 
-The initial camera translation is `(0, 0, -25)`. With the object's `5.0x`
-scale, the projected vertices should be approximately `(237,197)`, `(82,197)`,
-and `(82,42)`. The selected texture region is the dark-navy `-Z` tile with
-white/gray markings and a black border. Cyan, a full-screen diagonal split, or
-the complete 3-by-3 axes texture are failures, not acceptable variants.
+The initial camera pose is `(0, 0, +25)`, looking along `-Z`. A conforming
+bridge must invert that pose once, producing a view translation of
+`(0, 0, -25)`. The unchanged TurboVega baseline consumed the positive value
+directly as a view transform and displayed only the clear color. The
+`pingo-codex` camera-pose correction makes the fixture visible.
 
 Reset the VDP before the first hardware run after an older malformed fixture;
 that program may have left corrupted renderer state behind.

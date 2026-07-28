@@ -80,17 +80,18 @@ The project owns two completely independent emulator profiles:
 2. `emulators/tv-port-baseline` runs the VDP 2.15 plus TurboVega-final
    historical baseline.
 
-Deployment completely clears only the selected profile's emulated SD card and
-copies the entire `apps/` tree beneath `/mystuff/pingoasm`:
+Both profiles expose the canonical project `apps/` tree through a host
+filesystem symlink:
 
 ```text
-apps/
-    -> /mystuff/pingoasm/apps/
+emulator/sdcard/mystuff/pingoasm/apps
+    -> ~/Agon/mystuff/pingoasm/apps
 ```
 
-The resulting emulator SD contains only this application tree and that
-profile's user-controlled `autoexec.txt`. Deployment preserves
-`autoexec.txt` unchanged.
+The baseline profile has the same mapping beneath its own `sdcard`. Rebuilding
+an application therefore updates both emulators immediately; application files
+are never copied between project space and emulator profiles. Setup and
+deployment preserve each profile's user-controlled `autoexec.txt`.
 
 Create or refresh either project-local emulator:
 
@@ -100,7 +101,7 @@ python3 scripts/setup_emulator.py pingoasm
 python3 scripts/setup_emulator.py pingo-tv-baseline
 ```
 
-Deploy a rebuilt app:
+Create or repair the live emulator mapping, or copy an app to hardware:
 
 ```bash
 cd ~/Agon/mystuff/pingoasm
@@ -123,12 +124,13 @@ python3 scripts/setup_emulator.py pingo-tv-baseline \
   --refresh-baseline-vdp
 ```
 
-Hardware deployment remains app-specific: it copies
+Only hardware deployment copies application files out of project space. It
+remains app-specific: it copies
 `apps/<app>/tgt` to `/mystuff/pingoasm/apps/<app>/tgt`. It requires the SD card
 to be mounted at `/media/smith/AGON` unless `--sd-mount` is supplied.
 Mount-point, expected-path, and symlink guards are enforced.
 
-Deployment does not rewrite either emulator or hardware `autoexec.txt` files.
+Deployment does not rewrite any emulator or hardware `autoexec.txt` file.
 To load the jet demo:
 
 ```text
