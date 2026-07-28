@@ -191,6 +191,9 @@ change per commit so every regression can be attributed or reverted cleanly.
       origin at the top left and its `+Y` points down. Viewport conversion
       flips Y exactly once. The corresponding winding, backface-culling, and
       rasterizer edge signs must be corrected as one coordinated change.
+      **Implemented and hardware-qualified on `pingo-codex`:** culling remains
+      in pre-viewport NDC, while the rasterizer accepts edge weights matching
+      the reflected screen-space area sign.
    8. UV coordinates follow Blender/OBJ convention: `v = 0` is the bottom of
       the texture and `v = 1` is the top. PNG and raw RGBA texture memory remain
       top-row first. The sampler performs the sole conversion with the
@@ -200,12 +203,11 @@ change per commit so every regression can be attributed or reverted cleanly.
       belongs at that boundary and must not leak into application data,
       controls, models, or texture assets.
 
-   The `pingo-codex` branch now satisfies the camera-pose rule by inverting the
-   pose once at the VDU bridge. The remaining renderer still omits the viewport
-   Y flip, negates texture V during interpolation, and wraps texture Y by the
-   texture width rather than its height. Those are implementation defects to
-   correct against mathematical and visual regression tests, not alternative
-   conventions.
+   The `pingo-codex` branch now satisfies the camera-pose and viewport-Y rules.
+   The remaining renderer negates texture V during interpolation and wraps
+   texture Y by the texture width rather than its height. Those are
+   implementation defects to correct against mathematical and visual
+   regression tests, not alternative conventions.
 
    > **Margin note — The Author:** “Whoever invented such a stupid convention
    > needs to be dragged out back and shot.”
@@ -233,15 +235,19 @@ change per commit so every regression can be attributed or reverted cleanly.
 
 ### Priority 3: correct the transform pipeline
 
-8. **Resolve the cube axis permutation and vertical inversion first.**
+8. **Resolve the cube axis permutation and vertical inversion first. —
+   Geometry movement complete; texture orientation remains**
 
    Trace one vertex and its face normal through the complete pipeline. Explain
    why the visible top, bottom, right, and left faces currently correspond to
    the wrong labeled axes and why Page Up moves the model downward.
 
-   Acceptance requires the cube to show `+Y` on top, `-Y` on the bottom, `+X`
-   on the right, and `-X` on the left under the chosen convention, without
-   relying on compensating UV or image flips.
+   Hardware qualification of the one-time viewport Y reflection confirms that
+   all three translation directions and all three rotation directions now
+   appear correct without changing object matrices. The cube retains visible
+   geometry, but its texture appears vertically upside-down. Face-label
+   acceptance remains pending the separate texture-V and image-row correction;
+   geometry must not be reflected again to compensate.
 
 9. **Separate camera pose from view-matrix semantics. — Complete**
 
