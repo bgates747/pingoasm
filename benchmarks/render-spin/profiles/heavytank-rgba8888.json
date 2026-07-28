@@ -5,6 +5,7 @@
   "texture_source": "src/blender/blenderaxes.rgba8",
   "texture_filename": "blenderaxes.rgba8",
   "texture_format": "rgba8888",
+  "target_format": "rgba8888",
   "texture_width": 34,
   "texture_height": 34,
   "control_id": 1300,

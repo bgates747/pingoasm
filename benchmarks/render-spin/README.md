@@ -37,15 +37,15 @@ The generated source is self-contained and carries provenance banners. The
 `tgt` directory is ignored because it is reproducible runtime output.
 
 To define another workload, copy a JSON file under `profiles/` and change its
-model, texture, dimensions, format, scale, camera, or rotation settings. The
-generator deliberately keeps texture metadata outside the geometry include, so
-one model can be tested against more than one texture format.
+model, texture, texture format, target format, dimensions, scale, camera, or
+rotation settings. The generator deliberately keeps texture and target metadata
+outside the geometry include.
 
 The initial profiles demonstrate reuse:
 
 1. `cube-rgba8888.json` is the original small visual-regression baseline.
-2. `cube-rgba2222.json` changes only the Cube texture file and declared bitmap
-   format, providing the paired format/performance comparison.
+2. `cube-rgba2222.json` uses the packed Cube texture and packed warmup/measured
+   targets, providing the full one-byte pipeline comparison.
 3. `heavytank-rgba8888.json` runs the same benchmark protocol against the
    higher-poly, chiral HeavyTank model.
 
@@ -123,7 +123,7 @@ Do not compare emulator timings as ESP32 performance. The same fixture may be
 run there for correctness and for emulator-specific regression measurements
 after the hardware result has been validated.
 
-## Qualified dual-format result
+## Qualified dual-input result
 
 Pingo 2.15 Alpha 1 accepts both source texture formats through existing VDP
 bitmap metadata. Visually qualified hardware runs measured:
@@ -138,3 +138,43 @@ The shared 1 KiB read-only lookup removed the per-texel expansion penalty.
 Lookup-table RGBA2222 was within 0.038% of RGBA8888 while retaining a 75%
 smaller source texture and transfer. These results cover source textures only;
 Pingo's working framebuffer and render target remain RGBA8888.
+
+## Qualified one-byte working/output result
+
+The qualified implementation in `agon-vdp` commit `a382ede` makes RGBA2222
+Pingo's working pixel, samples packed textures directly, and binds the
+command-selected RGBA2222 target as the framebuffer. RGBA8888 sources retain
+four-byte stride and are packed when sampled; RGBA8888 targets are expanded
+after the timed renderer interval for legacy compatibility.
+
+The first hardware capture deliberately used the old RGBA8888-target binary to
+test that compatibility path:
+
+```text
+Mean:                 203.729 ms
+Equivalent rate:        4.908 FPS
+Frame-time reduction:  12.46%
+FPS increase:          14.23%
+```
+
+The regenerated 2,681-byte `cube-rgba2222` fixture creates both targets with
+`CTB2`. Two direct-target hardware captures agreed to approximately 1 µs in
+mean frame time. The clean canonical repeat is:
+
+```text
+Mean:                 203.626 ms
+Equivalent rate:        4.911 FPS
+Minimum:              191.603 ms
+Median:               202.931 ms
+P95:                  213.917 ms
+Maximum:              213.955 ms
+```
+
+Against the best preceding RGBA2222 lookup implementation at 232.720 ms and
+4.297 FPS, the one-byte pipeline reduces timed renderer work by 12.50% and
+increases effective FPS by 14.29%. The saved result is
+`results/cube-rgba2222-one-byte-hardware-2026-07-28.json`.
+
+The interval excludes output conversion/copying. Consequently this comparison
+credits the one-byte renderer but does not count the additional end-to-end
+benefit of rendering directly into the packed target.

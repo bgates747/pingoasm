@@ -21,6 +21,10 @@ TEXTURE_FORMATS = {
     "rgba8888": 0,
     "rgba2222": 1,
 }
+TARGET_FORMATS = {
+    "rgba8888": "CTB",
+    "rgba2222": "CTB2",
+}
 AXIS_REGISTERS = {
     "x": ("{angle}", "0", "0"),
     "y": ("0", "{angle}", "0"),
@@ -44,6 +48,7 @@ def load_profile(path: Path) -> dict[str, Any]:
         "model_source",
         "texture_source",
         "texture_format",
+        "target_format",
         "texture_width",
         "texture_height",
         "control_id",
@@ -63,6 +68,8 @@ def load_profile(path: Path) -> dict[str, Any]:
         raise ValueError(f"profile is missing: {', '.join(missing)}")
     if profile["texture_format"] not in TEXTURE_FORMATS:
         raise ValueError(f"unsupported texture_format: {profile['texture_format']}")
+    if profile["target_format"] not in TARGET_FORMATS:
+        raise ValueError(f"unsupported target_format: {profile['target_format']}")
     if profile["rotation_axis"] not in AXIS_REGISTERS:
         raise ValueError(f"rotation_axis must be x, y, or z")
     ids = [
@@ -128,6 +135,7 @@ def assembly(profile: dict[str, Any], profile_path: Path, texture_name: str) -> 
     profile_rel = profile_path.resolve().relative_to(PROJECT_ROOT.resolve()).as_posix()
     texture_size = project_path(profile["texture_source"]).stat().st_size
     texture_format = TEXTURE_FORMATS[profile["texture_format"]]
+    target_macro = TARGET_FORMATS[profile["target_format"]]
     return banner(profile_rel) + f"""\
 mos_load: equ 01h
 mos_sysvars: equ 08h
@@ -188,8 +196,8 @@ main:
     ld a,{texture_format}
     call vdu_load_img
 
-    CTB tgtbmid,{width},{height}
-    CTB warmupbmid,{width},{height}
+    {target_macro} tgtbmid,{width},{height}
+    {target_macro} warmupbmid,{width},{height}
     CCS sid,{width},{height}
     SV sid,mid,model_vertices,model_vertices_n
     SMVI sid,mid,model_vertex_indices,model_indices_n

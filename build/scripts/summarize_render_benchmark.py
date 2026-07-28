@@ -110,6 +110,8 @@ def main() -> int:
     mean = statistics.fmean(durations)
     summary = {
         "profile": profile["name"],
+        "texture_format": profile.get("texture_format", "unknown"),
+        "target_format": profile.get("target_format", "unknown"),
         "platform": args.platform,
         "firmware": args.firmware,
         "timing_scope": "rendererRender only",
@@ -130,7 +132,10 @@ def main() -> int:
         "frames": frames,
     }
 
-    print(f"Profile: {summary['profile']} ({args.platform})")
+    print(
+        f"Profile: {summary['profile']} ({args.platform}, "
+        f"{summary['texture_format']} texture -> {summary['target_format']} target)"
+    )
     print(f"Frames: {measured_count} measured after {warmup_count} warmups")
     print(f"Mean: {mean:.1f} us ({summary['equivalent_mean_fps']:.2f} equivalent FPS)")
     print(

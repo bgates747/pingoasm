@@ -1,6 +1,6 @@
 # Deterministic cube render benchmark proposal
 
-Status: implemented and qualified on hardware and emulator
+Status: implemented and qualified on hardware; emulator timing is non-authoritative
 Date: 2026-07-28
 
 ## Objective
@@ -28,6 +28,7 @@ inputs and tools are:
 benchmarks/render-spin/
 ├── profiles/
 │   ├── cube-rgba8888.json
+│   ├── cube-rgba2222.json
 │   └── heavytank-rgba8888.json
 └── fixtures/<profile>/src/
 
@@ -36,11 +37,11 @@ build/scripts/
 └── summarize_render_benchmark.py
 ```
 
-A JSON profile declares geometry, texture, texture format and dimensions,
-object scale, camera pose, resolution, warmups, measured frames, axis, and
-angular step. The builder generates provenance-marked, self-contained assembly
-and includes, copies the runtime texture, and invokes `ez80asm`. Target
-directories remain reproducible and ignored.
+A JSON profile declares geometry, texture and target formats, texture
+dimensions, object scale, camera pose, resolution, warmups, measured frames,
+axis, and angular step. The builder generates provenance-marked,
+self-contained assembly and includes, copies the runtime texture, and invokes
+`ez80asm`. Target directories remain reproducible and ignored.
 
 Cube remains the visual baseline. HeavyTank proves that changing the model is a
 profile operation rather than another hand-written fixture.
@@ -195,6 +196,7 @@ pingoasm fixture commit and dirty state
 Hardware or emulator
 Resolution
 Texture format
+Render-target format
 Warm-up count
 Measured frame count
 Angle sequence
@@ -214,8 +216,10 @@ RGBA8888: cube geometry + blenderaxes.rgba8
 RGBA2222: cube geometry + blenderaxes.rgba2
 ```
 
-Both variants must use identical geometry, UVs, camera, transforms, measured
-angles, warm-ups, and render target.
+Both variants use identical geometry, UVs, camera, transforms, measured
+angles, and warm-ups. During the source-only experiment both used RGBA8888
+targets. The full one-byte pipeline profile now explicitly pairs the RGBA2222
+texture with RGBA2222 warmup and measured targets.
 
 The comparison should determine:
 
@@ -270,3 +274,40 @@ Equivalent rate:    4.32 FPS
 
 The raw capture and generated JSON live under
 `benchmarks/render-spin/results/cube-rgba8888-hardware-2026-07-28.*`.
+
+## Qualified one-byte result
+
+The regenerated `cube-rgba2222` fixture now emits `CTB2` for both reserved
+targets and is 2,681 bytes. The legacy RGBA8888-target binary was retained on
+the hardware SD for the first compatibility run of the packed renderer:
+
+```text
+Mean renderer time: 203.729 ms
+Equivalent rate:      4.908 FPS
+Frame-time reduction: 12.46% versus the 232.720 ms lookup baseline
+FPS increase:         14.23%
+```
+
+That capture proved the one-byte renderer completed the deterministic workload
+through the RGBA8888 compatibility output path. The regenerated all-RGBA2222
+fixture was then deployed without changing its SD directory or executable
+name. Its binary contains two `CTB2` target-create commands and no RGBA8888
+target-create command.
+
+Two direct-target runs produced effectively identical means. The clean
+canonical capture contains exactly eight warmups followed by 36 measured
+frames:
+
+```text
+Mean renderer time: 203.626 ms
+Equivalent rate:      4.911 FPS
+Minimum:            191.603 ms
+Median:             202.931 ms
+P95:                213.917 ms
+Maximum:            213.955 ms
+```
+
+Relative to the 232.720 ms lookup baseline, frame time fell 12.50% and
+equivalent FPS rose 14.29%. The timer still excludes final output work, so it
+does not credit the direct RGBA2222 target for eliminating the old post-render
+copy/conversion.

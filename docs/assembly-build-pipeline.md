@@ -126,11 +126,11 @@ Build a profile from anywhere:
   ~/Agon/mystuff/pingoasm/benchmarks/render-spin/profiles/cube-rgba8888.json
 ```
 
-Profiles select geometry, texture and format, dimensions, IDs, scale, camera,
-resolution, warmups, frame count, rotation axis, and angular step. The
-generator copies provenance-marked model/helpers into a self-contained `src/`,
-copies the texture into `tgt/`, expands deterministic absolute poses, and
-invokes `ez80asm`.
+Profiles select geometry, texture format, render-target format, dimensions,
+IDs, scale, camera, resolution, warmups, frame count, rotation axis, and
+angular step. The generator copies provenance-marked model/helpers into a
+self-contained `src/`, copies the texture into `tgt/`, expands deterministic
+absolute poses, and invokes `ez80asm`.
 
 Reserved IDs distinguish benchmark traffic:
 
@@ -178,10 +178,10 @@ Targets:
 Hardware deployment replaces only the selected `apps/<app>/tgt` at the
 matching SD path. Hardware is tested before any refreshed emulator module.
 
-The generated Cube benchmark is deployed by `~/copy_to_sd.sh` to:
+The generated RGBA2222 Cube benchmark is deployed by `~/copy_to_sd.sh` to:
 
 ```text
-/mystuff/pingoasm/benchmarks/render-spin/fixtures/cube-rgba8888/tgt
+/mystuff/pingoasm/benchmarks/render-spin/fixtures/cube-rgba2222/tgt
 ```
 
 The reconnecting `build/scripts/listen_vdp_debug.py` tees raw VDP output to a

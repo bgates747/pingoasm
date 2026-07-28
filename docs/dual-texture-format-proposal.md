@@ -1,6 +1,6 @@
-# Dual RGBA2222/RGBA8888 texture support proposal
+# Dual-input and one-byte Pingo pixel pipeline
 
-Status: implemented and qualified on hardware
+Status: dual input and one-byte working/output paths qualified on hardware
 Date: 2026-07-28
 
 ## Objective
@@ -12,14 +12,17 @@ The VDP bitmap referenced when creating a Pingo object already records its
 pixel format. Pingo should use that metadata automatically; no new Pingo VDU
 command or application-side format declaration is required.
 
-Initial supported combinations:
+Supported combinations:
 
 ```text
-RGBA2222 texture -> RGBA8888 render target
-RGBA8888 texture -> RGBA8888 render target
+RGBA2222 texture -> RGBA2222 render target (native fast path)
+RGBA8888 texture -> RGBA2222 render target
+RGBA2222 texture -> RGBA8888 render target (legacy output compatibility)
+RGBA8888 texture -> RGBA8888 render target (legacy compatibility)
 ```
 
-Render-target format is deliberately outside this proposal.
+Texture and target formats are independent and are discovered from existing VDP
+bitmap metadata. No Pingo wire-protocol change is required.
 
 ## Rationale
 
@@ -39,7 +42,7 @@ RGBA8888 must remain supported because:
 3. Some textures may genuinely benefit from greater color or alpha precision.
 4. Compatibility fixtures must continue to exercise the historical path.
 
-## Rejected approach: change Pingo's global `Pixel`
+## Why the global `Pixel` change was staged
 
 The older extended branch selected a one-byte packed Pingo pixel globally:
 
@@ -51,28 +54,26 @@ typedef struct {
 } Pixel;
 ```
 
-That reduced renderer storage but made `Pixel *` arithmetic advance one byte.
-An RGBA8888 bitmap passed through that build was consequently sampled with the
-wrong stride. This is consistent with the repeated, malformed output observed
-when the older extended emulator received RGBA8888 fixtures.
+That reduced renderer storage, but the old code also assumed every texture had
+`Pixel *` stride. An RGBA8888 bitmap was consequently sampled one byte at a
+time, which explains the repeated malformed output from legacy fixtures.
 
 Texture storage format and renderer working/output format are separate
-concerns. Supporting one texture type must not redefine every Pingo pixel.
+concerns. The dual-input milestone first made texture stride explicit. With
+that prerequisite in place, restoring a one-byte working `Pixel` is safe.
 
 ## Implemented representation
 
-Retain Pingo's four-channel working/output pixel:
+Pingo's working/output pixel is now the VDP-native packed format:
 
 ```c
 typedef struct {
-    uint8_t r;
-    uint8_t g;
-    uint8_t b;
-    uint8_t a;
+    uint8_t c;
 } Pixel;
 ```
 
-Make a texture describe its source data explicitly:
+`sizeof(Pixel) == 1` is enforced at compile time. A texture independently
+describes the stride of its borrowed source bitmap:
 
 ```c
 typedef uint8_t TextureFormat;
@@ -83,7 +84,7 @@ enum {
 
 typedef struct {
     Vec2i size;
-    const void *data;
+    Pixel *frameBuffer;
     TextureFormat format;
 } Texture;
 ```
@@ -91,14 +92,10 @@ typedef struct {
 The implementation uses `TEXTURE_FORMAT_RGBA8888` and
 `TEXTURE_FORMAT_RGBA2222`. The essential requirements are:
 
-1. Texture data is not assumed to have `sizeof(Pixel)` stride.
+1. Sampled texture data is not assumed to have `sizeof(Pixel)` stride.
 2. Source format accompanies the data pointer and dimensions.
-3. Sampling returns the common four-channel `Pixel`.
-4. Render-target writes remain independent from source-texture reads.
-
-If sharing one `Texture` structure between sampled textures and writable
-framebuffers makes format handling ambiguous, introduce distinct source and
-target types rather than adding unsafe casts.
+3. Sampling always returns one packed working `Pixel`.
+4. Writable renderer textures are initialized explicitly as RGBA2222.
 
 ## Bridge behavior
 
@@ -139,11 +136,11 @@ Conceptually:
 
 ```c
 if (texture->format == TEXTURE_RGBA2222) {
-    uint8_t packed = ((const uint8_t *)texture->data)[index];
-    return expand_rgba2222(packed);
+    return (Pixel){((const uint8_t *)texture->data)[index]};
 }
 
-return ((const Pixel *)texture->data)[index];
+const uint8_t *rgba = ((const uint8_t *)texture->data) + index * 4;
+return pixelFromRGBA(rgba[0], rgba[1], rgba[2], rgba[3]);
 ```
 
 The VDP/FabGL RGBA2222 byte layout is:
@@ -152,37 +149,23 @@ The VDP/FabGL RGBA2222 byte layout is:
 AABBGGRR
 ```
 
-Each two-bit channel expands to eight bits as:
+RGBA8888 input is quantized using the VDP/FabGL top-two-bit convention:
 
 ```text
-0 ->   0
-1 ->  85
-2 -> 170
-3 -> 255
+  0 ..  63 -> 0
+ 64 .. 127 -> 1
+128 .. 191 -> 2
+192 .. 255 -> 3
 ```
 
-Alpha must be expanded by the same mapping rather than treated as merely
-present/absent.
+Legacy RGBA8888 output expands each two-bit channel with `0, 85, 170, 255`.
 
 ## Conversion performance
 
-The initial shifts-and-masks implementation was measured before introducing a
-256-entry packed-byte lookup:
-
-```c
-Pixel rgba2222_to_pixel[256];
-```
-
-The implemented table costs 1 KiB of shared firmware read-only storage and
-converts an RGBA2222 texel with one indexed load. It is not duplicated per
-texture. The format branch is stable for an entire object.
-
-Do not introduce a per-texel function pointer unless measurement shows it
-outperforms the direct format branch on the ESP32.
-
-The principal performance question is end-to-end frame time: conversion costs
-may be outweighed by the fourfold reduction in source-memory bandwidth and
-improved cache locality.
+The earlier 1 KiB RGBA2222-to-RGBA8888 lookup is no longer needed: RGBA2222 is
+the working representation and therefore the source fast path is a direct byte
+read. RGBA8888 sources are packed per sampled texel. RGBA8888 output is
+expanded after the renderer timer solely for compatibility.
 
 ## Ownership and lifetime
 
@@ -204,17 +187,20 @@ Completed:
 
 1. Textures carry an explicit source format while retaining the borrowed VDP
    bitmap pointer.
-2. Renderer working pixels and render targets remain RGBA8888.
+2. Renderer working pixels are one-byte RGBA2222.
 3. Command `5` maps the referenced `Bitmap::format`; its wire payload is
    unchanged.
 4. Unsupported formats are rejected with a diagnostic.
-5. RGBA2222 is expanded per sampled texel without another texture buffer.
+5. RGBA2222 sampling is a direct packed-byte read; RGBA8888 sampling uses its
+   correct four-byte stride.
 6. The qualified U/V clamp and image-row conversion are unchanged.
-7. A native test exhaustively checks all 256 RGBA2222 values, representative
-   RGBA8888 values, and all four UV corners.
-8. Native module build and smoke tests pass.
-9. Both paired Cube fixtures assemble.
+7. Command `38` renders directly to the requested RGBA2222 target and safely
+   expands to RGBA8888 when a legacy client supplies that target format.
+8. A native test checks all 256 packed values, quantization boundaries,
+   RGBA8888 stride, target writes, and all four UV corners.
+9. Native module and dual-target smoke tests pass.
 10. ESP32 firmware builds successfully.
+11. The established `23,27,&22` one-byte bitmap-creation command is restored.
 
 Hardware qualification completed:
 
@@ -226,21 +212,25 @@ Hardware qualification completed:
 5. The remaining 0.038% difference is below the useful resolution of this
    experiment.
 
-Still required:
+One compatibility hardware run used the new packed renderer with the old
+deployed RGBA8888 target. It completed all 44 frames at 203.729 ms mean
+(4.908 FPS), proving legacy target output still completed normally.
 
-1. Run the existing non-Pingo smoke application.
-2. Refresh and validate the emulator before committing emulator-related state.
+The regenerated all-RGBA2222 fixture then completed repeated direct-target
+hardware runs. The clean canonical capture measured 203.626 ms mean
+(4.911 FPS), a 12.50% frame-time reduction and 14.29% effective-FPS increase
+versus the 232.720 ms source-only lookup baseline. The repeat differed by only
+approximately 1 µs in mean renderer time.
 
 ## Regression fixtures
 
-Paired Cube fixtures now use the same geometry and workload:
+Cube fixtures use the same geometry and workload:
 
-1. `cube-rgba8888` using `blenderaxes.rgba8`.
-2. `cube-rgba2222` using `blenderaxes.rgba2`.
+1. `cube-rgba8888` uses an RGBA8888 texture and RGBA8888 targets.
+2. `cube-rgba2222` uses an RGBA2222 texture and RGBA2222 targets.
 
-Their generated assembly differs only in provenance, texture filename, texture
-byte count, and bitmap format byte. The RGBA2222 upload is 1,156 bytes; the
-RGBA8888 upload is 4,624 bytes.
+Profiles declare `texture_format` and `target_format` independently. The
+all-packed executable is 2,681 bytes; the legacy executable is 2,687 bytes.
 
 Hardware acceptance requires:
 
@@ -274,10 +264,11 @@ framebuffer clearing, raster writes, and other working/output traffic as well
 as source textures. It reduced frame time by roughly 14.5% and increased FPS
 by roughly 17%.
 
-The present milestone deliberately does not reproduce that invasive change.
-It supports compact source textures while retaining the established RGBA8888
-working framebuffer and render target. A subsequent milestone may restore a
-one-byte working pipeline while preserving this dual-input compatibility.
+The qualified implementation reproduces the useful part of that change without
+its stride bug: working pixels and native targets are packed, while both source
+texture formats and legacy RGBA8888 targets remain supported.
+
+The qualified implementation is `agon-vdp:pingo-codex` commit `a382ede`.
 
 ## Compatibility decision
 

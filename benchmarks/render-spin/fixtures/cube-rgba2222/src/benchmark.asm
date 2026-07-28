@@ -64,8 +64,8 @@ main:
     ld a,1
     call vdu_load_img
 
-    CTB tgtbmid,320,240
-    CTB warmupbmid,320,240
+    CTB2 tgtbmid,320,240
+    CTB2 warmupbmid,320,240
     CCS sid,320,240
     SV sid,mid,model_vertices,model_vertices_n
     SMVI sid,mid,model_vertex_indices,model_indices_n
