@@ -7,6 +7,7 @@ import argparse
 import json
 import shutil
 import subprocess
+import sys
 from pathlib import Path
 from typing import Any
 
@@ -16,6 +17,7 @@ BENCHMARK_ROOT = PROJECT_ROOT / "benchmarks" / "render-spin"
 FIXTURES_ROOT = BENCHMARK_ROOT / "fixtures"
 VDU_HELPERS = PROJECT_ROOT / "apps" / "turbovega" / "src" / "vdu_tv.inc"
 GENERATOR = "build/scripts/build_render_benchmark.py"
+SCRIPTS_DIR = PROJECT_ROOT / "build" / "scripts"
 
 TEXTURE_FORMATS = {
     "rgba8888": 0,
@@ -45,8 +47,6 @@ def load_profile(path: Path) -> dict[str, Any]:
     profile = json.loads(path.read_text(encoding="utf-8"))
     required = {
         "name",
-        "model_source",
-        "texture_source",
         "texture_format",
         "target_format",
         "texture_width",
@@ -66,6 +66,12 @@ def load_profile(path: Path) -> dict[str, Any]:
     missing = sorted(required - profile.keys())
     if missing:
         raise ValueError(f"profile is missing: {', '.join(missing)}")
+    if ("model_source" in profile) == ("model_obj_source" in profile):
+        raise ValueError("profile needs exactly one of model_source or model_obj_source")
+    if ("texture_source" in profile) == ("texture_png_source" in profile):
+        raise ValueError(
+            "profile needs exactly one of texture_source or texture_png_source"
+        )
     if profile["texture_format"] not in TEXTURE_FORMATS:
         raise ValueError(f"unsupported texture_format: {profile['texture_format']}")
     if profile["target_format"] not in TARGET_FORMATS:
@@ -133,7 +139,7 @@ def assembly(profile: dict[str, Any], profile_path: Path, texture_name: str) -> 
         poses.append(render_pose(axis, index * step, "measured", index))
     pose_code = "".join(poses)
     profile_rel = profile_path.resolve().relative_to(PROJECT_ROOT.resolve()).as_posix()
-    texture_size = project_path(profile["texture_source"]).stat().st_size
+    texture_size = profile["_texture_size"]
     texture_format = TEXTURE_FORMATS[profile["texture_format"]]
     target_macro = TARGET_FORMATS[profile["target_format"]]
     return banner(profile_rel) + f"""\
@@ -264,6 +270,46 @@ def generated_copy(source: Path, destination: Path, profile_path: Path) -> None:
     )
 
 
+def generate_texture(profile: dict[str, Any], destination: Path) -> None:
+    source = project_path(profile["texture_png_source"])
+    sys.path.insert(0, str(SCRIPTS_DIR))
+    from PIL import Image
+    from agonImages import img_to_rgba2, img_to_rgba8
+
+    image = Image.open(source)
+    expected_size = (profile["texture_width"], profile["texture_height"])
+    if image.size != expected_size:
+        raise ValueError(
+            f"{source.relative_to(PROJECT_ROOT)} is {image.size}, "
+            f"profile declares {expected_size}"
+        )
+    if profile["texture_format"] == "rgba2222":
+        img_to_rgba2(image, destination)
+    else:
+        img_to_rgba8(image, destination)
+
+
+def generate_model(
+    profile: dict[str, Any],
+    destination: Path,
+    texture_path: Path,
+) -> None:
+    source = project_path(profile["model_obj_source"])
+    sys.path.insert(0, str(SCRIPTS_DIR))
+    from blender_obj_to_asm import parse_obj_file, write_data
+
+    model_data = parse_obj_file(source)
+    write_data(
+        source.stem,
+        *model_data,
+        destination,
+        texture_path,
+        (profile["texture_width"], profile["texture_height"]),
+        symbol_prefix="model",
+        authoritative_input=source.relative_to(PROJECT_ROOT).as_posix(),
+    )
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
@@ -282,18 +328,29 @@ def main() -> int:
     source_dir.mkdir(parents=True, exist_ok=True)
     target_dir.mkdir(parents=True, exist_ok=True)
 
-    model_source = project_path(profile["model_source"])
-    texture_source = project_path(profile["texture_source"])
-    texture_name = profile.get("texture_filename", texture_source.name)
+    if "texture_source" in profile:
+        texture_source = project_path(profile["texture_source"])
+        texture_name = profile.get("texture_filename", texture_source.name)
+        texture_target = target_dir / texture_name
+        shutil.copy2(texture_source, texture_target)
+    else:
+        texture_png = project_path(profile["texture_png_source"])
+        suffix = ".rgba2" if profile["texture_format"] == "rgba2222" else ".rgba8"
+        texture_name = profile.get("texture_filename", texture_png.stem + suffix)
+        texture_target = target_dir / texture_name
+        generate_texture(profile, texture_target)
 
-    generated_copy(model_source, source_dir / "model.inc", profile_path)
+    profile["_texture_size"] = texture_target.stat().st_size
+    if "model_source" in profile:
+        model_source = project_path(profile["model_source"])
+        generated_copy(model_source, source_dir / "model.inc", profile_path)
+    else:
+        generate_model(profile, source_dir / "model.inc", texture_target)
     generated_copy(VDU_HELPERS, source_dir / "vdu_tv.inc", profile_path)
     (source_dir / "benchmark.asm").write_text(
         assembly(profile, profile_path, texture_name),
         encoding="utf-8",
     )
-    shutil.copy2(texture_source, target_dir / texture_name)
-
     output = target_dir / "benchmark.bin"
     if not args.no_assemble:
         output.unlink(missing_ok=True)

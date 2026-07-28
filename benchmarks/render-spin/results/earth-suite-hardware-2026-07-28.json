@@ -1,0 +1,49 @@
+{
+  "date": "2026-07-28",
+  "platform": "hardware",
+  "runs_per_cell": 5,
+  "measured_frames_per_run": 36,
+  "timing_scope": "rendererRender only",
+  "results": {
+    "earthico": {
+      "rgba8888_corrected": {
+        "mean_us": 118894.6,
+        "median_us": 118929.0,
+        "population_stdev_us": 348.76073619476017,
+        "min_us": 118198,
+        "max_us": 119546,
+        "fps": 8.410810919924034
+      },
+      "rgba2222_one_byte": {
+        "mean_us": 97225.3111111111,
+        "median_us": 97212.0,
+        "population_stdev_us": 288.98677956860257,
+        "min_us": 96515,
+        "max_us": 97822,
+        "fps": 10.285387504259866,
+        "frame_time_reduction_percent": 18.22562916136553,
+        "fps_increase_percent": 22.287703316397504
+      }
+    },
+    "earthuv": {
+      "rgba8888_corrected": {
+        "mean_us": 174488.32222222222,
+        "median_us": 174515.5,
+        "population_stdev_us": 413.9801881404948,
+        "min_us": 173442,
+        "max_us": 175398,
+        "fps": 5.731042554964996
+      },
+      "rgba2222_one_byte": {
+        "mean_us": 145787.92777777778,
+        "median_us": 145838.0,
+        "population_stdev_us": 500.29581283427325,
+        "min_us": 144739,
+        "max_us": 146760,
+        "fps": 6.859278509838511,
+        "frame_time_reduction_percent": 16.44831819053921,
+        "fps_increase_percent": 19.68639988366664
+      }
+    }
+  }
+}

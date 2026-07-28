@@ -1,0 +1,22 @@
+{
+  "name": "earthico-rgba8888",
+  "description": "Low-poly textured Earth 36-frame Y-axis corrected-RGBA8888 benchmark",
+  "model_obj_source": "src/blender/earthico.obj",
+  "texture_png_source": "src/blender/earthico160x76.png",
+  "texture_filename": "earthico160x76.rgba8",
+  "texture_format": "rgba8888",
+  "target_format": "rgba8888",
+  "texture_width": 160,
+  "texture_height": 76,
+  "control_id": 1300,
+  "texture_bitmap_id": 1256,
+  "target_bitmap_id": 1257,
+  "warmup_target_bitmap_id": 1258,
+  "object_scale": 1280,
+  "camera_pose": [0, 0, 3200],
+  "resolution": [320, 240],
+  "warmup_frames": 8,
+  "measured_frames": 36,
+  "rotation_axis": "y",
+  "rotation_step_degrees": 10
+}

@@ -89,6 +89,19 @@ not requested.
 4. Image conversion: `agonImages.py`, `bgra_to_rgba.py`.
 5. Diagnostics: `plot*.py`, `pingo_check_bearing.py`, texture/palette probes.
 
+Inspect independent OBJ coordinate bounds without Blender or third-party
+packages:
+
+```bash
+python3 build/scripts/obj_bounds.py \
+  src/blender/cube.obj \
+  src/blender/earthico.obj \
+  src/blender/earthuv.obj
+```
+
+The default tab-separated output reports vertex count, per-axis minima/maxima,
+span, and center. Add `--json` for machine-readable output.
+
 Many model-specific scripts predate the current layout and contain obsolete
 paths or assumptions. Treat them as historical until parameterized and tested.
 Legacy template utilities live under `build/scripts/legacy/template`;

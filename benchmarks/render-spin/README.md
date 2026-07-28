@@ -48,6 +48,28 @@ The initial profiles demonstrate reuse:
    targets, providing the full one-byte pipeline comparison.
 3. `heavytank-rgba8888.json` runs the same benchmark protocol against the
    higher-poly, chiral HeavyTank model.
+4. `earthico-rgba2222.json` demonstrates the source-driven path: it converts
+   the authoritative `earthico.obj` and `earthico160x76.png` into a portable
+   model include and packed runtime texture before assembling the benchmark.
+5. `earthuv-rgba2222.json` uses the same protocol with 482 vertices, 960
+   triangles, and the established 320×160 Earth texture. Compared with
+   EarthIco, it stresses geometry throughput with 40 times as many triangles
+   and texture handling with approximately four times as many texels.
+6. `earthuv-rgba8888.json` is the workload-equivalent four-byte fixture for
+   testing the corrected RGBA8888 firmware baseline. The RGBA2222 and RGBA8888
+   profiles deliberately change both source and target formats together; they
+   are the two canonical EarthUV firmware comparisons.
+7. `earthico-rgba8888.json` pairs with `earthico-rgba2222.json` in the same
+   fashion. Together, the four Earth profiles form two sequential two-model
+   firmware suites: corrected RGBA8888 and current one-byte RGBA2222.
+
+The benchmark loader stages a complete texture in eZ80 RAM before uploading
+it. Applications begin at `0x40000`, and MOS exposes RAM through `0xBFFFF`, so
+the executable and staged texture must fit within approximately 512 KiB. A
+720×360 RGBA8888 Earth texture requires 1,036,800 bytes and corrupts memory;
+its partial globe, untextured faces, and noisy equatorial band are a client
+overrun, not a renderer result. The paired 320×160 source keeps the RGBA8888
+payload at 204,800 bytes and provides a valid like-for-like firmware test.
 
 ## Run and capture
 
