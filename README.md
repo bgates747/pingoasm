@@ -11,7 +11,7 @@ in `agon-vdp`; emulator implementation belongs in the owned
 apps/_common/       shared assembly and model-viewer template
 apps/<app>/src/     flat tracked assembly source
 apps/<app>/tgt/     flat ignored binaries and runtime textures
-benchmarks/          profile-driven deterministic render fixtures and results
+benchmarks/          profile-driven timing and asynchronous render fixtures
 src/asm/models/     temporary central model/texture library
 src/blender/        editable Blender scenes and source assets
 build/scripts/      build, conversion, deployment, and diagnostic tools
@@ -64,6 +64,24 @@ Capture hardware traffic from anywhere:
 While listening, press `R` to reset the VDP/Agon and trigger a benchmark
 selected by the hardware SD's `autoexec.txt`; use Ctrl+C to stop. See the
 [render-spin README](benchmarks/render-spin/README.md).
+
+## Asynchronous render fixture
+
+`benchmarks/render-async` is a functional client for the opt-in Pingo
+render-completion callback. Its foreground advances 36 fixed simulation steps
+while VDP renders independently, permits one render in flight, and coalesces
+obsolete intermediate poses. A one-time general-poll barrier separates queued
+scene setup from the first render deadline.
+
+Generate its Cube profile:
+
+```bash
+./.venv/bin/python build/scripts/build_render_async.py
+```
+
+The 2026-07-28 hardware run visibly completed the full revolution and reported
+`PASS`. See the
+[render-async README](benchmarks/render-async/README.md).
 
 ## Qualified Pingo fixtures
 
@@ -118,9 +136,9 @@ Hardware is the only copy deployment:
 It replaces `apps/<app>/tgt` at the matching mounted SD path, normally beneath
 `/media/smith/AGON`. Deployment never edits `autoexec.txt`.
 
-The local `~/copy_to_sd.sh` helper deploys the generated Cube benchmark target
-to the matching hardware-SD path. Its `autoexec.txt` selection remains
-user-controlled.
+The local `~/copy_to_sd.sh` helper currently replaces the hardware copy of the
+generated asynchronous Cube target and selects `async_cube.bin` for automatic
+execution in `autoexec.txt`.
 
 Refresh the isolated VDP snapshot only after hardware passes:
 
