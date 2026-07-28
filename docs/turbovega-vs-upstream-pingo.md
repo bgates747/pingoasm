@@ -146,27 +146,69 @@ change per commit so every regression can be attributed or reverted cleanly.
 3. **Create mathematical unit tests.**
 
    Test known points through model, view, projection, perspective division, and
-   viewport conversion without invoking the rasterizer. Include the fixture's
-   camera command of Z = -25 and explicit expected view-space coordinates.
+   viewport conversion without invoking the rasterizer. Preserve a regression
+   case for the historical fixture's Z = -25 value being consumed directly as
+   a view transform. Add the decided semantics: an unrotated camera pose at
+   world Z = +25 produces a view translation of Z = -25 and looks toward the
+   origin along its forward axis, -Z.
 
    These tests should run on the host and use the same Pingo C functions as the
    firmware.
 
 ### Priority 2: low-risk corrections and guardrails
 
-4. **Document and enforce one coordinate convention.**
+4. **Coordinate convention: decided and stated; enforcement pending.**
 
-   Decide and state:
+   The authoritative public VDU and world convention is:
 
-   1. world handedness;
-   2. the camera's forward axis;
-   3. whether VDU camera values describe a pose or a view transform;
-   4. matrix storage and multiplication order;
-   5. screen-space Y direction; and
-   6. texture-image row direction.
+   1. The world is right-handed. `+X` points right, `+Y` points up, and `+Z`
+      points out of the screen toward the viewer. Positive rotations follow
+      the right-hand rule.
+   2. The unrotated forward axis is `-Z`. Moving a camera, player, vehicle, or
+      other conventionally oriented object forward therefore decreases its
+      world Z coordinate.
+   3. VDU camera translation and rotation values describe the camera's pose,
+      exactly as object translation and rotation values describe an object's
+      pose. The bridge constructs the camera pose normally and inverts it
+      exactly once to obtain the renderer's view matrix. Applications never
+      supply an already-inverted view transform.
+   4. An unrotated camera viewing the origin from 25 units away has world pose
+      `(0, 0, +25)`, looks along `-Z`, and initially sees the cube's `+Z`
+      face. Moving the camera `+X` moves the camera right and consequently
+      makes the rendered world appear to move left; this visual reversal is
+      the natural result of view-matrix inversion, not reversed command
+      semantics.
+   5. Retain Pingo's existing matrix representation: row-major storage with
+      column vectors. Transform construction applies scale, rotation X,
+      rotation Y, rotation Z, and translation in that order, producing
+      `T × Rz × Ry × Rx × S`. Do not replace `video/pingo/math` while
+      correcting the pipeline.
+   6. Treat the counterintuitive behavior of `mat4MultiplyM(m1, m2)`—which
+      currently returns `m2 × m1`—as an implementation fact requiring
+      documentation and numerical tests. Do not casually reverse arguments or
+      rewrite it while other convention errors remain compounded.
+   7. World and normalized-device `+Y` point up. Render-target memory has its
+      origin at the top left and its `+Y` points down. Viewport conversion
+      flips Y exactly once. The corresponding winding, backface-culling, and
+      rasterizer edge signs must be corrected as one coordinated change.
+   8. UV coordinates follow Blender/OBJ convention: `v = 0` is the bottom of
+      the texture and `v = 1` is the top. PNG and raw RGBA texture memory remain
+      top-row first. The sampler performs the sole conversion with the
+      equivalent of `image_y = (1 - v) × (height - 1)`.
+   9. Preserve TurboVega's published VDU command meanings at the bridge. If an
+      internal renderer ever adopts different conventions, all conversion
+      belongs at that boundary and must not leak into application data,
+      controls, models, or texture assets.
 
-   Preserve TurboVega's published VDU command meanings at the bridge. Convert
-   there if the internal renderer adopts a different convention.
+   The current TurboVega baseline does not yet satisfy these rules: it copies
+   the camera transform directly into `camera_view`, omits the viewport Y flip,
+   negates texture V during interpolation, and wraps texture Y by the texture
+   width rather than its height. Those are implementation defects to correct
+   against mathematical and visual regression tests, not alternative
+   conventions.
+
+   > **Margin note — The Author:** “Whoever invented such a stupid convention
+   > needs to be dragged out back and shot.”
 
 5. **Add geometry and allocation validation.**
 
