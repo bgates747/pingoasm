@@ -74,7 +74,13 @@ for history, generated-file rules, and remaining limitations.
 
 ## Deployment
 
-Emulator deployment completely clears the project-local emulated SD card and
+The project owns two completely independent emulator profiles:
+
+1. `emulator` runs the existing heavily modified and extended Pingo VDP.
+2. `emulators/tv-port-baseline` runs the VDP 2.15 plus TurboVega-final
+   historical baseline.
+
+Deployment completely clears only the selected profile's emulated SD card and
 copies the entire `apps/` tree beneath `/mystuff/pingoasm`:
 
 ```text
@@ -82,14 +88,16 @@ apps/
     -> /mystuff/pingoasm/apps/
 ```
 
-The resulting emulator SD contains only this application tree and the existing
-user-controlled `autoexec.txt`. Deployment preserves `autoexec.txt` unchanged.
+The resulting emulator SD contains only this application tree and that
+profile's user-controlled `autoexec.txt`. Deployment preserves
+`autoexec.txt` unchanged.
 
-Create or refresh the project-local emulator:
+Create or refresh either project-local emulator:
 
 ```bash
 cd ~/Agon/mystuff/agon-dev-env
 python3 scripts/setup_emulator.py pingoasm
+python3 scripts/setup_emulator.py pingo-tv-baseline
 ```
 
 Deploy a rebuilt app:
@@ -97,8 +105,22 @@ Deploy a rebuilt app:
 ```bash
 cd ~/Agon/mystuff/pingoasm
 .venv/bin/python build/scripts/deploy.py emulator
+.venv/bin/python build/scripts/deploy.py baseline-emulator
 .venv/bin/python build/scripts/deploy.py hardware moveobj
 .venv/bin/python build/scripts/deploy.py both moveobj
+```
+
+The baseline setup copies a frozen `vdp_pingo.so` snapshot into its profile
+and records runtime and fixture hashes in `baseline-manifest.txt`. Ordinary
+application deployment cannot replace that module. To deliberately establish
+a new baseline module:
+
+```bash
+make -C ~/Agon/mystuff/agon-vdp/userspace \
+  FAB_ROOT=~/Agon/mystuff/fab-agon-emulator smoke
+cd ~/Agon/mystuff/agon-dev-env
+python3 scripts/setup_emulator.py pingo-tv-baseline \
+  --refresh-baseline-vdp
 ```
 
 Hardware deployment remains app-specific: it copies
@@ -114,12 +136,23 @@ cd /mystuff/pingoasm/apps/moveair/tgt
 load jet.bin
 ```
 
-Launch the project-local Pingo emulator from anywhere with:
+Launch either project-local Pingo emulator from anywhere with:
 
 ```bash
 ~/Agon/mystuff/agon-dev-env/scripts/run_emulator.sh \
   ~/Agon/mystuff/pingoasm/emulator
+
+~/Agon/mystuff/agon-dev-env/scripts/run_emulator.sh \
+  ~/Agon/mystuff/pingoasm/emulators/tv-port-baseline
 ```
+
+The baseline profile initially runs
+`/mystuff/pingoasm/apps/turbovega/tgt/cube.bin`. Its separate autoexec can be
+changed without affecting the extended emulator.
+
+The cube fixture has been visually qualified as matching the hardware
+baseline. Its substantially higher emulator speed is expected for
+video-buffer applications and is not evidence of a firmware mismatch.
 
 ## Historical material
 

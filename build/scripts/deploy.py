@@ -11,8 +11,13 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 APPS_ROOT = PROJECT_ROOT / "apps"
 EMULATOR_SD = PROJECT_ROOT / "emulator/sdcard"
+BASELINE_EMULATOR_SD = (
+    PROJECT_ROOT / "emulators/tv-port-baseline/sdcard"
+)
 DEFAULT_SD_MOUNT = Path("/media/smith/AGON")
 DEPLOY_RELATIVE_ROOT = Path("mystuff/pingoasm/apps")
+
+
 def sample_name(value: str) -> str:
     candidate = Path(value)
     if candidate.name != value or value in ("", ".", ".."):
@@ -54,20 +59,20 @@ def clear_directory(directory: Path, preserve: frozenset[str] = frozenset()) -> 
             raise SystemExit(f"Refusing unexpected SD entry: {child}")
 
 
-def deploy_to_emulator() -> None:
-    if not EMULATOR_SD.is_dir():
+def deploy_to_emulator(sdcard: Path, setup_profile: str) -> None:
+    if not sdcard.is_dir():
         raise SystemExit(
             "Pingo emulator profile is missing. Create it with:\n"
             "  cd ~/Agon/mystuff/agon-dev-env\n"
-            "  python3 scripts/setup_emulator.py pingoasm"
+            f"  python3 scripts/setup_emulator.py {setup_profile}"
         )
     required = APPS_ROOT / "moveobj/tgt/cube.bin"
     if not required.is_file():
         raise SystemExit(f"Required default application is missing: {required}")
 
     # autoexec.txt is user-controlled runtime configuration.
-    clear_directory(EMULATOR_SD, preserve=frozenset({"autoexec.txt"}))
-    destination = EMULATOR_SD / DEPLOY_RELATIVE_ROOT
+    clear_directory(sdcard, preserve=frozenset({"autoexec.txt"}))
+    destination = sdcard / DEPLOY_RELATIVE_ROOT
     destination.parent.mkdir(parents=True)
     shutil.copytree(APPS_ROOT, destination)
     print(f"Deployed {APPS_ROOT} to {destination}")
@@ -92,12 +97,13 @@ def main() -> None:
     parser = argparse.ArgumentParser(
         description=(
             "Replace the complete app tree on the emulator SD, deploy one "
-            "app target to hardware, or do both."
+            "app target to hardware, or do both. The historical baseline "
+            "emulator is an explicit, independent destination."
         )
     )
     parser.add_argument(
         "target",
-        choices=("emulator", "hardware", "both"),
+        choices=("emulator", "baseline-emulator", "hardware", "both"),
         help="Deployment destination",
     )
     parser.add_argument(
@@ -119,7 +125,12 @@ def main() -> None:
     args = parser.parse_args()
 
     if args.target in ("emulator", "both"):
-        deploy_to_emulator()
+        deploy_to_emulator(EMULATOR_SD, "pingoasm")
+    elif args.target == "baseline-emulator":
+        deploy_to_emulator(
+            BASELINE_EMULATOR_SD,
+            "pingo-tv-baseline",
+        )
     if args.target in ("hardware", "both"):
         deploy_to_hardware(args.sample, args.sd_mount)
 
