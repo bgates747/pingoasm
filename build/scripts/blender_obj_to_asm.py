@@ -1,9 +1,5 @@
-from agonImages import img_to_rgba8
-from PIL import Image as pil
 import os
 import shutil
-import os
-from PIL import Image as pil
 
 def write_data(base_filename, vertices, faces, texture_coords, texture_vertex_indices, normals, normal_indices, tgt_filepath, uv_texture_rgba8, img_size):
     # Write header data to the target file
@@ -78,6 +74,9 @@ def write_data(base_filename, vertices, faces, texture_coords, texture_vertex_in
         file.write(f'\n{base_filename}_texture: db "{os.path.basename(uv_texture_rgba8)}",0\n')
 
 def make_texture_rgba(uv_texture_png):
+    from agonImages import img_to_rgba8
+    from PIL import Image as pil
+
     uv_texture_rgba8 = uv_texture_png.replace('.png', '.rgba8')
     img = pil.open(uv_texture_png)
     img_size = img.size

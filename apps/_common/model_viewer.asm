@@ -58,6 +58,7 @@ push_a_button: db "Press any key to continue.",0
     ; include "cube.inc"
     ; include "earthuv.inc"
     ; include "tri.inc"
+    ; include "heavytank.inc"
 ; end model includes
 
 ; placeholder includes
@@ -76,7 +77,6 @@ push_a_button: db "Press any key to continue.",0
     ; include "airliner.inc"
     ; include "crash.inc"
     ; include "LaraCroft.inc"
-    ; include "heavytank.inc"
     ; include "wolf_map.inc"
     ; include "earthuvinv.inc"
     ; include "cyl.inc"

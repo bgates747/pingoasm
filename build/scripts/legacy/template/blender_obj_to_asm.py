@@ -1,5 +1,3 @@
-from agonImages import img_to_rgba2
-from PIL import Image as pil
 import os
 import shutil
 
@@ -76,6 +74,9 @@ def write_data(base_filename, vertices, faces, texture_coords, texture_vertex_in
         file.write(f'\nmodel_texture: db "{os.path.basename(uv_texture_rgba2)}",0\n')
 
 def make_texture_rgba(uv_texture_png):
+    from agonImages import img_to_rgba2
+    from PIL import Image as pil
+
     uv_texture_rgba2 = uv_texture_png.replace('.png', '.rgba2')
     img = pil.open(uv_texture_png)
     img_size = img.size

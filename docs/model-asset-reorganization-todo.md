@@ -1,63 +1,54 @@
 # Model and asset reorganization TODO
 
-This is the next structural task after the application `src/`/`tgt/`
-migration. No model files are moved as part of the current task.
+This structural work is deferred until after renderer correctness and safety.
+Keep item numbers stable when updating it.
 
-## Intended direction
+## Phase 1 — authoritative layout
 
-- [ ] Make each generated model include local to the `.blend` file and source
-  assets that produce it.
-- [ ] Replace the temporary central `src/asm/models` directory.
-- [ ] Introduce a clearly named common-assets directory for textures shared by
-  multiple models.
-- [ ] Keep editable source assets authoritative:
-  - `.blend`;
-  - source texture images such as PNG/XCF where applicable;
-  - explicit conversion configuration or metadata.
-- [ ] Treat `.rgba2` as generated runtime output, not the only authoritative
-  texture source.
-- [ ] Define how an application declares which model and shared texture assets
-  it consumes.
-- [ ] Make the build copy generated model `.inc` files into app `src/` and
-  runtime `.rgba2` files into app `tgt/`.
+1. [ ] Make each generated model include local or directly traceable to its
+   `.blend` file and source assets.
+2. [ ] Replace the temporary central `src/asm/models` directory.
+3. [ ] Introduce a clearly named shared-assets directory for common textures.
+4. [ ] Keep `.blend` and original PNG/XCF images authoritative.
+5. [ ] Treat `.rgba2`/`.rgba8` as generated runtime output.
+6. [ ] Define machine-readable application dependencies on models and textures.
+7. [ ] Continue copying generated model includes to app `src/` and runtime
+   textures to app `tgt/`.
 
-## Provenance requirements
+## Phase 2 — provenance and determinism
 
-- [ ] Audit existing model `.inc` files to determine which generator and
-  source assets produced each one.
-- [ ] Ensure every generated `.asm` and `.inc` begins with the standard
-  auto-generated warning and repository-relative generator path.
-- [ ] Record the source `.blend`, mesh/object name, coordinate conversion,
-  winding convention, UV conversion, texture source, and Blender version.
-- [ ] Make regeneration deterministic enough to compare output with the
-  currently accepted includes and binaries.
+1. [ ] Audit every existing model include for generator and source assets.
+2. [ ] Put the standard generator/input warning on every generated `.asm` and
+   `.inc`.
+3. [ ] Record source `.blend`, object name, Blender version, coordinate
+   conversion, winding, UV conversion, and texture source.
+4. [ ] Regenerate deterministically enough to compare with accepted includes
+   and binaries.
+5. [x] Establish fresh outward-wound `heavytank.blend/.obj/.mtl` as the
+   canonical HeavyTank source.
+6. [x] Remove numbered, inverted, axis-modified, and video HeavyTank rabbit
+   holes.
 
-## Shared texture questions
+## Phase 3 — shared textures
 
-- [ ] Inventory models that share `blenderaxes.rgba2`, `earthuv.rgba2`, and
-  other textures.
-- [ ] Decide whether the common-assets directory stores authoritative source
-  textures, generated RGBA2 textures, or separate `src` and `tgt` forms.
-- [ ] Prevent a model-local build from silently overwriting a shared texture
-  with different dimensions or pixel data.
-- [ ] Give shared assets stable names and document their dimensions and pixel
-  format.
+1. [ ] Inventory users of `blenderaxes`, `earthuv`, and other shared textures.
+2. [ ] Decide whether shared assets use separate authoritative and generated
+   directories.
+3. [ ] Prevent model builds from silently overwriting a shared texture with
+   different dimensions or bytes.
+4. [ ] Give shared assets stable names and record dimensions and pixel format.
 
-## Migration safety
+## Phase 4 — migration safety
 
-- [ ] Preserve the currently successful eleven-application build before
-  moving model assets.
-- [ ] Hash current model includes and textures before relocation.
-- [ ] Regenerate into a disposable directory first.
-- [ ] Compare rebuilt application binaries and runtime assets with the accepted
-  pre-migration versions.
-- [ ] Update build, deployment, Blender, and documentation paths together.
-- [ ] Do not remove the old model library until every active application can
-  build from the new locations.
+1. [ ] Preserve the accepted 13-binary build before moving assets.
+2. [ ] Hash current model includes and textures.
+3. [ ] Regenerate into a disposable directory first.
+4. [ ] Compare applications and runtime assets with accepted versions.
+5. [ ] Update build, deployment, Blender, and documentation paths together.
+6. [ ] Remove the old model library only after every active application builds.
 
-## Deferred release packaging
+## Phase 5 — release packaging
 
-- [ ] Design a tracked deployment/release directory.
-- [ ] Produce ZIP packages containing a portable app `src/` plus its matching
-  runtime `tgt/`.
-- [ ] Include generator/version metadata and checksums in each release package.
+1. [ ] Design a tracked deployment/release directory.
+2. [ ] Produce portable ZIPs containing app `src/` and matching `tgt/`.
+3. [ ] Include generator versions, source provenance, and checksums.
