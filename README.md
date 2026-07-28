@@ -11,6 +11,7 @@ in `agon-vdp`; emulator implementation belongs in the owned
 apps/_common/       shared assembly and model-viewer template
 apps/<app>/src/     flat tracked assembly source
 apps/<app>/tgt/     flat ignored binaries and runtime textures
+benchmarks/          profile-driven deterministic render fixtures and results
 src/asm/models/     temporary central model/texture library
 src/blender/        editable Blender scenes and source assets
 build/scripts/      build, conversion, deployment, and diagnostic tools
@@ -38,6 +39,32 @@ It produces 13 binaries and exits on the first assembly failure.
 
 See [Assembly build pipeline](docs/assembly-build-pipeline.md).
 
+## Render benchmark
+
+`benchmarks/render-spin` generates deterministic Cube and HeavyTank workloads
+from JSON profiles. The Cube baseline performs eight warmups followed by 36
+absolute 10-degree Y rotations. Firmware reports only `rendererRender()` time;
+reserved warmup and measured bitmap IDs identify complete runs inside logs
+containing resets or unrelated interactive renders.
+
+Generate the Cube fixture:
+
+```bash
+python3 build/scripts/build_render_benchmark.py \
+  benchmarks/render-spin/profiles/cube-rgba8888.json
+```
+
+Capture hardware traffic from anywhere:
+
+```bash
+~/Agon/mystuff/pingoasm/build/scripts/listen_vdp_debug.py \
+  --log ~/Agon/mystuff/pingoasm/benchmarks/render-spin/results/my-run.log
+```
+
+While listening, press `R` to reset the VDP/Agon and trigger a benchmark
+selected by the hardware SD's `autoexec.txt`; use Ctrl+C to stop. See the
+[render-spin README](benchmarks/render-spin/README.md).
+
 ## Qualified Pingo fixtures
 
 `apps/turbovega` contains strict triangle, cube, and HeavyTank clients using
@@ -63,6 +90,9 @@ Both expose the canonical `apps/` tree through:
 sdcard/mystuff/pingoasm/apps -> ~/Agon/mystuff/pingoasm/apps
 ```
 
+The isolated current-Pingo profile also exposes the canonical `benchmarks/`
+tree, so regenerated emulator fixtures need no copy.
+
 Rebuilding an application therefore updates emulator-visible files
 immediately. Setup and deployment preserve `autoexec.txt`.
 
@@ -87,6 +117,10 @@ Hardware is the only copy deployment:
 
 It replaces `apps/<app>/tgt` at the matching mounted SD path, normally beneath
 `/media/smith/AGON`. Deployment never edits `autoexec.txt`.
+
+The local `~/copy_to_sd.sh` helper deploys the generated Cube benchmark target
+to the matching hardware-SD path. Its `autoexec.txt` selection remains
+user-controlled.
 
 Refresh the isolated VDP snapshot only after hardware passes:
 
@@ -123,6 +157,10 @@ viewport orientation, texture orientation, perspective-correct UVs, and
 outward-wound HeavyTank geometry. See
 [2026-07-27 devlog](docs/devlog-2026-07-27.md) and
 [TurboVega versus upstream](docs/turbovega-vs-upstream-pingo.md).
+
+The deterministic hardware Cube baseline is 231.28 ms mean renderer time
+(4.32 equivalent FPS) at 320×240 using RGBA8888. See the
+[2026-07-28 devlog](docs/devlog-2026-07-28.md).
 
 Historical package and benchmark material remains under `archive/` and
 `docs/benchmarks`. The last pre-layout-migration commit is `9da1c25`.

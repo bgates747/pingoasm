@@ -107,6 +107,41 @@ Macro parameters use explicit names such as `VERTEX_DATA`, `VERTEX_COUNT`,
 `MESH_ID`, and `BITMAP_ID` to avoid ez80asm 2.1 replacing short parameter names
 inside longer identifiers.
 
+## Deterministic benchmarks
+
+Benchmarks are intentionally separate from interactive `apps/`:
+
+```text
+benchmarks/render-spin/profiles/          tracked workload declarations
+benchmarks/render-spin/fixtures/*/src/    tracked generated portable source
+benchmarks/render-spin/fixtures/*/tgt/    ignored generated runtime payload
+benchmarks/render-spin/results/           qualified raw/JSON baselines
+```
+
+Build a profile from anywhere:
+
+```bash
+~/Agon/mystuff/pingoasm/.venv/bin/python \
+  ~/Agon/mystuff/pingoasm/build/scripts/build_render_benchmark.py \
+  ~/Agon/mystuff/pingoasm/benchmarks/render-spin/profiles/cube-rgba8888.json
+```
+
+Profiles select geometry, texture and format, dimensions, IDs, scale, camera,
+resolution, warmups, frame count, rotation axis, and angular step. The
+generator copies provenance-marked model/helpers into a self-contained `src/`,
+copies the texture into `tgt/`, expands deterministic absolute poses, and
+invokes `ez80asm`.
+
+Reserved IDs distinguish benchmark traffic:
+
+```text
+control=1300, texture=1256, measured target=1257, warmup target=1258
+```
+
+The summarizer recognizes eight `bmid=1258` records followed by 36
+`bmid=1257` records. It rejects incomplete runs and ignores resets, repeated
+runs, and interactive render traffic in the same log.
+
 ## HeavyTank generation
 
 The canonical source is the freshly exported
@@ -143,6 +178,17 @@ Targets:
 Hardware deployment replaces only the selected `apps/<app>/tgt` at the
 matching SD path. Hardware is tested before any refreshed emulator module.
 
+The generated Cube benchmark is deployed by `~/copy_to_sd.sh` to:
+
+```text
+/mystuff/pingoasm/benchmarks/render-spin/fixtures/cube-rgba8888/tgt
+```
+
+The reconnecting `build/scripts/listen_vdp_debug.py` tees raw VDP output to a
+log and terminal. Pressing `R` pulses hardware reset without stopping capture;
+with `autoexec.txt` configured to run the benchmark, this is the standard
+unattended rerun workflow.
+
 ## Verification
 
 The current pipeline is accepted when:
@@ -153,7 +199,9 @@ The current pipeline is accepted when:
 4. `tgt/` contains only permitted binaries/textures;
 5. generated banners name their source and generator;
 6. strict command-scope and native renderer smoke tests pass; and
-7. cube and HeavyTank pass visual review on hardware and the isolated emulator.
+7. cube and HeavyTank pass visual review on hardware and the isolated emulator;
+8. both render-spin profiles assemble; and
+9. a mixed synthetic log yields only the bitmap-tagged benchmark signature.
 
 ## Known limitations
 
@@ -161,7 +209,8 @@ The current pipeline is accepted when:
    explicit metadata.
 2. Texture discovery parses `_texture: db` assembly lines.
 3. Generated trees are replaced non-atomically.
-4. There is no selective generic model CLI.
+4. The ordinary sample builder has no selective generic model CLI; benchmarks
+   use explicit profiles instead.
 5. Specialized runtime-asset generation is incomplete.
 6. There is no tracked release ZIP/export step.
 7. The Blender/model/texture source layout still needs the planned provenance

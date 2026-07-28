@@ -21,6 +21,9 @@ autoexec*.txt
 # Generated application runtime packages
 /apps/*/tgt/
 
+# Generated benchmark runtime packages
+/benchmarks/*/fixtures/*/tgt/
+
 ## BOILERPLATE PYTHON TEMPLATE ##
 # Ignore Stupid Windows Thumbs.db files
 Thumbs.db
