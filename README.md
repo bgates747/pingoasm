@@ -158,8 +158,10 @@ outward-wound HeavyTank geometry. See
 [2026-07-27 devlog](docs/devlog-2026-07-27.md) and
 [TurboVega versus upstream](docs/turbovega-vs-upstream-pingo.md).
 
-The deterministic hardware Cube baseline is 231.28 ms mean renderer time
-(4.32 equivalent FPS) at 320×240 using RGBA8888. See the
+The deterministic hardware Cube baseline is approximately 232.7 ms mean
+renderer time (4.30 equivalent FPS) at 320×240. RGBA8888 and lookup-expanded
+RGBA2222 source textures now render at indistinguishable speed, while RGBA2222
+uses one quarter of the texture storage and transfer. See the
 [2026-07-28 devlog](docs/devlog-2026-07-28.md).
 
 Historical package and benchmark material remains under `archive/` and

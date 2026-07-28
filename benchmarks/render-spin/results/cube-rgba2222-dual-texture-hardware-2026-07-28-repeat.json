@@ -1,0 +1,202 @@
+{
+  "profile": "cube-rgba2222",
+  "platform": "hardware",
+  "firmware": "Pingo 2.15 Alpha 1, d66b96d + uncommitted dual sampler (pre-lookup)",
+  "timing_scope": "rendererRender only",
+  "warmup_target_bitmap_id": 1258,
+  "target_bitmap_id": 1257,
+  "render_sequence_start": 88,
+  "render_sequence_end": 131,
+  "warmup_frames": 8,
+  "measured_frames": 36,
+  "total_render_us": 8638265,
+  "minimum_render_us": 227410,
+  "maximum_render_us": 250925,
+  "mean_render_us": 239951.80555555556,
+  "median_render_us": 238969.0,
+  "population_stdev_us": 8839.072971187032,
+  "p95_render_us": 250815,
+  "equivalent_mean_fps": 4.167503543825062,
+  "frames": [
+    {
+      "frame": 0,
+      "angle_deg": 0,
+      "render_us": 231990
+    },
+    {
+      "frame": 1,
+      "angle_deg": 10,
+      "render_us": 227631
+    },
+    {
+      "frame": 2,
+      "angle_deg": 20,
+      "render_us": 238270
+    },
+    {
+      "frame": 3,
+      "angle_deg": 30,
+      "render_us": 246740
+    },
+    {
+      "frame": 4,
+      "angle_deg": 40,
+      "render_us": 250815
+    },
+    {
+      "frame": 5,
+      "angle_deg": 50,
+      "render_us": 250679
+    },
+    {
+      "frame": 6,
+      "angle_deg": 60,
+      "render_us": 246992
+    },
+    {
+      "frame": 7,
+      "angle_deg": 70,
+      "render_us": 239049
+    },
+    {
+      "frame": 8,
+      "angle_deg": 80,
+      "render_us": 227505
+    },
+    {
+      "frame": 9,
+      "angle_deg": 90,
+      "render_us": 231944
+    },
+    {
+      "frame": 10,
+      "angle_deg": 100,
+      "render_us": 227601
+    },
+    {
+      "frame": 11,
+      "angle_deg": 110,
+      "render_us": 238328
+    },
+    {
+      "frame": 12,
+      "angle_deg": 120,
+      "render_us": 246864
+    },
+    {
+      "frame": 13,
+      "angle_deg": 130,
+      "render_us": 250925
+    },
+    {
+      "frame": 14,
+      "angle_deg": 140,
+      "render_us": 250757
+    },
+    {
+      "frame": 15,
+      "angle_deg": 150,
+      "render_us": 246912
+    },
+    {
+      "frame": 16,
+      "angle_deg": 160,
+      "render_us": 238986
+    },
+    {
+      "frame": 17,
+      "angle_deg": 170,
+      "render_us": 227509
+    },
+    {
+      "frame": 18,
+      "angle_deg": 180,
+      "render_us": 231966
+    },
+    {
+      "frame": 19,
+      "angle_deg": 190,
+      "render_us": 227622
+    },
+    {
+      "frame": 20,
+      "angle_deg": 200,
+      "render_us": 238315
+    },
+    {
+      "frame": 21,
+      "angle_deg": 210,
+      "render_us": 246803
+    },
+    {
+      "frame": 22,
+      "angle_deg": 220,
+      "render_us": 250764
+    },
+    {
+      "frame": 23,
+      "angle_deg": 230,
+      "render_us": 250668
+    },
+    {
+      "frame": 24,
+      "angle_deg": 240,
+      "render_us": 246946
+    },
+    {
+      "frame": 25,
+      "angle_deg": 250,
+      "render_us": 238952
+    },
+    {
+      "frame": 26,
+      "angle_deg": 260,
+      "render_us": 227597
+    },
+    {
+      "frame": 27,
+      "angle_deg": 270,
+      "render_us": 231978
+    },
+    {
+      "frame": 28,
+      "angle_deg": 280,
+      "render_us": 227546
+    },
+    {
+      "frame": 29,
+      "angle_deg": 290,
+      "render_us": 238329
+    },
+    {
+      "frame": 30,
+      "angle_deg": 300,
+      "render_us": 246911
+    },
+    {
+      "frame": 31,
+      "angle_deg": 310,
+      "render_us": 250695
+    },
+    {
+      "frame": 32,
+      "angle_deg": 320,
+      "render_us": 250551
+    },
+    {
+      "frame": 33,
+      "angle_deg": 330,
+      "render_us": 246827
+    },
+    {
+      "frame": 34,
+      "angle_deg": 340,
+      "render_us": 238888
+    },
+    {
+      "frame": 35,
+      "angle_deg": 350,
+      "render_us": 227410
+    }
+  ]
+}

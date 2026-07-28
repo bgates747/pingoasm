@@ -1,6 +1,6 @@
 # Dual RGBA2222/RGBA8888 texture support proposal
 
-Status: proposal, not implemented
+Status: implemented and qualified on hardware
 Date: 2026-07-28
 
 ## Objective
@@ -59,7 +59,7 @@ when the older extended emulator received RGBA8888 fixtures.
 Texture storage format and renderer working/output format are separate
 concerns. Supporting one texture type must not redefine every Pingo pixel.
 
-## Proposed representation
+## Implemented representation
 
 Retain Pingo's four-channel working/output pixel:
 
@@ -75,10 +75,11 @@ typedef struct {
 Make a texture describe its source data explicitly:
 
 ```c
-typedef enum {
-    TEXTURE_RGBA2222,
-    TEXTURE_RGBA8888
-} TextureFormat;
+typedef uint8_t TextureFormat;
+enum {
+    TEXTURE_FORMAT_RGBA8888,
+    TEXTURE_FORMAT_RGBA2222
+};
 
 typedef struct {
     Vec2i size;
@@ -87,7 +88,8 @@ typedef struct {
 } Texture;
 ```
 
-Exact names remain an implementation detail. The essential requirements are:
+The implementation uses `TEXTURE_FORMAT_RGBA8888` and
+`TEXTURE_FORMAT_RGBA2222`. The essential requirements are:
 
 1. Texture data is not assumed to have `sizeof(Pixel)` stride.
 2. Source format accompanies the data pointer and dimensions.
@@ -164,17 +166,16 @@ present/absent.
 
 ## Conversion performance
 
-The first implementation may use shifts and the four-value expansion table.
-Before optimization, benchmark this against the existing RGBA8888 path.
-
-A likely optimization is a 256-entry packed-byte lookup:
+The initial shifts-and-masks implementation was measured before introducing a
+256-entry packed-byte lookup:
 
 ```c
 Pixel rgba2222_to_pixel[256];
 ```
 
-This costs 1 KiB and converts an RGBA2222 texel with one indexed load. The
-format branch is stable for an entire object and should be predictable.
+The implemented table costs 1 KiB of shared firmware read-only storage and
+converts an RGBA2222 texel with one indexed load. It is not duplicated per
+texture. The format branch is stable for an entire object.
 
 Do not introduce a per-texel function pointer unless measurement shows it
 outperforms the direct format branch on the ESP32.
@@ -197,30 +198,49 @@ Expanding a complete RGBA2222 texture at object creation would preserve serial
 bandwidth but discard most memory/cache advantages. It should remain a fallback
 only if measured per-sample conversion is prohibitively expensive.
 
-## Implementation sequence
+## Implementation and verification
 
-1. Add an explicit source format and byte-addressable data pointer to sampled
-   textures.
-2. Keep the renderer's working `Pixel` and RGBA8888 render target unchanged.
-3. Pass VDP bitmap format through command `5`.
-4. Reject unsupported bitmap formats safely.
-5. Implement correct RGBA2222 expansion in nearest-neighbor sampling.
-6. Preserve the qualified U/V clamp and V-row conversion exactly.
-7. Add host tests for all 256 RGBA2222 byte values and representative
-   RGBA8888 pixels.
-8. Add sampler tests for corners, `u/v = 1`, rectangular dimensions, and both
-   formats.
-9. Build and test hardware before refreshing the emulator.
-10. Optimize conversion only after correctness and measurement.
+Completed:
+
+1. Textures carry an explicit source format while retaining the borrowed VDP
+   bitmap pointer.
+2. Renderer working pixels and render targets remain RGBA8888.
+3. Command `5` maps the referenced `Bitmap::format`; its wire payload is
+   unchanged.
+4. Unsupported formats are rejected with a diagnostic.
+5. RGBA2222 is expanded per sampled texel without another texture buffer.
+6. The qualified U/V clamp and image-row conversion are unchanged.
+7. A native test exhaustively checks all 256 RGBA2222 values, representative
+   RGBA8888 values, and all four UV corners.
+8. Native module build and smoke tests pass.
+9. Both paired Cube fixtures assemble.
+10. ESP32 firmware builds successfully.
+
+Hardware qualification completed:
+
+1. RGBA2222 and RGBA8888 Cube textures both rendered correctly.
+2. The direct-expansion RGBA2222 path repeated within 0.015%.
+3. The shared lookup reduced RGBA2222 mean render time from 239.969 ms to
+   232.720 ms.
+4. The qualified RGBA8888 mean was 232.631 ms.
+5. The remaining 0.038% difference is below the useful resolution of this
+   experiment.
+
+Still required:
+
+1. Run the existing non-Pingo smoke application.
+2. Refresh and validate the emulator before committing emulator-related state.
 
 ## Regression fixtures
 
-Create paired cube fixtures from the same `blenderaxes` source:
+Paired Cube fixtures now use the same geometry and workload:
 
-1. RGBA8888 cube using `blenderaxes.rgba8`.
-2. RGBA2222 cube using `blenderaxes.rgba2`.
+1. `cube-rgba8888` using `blenderaxes.rgba8`.
+2. `cube-rgba2222` using `blenderaxes.rgba2`.
 
-Use identical geometry, UVs, camera, transforms, and controls.
+Their generated assembly differs only in provenance, texture filename, texture
+byte count, and bitmap format byte. The RGBA2222 upload is 1,156 bytes; the
+RGBA8888 upload is 4,624 bytes.
 
 Hardware acceptance requires:
 
@@ -238,6 +258,26 @@ After hardware passes:
 1. Refresh the isolated Pingo emulator module.
 2. Run the same canonical binaries through the live `apps` mapping.
 3. Obtain explicit human validation before committing emulator-related state.
+
+## Historical whole-pipeline result
+
+The older benchmark notes in `docs/benchmarks/fpscomparisons.txt` confirm the
+remembered larger gain:
+
+```text
+Earth RGBA8888 pipeline: 323–324 ms, approximately 3.10 FPS
+Global RGBA2222P Pixel:  276–277 ms, approximately 3.62 FPS
+```
+
+That experiment changed Pingo's global working `Pixel` to one byte, affecting
+framebuffer clearing, raster writes, and other working/output traffic as well
+as source textures. It reduced frame time by roughly 14.5% and increased FPS
+by roughly 17%.
+
+The present milestone deliberately does not reproduce that invasive change.
+It supports compact source textures while retaining the established RGBA8888
+working framebuffer and render target. A subsequent milestone may restore a
+one-byte working pipeline while preserving this dual-input compatibility.
 
 ## Compatibility decision
 

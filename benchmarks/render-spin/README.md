@@ -13,6 +13,13 @@ python3 build/scripts/build_render_benchmark.py \
   benchmarks/render-spin/profiles/cube-rgba8888.json
 ```
 
+Build the workload-equivalent RGBA2222 texture variant with:
+
+```bash
+python3 build/scripts/build_render_benchmark.py \
+  benchmarks/render-spin/profiles/cube-rgba2222.json
+```
+
 This creates:
 
 ```text
@@ -34,10 +41,12 @@ model, texture, dimensions, format, scale, camera, or rotation settings. The
 generator deliberately keeps texture metadata outside the geometry include, so
 one model can be tested against more than one texture format.
 
-Two initial profiles demonstrate reuse:
+The initial profiles demonstrate reuse:
 
-1. `cube-rgba8888.json` is the small visual-regression baseline.
-2. `heavytank-rgba8888.json` runs the same benchmark protocol against the
+1. `cube-rgba8888.json` is the original small visual-regression baseline.
+2. `cube-rgba2222.json` changes only the Cube texture file and declared bitmap
+   format, providing the paired format/performance comparison.
+3. `heavytank-rgba8888.json` runs the same benchmark protocol against the
    higher-poly, chiral HeavyTank model.
 
 ## Run and capture
@@ -113,3 +122,19 @@ deviation, p95, maximum, and equivalent mean FPS.
 Do not compare emulator timings as ESP32 performance. The same fixture may be
 run there for correctness and for emulator-specific regression measurements
 after the hardware result has been validated.
+
+## Qualified dual-format result
+
+Pingo 2.15 Alpha 1 accepts both source texture formats through existing VDP
+bitmap metadata. Visually qualified hardware runs measured:
+
+```text
+RGBA8888:                   232.631 ms mean, 4.299 FPS
+RGBA2222, direct expansion: 239.969 ms mean, 4.167 FPS (two-run mean)
+RGBA2222, shared lookup:    232.720 ms mean, 4.297 FPS
+```
+
+The shared 1 KiB read-only lookup removed the per-texel expansion penalty.
+Lookup-table RGBA2222 was within 0.038% of RGBA8888 while retaining a 75%
+smaller source texture and transfer. These results cover source textures only;
+Pingo's working framebuffer and render target remain RGBA8888.
