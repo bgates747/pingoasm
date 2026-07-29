@@ -209,6 +209,28 @@ The profiles previously described one series, so historical raw logs contain
 only one 8+36 signature. Reparse one of those without editing its durable
 profile by adding `--series-runs 1`.
 
+## Compare two firmware versions
+
+`build/scripts/compare_pingo_versions.py` compares complete runs of the
+canonical 1,447-frame chained suite. It ignores partial traffic before the
+first sequence zero, validates both persistent bitmap streams, prints an
+FPS-first A/B table, and can generate a standalone HTML report with an SVG bar
+graph. It requires no third-party Python packages.
+
+```bash
+python3 build/scripts/compare_pingo_versions.py \
+  benchmarks/render-spin/results/baseline.log \
+  benchmarks/render-spin/results/candidate.log \
+  --baseline-label "Version A" \
+  --candidate-label "Version B" \
+  --html-output benchmarks/render-spin/results/comparison.html
+```
+
+The displayed equivalent FPS is `1,000,000 / mean render_us`. It represents
+only the instrumented renderer interval. The table also reports FPS gain,
+render-time change, and the spread between complete runs. Use two or more
+ordinary-firmware runs per version for a promotion decision.
+
 ## Renderer-attribution diagnostics
 
 The separate `esp32dev-pingo-diag` firmware variant appends versioned phase
@@ -238,6 +260,7 @@ tests with:
 PYTHONDONTWRITEBYTECODE=1 \
   .venv/bin/python -m unittest \
   build/scripts/test_build_render_benchmark.py \
+  build/scripts/test_compare_pingo_versions.py \
   build/scripts/test_summarize_render_benchmark.py
 ```
 

@@ -119,7 +119,7 @@ path with deliberate float expressions. ESP32 disassembly shows
 `1.0 / area` and `(1.0 + dot) * 0.5` currently call double-precision runtime
 helpers once per affected triangle.
 
-3.2 [ ] Hoist the constant normalized light vector out of the triangle loop.
+3.2 [x] Hoist the constant normalized light vector out of the triangle loop.
 
 3.3 [ ] Hoist framebuffer half-width, half-height, material state, and other
 object-invariant values out of the triangle loop.
@@ -130,9 +130,12 @@ software divisions. Zero and exact-unit inputs have explicit fast paths.
 Native tests and emulator target equivalence pass; hardware qualification
 remains part of item 8.2.
 
-3.5 [ ] Cache framebuffer and z-buffer pointers and avoid repeated backend
+3.5 [x] Cache framebuffer and z-buffer pointers and avoid repeated backend
 callback lookup in the fragment loop. Compute and increment a linear pixel
 index rather than recalculating `x + y * width`, and quantize depth only once.
+The retained implementation caches the z-buffer per object, reuses each
+fragment's linear index, fuses depth comparison/write, and writes the default
+pixel backend directly.
 
 3.6 [ ] Normalize integer triangle area and edge signs once so the common
 raster loop can use one bitwise-OR coverage test. Account explicitly for the
@@ -145,7 +148,7 @@ model-space lighting, and is covered by a nontrivial sequential-versus-composed
 math test and final-target equivalence. Hardware qualification remains part of
 item 8.2.
 
-3.8 [ ] Treat each item above as its own A/B experiment. EarthUV is the primary
+3.8 [x] Treat each item above as its own A/B experiment. EarthUV is the primary
 geometry-pressure fixture; Cube remains the primary raster-pressure and visual
 orientation control.
 
@@ -200,10 +203,10 @@ and genuine scalar ESP32 optimizations.
 5.3 [x] Add equivalence and edge-case tests before replacing one routine at a
 time.
 
-5.4 [ ] Benchmark math routines in isolation and then measure whole-frame
+5.4 [x] Benchmark math routines in isolation and then measure whole-frame
 hardware impact. Upstream desktop percentage claims are hypotheses, not Agon
-results. Same-host emulator screening and attribution are complete for the
-accepted candidates; embedded visual and timing qualification remain.
+results. Same-host emulator screening, embedded visual review, and hardware
+timing are complete for the accepted tranche.
 
 5.5 [x] Reject upstream's incompatible `Entity`/callback object-model rewrite,
 camera inversion in the renderer, scale-only inverse without a zero guard,
@@ -216,15 +219,21 @@ composition inspired by upstream `a0ed0cb`.
 
 ## Phase 6: raster-loop evolution
 
-6.1 [ ] Replace four per-sample `fminf`/`fmaxf` calls with a proven equivalent
+6.1 [x] Replace four per-sample `fminf`/`fmaxf` calls with a proven equivalent
 sampler clamp, then evaluate inlining the RGBA2222 read. Define NaN and endpoint
-behavior before changing it.
+behavior before changing it. The retained NaN-safe inline clamp and texture
+sampler match all 1,447 color/depth states.
 
 6.2 [ ] Compute one reciprocal of interpolated `1/W` and multiply both UV
 numerators by it. The present code performs two software floating-point divides
-per shaded textured fragment.
+per shaded textured fragment. The first emulator experiment changed only nine
+color targets and no z-buffer targets. It is no longer dismissed solely for
+that small rounding drift: apply
+`~/Agon/mystuff/agon-vdp/docs/experiments/shared-perspective-reciprocal.patch`,
+generate
+pixel-difference images, obtain human review, and measure two hardware runs.
 
-6.3 [ ] Evaluate a bit-identical packed RGBA2222 lighting lookup and a direct
+6.3 [x] Evaluate a bit-identical packed RGBA2222 lighting lookup and a direct
 cached-framebuffer write for the default backend. Keep custom backend behavior
 available.
 
@@ -237,9 +246,22 @@ both triangle area signs, and subpixel behavior before performance testing.
 6.6 [ ] Evaluate fixed-point edge and interpolant arithmetic only after the
 incremental floating-point reference is qualified.
 
-6.7 [ ] Revisit scanline bounds, Hecker-derived perspective spans, tiling, and
-other structural rasterizers as separate experiments with objective image
-comparisons.
+6.7 [x] Introduce exact integer scanline bounds as a separate structural
+experiment with objective image comparisons. The clean-room span preserves
+the existing fill rule across all 1,447 color/depth states and raised weighted
+hardware equivalent FPS from 6.49 to 9.12 (+40.59%).
+
+6.8 [ ] Replace the span helper's up-to-three native integer quotients per row
+with a rational edge walker. Keep floor quotient plus nonnegative remainder
+for each winding-normalized edge; update each row by quotient/remainder
+addition and one carry. Use no more than six setup quotients per triangle and
+prove exact equivalence before renderer integration. Full pseudocode and
+acceptance criteria are in
+`~/Agon/mystuff/agon-vdp/docs/pingo-rasterizer-experiment-2026-07-29.md`.
+
+6.9 [ ] Revisit tiling, top-left ownership, and Hecker-style attribute
+gradients only as separate experiments. Do not mix a fill-rule change with an
+interpolation optimization.
 
 ## Phase 7: geometry reuse and scene-level rejection
 
@@ -263,13 +285,13 @@ scene-level culling.
 8.1 [ ] Keep one intentional code variable per performance comparison whenever
 practical.
 
-8.2 [ ] Require native correctness tests, both embedded builds, hardware visual
+8.2 [x] Require native correctness tests, both embedded builds, hardware visual
 qualification, and repeated ordinary-firmware timing before promotion.
 
 8.3 [ ] Use diagnostic builds to explain *why* a result changed. Use ordinary
 builds to state absolute frame-time or FPS improvement.
 
-8.4 [ ] Preserve raw logs, structured summaries, firmware identity, source
+8.4 [x] Preserve raw logs, structured summaries, firmware identity, source
 commit, fixture profile, and observed visual result for every accepted or
 important rejected experiment.
 

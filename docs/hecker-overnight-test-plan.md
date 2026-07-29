@@ -1,8 +1,9 @@
 # Hecker rasterizer overnight test plan
 
-Status: emulator-qualified exact-output candidate at `agon-vdp:b87c95e`;
-hardware remains on `working-pre-hecker` pending privileged upload approval
-and human qualification.
+Status: exact-output candidate at `agon-vdp:b87c95e` qualified in the emulator
+and on physical hardware. Two complete hardware runs and the author's visual
+review passed. The Hecker investigation remains active; this is a successful
+milestone, not its final optimization.
 
 The objective is to investigate and, if justified by evidence, adapt the
 Hecker-derived scanline work without sacrificing the renderer behavior already
@@ -122,14 +123,15 @@ its images and pixel-difference report, then stop that line of work for human
 review. Do not classify a visually plausible difference as correct
 unattended.
 
-4.6 [ ] Flash only a candidate that passes the emulator gate. Stop any serial
+4.6 [x] Flash only a candidate that passes the emulator gate. Stop any serial
 listener before upload, verify the uploaded firmware identity, restart
 capture, reset the eZ80, and wait for the expected ordered records.
 
-4.7 [ ] Fail the hardware run on a missing or malformed record, unexpected
+4.7 [x] Fail the hardware run on a missing or malformed record, unexpected
 sequence reset, wrong per-program count, VDP reboot/version banner, timeout,
 upload failure, or MOS failure. Use a timeout derived from the baseline run
-plus a generous margin, rather than one fixed short timeout.
+plus a generous margin, rather than one fixed short timeout. Both retained
+candidate runs completed cleanly.
 
 4.8 [ ] Save a failed candidate and its evidence, restore the known-working
 firmware, and continue only with an independent experiment. Never stack a new
@@ -179,20 +181,23 @@ frame-time and FPS improvements only from ordinary firmware.
 as the quick gate. Their expected boundary is 397 total records. A controller may
 interrupt the remaining chain with the next flash/reset after those four pass.
 
-6.2 [ ] Run all 1,447 records once for every candidate that survives the quick
+6.2 [x] Run all 1,447 records once for every candidate that survives the quick
 gate.
 
-6.3 [ ] Run the full chain three times for a candidate proposed for retention.
-Compare per-fixture distributions, not only a pooled average.
+6.3 [x] Repeat the full chain for a candidate proposed for retention. The plan
+originally requested three passes; the author explicitly accepted two after
+observing their stability. Compare per-fixture distributions, not only a
+pooled average.
 
 6.4 [ ] Retain an exploratory candidate when it produces a repeatable,
 fixture-specific signal worth investigating and does not regress another
 fixture by more than normal baseline variance.
 
-6.5 [ ] Propose promotion only when correctness gates pass and the candidate
+6.5 [x] Propose promotion only when correctness gates pass and the candidate
 has a repeatable practical improvement on EarthUV or the multi-object scene
 without a material Cube or HeavyTank regression. Final promotion still
-requires human hardware visual review.
+requires human hardware visual review. Every fixture improved; weighted
+equivalent FPS rose from 6.49 to 9.12, and visual review passed.
 
 ## 7. Unattended safety and recovery
 
@@ -215,7 +220,8 @@ dated rasterizer experiment document in `agon-vdp/docs`.
 
 7.5 [x] End with the known-good firmware unless one candidate passed every
 automatic gate. Even then, mark the candidate “awaiting human visual
-qualification,” not accepted.
+qualification,” not accepted. The candidate subsequently passed that review
+and is the firmware currently installed.
 
 ## 8. What the overnight suite cannot prove
 
@@ -232,9 +238,10 @@ deliberate depth-tie application. Native cases can detect arithmetic
 regressions, but hardware visual qualification of those remaining conditions
 remains future work.
 
-8.3 [ ] Serial timing confirms completion and performance; it does not prove
+8.3 [x] Serial timing confirms completion and performance; it does not prove
 the displayed image is correct. Exact emulator targets are the unattended
-image gate, and physical display review remains the final ground truth.
+image gate, and physical display review remains the final ground truth. The
+author completed that review for `b87c95e`.
 
 8.4 [ ] Existing application records do not carry an explicit fixture ID.
 Ordered record counts are adequate for this frozen suite, but durable chained
@@ -245,7 +252,7 @@ roadmap item 1.8.
 
 9.1 [x] A concise ledger of accepted and rejected experiments.
 
-9.2 [ ] Raw and parsed emulator and hardware evidence for every retained or
+9.2 [x] Raw and parsed emulator and hardware evidence for every retained or
 important rejected candidate.
 
 9.3 [x] Separate commits for each reversible code experiment, with no emulator
@@ -255,4 +262,8 @@ snapshot commit.
 including which raster subphase changed and which fixtures benefited.
 
 9.5 [x] The exact firmware identity left on the hardware and the command to
-restore the known-working image.
+restore the known-working image. Hardware now contains ordinary candidate
+SHA-256
+`6f68c4da62ce4e1df98eb41036fb7f25b1dd0763e58e9d99ac5639d194603c70`;
+the pre-Hecker rollback archive remains
+`~/Agon/mystuff/pingo-firmware-archive/05-working-pre-hecker`.

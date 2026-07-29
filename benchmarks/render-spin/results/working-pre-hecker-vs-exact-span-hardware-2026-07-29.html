@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pingo firmware performance comparison</title>
+<style>
+body { background:#10141b; color:#e7edf5; font:16px system-ui,sans-serif;
+       margin:2rem auto; max-width:1200px; padding:0 1rem; }
+h1,h2 { color:#fff; }
+.legend { display:flex; gap:1.5rem; margin:1rem 0; }
+.swatch { display:inline-block; width:1em; height:1em; margin-right:.4rem; }
+.baseline { fill:#718096; } .candidate { fill:#38b2ac; }
+.label,.value { fill:#e7edf5; font:13px system-ui,sans-serif; }
+svg { width:100%; height:auto; background:#171d27; padding:1rem; }
+table { border-collapse:collapse; width:100%; font-variant-numeric:tabular-nums; }
+th,td { border-bottom:1px solid #344052; padding:.55rem; text-align:right; }
+th:first-child,td:first-child { text-align:left; }
+th { position:sticky; top:0; background:#171d27; }
+</style>
+</head>
+<body>
+<h1>Pingo firmware performance comparison</h1>
+<p>Equivalent FPS is 1,000,000 divided by mean renderer microseconds.
+Higher FPS is better.</p>
+<div class="legend">
+<span><i class="swatch baseline"></i>working-pre-hecker</span>
+<span><i class="swatch candidate"></i>exact-span</span>
+</div>
+<svg viewBox="0 0 1100 722" role="img"
+ aria-label="Frames per second by fixture">
+<text x="0" y="48" class="label">Cube</text><rect x="190" y="35" width="166.06" height="14" class="baseline"/><text x="362.06" y="47" class="value">4.92</text><rect x="190" y="52" width="312.48" height="14" class="candidate"/><text x="508.48" y="64" class="value">9.25</text><text x="0" y="90" class="label">HeavyTank</text><rect x="190" y="77" width="463.63" height="14" class="baseline"/><text x="659.63" y="89" class="value">13.73</text><rect x="190" y="94" width="696.93" height="14" class="candidate"/><text x="892.93" y="106" class="value">20.64</text><text x="0" y="132" class="label">EarthUV</text><rect x="190" y="119" width="234.49" height="14" class="baseline"/><text x="430.49" y="131" class="value">6.94</text><rect x="190" y="136" width="358.54" height="14" class="candidate"/><text x="554.54" y="148" class="value">10.62</text><text x="0" y="174" class="label">Earth party ellipse</text><rect x="190" y="161" width="193.18" height="14" class="baseline"/><text x="389.18" y="173" class="value">5.72</text><rect x="190" y="178" width="258.75" height="14" class="candidate"/><text x="454.75" y="190" class="value">7.66</text><text x="0" y="216" class="label">Cube near-plane</text><rect x="190" y="203" width="128.21" height="14" class="baseline"/><text x="324.21" y="215" class="value">3.80</text><rect x="190" y="220" width="254.64" height="14" class="candidate"/><text x="450.64" y="232" class="value">7.54</text><text x="0" y="258" class="label">EarthUV near-plane</text><rect x="190" y="245" width="149.53" height="14" class="baseline"/><text x="345.53" y="257" class="value">4.43</text><rect x="190" y="262" width="267.51" height="14" class="candidate"/><text x="463.51" y="274" class="value">7.92</text><text x="0" y="300" class="label">Jet near-plane</text><rect x="190" y="287" width="320.58" height="14" class="baseline"/><text x="516.58" y="299" class="value">9.49</text><rect x="190" y="304" width="508.97" height="14" class="candidate"/><text x="704.97" y="316" class="value">15.07</text><text x="0" y="342" class="label">Airliner near-plane</text><rect x="190" y="329" width="175.33" height="14" class="baseline"/><text x="371.33" y="341" class="value">5.19</text><rect x="190" y="346" width="279.77" height="14" class="candidate"/><text x="475.77" y="358" class="value">8.28</text><text x="0" y="384" class="label">EarthIco</text><rect x="190" y="371" width="353.25" height="14" class="baseline"/><text x="549.25" y="383" class="value">10.46</text><rect x="190" y="388" width="578.92" height="14" class="candidate"/><text x="774.92" y="400" class="value">17.14</text><text x="0" y="426" class="label">Lara</text><rect x="190" y="413" width="689.56" height="14" class="baseline"/><text x="885.56" y="425" class="value">20.42</text><rect x="190" y="430" width="806.72" height="14" class="candidate"/><text x="1002.72" y="442" class="value">23.89</text><text x="0" y="468" class="label">Crash</text><rect x="190" y="455" width="741.50" height="14" class="baseline"/><text x="937.50" y="467" class="value">21.96</text><rect x="190" y="472" width="812.02" height="14" class="candidate"/><text x="1008.02" y="484" class="value">24.04</text><text x="0" y="510" class="label">Jet</text><rect x="190" y="497" width="737.43" height="14" class="baseline"/><text x="933.43" y="509" class="value">21.84</text><rect x="190" y="514" width="830.00" height="14" class="candidate"/><text x="1026.00" y="526" class="value">24.58</text><text x="0" y="552" class="label">Airliner</text><rect x="190" y="539" width="401.76" height="14" class="baseline"/><text x="597.76" y="551" class="value">11.90</text><rect x="190" y="556" width="460.36" height="14" class="candidate"/><text x="656.36" y="568" class="value">13.63</text><text x="0" y="594" class="label">Earth party</text><rect x="190" y="581" width="198.55" height="14" class="baseline"/><text x="394.55" y="593" class="value">5.88</text><rect x="190" y="598" width="260.68" height="14" class="candidate"/><text x="456.68" y="610" class="value">7.72</text><text x="0" y="636" class="label">Earth party dolly</text><rect x="190" y="623" width="248.72" height="14" class="baseline"/><text x="444.72" y="635" class="value">7.36</text><rect x="190" y="640" width="298.54" height="14" class="candidate"/><text x="494.54" y="652" class="value">8.84</text><text x="0" y="678" class="label">All frames (weighted)</text><rect x="190" y="665" width="219.10" height="14" class="baseline"/><text x="415.10" y="677" class="value">6.49</text><rect x="190" y="682" width="308.03" height="14" class="candidate"/><text x="504.03" y="694" class="value">9.12</text>
+</svg>
+<h2>Measurements</h2>
+<table>
+<thead><tr><th>Fixture</th>
+<th>working-pre-hecker FPS</th>
+<th>exact-span FPS</th>
+<th>FPS gain</th>
+<th>working-pre-hecker ms</th>
+<th>exact-span ms</th>
+<th>Render-time change</th>
+<th>working-pre-hecker run spread ms</th>
+<th>exact-span run spread ms</th>
+</tr></thead>
+<tbody><tr><td>Cube</td><td>4.917</td><td>9.252</td><td>+88.17%</td><td>203.380</td><td>108.080</td><td>-46.86%</td><td>0.009</td><td>0.005</td></tr>
+<tr><td>HeavyTank</td><td>13.728</td><td>20.636</td><td>+50.32%</td><td>72.844</td><td>48.459</td><td>-33.48%</td><td>0.001</td><td>0.003</td></tr>
+<tr><td>EarthUV</td><td>6.943</td><td>10.616</td><td>+52.90%</td><td>144.027</td><td>94.195</td><td>-34.60%</td><td>0.005</td><td>0.002</td></tr>
+<tr><td>Earth party ellipse</td><td>5.720</td><td>7.661</td><td>+33.94%</td><td>174.820</td><td>130.524</td><td>-25.34%</td><td>0.001</td><td>0.000</td></tr>
+<tr><td>Cube near-plane</td><td>3.796</td><td>7.540</td><td>+98.61%</td><td>263.422</td><td>132.631</td><td>-49.65%</td><td>0.011</td><td>0.001</td></tr>
+<tr><td>EarthUV near-plane</td><td>4.428</td><td>7.921</td><td>+78.90%</td><td>225.861</td><td>126.248</td><td>-44.10%</td><td>0.004</td><td>0.002</td></tr>
+<tr><td>Jet near-plane</td><td>9.492</td><td>15.071</td><td>+58.77%</td><td>105.349</td><td>66.355</td><td>-37.01%</td><td>0.006</td><td>0.004</td></tr>
+<tr><td>Airliner near-plane</td><td>5.192</td><td>8.284</td><td>+59.56%</td><td>192.618</td><td>120.717</td><td>-37.33%</td><td>0.010</td><td>0.004</td></tr>
+<tr><td>EarthIco</td><td>10.460</td><td>17.142</td><td>+63.88%</td><td>95.604</td><td>58.337</td><td>-38.98%</td><td>0.014</td><td>0.001</td></tr>
+<tr><td>Lara</td><td>20.418</td><td>23.887</td><td>+16.99%</td><td>48.977</td><td>41.864</td><td>-14.52%</td><td>0.004</td><td>0.007</td></tr>
+<tr><td>Crash</td><td>21.956</td><td>24.044</td><td>+9.51%</td><td>45.546</td><td>41.591</td><td>-8.68%</td><td>0.003</td><td>0.005</td></tr>
+<tr><td>Jet</td><td>21.835</td><td>24.576</td><td>+12.55%</td><td>45.797</td><td>40.690</td><td>-11.15%</td><td>0.014</td><td>0.002</td></tr>
+<tr><td>Airliner</td><td>11.896</td><td>13.631</td><td>+14.59%</td><td>84.062</td><td>73.361</td><td>-12.73%</td><td>0.006</td><td>0.002</td></tr>
+<tr><td>Earth party</td><td>5.879</td><td>7.719</td><td>+31.29%</td><td>170.094</td><td>129.557</td><td>-23.83%</td><td>0.015</td><td>0.007</td></tr>
+<tr><td>Earth party dolly</td><td>7.365</td><td>8.840</td><td>+20.03%</td><td>135.785</td><td>113.125</td><td>-16.69%</td><td>0.003</td><td>0.004</td></tr>
+<tr><td>All frames (weighted)</td><td>6.488</td><td>9.121</td><td>+40.59%</td><td>154.139</td><td>109.639</td><td>-28.87%</td><td>0.003</td><td>0.001</td></tr></tbody>
+</table>
+</body>
+</html>
