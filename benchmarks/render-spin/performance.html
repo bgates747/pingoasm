@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pingo firmware performance comparison</title>
+<style>
+body { background:#10141b; color:#e7edf5; font:16px system-ui,sans-serif;
+       margin:2rem auto; max-width:1200px; padding:0 1rem; }
+h1,h2 { color:#fff; }
+.subtitle,.provenance { color:#aebbd0; }
+.summary { display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr));
+            gap:1rem; margin:1.5rem 0; }
+.card { background:#171d27; border:1px solid #344052; border-radius:.6rem;
+         padding:1rem; }
+.card .metric { display:block; font-size:1.8rem; font-weight:700; margin-top:.25rem; }
+.gain { color:#55d6be; } .loss { color:#ff8c9a; }
+.legend { display:flex; gap:1.5rem; margin:1rem 0; }
+.swatch { display:inline-block; width:1em; height:1em; margin-right:.4rem; }
+.baseline { fill:#718096; } .candidate { fill:#38b2ac; }
+.label,.value { fill:#e7edf5; font:13px system-ui,sans-serif; }
+svg { width:100%; height:auto; background:#171d27; padding:1rem; }
+table { border-collapse:collapse; width:100%; font-variant-numeric:tabular-nums; }
+th,td { border-bottom:1px solid #344052; padding:.55rem; text-align:right; }
+th:first-child,td:first-child { text-align:left; }
+th { position:sticky; top:0; background:#171d27; }
+.provenance { display:flex; flex-wrap:wrap; gap:.5rem 2rem; margin:1rem 0; }
+.source-label { display:block; font-size:.8rem; text-transform:uppercase; }
+code { color:#d8e4f2; }
+a { color:#6ee7d8; }
+</style>
+</head>
+<body>
+<h1>Pingo firmware performance comparison</h1>
+<p class="subtitle">Shortened 543-frame development chain. Equivalent FPS is 1,000,000
+divided by mean renderer microseconds; higher is better.</p>
+<section class="summary" aria-label="Weighted comparison summary">
+<div class="card">Exact-span baseline
+<span class="metric">8.272 FPS</span></div>
+<div class="card">Subdivided affine
+<span class="metric">8.938 FPS</span></div>
+<div class="card">Weighted FPS change
+<span class="metric gain">+8.057%</span></div>
+</section>
+<div class="provenance">
+<div><span class="source-label">Baseline log</span><code title="/home/smith/Agon/mystuff/pingoasm/benchmarks/render-spin/results/exact-span-candidate-two-run-hardware-2026-07-29.log">exact-span-candidate-two-run-hardware-2026-07-29.log</code></div>
+<div><span class="source-label">Candidate log</span><code title="/home/smith/Agon/mystuff/pingoasm/benchmarks/render-spin/results/subdivided-affine-candidate-two-run-hardware-2026-07-29.log">subdivided-affine-candidate-two-run-hardware-2026-07-29.log</code></div>
+<div><span class="source-label">Generated UTC</span>
+<code>2026-07-29T18:21:28Z</code></div>
+</div>
+<a class="evidence" href="results/exact-span-vs-subdivided-affine-quick-hardware-2026-07-29.json">Open immutable JSON evidence</a>
+<div class="legend">
+<span><i class="swatch baseline"></i>Exact-span baseline</span>
+<span><i class="swatch candidate"></i>Subdivided affine</span>
+</div>
+<svg viewBox="0 0 1100 344" role="img"
+ aria-label="Frames per second by fixture">
+<text x="0" y="48" class="label">Cube</text><rect x="190" y="35" width="341.33" height="14" class="baseline"/><text x="537.33" y="47" class="value">9.25</text><rect x="190" y="52" width="406.90" height="14" class="candidate"/><text x="602.90" y="64" class="value">11.03</text><text x="0" y="90" class="label">HeavyTank</text><rect x="190" y="77" width="761.28" height="14" class="baseline"/><text x="957.28" y="89" class="value">20.64</text><rect x="190" y="94" width="830.00" height="14" class="candidate"/><text x="1026.00" y="106" class="value">22.50</text><text x="0" y="132" class="label">EarthUV</text><rect x="190" y="119" width="391.64" height="14" class="baseline"/><text x="587.64" y="131" class="value">10.62</text><rect x="190" y="136" width="415.38" height="14" class="candidate"/><text x="611.38" y="148" class="value">11.26</text><text x="0" y="174" class="label">Earth party ellipse</text><rect x="190" y="161" width="282.64" height="14" class="baseline"/><text x="478.64" y="173" class="value">7.66</text><rect x="190" y="178" width="290.16" height="14" class="candidate"/><text x="486.16" y="190" class="value">7.87</text><text x="0" y="216" class="label">Cube near-plane</text><rect x="190" y="203" width="278.15" height="14" class="baseline"/><text x="474.15" y="215" class="value">7.54</text><rect x="190" y="220" width="342.18" height="14" class="candidate"/><text x="538.18" y="232" class="value">9.28</text><text x="0" y="258" class="label">EarthUV near-plane</text><rect x="190" y="245" width="292.21" height="14" class="baseline"/><text x="488.21" y="257" class="value">7.92</text><rect x="190" y="262" width="333.45" height="14" class="candidate"/><text x="529.45" y="274" class="value">9.04</text><text x="0" y="300" class="label">All quick-chain frames (weighted)</text><rect x="190" y="287" width="305.15" height="14" class="baseline"/><text x="501.15" y="299" class="value">8.27</text><rect x="190" y="304" width="329.74" height="14" class="candidate"/><text x="525.74" y="316" class="value">8.94</text>
+</svg>
+<h2>Measurements</h2>
+<table>
+<thead><tr><th>Fixture</th>
+<th>Frames</th>
+<th>Exact-span baseline FPS</th>
+<th>Subdivided affine FPS</th>
+<th>FPS gain</th>
+<th>Exact-span baseline ms</th>
+<th>Subdivided affine ms</th>
+<th>Render-time change</th>
+<th>Exact-span baseline run spread ms</th>
+<th>Subdivided affine run spread ms</th>
+</tr></thead>
+<tbody><tr><td>Cube</td><td>36</td><td>9.252</td><td>11.030</td><td>+19.21%</td><td>108.080</td><td>90.664</td><td>-16.11%</td><td>0.005</td><td>0.000</td></tr>
+<tr><td>HeavyTank</td><td>36</td><td>20.636</td><td>22.499</td><td>+9.03%</td><td>48.459</td><td>44.447</td><td>-8.28%</td><td>0.003</td><td>0.001</td></tr>
+<tr><td>EarthUV</td><td>36</td><td>10.616</td><td>11.260</td><td>+6.06%</td><td>94.195</td><td>88.812</td><td>-5.71%</td><td>0.002</td><td>0.000</td></tr>
+<tr><td>Earth party ellipse</td><td>289</td><td>7.661</td><td>7.865</td><td>+2.66%</td><td>130.524</td><td>127.140</td><td>-2.59%</td><td>0.000</td><td>0.001</td></tr>
+<tr><td>Cube near-plane</td><td>73</td><td>7.540</td><td>9.275</td><td>+23.02%</td><td>132.631</td><td>107.812</td><td>-18.71%</td><td>0.001</td><td>0.002</td></tr>
+<tr><td>EarthUV near-plane</td><td>73</td><td>7.921</td><td>9.039</td><td>+14.11%</td><td>126.248</td><td>110.635</td><td>-12.37%</td><td>0.002</td><td>0.000</td></tr>
+<tr><td>All quick-chain frames (weighted)</td><td>543</td><td>8.272</td><td>8.938</td><td>+8.06%</td><td>120.895</td><td>111.881</td><td>-7.46%</td><td>0.000</td><td>0.001</td></tr></tbody>
+</table>
+</body>
+</html>

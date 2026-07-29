@@ -1,0 +1,145 @@
+{
+  "schema_version": 1,
+  "generated_utc": "2026-07-29T16:53:21Z",
+  "profile": {
+    "key": "quick",
+    "description": "Shortened 543-frame development chain",
+    "frames_per_run": 543,
+    "stream_end_sequences": {
+      "1257": 253,
+      "1410": 288
+    }
+  },
+  "baseline": {
+    "label": "Difference form",
+    "log": "benchmarks/render-spin/results/incremental-depth-quick-hardware-2026-07-29.log",
+    "log_sha256": "848755731e7e57aa19d94a2f04749fc0386de11f8dd5ef5746f0092bc1da77b6",
+    "complete_runs": {
+      "1257": 2,
+      "1410": 2
+    }
+  },
+  "candidate": {
+    "label": "Direct sum",
+    "log": "benchmarks/render-spin/results/incremental-depth-direct-sum-quick-hardware-2026-07-29.log",
+    "log_sha256": "3cc00806c2b1be881ea914265962e63e388923f9f970ee0f7393b8a0b25dd6c3",
+    "complete_runs": {
+      "1257": 2,
+      "1410": 2
+    }
+  },
+  "rows": [
+    {
+      "fixture": "Cube",
+      "frames": 36,
+      "baseline": {
+        "mean_us": 105475.55555555556,
+        "fps": 9.48086971178156,
+        "run_spread_us": 1.5555555555474712
+      },
+      "candidate": {
+        "mean_us": 105546.48611111111,
+        "fps": 9.474498269390779,
+        "run_spread_us": 2.0833333333430346
+      },
+      "fps_gain_percent": -0.06720314258579219,
+      "render_time_change_percent": 0.06724833558064969
+    },
+    {
+      "fixture": "HeavyTank",
+      "frames": 36,
+      "baseline": {
+        "mean_us": 47735.08333333333,
+        "fps": 20.94895263965532,
+        "run_spread_us": 2.055555555554747
+      },
+      "candidate": {
+        "mean_us": 47781.625,
+        "fps": 20.9285473233696,
+        "run_spread_us": 6.416666666671517
+      },
+      "fps_gain_percent": -0.0974049473341898,
+      "render_time_change_percent": 0.09749991707708183
+    },
+    {
+      "fixture": "EarthUV",
+      "frames": 36,
+      "baseline": {
+        "mean_us": 92884.75,
+        "fps": 10.766029945712294,
+        "run_spread_us": 0.3333333333430346
+      },
+      "candidate": {
+        "mean_us": 92971.19444444444,
+        "fps": 10.756019711003677,
+        "run_spread_us": 0.05555555554747116
+      },
+      "fps_gain_percent": -0.09297981483511464,
+      "render_time_change_percent": 0.09306634775292366
+    },
+    {
+      "fixture": "Earth party ellipse",
+      "frames": 289,
+      "baseline": {
+        "mean_us": 129290.04671280277,
+        "fps": 7.734547441392303,
+        "run_spread_us": 0.11418685122043826
+      },
+      "candidate": {
+        "mean_us": 129316.43425605536,
+        "fps": 7.732969175595515,
+        "run_spread_us": 2.453287197218742
+      },
+      "fps_gain_percent": -0.02040540585920292,
+      "render_time_change_percent": 0.020409570514901
+    },
+    {
+      "fixture": "Cube near-plane",
+      "frames": 73,
+      "baseline": {
+        "mean_us": 129040.80136986301,
+        "fps": 7.749486901695158,
+        "run_spread_us": 0.5890410958818393
+      },
+      "candidate": {
+        "mean_us": 129113.28082191781,
+        "fps": 7.7451366244753,
+        "run_spread_us": 7.027397260273574
+      },
+      "fps_gain_percent": -0.0561363258631431,
+      "render_time_change_percent": 0.05616785643407507
+    },
+    {
+      "fixture": "EarthUV near-plane",
+      "frames": 73,
+      "baseline": {
+        "mean_us": 123582.12328767123,
+        "fps": 8.091785230718411,
+        "run_spread_us": 8.27397260273574
+      },
+      "candidate": {
+        "mean_us": 123624.30821917808,
+        "fps": 8.08902403099448,
+        "run_spread_us": 0.17808219177823048
+      },
+      "fps_gain_percent": -0.03412349247047253,
+      "render_time_change_percent": 0.03413514057259981
+    },
+    {
+      "fixture": "All quick-chain frames (weighted)",
+      "frames": 543,
+      "baseline": {
+        "mean_us": 119089.74401473296,
+        "fps": 8.397028713709275,
+        "run_spread_us": 1.0828729281784035
+      },
+      "candidate": {
+        "mean_us": 119132.72283609577,
+        "fps": 8.393999366368988,
+        "run_spread_us": 0.6685082872863859
+      },
+      "fps_gain_percent": -0.03607641992865451,
+      "render_time_change_percent": 0.036089439706477044
+    }
+  ]
+}

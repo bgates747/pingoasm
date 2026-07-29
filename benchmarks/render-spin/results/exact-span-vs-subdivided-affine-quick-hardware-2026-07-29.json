@@ -1,0 +1,145 @@
+{
+  "schema_version": 1,
+  "generated_utc": "2026-07-29T18:21:28Z",
+  "profile": {
+    "key": "quick",
+    "description": "Shortened 543-frame development chain",
+    "frames_per_run": 543,
+    "stream_end_sequences": {
+      "1257": 253,
+      "1410": 288
+    }
+  },
+  "baseline": {
+    "label": "Exact-span baseline",
+    "log": "/home/smith/Agon/mystuff/pingoasm/benchmarks/render-spin/results/exact-span-candidate-two-run-hardware-2026-07-29.log",
+    "log_sha256": "2bb9de5eee7637a33a7ce5d24fd62ffdf6936651ffa83786c66901948c4ea402",
+    "complete_runs": {
+      "1257": 2,
+      "1410": 2
+    }
+  },
+  "candidate": {
+    "label": "Subdivided affine",
+    "log": "/home/smith/Agon/mystuff/pingoasm/benchmarks/render-spin/results/subdivided-affine-candidate-two-run-hardware-2026-07-29.log",
+    "log_sha256": "3c09d9e895ed0ad9c02a76df585b6a115adf9ae5ade02fc8554ace18e3051b2d",
+    "complete_runs": {
+      "1257": 2,
+      "1410": 2
+    }
+  },
+  "rows": [
+    {
+      "fixture": "Cube",
+      "frames": 36,
+      "baseline": {
+        "mean_us": 108080.41666666667,
+        "fps": 9.252369956012691,
+        "run_spread_us": 5.0
+      },
+      "candidate": {
+        "mean_us": 90664.29166666666,
+        "fps": 11.02970068609334,
+        "run_spread_us": 0.36111111110949423
+      },
+      "fps_gain_percent": 19.209464586158752,
+      "render_time_change_percent": -16.114043170016167
+    },
+    {
+      "fixture": "HeavyTank",
+      "frames": 36,
+      "baseline": {
+        "mean_us": 48459.20833333333,
+        "fps": 20.635912851100713,
+        "run_spread_us": 3.305555555554747
+      },
+      "candidate": {
+        "mean_us": 44447.16666666667,
+        "fps": 22.498621959404986,
+        "run_spread_us": 1.3333333333357587
+      },
+      "fps_gain_percent": 9.026540874371424,
+      "render_time_change_percent": -8.279214218831799
+    },
+    {
+      "fixture": "EarthUV",
+      "frames": 36,
+      "baseline": {
+        "mean_us": 94195.48611111111,
+        "fps": 10.616219962179716,
+        "run_spread_us": 1.9722222222189885
+      },
+      "candidate": {
+        "mean_us": 88812.43055555556,
+        "fps": 11.259685088501906,
+        "run_spread_us": 0.30555555554747116
+      },
+      "fps_gain_percent": 6.0611510369466215,
+      "render_time_change_percent": -5.714770184641127
+    },
+    {
+      "fixture": "Earth party ellipse",
+      "frames": 289,
+      "baseline": {
+        "mean_us": 130523.6124567474,
+        "fps": 7.661448998979994,
+        "run_spread_us": 0.3598615916853305
+      },
+      "candidate": {
+        "mean_us": 127139.99134948096,
+        "fps": 7.865345823810947,
+        "run_spread_us": 1.449826989628491
+      },
+      "fps_gain_percent": 2.6613350145396675,
+      "render_time_change_percent": -2.592344054519413
+    },
+    {
+      "fixture": "Cube near-plane",
+      "frames": 73,
+      "baseline": {
+        "mean_us": 132630.9589041096,
+        "fps": 7.539717787330381,
+        "run_spread_us": 1.1780821917636786
+      },
+      "candidate": {
+        "mean_us": 107811.63013698629,
+        "fps": 9.275437155800281,
+        "run_spread_us": 1.5068493150611175
+      },
+      "fps_gain_percent": 23.021012422859854,
+      "render_time_change_percent": -18.713073457508024
+    },
+    {
+      "fixture": "EarthUV near-plane",
+      "frames": 73,
+      "baseline": {
+        "mean_us": 126248.13013698629,
+        "fps": 7.920909394182266,
+        "run_spread_us": 2.041095890410361
+      },
+      "candidate": {
+        "mean_us": 110635.17808219178,
+        "fps": 9.038716413120353,
+        "run_spread_us": 0.10958904109429568
+      },
+      "fps_gain_percent": 14.112104599493236,
+      "render_time_change_percent": -12.366877860173918
+    },
+    {
+      "fixture": "All quick-chain frames (weighted)",
+      "frames": 543,
+      "baseline": {
+        "mean_us": 120894.95672191528,
+        "fps": 8.27164364101819,
+        "run_spread_us": 0.17863720073364675
+      },
+      "candidate": {
+        "mean_us": 111880.91068139963,
+        "fps": 8.93807526154014,
+        "run_spread_us": 0.7163904235640075
+      },
+      "fps_gain_percent": 8.056822192111701,
+      "render_time_change_percent": -7.456097661087647
+    }
+  ]
+}

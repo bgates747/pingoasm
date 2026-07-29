@@ -211,20 +211,46 @@ profile by adding `--series-runs 1`.
 
 ## Compare two firmware versions
 
-`build/scripts/compare_pingo_versions.py` compares complete runs of the
-canonical 1,447-frame chained suite. It ignores partial traffic before the
+`build/scripts/compare_pingo_versions.py` compares complete runs of either the
+canonical 1,447-frame suite (the default `full` profile) or the 507-frame
+near-plane development chain (`--profile quick`). It ignores partial traffic before the
 first sequence zero, validates both persistent bitmap streams, prints an
-FPS-first A/B table, and can generate a standalone HTML report with an SVG bar
-graph. It requires no third-party Python packages.
+FPS-first A/B table, writes machine-readable JSON evidence, and updates a
+standalone HTML dashboard with an SVG bar graph. It requires no third-party
+Python packages.
 
 ```bash
 python3 build/scripts/compare_pingo_versions.py \
   benchmarks/render-spin/results/baseline.log \
   benchmarks/render-spin/results/candidate.log \
+  --profile quick \
   --baseline-label "Version A" \
   --candidate-label "Version B" \
-  --html-output benchmarks/render-spin/results/comparison.html
+  --json-output benchmarks/render-spin/results/version-a-vs-version-b-hardware-YYYY-MM-DD.json \
+  --html-output benchmarks/render-spin/performance.html
 ```
+
+`benchmarks/render-spin/performance.html` is the living view: each new
+comparison intentionally replaces it. Give every raw capture and JSON report a
+descriptive, dated filename under `results/`; those are the immutable evidence
+behind past views. The JSON records the input paths and SHA-256 digests, run
+counts, profile, complete measurements, and generation time.
+
+The quick profile covers Cube, EarthUV, Earth-party camera ellipse, Cube
+near-plane, and EarthUV near-plane. HeavyTank remains in the full regression
+suite as a valuable correctness model, but its smaller projected scale makes
+it less representative of the full-screen and near-plane rasterizer work this
+short chain is intended to optimize.
+
+Removing HeavyTank shifts the persistent bitmap-1257 sequence numbers of every
+following fixture. Consequently, the 507-frame chain requires its own
+exact-span baseline; do not compare it directly with an older 543-frame quick
+capture or infer fixture identity from the matching prefix of a full-suite
+capture.
+
+Open `benchmarks/render-spin/performance.html` directly in a file browser or
+web browser. It is self-contained and requires no web server. Refresh the file
+after a new comparison to see the current result.
 
 The displayed equivalent FPS is `1,000,000 / mean render_us`. It represents
 only the instrumented renderer interval. The table also reports FPS gain,
