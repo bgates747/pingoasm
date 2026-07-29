@@ -1,0 +1,36 @@
+{
+  "name": "earthico-rgba2222-visual-review",
+  "description": "Low-poly textured Earth 36-frame Y-axis RGBA2222 render benchmark",
+  "model_obj_source": "src/blender/earthico.obj",
+  "texture_png_source": "src/blender/earthico160x76.png",
+  "texture_filename": "earthico160x76.rgba2",
+  "texture_format": "rgba2222",
+  "target_format": "rgba2222",
+  "texture_width": 160,
+  "texture_height": 76,
+  "control_id": 1300,
+  "texture_bitmap_id": 1256,
+  "target_bitmap_id": 1257,
+  "warmup_target_bitmap_id": 1258,
+  "object_scale": 1280,
+  "camera_pose": [
+    0,
+    0,
+    3200
+  ],
+  "resolution": [
+    320,
+    240
+  ],
+  "warmup_frames": 0,
+  "measured_frames": 36,
+  "series_runs": 2,
+  "rotation_axis": "y",
+  "rotation_step_degrees": 10,
+  "_generated_by": "build/scripts/build_render_benchmark.py",
+  "_generation_overrides": [
+    "fixture_suffix=-visual-review",
+    "warmup_frames=0",
+    "series_runs=2"
+  ]
+}

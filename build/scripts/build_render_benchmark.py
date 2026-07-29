@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import shutil
 import subprocess
 import sys
@@ -93,6 +94,53 @@ def load_profile(path: Path) -> dict[str, Any]:
     series_runs = int(profile.get("series_runs", 1))
     if not 1 <= series_runs <= 255:
         raise ValueError("series_runs must be between 1 and 255")
+    motion = profile.get("translation_motion")
+    if motion is not None:
+        if not isinstance(motion, dict):
+            raise ValueError("translation_motion must be an object")
+        required_motion = {"center", "amplitude", "cycles", "phase_degrees"}
+        missing_motion = sorted(required_motion - motion.keys())
+        if missing_motion:
+            raise ValueError(
+                "translation_motion is missing: " + ", ".join(missing_motion)
+            )
+        unknown_motion = sorted(motion.keys() - required_motion)
+        if unknown_motion:
+            raise ValueError(
+                "translation_motion has unknown fields: "
+                + ", ".join(unknown_motion)
+            )
+        for field in sorted(required_motion):
+            values = motion[field]
+            if not isinstance(values, list) or len(values) != 3:
+                raise ValueError(
+                    f"translation_motion.{field} needs three numeric values"
+                )
+            numeric_values = all(
+                not isinstance(value, bool) and isinstance(value, (int, float))
+                for value in values
+            )
+            if not numeric_values:
+                raise ValueError(
+                    f"translation_motion.{field} needs three numeric values"
+                )
+            try:
+                finite_values = all(math.isfinite(value) for value in values)
+            except OverflowError:
+                finite_values = False
+            if not finite_values:
+                raise ValueError(
+                    f"translation_motion.{field} needs three finite values"
+                )
+        for center, amplitude in zip(
+            motion["center"], motion["amplitude"], strict=True
+        ):
+            low = center - abs(amplitude)
+            high = center + abs(amplitude)
+            if low < -32767 or high > 32767:
+                raise ValueError(
+                    "translation_motion exceeds the -32767..32767 VDU range"
+                )
     return profile
 
 
@@ -111,15 +159,53 @@ def angle_word(degrees: int) -> int:
     return round((degrees % 360) * 32767 / 360)
 
 
-def render_pose(axis: str, degrees: int, role: str, index: int) -> str:
+def motion_translation(
+    profile: dict[str, Any], degrees: int
+) -> tuple[int, int, int] | None:
+    motion = profile.get("translation_motion")
+    if motion is None:
+        return None
+    values = []
+    for center, amplitude, cycles, phase in zip(
+        motion["center"],
+        motion["amplitude"],
+        motion["cycles"],
+        motion["phase_degrees"],
+        strict=True,
+    ):
+        radians = math.radians(cycles * degrees + phase)
+        values.append(round(center + amplitude * math.sin(radians)))
+    return values[0], values[1], values[2]
+
+
+def render_pose(
+    axis: str,
+    degrees: int,
+    role: str,
+    index: int,
+    translation: tuple[int, int, int] | None = None,
+) -> str:
     registers = [
         value.format(angle=str(angle_word(degrees)))
         for value in AXIS_REGISTERS[axis]
     ]
     render_routine = "render_warmup_frame" if role == "warmup" else "render_frame"
+    comment = f"    ; {role} frame {index:02d}, {degrees:03d} degrees"
+    translation_code = ""
+    if translation is not None:
+        x, y, z = translation
+        comment += f", translation ({x}, {y}, {z})"
+        translation_code = (
+            "    ld hl,oid\n"
+            f"    ld bc,{x}\n"
+            f"    ld de,{y}\n"
+            f"    ld iy,{z}\n"
+            "    call sodabs\n"
+        )
     return (
-        f"    ; {role} frame {index:02d}, {degrees:03d} degrees\n"
-        "    ld hl,oid\n"
+        comment + "\n"
+        + translation_code
+        + "    ld hl,oid\n"
         f"    ld bc,{registers[0]}\n"
         f"    ld de,{registers[1]}\n"
         f"    ld iy,{registers[2]}\n"
@@ -137,15 +223,40 @@ def assembly(profile: dict[str, Any], profile_path: Path, texture_name: str) -> 
     axis = profile["rotation_axis"]
     poses = []
     for index in range(warmups):
-        poses.append(render_pose(axis, (index * step) % 360, "warmup", index))
+        degrees = (index * step) % 360
+        poses.append(
+            render_pose(
+                axis,
+                degrees,
+                "warmup",
+                index,
+                motion_translation(profile, degrees),
+            )
+        )
     for index in range(measured):
-        poses.append(render_pose(axis, index * step, "measured", index))
+        degrees = index * step
+        poses.append(
+            render_pose(
+                axis,
+                degrees,
+                "measured",
+                index,
+                motion_translation(profile, degrees),
+            )
+        )
     pose_code = "".join(poses)
     profile_rel = profile_path.resolve().relative_to(PROJECT_ROOT.resolve()).as_posix()
     texture_size = profile["_texture_size"]
     texture_format = TEXTURE_FORMATS[profile["texture_format"]]
     target_macro = TARGET_FORMATS[profile["target_format"]]
-    return banner(profile_rel) + f"""\
+    generation_note = ""
+    if profile.get("_generation_overrides"):
+        generation_note = (
+            "; Generation overrides: "
+            + ", ".join(profile["_generation_overrides"])
+            + "\n\n"
+        )
+    return banner(profile_rel) + generation_note + f"""\
 mos_load: equ 01h
 mos_sysvars: equ 08h
 mos_getkbmap: equ 1Eh
@@ -329,10 +440,71 @@ def main() -> int:
         help="profile JSON (absolute or relative to the current directory)",
     )
     parser.add_argument("--no-assemble", action="store_true")
+    parser.add_argument(
+        "--fixture-suffix",
+        default="",
+        help="suffix for an isolated generated fixture name",
+    )
+    parser.add_argument(
+        "--fixture-name",
+        help="exact name for an isolated generated fixture",
+    )
+    parser.add_argument(
+        "--warmup-frames",
+        type=int,
+        help="override the profile warmup count for this generated fixture",
+    )
+    parser.add_argument(
+        "--series-runs",
+        type=int,
+        help="override the profile series count for this generated fixture",
+    )
+    parser.add_argument(
+        "--translation-motion-from",
+        type=Path,
+        help="reuse translation_motion from another validated profile",
+    )
     args = parser.parse_args()
 
     profile_path = args.profile.resolve()
     profile = load_profile(profile_path)
+    overrides = []
+    if args.fixture_name and args.fixture_suffix:
+        raise ValueError("fixture name and fixture suffix are mutually exclusive")
+    if args.fixture_name:
+        if Path(args.fixture_name).name != args.fixture_name:
+            raise ValueError("fixture name must not contain a path separator")
+        profile["name"] = args.fixture_name
+        overrides.append(f"fixture_name={args.fixture_name}")
+    if args.fixture_suffix:
+        if "/" in args.fixture_suffix or args.fixture_suffix in {".", ".."}:
+            raise ValueError("fixture suffix must not contain a path separator")
+        profile["name"] += args.fixture_suffix
+        overrides.append(f"fixture_suffix={args.fixture_suffix}")
+    if args.warmup_frames is not None:
+        if args.warmup_frames < 0:
+            raise ValueError("warmup frames must not be negative")
+        profile["warmup_frames"] = args.warmup_frames
+        overrides.append(f"warmup_frames={args.warmup_frames}")
+    if args.series_runs is not None:
+        if not 1 <= args.series_runs <= 255:
+            raise ValueError("series runs must be between 1 and 255")
+        profile["series_runs"] = args.series_runs
+        overrides.append(f"series_runs={args.series_runs}")
+    if args.translation_motion_from is not None:
+        motion_profile_path = args.translation_motion_from.resolve()
+        motion_profile = load_profile(motion_profile_path)
+        if "translation_motion" not in motion_profile:
+            raise ValueError(
+                f"motion profile has no translation_motion: {motion_profile_path}"
+            )
+        profile["translation_motion"] = motion_profile["translation_motion"]
+        try:
+            motion_source = motion_profile_path.relative_to(PROJECT_ROOT)
+        except ValueError:
+            motion_source = motion_profile_path
+        overrides.append(f"translation_motion_from={motion_source}")
+    profile["_generation_overrides"] = overrides
     fixture_root = FIXTURES_ROOT / profile["name"]
     source_dir = fixture_root / "src"
     target_dir = fixture_root / "tgt"
@@ -352,6 +524,16 @@ def main() -> int:
         generate_texture(profile, texture_target)
 
     profile["_texture_size"] = texture_target.stat().st_size
+    if overrides:
+        effective_profile = {
+            key: value for key, value in profile.items() if not key.startswith("_")
+        }
+        effective_profile["_generated_by"] = GENERATOR
+        effective_profile["_generation_overrides"] = overrides
+        (fixture_root / "effective-profile.json").write_text(
+            json.dumps(effective_profile, indent=2) + "\n",
+            encoding="utf-8",
+        )
     if "model_source" in profile:
         model_source = project_path(profile["model_source"])
         generated_copy(model_source, source_dir / "model.inc", profile_path)

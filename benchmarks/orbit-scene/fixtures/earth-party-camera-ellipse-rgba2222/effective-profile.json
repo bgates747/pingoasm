@@ -1,0 +1,140 @@
+{
+  "name": "earth-party-camera-ellipse-rgba2222",
+  "description": "Two object orbits during one uniformly swept focus-based elliptical camera orbit",
+  "resolution": [
+    320,
+    240
+  ],
+  "control_id": 1400,
+  "target_bitmap_id": 1410,
+  "warmup_target_bitmap_id": 1411,
+  "texture_format": "rgba2222",
+  "target_format": "rgba2222",
+  "camera_pose": [
+    0,
+    0,
+    10000
+  ],
+  "camera_ellipse": {
+    "apoapsis_distance": 11000,
+    "periapsis_distance": 2500,
+    "camera_revolutions": 1,
+    "plane": "yz_polar",
+    "objects_orbit": true
+  },
+  "series_runs": 1,
+  "warmup_frames": 0,
+  "frames_per_orbit": 144,
+  "orbit_revolutions": 2,
+  "include_closing_pose": true,
+  "orbit_center": [
+    0,
+    0,
+    -1000
+  ],
+  "orbit_radius": 2500,
+  "central": {
+    "name": "earthuv",
+    "model_obj_source": "src/blender/earthuv.obj",
+    "texture_png_source": "src/blender/earth320x160.png",
+    "texture_filename": "earth320x160.rgba2",
+    "texture_size": [
+      320,
+      160
+    ],
+    "mesh_id": 1,
+    "object_id": 1,
+    "bitmap_id": 1401,
+    "scale": 1280,
+    "spin_turns_per_orbit": [
+      0,
+      3,
+      0
+    ]
+  },
+  "orbiters": [
+    {
+      "name": "crash",
+      "model_obj_source": "src/blender/crash.obj",
+      "texture_png_source": "src/blender/crash/crashtex.png",
+      "texture_filename": "crashtex.rgba2",
+      "texture_size": [
+        128,
+        128
+      ],
+      "mesh_id": 2,
+      "object_id": 2,
+      "bitmap_id": 1402,
+      "scale": 896,
+      "phase_degrees": 0,
+      "spin_turns_per_orbit": [
+        0.5,
+        1,
+        1.5
+      ]
+    },
+    {
+      "name": "lara",
+      "model_obj_source": "src/blender/LaraCroft/LaraCroft.obj",
+      "texture_png_source": "src/blender/LaraCroft/Lara.png",
+      "texture_filename": "Lara.rgba2",
+      "texture_size": [
+        256,
+        184
+      ],
+      "mesh_id": 3,
+      "object_id": 3,
+      "bitmap_id": 1403,
+      "scale": 896,
+      "phase_degrees": 90,
+      "spin_turns_per_orbit": [
+        1.5,
+        0.5,
+        1
+      ]
+    },
+    {
+      "name": "jet",
+      "model_obj_source": "src/blender/jet.obj",
+      "texture_png_source": "src/blender/jet.png",
+      "texture_filename": "jet.rgba2",
+      "texture_size": [
+        512,
+        512
+      ],
+      "mesh_id": 4,
+      "object_id": 4,
+      "bitmap_id": 1404,
+      "scale": 896,
+      "phase_degrees": 180,
+      "spin_turns_per_orbit": [
+        1,
+        1.5,
+        0.5
+      ]
+    },
+    {
+      "name": "airliner",
+      "model_obj_source": "src/blender/airliner.obj",
+      "texture_png_source": "src/blender/airliner.png",
+      "texture_filename": "airliner.rgba2",
+      "texture_size": [
+        512,
+        512
+      ],
+      "mesh_id": 5,
+      "object_id": 5,
+      "bitmap_id": 1405,
+      "scale": 896,
+      "phase_degrees": 270,
+      "spin_turns_per_orbit": [
+        2.5,
+        1,
+        1.5
+      ]
+    }
+  ],
+  "_generated_by": "build/scripts/build_orbit_scene.py",
+  "_generation_overrides": [],
+  "measured_frames": 289
+}

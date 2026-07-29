@@ -1,0 +1,1159 @@
+{
+  "profile": "earthico-rgba2222",
+  "texture_format": "rgba2222",
+  "target_format": "rgba2222",
+  "platform": "hardware",
+  "firmware": "experiment/frustum-culling ordinary unlit",
+  "timing_scope": "rendererRender only",
+  "warmup_target_bitmap_id": 1258,
+  "target_bitmap_id": 1257,
+  "render_sequence_start": 220,
+  "render_sequence_end": 439,
+  "series_runs": 5,
+  "warmup_frames_per_series": 8,
+  "measured_frames_per_series": 36,
+  "warmup_frames": 40,
+  "measured_frames": 180,
+  "total_render_us": 16775459,
+  "minimum_render_us": 92594,
+  "maximum_render_us": 93827,
+  "mean_render_us": 93196.99444444444,
+  "median_render_us": 93192.0,
+  "population_stdev_us": 311.41102701560453,
+  "p95_render_us": 93652,
+  "equivalent_mean_fps": 10.729959758478143,
+  "series": [
+    {
+      "series": 0,
+      "minimum_render_us": 92646,
+      "maximum_render_us": 93824,
+      "mean_render_us": 93199.0,
+      "median_render_us": 93214.5,
+      "population_stdev_us": 302.6430791102505,
+      "p95_render_us": 93689,
+      "equivalent_mean_fps": 10.729728859751715
+    },
+    {
+      "series": 1,
+      "minimum_render_us": 92640,
+      "maximum_render_us": 93761,
+      "mean_render_us": 93197.11111111111,
+      "median_render_us": 93190.5,
+      "population_stdev_us": 319.94277073128234,
+      "p95_render_us": 93684,
+      "equivalent_mean_fps": 10.729946326424043
+    },
+    {
+      "series": 2,
+      "minimum_render_us": 92644,
+      "maximum_render_us": 93802,
+      "mean_render_us": 93192.08333333333,
+      "median_render_us": 93215.0,
+      "population_stdev_us": 301.47161051157775,
+      "p95_render_us": 93628,
+      "equivalent_mean_fps": 10.730525214498728
+    },
+    {
+      "series": 3,
+      "minimum_render_us": 92594,
+      "maximum_render_us": 93815,
+      "mean_render_us": 93199.77777777778,
+      "median_render_us": 93214.5,
+      "population_stdev_us": 322.268444960539,
+      "p95_render_us": 93652,
+      "equivalent_mean_fps": 10.72963931721344
+    },
+    {
+      "series": 4,
+      "minimum_render_us": 92671,
+      "maximum_render_us": 93827,
+      "mean_render_us": 93197.0,
+      "median_render_us": 93190.0,
+      "population_stdev_us": 310.0805450918268,
+      "p95_render_us": 93702,
+      "equivalent_mean_fps": 10.729959118855756
+    }
+  ],
+  "frames": [
+    {
+      "series": 0,
+      "frame": 0,
+      "angle_deg": 0,
+      "render_us": 93500
+    },
+    {
+      "series": 0,
+      "frame": 1,
+      "angle_deg": 10,
+      "render_us": 93152
+    },
+    {
+      "series": 0,
+      "frame": 2,
+      "angle_deg": 20,
+      "render_us": 93545
+    },
+    {
+      "series": 0,
+      "frame": 3,
+      "angle_deg": 30,
+      "render_us": 93421
+    },
+    {
+      "series": 0,
+      "frame": 4,
+      "angle_deg": 40,
+      "render_us": 93637
+    },
+    {
+      "series": 0,
+      "frame": 5,
+      "angle_deg": 50,
+      "render_us": 92924
+    },
+    {
+      "series": 0,
+      "frame": 6,
+      "angle_deg": 60,
+      "render_us": 93535
+    },
+    {
+      "series": 0,
+      "frame": 7,
+      "angle_deg": 70,
+      "render_us": 93319
+    },
+    {
+      "series": 0,
+      "frame": 8,
+      "angle_deg": 80,
+      "render_us": 93055
+    },
+    {
+      "series": 0,
+      "frame": 9,
+      "angle_deg": 90,
+      "render_us": 93246
+    },
+    {
+      "series": 0,
+      "frame": 10,
+      "angle_deg": 100,
+      "render_us": 92755
+    },
+    {
+      "series": 0,
+      "frame": 11,
+      "angle_deg": 110,
+      "render_us": 93089
+    },
+    {
+      "series": 0,
+      "frame": 12,
+      "angle_deg": 120,
+      "render_us": 93033
+    },
+    {
+      "series": 0,
+      "frame": 13,
+      "angle_deg": 130,
+      "render_us": 93176
+    },
+    {
+      "series": 0,
+      "frame": 14,
+      "angle_deg": 140,
+      "render_us": 93824
+    },
+    {
+      "series": 0,
+      "frame": 15,
+      "angle_deg": 150,
+      "render_us": 93481
+    },
+    {
+      "series": 0,
+      "frame": 16,
+      "angle_deg": 160,
+      "render_us": 93413
+    },
+    {
+      "series": 0,
+      "frame": 17,
+      "angle_deg": 170,
+      "render_us": 92646
+    },
+    {
+      "series": 0,
+      "frame": 18,
+      "angle_deg": 180,
+      "render_us": 93255
+    },
+    {
+      "series": 0,
+      "frame": 19,
+      "angle_deg": 190,
+      "render_us": 92772
+    },
+    {
+      "series": 0,
+      "frame": 20,
+      "angle_deg": 200,
+      "render_us": 93325
+    },
+    {
+      "series": 0,
+      "frame": 21,
+      "angle_deg": 210,
+      "render_us": 93403
+    },
+    {
+      "series": 0,
+      "frame": 22,
+      "angle_deg": 220,
+      "render_us": 93525
+    },
+    {
+      "series": 0,
+      "frame": 23,
+      "angle_deg": 230,
+      "render_us": 92700
+    },
+    {
+      "series": 0,
+      "frame": 24,
+      "angle_deg": 240,
+      "render_us": 92980
+    },
+    {
+      "series": 0,
+      "frame": 25,
+      "angle_deg": 250,
+      "render_us": 93068
+    },
+    {
+      "series": 0,
+      "frame": 26,
+      "angle_deg": 260,
+      "render_us": 92761
+    },
+    {
+      "series": 0,
+      "frame": 27,
+      "angle_deg": 270,
+      "render_us": 92894
+    },
+    {
+      "series": 0,
+      "frame": 28,
+      "angle_deg": 280,
+      "render_us": 92774
+    },
+    {
+      "series": 0,
+      "frame": 29,
+      "angle_deg": 290,
+      "render_us": 93183
+    },
+    {
+      "series": 0,
+      "frame": 30,
+      "angle_deg": 300,
+      "render_us": 93385
+    },
+    {
+      "series": 0,
+      "frame": 31,
+      "angle_deg": 310,
+      "render_us": 92978
+    },
+    {
+      "series": 0,
+      "frame": 32,
+      "angle_deg": 320,
+      "render_us": 93689
+    },
+    {
+      "series": 0,
+      "frame": 33,
+      "angle_deg": 330,
+      "render_us": 93363
+    },
+    {
+      "series": 0,
+      "frame": 34,
+      "angle_deg": 340,
+      "render_us": 93377
+    },
+    {
+      "series": 0,
+      "frame": 35,
+      "angle_deg": 350,
+      "render_us": 92981
+    },
+    {
+      "series": 1,
+      "frame": 0,
+      "angle_deg": 0,
+      "render_us": 93638
+    },
+    {
+      "series": 1,
+      "frame": 1,
+      "angle_deg": 10,
+      "render_us": 93075
+    },
+    {
+      "series": 1,
+      "frame": 2,
+      "angle_deg": 20,
+      "render_us": 93684
+    },
+    {
+      "series": 1,
+      "frame": 3,
+      "angle_deg": 30,
+      "render_us": 93378
+    },
+    {
+      "series": 1,
+      "frame": 4,
+      "angle_deg": 40,
+      "render_us": 93652
+    },
+    {
+      "series": 1,
+      "frame": 5,
+      "angle_deg": 50,
+      "render_us": 92954
+    },
+    {
+      "series": 1,
+      "frame": 6,
+      "angle_deg": 60,
+      "render_us": 93484
+    },
+    {
+      "series": 1,
+      "frame": 7,
+      "angle_deg": 70,
+      "render_us": 93360
+    },
+    {
+      "series": 1,
+      "frame": 8,
+      "angle_deg": 80,
+      "render_us": 93042
+    },
+    {
+      "series": 1,
+      "frame": 9,
+      "angle_deg": 90,
+      "render_us": 93201
+    },
+    {
+      "series": 1,
+      "frame": 10,
+      "angle_deg": 100,
+      "render_us": 92640
+    },
+    {
+      "series": 1,
+      "frame": 11,
+      "angle_deg": 110,
+      "render_us": 93157
+    },
+    {
+      "series": 1,
+      "frame": 12,
+      "angle_deg": 120,
+      "render_us": 92929
+    },
+    {
+      "series": 1,
+      "frame": 13,
+      "angle_deg": 130,
+      "render_us": 93123
+    },
+    {
+      "series": 1,
+      "frame": 14,
+      "angle_deg": 140,
+      "render_us": 93761
+    },
+    {
+      "series": 1,
+      "frame": 15,
+      "angle_deg": 150,
+      "render_us": 93427
+    },
+    {
+      "series": 1,
+      "frame": 16,
+      "angle_deg": 160,
+      "render_us": 93482
+    },
+    {
+      "series": 1,
+      "frame": 17,
+      "angle_deg": 170,
+      "render_us": 92748
+    },
+    {
+      "series": 1,
+      "frame": 18,
+      "angle_deg": 180,
+      "render_us": 93324
+    },
+    {
+      "series": 1,
+      "frame": 19,
+      "angle_deg": 190,
+      "render_us": 92780
+    },
+    {
+      "series": 1,
+      "frame": 20,
+      "angle_deg": 200,
+      "render_us": 93431
+    },
+    {
+      "series": 1,
+      "frame": 21,
+      "angle_deg": 210,
+      "render_us": 93353
+    },
+    {
+      "series": 1,
+      "frame": 22,
+      "angle_deg": 220,
+      "render_us": 93592
+    },
+    {
+      "series": 1,
+      "frame": 23,
+      "angle_deg": 230,
+      "render_us": 92678
+    },
+    {
+      "series": 1,
+      "frame": 24,
+      "angle_deg": 240,
+      "render_us": 93039
+    },
+    {
+      "series": 1,
+      "frame": 25,
+      "angle_deg": 250,
+      "render_us": 93002
+    },
+    {
+      "series": 1,
+      "frame": 26,
+      "angle_deg": 260,
+      "render_us": 92700
+    },
+    {
+      "series": 1,
+      "frame": 27,
+      "angle_deg": 270,
+      "render_us": 92854
+    },
+    {
+      "series": 1,
+      "frame": 28,
+      "angle_deg": 280,
+      "render_us": 92652
+    },
+    {
+      "series": 1,
+      "frame": 29,
+      "angle_deg": 290,
+      "render_us": 93180
+    },
+    {
+      "series": 1,
+      "frame": 30,
+      "angle_deg": 300,
+      "render_us": 93313
+    },
+    {
+      "series": 1,
+      "frame": 31,
+      "angle_deg": 310,
+      "render_us": 92956
+    },
+    {
+      "series": 1,
+      "frame": 32,
+      "angle_deg": 320,
+      "render_us": 93631
+    },
+    {
+      "series": 1,
+      "frame": 33,
+      "angle_deg": 330,
+      "render_us": 93304
+    },
+    {
+      "series": 1,
+      "frame": 34,
+      "angle_deg": 340,
+      "render_us": 93455
+    },
+    {
+      "series": 1,
+      "frame": 35,
+      "angle_deg": 350,
+      "render_us": 93117
+    },
+    {
+      "series": 2,
+      "frame": 0,
+      "angle_deg": 0,
+      "render_us": 93627
+    },
+    {
+      "series": 2,
+      "frame": 1,
+      "angle_deg": 10,
+      "render_us": 93120
+    },
+    {
+      "series": 2,
+      "frame": 2,
+      "angle_deg": 20,
+      "render_us": 93541
+    },
+    {
+      "series": 2,
+      "frame": 3,
+      "angle_deg": 30,
+      "render_us": 93387
+    },
+    {
+      "series": 2,
+      "frame": 4,
+      "angle_deg": 40,
+      "render_us": 93504
+    },
+    {
+      "series": 2,
+      "frame": 5,
+      "angle_deg": 50,
+      "render_us": 92912
+    },
+    {
+      "series": 2,
+      "frame": 6,
+      "angle_deg": 60,
+      "render_us": 93581
+    },
+    {
+      "series": 2,
+      "frame": 7,
+      "angle_deg": 70,
+      "render_us": 93378
+    },
+    {
+      "series": 2,
+      "frame": 8,
+      "angle_deg": 80,
+      "render_us": 93073
+    },
+    {
+      "series": 2,
+      "frame": 9,
+      "angle_deg": 90,
+      "render_us": 93250
+    },
+    {
+      "series": 2,
+      "frame": 10,
+      "angle_deg": 100,
+      "render_us": 92644
+    },
+    {
+      "series": 2,
+      "frame": 11,
+      "angle_deg": 110,
+      "render_us": 93094
+    },
+    {
+      "series": 2,
+      "frame": 12,
+      "angle_deg": 120,
+      "render_us": 92999
+    },
+    {
+      "series": 2,
+      "frame": 13,
+      "angle_deg": 130,
+      "render_us": 93086
+    },
+    {
+      "series": 2,
+      "frame": 14,
+      "angle_deg": 140,
+      "render_us": 93802
+    },
+    {
+      "series": 2,
+      "frame": 15,
+      "angle_deg": 150,
+      "render_us": 93407
+    },
+    {
+      "series": 2,
+      "frame": 16,
+      "angle_deg": 160,
+      "render_us": 93407
+    },
+    {
+      "series": 2,
+      "frame": 17,
+      "angle_deg": 170,
+      "render_us": 92754
+    },
+    {
+      "series": 2,
+      "frame": 18,
+      "angle_deg": 180,
+      "render_us": 93312
+    },
+    {
+      "series": 2,
+      "frame": 19,
+      "angle_deg": 190,
+      "render_us": 92737
+    },
+    {
+      "series": 2,
+      "frame": 20,
+      "angle_deg": 200,
+      "render_us": 93285
+    },
+    {
+      "series": 2,
+      "frame": 21,
+      "angle_deg": 210,
+      "render_us": 93322
+    },
+    {
+      "series": 2,
+      "frame": 22,
+      "angle_deg": 220,
+      "render_us": 93493
+    },
+    {
+      "series": 2,
+      "frame": 23,
+      "angle_deg": 230,
+      "render_us": 92725
+    },
+    {
+      "series": 2,
+      "frame": 24,
+      "angle_deg": 240,
+      "render_us": 93131
+    },
+    {
+      "series": 2,
+      "frame": 25,
+      "angle_deg": 250,
+      "render_us": 93077
+    },
+    {
+      "series": 2,
+      "frame": 26,
+      "angle_deg": 260,
+      "render_us": 92724
+    },
+    {
+      "series": 2,
+      "frame": 27,
+      "angle_deg": 270,
+      "render_us": 92886
+    },
+    {
+      "series": 2,
+      "frame": 28,
+      "angle_deg": 280,
+      "render_us": 92711
+    },
+    {
+      "series": 2,
+      "frame": 29,
+      "angle_deg": 290,
+      "render_us": 93180
+    },
+    {
+      "series": 2,
+      "frame": 30,
+      "angle_deg": 300,
+      "render_us": 93354
+    },
+    {
+      "series": 2,
+      "frame": 31,
+      "angle_deg": 310,
+      "render_us": 92884
+    },
+    {
+      "series": 2,
+      "frame": 32,
+      "angle_deg": 320,
+      "render_us": 93628
+    },
+    {
+      "series": 2,
+      "frame": 33,
+      "angle_deg": 330,
+      "render_us": 93351
+    },
+    {
+      "series": 2,
+      "frame": 34,
+      "angle_deg": 340,
+      "render_us": 93443
+    },
+    {
+      "series": 2,
+      "frame": 35,
+      "angle_deg": 350,
+      "render_us": 93106
+    },
+    {
+      "series": 3,
+      "frame": 0,
+      "angle_deg": 0,
+      "render_us": 93631
+    },
+    {
+      "series": 3,
+      "frame": 1,
+      "angle_deg": 10,
+      "render_us": 93144
+    },
+    {
+      "series": 3,
+      "frame": 2,
+      "angle_deg": 20,
+      "render_us": 93615
+    },
+    {
+      "series": 3,
+      "frame": 3,
+      "angle_deg": 30,
+      "render_us": 93317
+    },
+    {
+      "series": 3,
+      "frame": 4,
+      "angle_deg": 40,
+      "render_us": 93637
+    },
+    {
+      "series": 3,
+      "frame": 5,
+      "angle_deg": 50,
+      "render_us": 92831
+    },
+    {
+      "series": 3,
+      "frame": 6,
+      "angle_deg": 60,
+      "render_us": 93564
+    },
+    {
+      "series": 3,
+      "frame": 7,
+      "angle_deg": 70,
+      "render_us": 93427
+    },
+    {
+      "series": 3,
+      "frame": 8,
+      "angle_deg": 80,
+      "render_us": 93069
+    },
+    {
+      "series": 3,
+      "frame": 9,
+      "angle_deg": 90,
+      "render_us": 93285
+    },
+    {
+      "series": 3,
+      "frame": 10,
+      "angle_deg": 100,
+      "render_us": 92631
+    },
+    {
+      "series": 3,
+      "frame": 11,
+      "angle_deg": 110,
+      "render_us": 93022
+    },
+    {
+      "series": 3,
+      "frame": 12,
+      "angle_deg": 120,
+      "render_us": 92997
+    },
+    {
+      "series": 3,
+      "frame": 13,
+      "angle_deg": 130,
+      "render_us": 93100
+    },
+    {
+      "series": 3,
+      "frame": 14,
+      "angle_deg": 140,
+      "render_us": 93815
+    },
+    {
+      "series": 3,
+      "frame": 15,
+      "angle_deg": 150,
+      "render_us": 93469
+    },
+    {
+      "series": 3,
+      "frame": 16,
+      "angle_deg": 160,
+      "render_us": 93472
+    },
+    {
+      "series": 3,
+      "frame": 17,
+      "angle_deg": 170,
+      "render_us": 92755
+    },
+    {
+      "series": 3,
+      "frame": 18,
+      "angle_deg": 180,
+      "render_us": 93330
+    },
+    {
+      "series": 3,
+      "frame": 19,
+      "angle_deg": 190,
+      "render_us": 92808
+    },
+    {
+      "series": 3,
+      "frame": 20,
+      "angle_deg": 200,
+      "render_us": 93332
+    },
+    {
+      "series": 3,
+      "frame": 21,
+      "angle_deg": 210,
+      "render_us": 93333
+    },
+    {
+      "series": 3,
+      "frame": 22,
+      "angle_deg": 220,
+      "render_us": 93522
+    },
+    {
+      "series": 3,
+      "frame": 23,
+      "angle_deg": 230,
+      "render_us": 92630
+    },
+    {
+      "series": 3,
+      "frame": 24,
+      "angle_deg": 240,
+      "render_us": 93044
+    },
+    {
+      "series": 3,
+      "frame": 25,
+      "angle_deg": 250,
+      "render_us": 93137
+    },
+    {
+      "series": 3,
+      "frame": 26,
+      "angle_deg": 260,
+      "render_us": 92767
+    },
+    {
+      "series": 3,
+      "frame": 27,
+      "angle_deg": 270,
+      "render_us": 92843
+    },
+    {
+      "series": 3,
+      "frame": 28,
+      "angle_deg": 280,
+      "render_us": 92594
+    },
+    {
+      "series": 3,
+      "frame": 29,
+      "angle_deg": 290,
+      "render_us": 93142
+    },
+    {
+      "series": 3,
+      "frame": 30,
+      "angle_deg": 300,
+      "render_us": 93334
+    },
+    {
+      "series": 3,
+      "frame": 31,
+      "angle_deg": 310,
+      "render_us": 93034
+    },
+    {
+      "series": 3,
+      "frame": 32,
+      "angle_deg": 320,
+      "render_us": 93652
+    },
+    {
+      "series": 3,
+      "frame": 33,
+      "angle_deg": 330,
+      "render_us": 93359
+    },
+    {
+      "series": 3,
+      "frame": 34,
+      "angle_deg": 340,
+      "render_us": 93455
+    },
+    {
+      "series": 3,
+      "frame": 35,
+      "angle_deg": 350,
+      "render_us": 93095
+    },
+    {
+      "series": 4,
+      "frame": 0,
+      "angle_deg": 0,
+      "render_us": 93542
+    },
+    {
+      "series": 4,
+      "frame": 1,
+      "angle_deg": 10,
+      "render_us": 93001
+    },
+    {
+      "series": 4,
+      "frame": 2,
+      "angle_deg": 20,
+      "render_us": 93597
+    },
+    {
+      "series": 4,
+      "frame": 3,
+      "angle_deg": 30,
+      "render_us": 93396
+    },
+    {
+      "series": 4,
+      "frame": 4,
+      "angle_deg": 40,
+      "render_us": 93596
+    },
+    {
+      "series": 4,
+      "frame": 5,
+      "angle_deg": 50,
+      "render_us": 93026
+    },
+    {
+      "series": 4,
+      "frame": 6,
+      "angle_deg": 60,
+      "render_us": 93516
+    },
+    {
+      "series": 4,
+      "frame": 7,
+      "angle_deg": 70,
+      "render_us": 93405
+    },
+    {
+      "series": 4,
+      "frame": 8,
+      "angle_deg": 80,
+      "render_us": 93131
+    },
+    {
+      "series": 4,
+      "frame": 9,
+      "angle_deg": 90,
+      "render_us": 93234
+    },
+    {
+      "series": 4,
+      "frame": 10,
+      "angle_deg": 100,
+      "render_us": 92671
+    },
+    {
+      "series": 4,
+      "frame": 11,
+      "angle_deg": 110,
+      "render_us": 93041
+    },
+    {
+      "series": 4,
+      "frame": 12,
+      "angle_deg": 120,
+      "render_us": 92924
+    },
+    {
+      "series": 4,
+      "frame": 13,
+      "angle_deg": 130,
+      "render_us": 93111
+    },
+    {
+      "series": 4,
+      "frame": 14,
+      "angle_deg": 140,
+      "render_us": 93827
+    },
+    {
+      "series": 4,
+      "frame": 15,
+      "angle_deg": 150,
+      "render_us": 93449
+    },
+    {
+      "series": 4,
+      "frame": 16,
+      "angle_deg": 160,
+      "render_us": 93495
+    },
+    {
+      "series": 4,
+      "frame": 17,
+      "angle_deg": 170,
+      "render_us": 92701
+    },
+    {
+      "series": 4,
+      "frame": 18,
+      "angle_deg": 180,
+      "render_us": 93214
+    },
+    {
+      "series": 4,
+      "frame": 19,
+      "angle_deg": 190,
+      "render_us": 92754
+    },
+    {
+      "series": 4,
+      "frame": 20,
+      "angle_deg": 200,
+      "render_us": 93330
+    },
+    {
+      "series": 4,
+      "frame": 21,
+      "angle_deg": 210,
+      "render_us": 93413
+    },
+    {
+      "series": 4,
+      "frame": 22,
+      "angle_deg": 220,
+      "render_us": 93494
+    },
+    {
+      "series": 4,
+      "frame": 23,
+      "angle_deg": 230,
+      "render_us": 92762
+    },
+    {
+      "series": 4,
+      "frame": 24,
+      "angle_deg": 240,
+      "render_us": 93107
+    },
+    {
+      "series": 4,
+      "frame": 25,
+      "angle_deg": 250,
+      "render_us": 93105
+    },
+    {
+      "series": 4,
+      "frame": 26,
+      "angle_deg": 260,
+      "render_us": 92742
+    },
+    {
+      "series": 4,
+      "frame": 27,
+      "angle_deg": 270,
+      "render_us": 92849
+    },
+    {
+      "series": 4,
+      "frame": 28,
+      "angle_deg": 280,
+      "render_us": 92676
+    },
+    {
+      "series": 4,
+      "frame": 29,
+      "angle_deg": 290,
+      "render_us": 93166
+    },
+    {
+      "series": 4,
+      "frame": 30,
+      "angle_deg": 300,
+      "render_us": 93391
+    },
+    {
+      "series": 4,
+      "frame": 31,
+      "angle_deg": 310,
+      "render_us": 92974
+    },
+    {
+      "series": 4,
+      "frame": 32,
+      "angle_deg": 320,
+      "render_us": 93702
+    },
+    {
+      "series": 4,
+      "frame": 33,
+      "angle_deg": 330,
+      "render_us": 93332
+    },
+    {
+      "series": 4,
+      "frame": 34,
+      "angle_deg": 340,
+      "render_us": 93397
+    },
+    {
+      "series": 4,
+      "frame": 35,
+      "angle_deg": 350,
+      "render_us": 93021
+    }
+  ]
+}

@@ -59,6 +59,11 @@ DIAGNOSTIC_FIELDS = {
     "pu": 0,
     "ps": 45000,
 }
+DIAGNOSTIC_FIELDS_V2 = {
+    **DIAGNOSTIC_FIELDS,
+    "d": 2,
+    "tfr": 0,
+}
 
 
 def ordinary_line(
@@ -131,6 +136,23 @@ class ParseRenderDiagnosticsTests(unittest.TestCase):
         self.assertEqual(records[0][:3], (7, 1257, 200000))
         self.assertEqual(records[0][3], DIAGNOSTIC_FIELDS)
 
+    def test_complete_version_two_record(self) -> None:
+        records = parse_records(diagnostic_line(fields=DIAGNOSTIC_FIELDS_V2))
+        self.assertEqual(len(records), 1)
+        self.assertEqual(records[0][3], DIAGNOSTIC_FIELDS_V2)
+
+    def test_version_one_rejects_version_two_field(self) -> None:
+        fields = dict(DIAGNOSTIC_FIELDS, tfr=0)
+        tail = " ".join(f"{key}={value}" for key, value in fields.items())
+        with self.assertRaisesRegex(ValueError, "unknown fields: tfr"):
+            parse_diagnostics(tail)
+
+    def test_version_two_requires_frustum_field(self) -> None:
+        fields = dict(DIAGNOSTIC_FIELDS, d=2)
+        tail = " ".join(f"{key}={value}" for key, value in fields.items())
+        with self.assertRaisesRegex(ValueError, "missing fields: tfr"):
+            parse_diagnostics(tail)
+
     def test_malformed_record_is_preserved_for_run_selection(self) -> None:
         records = parse_records(
             ordinary_line(sequence=7, bmid=1257).rstrip()
@@ -163,6 +185,15 @@ class ParseRenderDiagnosticsTests(unittest.TestCase):
         tail = " ".join(f"{key}={value}" for key, value in fields.items())
         with self.assertRaisesRegex(ValueError, "triangle counters"):
             parse_diagnostics(tail)
+
+    def test_version_two_triangle_partition_includes_frustum(self) -> None:
+        fields = dict(
+            DIAGNOSTIC_FIELDS_V2,
+            tz=0,
+            tfr=1,
+        )
+        tail = " ".join(f"{key}={value}" for key, value in fields.items())
+        self.assertEqual(parse_diagnostics(tail), fields)
 
     def test_fragment_partition_is_enforced(self) -> None:
         fields = dict(DIAGNOSTIC_FIELDS, ps=44999)
@@ -258,6 +289,30 @@ class SelectRenderRunTests(unittest.TestCase):
 
 
 class BuildRenderSummaryTests(unittest.TestCase):
+    def test_orbit_profile_uses_orbit_metadata_without_rotation_label(self) -> None:
+        profile = {
+            **PROFILE,
+            "warmup_frames": 0,
+            "measured_frames": 3,
+            "frames_per_orbit": 2,
+        }
+        records = parse_records(
+            "".join(
+                ordinary_line(sequence=index, bmid=1257)
+                for index in range(3)
+            )
+        )
+        summary = build_summary(profile, records)
+        self.assertEqual(
+            [frame["orbit_angle_deg"] for frame in summary["frames"]],
+            [0.0, 180.0, 360.0],
+        )
+        self.assertEqual(
+            [frame["orbit_revolution"] for frame in summary["frames"]],
+            [0.0, 0.5, 1.0],
+        )
+        self.assertNotIn("angle_deg", summary["frames"][0])
+
     def test_multi_series_statistics_include_every_measured_frame(self) -> None:
         profile = dict(PROFILE, series_runs=2)
         text = diagnostic_run() + diagnostic_run(
@@ -325,6 +380,18 @@ class BuildRenderSummaryTests(unittest.TestCase):
                 parse_records(diagnostic_run(fields=identities)),
             )
 
+    def test_selected_run_cannot_mix_schema_versions(self) -> None:
+        fields = (
+            DIAGNOSTIC_FIELDS,
+            DIAGNOSTIC_FIELDS_V2,
+            DIAGNOSTIC_FIELDS,
+        )
+        with self.assertRaisesRegex(ValueError, "changes schema version"):
+            build_summary(
+                PROFILE,
+                parse_records(diagnostic_run(fields=fields)),
+            )
+
     def test_require_diagnostics_and_ordinary_compatibility(self) -> None:
         text = "".join(
             (
@@ -380,6 +447,50 @@ class BuildRenderSummaryTests(unittest.TestCase):
         self.assertEqual(
             summary["frames"][0]["diagnostics"]["renderer_residual_us"],
             800,
+        )
+
+    def test_version_two_aggregate_reports_frustum_rejection(self) -> None:
+        fields = tuple(
+            dict(
+                DIAGNOSTIC_FIELDS_V2,
+                tz=0,
+                tfr=1,
+            )
+            for _ in range(3)
+        )
+        summary = build_summary(
+            PROFILE,
+            parse_records(diagnostic_run(fields=fields)),
+            require_diagnostics=True,
+        )
+        diagnostics = summary["renderer_diagnostics"]
+        self.assertEqual(diagnostics["schema_version"], 2)
+        self.assertEqual(
+            diagnostics["counter_totals"]["triangles_frustum_rejected"],
+            2,
+        )
+        self.assertAlmostEqual(
+            diagnostics["triangle_outcome_ratios"]["frustum_rejected"],
+            1 / 12,
+        )
+
+    def test_motion_profile_adds_absolute_translation_to_frames(self) -> None:
+        profile = {
+            **PROFILE,
+            "translation_motion": {
+                "center": [0, 0, 0],
+                "amplitude": [2400, 1800, 1600],
+                "cycles": [1, 2, 1],
+                "phase_degrees": [0, 0, 90],
+            },
+        }
+        summary = build_summary(
+            profile,
+            parse_records(diagnostic_run()),
+        )
+        self.assertEqual(
+            [frame["translation_words"] for frame in summary["frames"]],
+            [[0, 0, 1600], [0, 0, -1600]],
         )
 
     def test_small_rounding_overage_is_explicitly_recorded(self) -> None:

@@ -1,0 +1,57 @@
+{
+  "name": "earthico-frustum-sweep-rgba2222",
+  "description": "Low-poly textured Earth 36-frame Y-axis RGBA2222 render benchmark",
+  "model_obj_source": "src/blender/earthico.obj",
+  "texture_png_source": "src/blender/earthico160x76.png",
+  "texture_filename": "earthico160x76.rgba2",
+  "texture_format": "rgba2222",
+  "target_format": "rgba2222",
+  "texture_width": 160,
+  "texture_height": 76,
+  "control_id": 1300,
+  "texture_bitmap_id": 1256,
+  "target_bitmap_id": 1257,
+  "warmup_target_bitmap_id": 1258,
+  "object_scale": 1280,
+  "camera_pose": [
+    0,
+    0,
+    3200
+  ],
+  "resolution": [
+    320,
+    240
+  ],
+  "warmup_frames": 8,
+  "measured_frames": 36,
+  "series_runs": 5,
+  "rotation_axis": "y",
+  "rotation_step_degrees": 10,
+  "translation_motion": {
+    "center": [
+      0,
+      0,
+      0
+    ],
+    "amplitude": [
+      2400,
+      1800,
+      1600
+    ],
+    "cycles": [
+      1,
+      2,
+      1
+    ],
+    "phase_degrees": [
+      0,
+      0,
+      90
+    ]
+  },
+  "_generated_by": "build/scripts/build_render_benchmark.py",
+  "_generation_overrides": [
+    "fixture_name=earthico-frustum-sweep-rgba2222",
+    "translation_motion_from=benchmarks/render-spin/profiles/cube-frustum-sweep-rgba2222.json"
+  ]
+}

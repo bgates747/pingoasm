@@ -1,0 +1,2062 @@
+{
+  "profile": "earth-party-rgba2222-visual-review",
+  "texture_format": "rgba2222",
+  "target_format": "rgba2222",
+  "platform": "hardware",
+  "firmware": "experiment/frustum-culling ordinary illuminated",
+  "timing_scope": "rendererRender only",
+  "warmup_target_bitmap_id": 1411,
+  "target_bitmap_id": 1410,
+  "render_sequence_start": 0,
+  "render_sequence_end": 288,
+  "series_runs": 1,
+  "warmup_frames_per_series": 0,
+  "measured_frames_per_series": 289,
+  "warmup_frames": 0,
+  "measured_frames": 289,
+  "total_render_us": 53350370,
+  "minimum_render_us": 165899,
+  "maximum_render_us": 229428,
+  "mean_render_us": 184603.35640138408,
+  "median_render_us": 179632,
+  "population_stdev_us": 15072.76160021982,
+  "p95_render_us": 218085,
+  "equivalent_mean_fps": 5.417019600801269,
+  "series": [
+    {
+      "series": 0,
+      "minimum_render_us": 165899,
+      "maximum_render_us": 229428,
+      "mean_render_us": 184603.35640138408,
+      "median_render_us": 179632,
+      "population_stdev_us": 15072.76160021982,
+      "p95_render_us": 218085,
+      "equivalent_mean_fps": 5.417019600801269
+    }
+  ],
+  "frames": [
+    {
+      "series": 0,
+      "frame": 0,
+      "render_us": 183366,
+      "orbit_angle_deg": 0.0,
+      "orbit_revolution": 0.0
+    },
+    {
+      "series": 0,
+      "frame": 1,
+      "render_us": 184359,
+      "orbit_angle_deg": 2.5,
+      "orbit_revolution": 0.006944444444444444
+    },
+    {
+      "series": 0,
+      "frame": 2,
+      "render_us": 184692,
+      "orbit_angle_deg": 5.0,
+      "orbit_revolution": 0.013888888888888888
+    },
+    {
+      "series": 0,
+      "frame": 3,
+      "render_us": 185026,
+      "orbit_angle_deg": 7.5,
+      "orbit_revolution": 0.020833333333333332
+    },
+    {
+      "series": 0,
+      "frame": 4,
+      "render_us": 184861,
+      "orbit_angle_deg": 10.0,
+      "orbit_revolution": 0.027777777777777776
+    },
+    {
+      "series": 0,
+      "frame": 5,
+      "render_us": 184243,
+      "orbit_angle_deg": 12.5,
+      "orbit_revolution": 0.034722222222222224
+    },
+    {
+      "series": 0,
+      "frame": 6,
+      "render_us": 184045,
+      "orbit_angle_deg": 15.0,
+      "orbit_revolution": 0.041666666666666664
+    },
+    {
+      "series": 0,
+      "frame": 7,
+      "render_us": 180943,
+      "orbit_angle_deg": 17.5,
+      "orbit_revolution": 0.04861111111111111
+    },
+    {
+      "series": 0,
+      "frame": 8,
+      "render_us": 172889,
+      "orbit_angle_deg": 20.0,
+      "orbit_revolution": 0.05555555555555555
+    },
+    {
+      "series": 0,
+      "frame": 9,
+      "render_us": 166359,
+      "orbit_angle_deg": 22.5,
+      "orbit_revolution": 0.0625
+    },
+    {
+      "series": 0,
+      "frame": 10,
+      "render_us": 166613,
+      "orbit_angle_deg": 25.0,
+      "orbit_revolution": 0.06944444444444445
+    },
+    {
+      "series": 0,
+      "frame": 11,
+      "render_us": 170383,
+      "orbit_angle_deg": 27.5,
+      "orbit_revolution": 0.0763888888888889
+    },
+    {
+      "series": 0,
+      "frame": 12,
+      "render_us": 173071,
+      "orbit_angle_deg": 30.0,
+      "orbit_revolution": 0.08333333333333333
+    },
+    {
+      "series": 0,
+      "frame": 13,
+      "render_us": 173363,
+      "orbit_angle_deg": 32.5,
+      "orbit_revolution": 0.09027777777777778
+    },
+    {
+      "series": 0,
+      "frame": 14,
+      "render_us": 173254,
+      "orbit_angle_deg": 35.0,
+      "orbit_revolution": 0.09722222222222222
+    },
+    {
+      "series": 0,
+      "frame": 15,
+      "render_us": 173345,
+      "orbit_angle_deg": 37.5,
+      "orbit_revolution": 0.10416666666666667
+    },
+    {
+      "series": 0,
+      "frame": 16,
+      "render_us": 173125,
+      "orbit_angle_deg": 40.0,
+      "orbit_revolution": 0.1111111111111111
+    },
+    {
+      "series": 0,
+      "frame": 17,
+      "render_us": 172747,
+      "orbit_angle_deg": 42.5,
+      "orbit_revolution": 0.11805555555555555
+    },
+    {
+      "series": 0,
+      "frame": 18,
+      "render_us": 173108,
+      "orbit_angle_deg": 45.0,
+      "orbit_revolution": 0.125
+    },
+    {
+      "series": 0,
+      "frame": 19,
+      "render_us": 173378,
+      "orbit_angle_deg": 47.5,
+      "orbit_revolution": 0.13194444444444445
+    },
+    {
+      "series": 0,
+      "frame": 20,
+      "render_us": 173590,
+      "orbit_angle_deg": 50.0,
+      "orbit_revolution": 0.1388888888888889
+    },
+    {
+      "series": 0,
+      "frame": 21,
+      "render_us": 173875,
+      "orbit_angle_deg": 52.5,
+      "orbit_revolution": 0.14583333333333334
+    },
+    {
+      "series": 0,
+      "frame": 22,
+      "render_us": 173733,
+      "orbit_angle_deg": 55.0,
+      "orbit_revolution": 0.1527777777777778
+    },
+    {
+      "series": 0,
+      "frame": 23,
+      "render_us": 173048,
+      "orbit_angle_deg": 57.5,
+      "orbit_revolution": 0.1597222222222222
+    },
+    {
+      "series": 0,
+      "frame": 24,
+      "render_us": 172526,
+      "orbit_angle_deg": 60.0,
+      "orbit_revolution": 0.16666666666666666
+    },
+    {
+      "series": 0,
+      "frame": 25,
+      "render_us": 172457,
+      "orbit_angle_deg": 62.5,
+      "orbit_revolution": 0.1736111111111111
+    },
+    {
+      "series": 0,
+      "frame": 26,
+      "render_us": 173502,
+      "orbit_angle_deg": 65.0,
+      "orbit_revolution": 0.18055555555555555
+    },
+    {
+      "series": 0,
+      "frame": 27,
+      "render_us": 177547,
+      "orbit_angle_deg": 67.5,
+      "orbit_revolution": 0.1875
+    },
+    {
+      "series": 0,
+      "frame": 28,
+      "render_us": 183811,
+      "orbit_angle_deg": 70.0,
+      "orbit_revolution": 0.19444444444444445
+    },
+    {
+      "series": 0,
+      "frame": 29,
+      "render_us": 195909,
+      "orbit_angle_deg": 72.5,
+      "orbit_revolution": 0.2013888888888889
+    },
+    {
+      "series": 0,
+      "frame": 30,
+      "render_us": 215605,
+      "orbit_angle_deg": 75.0,
+      "orbit_revolution": 0.20833333333333334
+    },
+    {
+      "series": 0,
+      "frame": 31,
+      "render_us": 227040,
+      "orbit_angle_deg": 77.5,
+      "orbit_revolution": 0.2152777777777778
+    },
+    {
+      "series": 0,
+      "frame": 32,
+      "render_us": 222704,
+      "orbit_angle_deg": 80.0,
+      "orbit_revolution": 0.2222222222222222
+    },
+    {
+      "series": 0,
+      "frame": 33,
+      "render_us": 220506,
+      "orbit_angle_deg": 82.5,
+      "orbit_revolution": 0.22916666666666666
+    },
+    {
+      "series": 0,
+      "frame": 34,
+      "render_us": 217571,
+      "orbit_angle_deg": 85.0,
+      "orbit_revolution": 0.2361111111111111
+    },
+    {
+      "series": 0,
+      "frame": 35,
+      "render_us": 215609,
+      "orbit_angle_deg": 87.5,
+      "orbit_revolution": 0.24305555555555555
+    },
+    {
+      "series": 0,
+      "frame": 36,
+      "render_us": 212190,
+      "orbit_angle_deg": 90.0,
+      "orbit_revolution": 0.25
+    },
+    {
+      "series": 0,
+      "frame": 37,
+      "render_us": 215018,
+      "orbit_angle_deg": 92.5,
+      "orbit_revolution": 0.2569444444444444
+    },
+    {
+      "series": 0,
+      "frame": 38,
+      "render_us": 216424,
+      "orbit_angle_deg": 95.0,
+      "orbit_revolution": 0.2638888888888889
+    },
+    {
+      "series": 0,
+      "frame": 39,
+      "render_us": 218085,
+      "orbit_angle_deg": 97.5,
+      "orbit_revolution": 0.2708333333333333
+    },
+    {
+      "series": 0,
+      "frame": 40,
+      "render_us": 219418,
+      "orbit_angle_deg": 100.0,
+      "orbit_revolution": 0.2777777777777778
+    },
+    {
+      "series": 0,
+      "frame": 41,
+      "render_us": 220611,
+      "orbit_angle_deg": 102.5,
+      "orbit_revolution": 0.2847222222222222
+    },
+    {
+      "series": 0,
+      "frame": 42,
+      "render_us": 216976,
+      "orbit_angle_deg": 105.0,
+      "orbit_revolution": 0.2916666666666667
+    },
+    {
+      "series": 0,
+      "frame": 43,
+      "render_us": 193267,
+      "orbit_angle_deg": 107.5,
+      "orbit_revolution": 0.2986111111111111
+    },
+    {
+      "series": 0,
+      "frame": 44,
+      "render_us": 170788,
+      "orbit_angle_deg": 110.0,
+      "orbit_revolution": 0.3055555555555556
+    },
+    {
+      "series": 0,
+      "frame": 45,
+      "render_us": 167466,
+      "orbit_angle_deg": 112.5,
+      "orbit_revolution": 0.3125
+    },
+    {
+      "series": 0,
+      "frame": 46,
+      "render_us": 169338,
+      "orbit_angle_deg": 115.0,
+      "orbit_revolution": 0.3194444444444444
+    },
+    {
+      "series": 0,
+      "frame": 47,
+      "render_us": 170608,
+      "orbit_angle_deg": 117.5,
+      "orbit_revolution": 0.3263888888888889
+    },
+    {
+      "series": 0,
+      "frame": 48,
+      "render_us": 170284,
+      "orbit_angle_deg": 120.0,
+      "orbit_revolution": 0.3333333333333333
+    },
+    {
+      "series": 0,
+      "frame": 49,
+      "render_us": 170721,
+      "orbit_angle_deg": 122.5,
+      "orbit_revolution": 0.3402777777777778
+    },
+    {
+      "series": 0,
+      "frame": 50,
+      "render_us": 170743,
+      "orbit_angle_deg": 125.0,
+      "orbit_revolution": 0.3472222222222222
+    },
+    {
+      "series": 0,
+      "frame": 51,
+      "render_us": 170546,
+      "orbit_angle_deg": 127.5,
+      "orbit_revolution": 0.3541666666666667
+    },
+    {
+      "series": 0,
+      "frame": 52,
+      "render_us": 170578,
+      "orbit_angle_deg": 130.0,
+      "orbit_revolution": 0.3611111111111111
+    },
+    {
+      "series": 0,
+      "frame": 53,
+      "render_us": 170468,
+      "orbit_angle_deg": 132.5,
+      "orbit_revolution": 0.3680555555555556
+    },
+    {
+      "series": 0,
+      "frame": 54,
+      "render_us": 170143,
+      "orbit_angle_deg": 135.0,
+      "orbit_revolution": 0.375
+    },
+    {
+      "series": 0,
+      "frame": 55,
+      "render_us": 170458,
+      "orbit_angle_deg": 137.5,
+      "orbit_revolution": 0.3819444444444444
+    },
+    {
+      "series": 0,
+      "frame": 56,
+      "render_us": 170498,
+      "orbit_angle_deg": 140.0,
+      "orbit_revolution": 0.3888888888888889
+    },
+    {
+      "series": 0,
+      "frame": 57,
+      "render_us": 170082,
+      "orbit_angle_deg": 142.5,
+      "orbit_revolution": 0.3958333333333333
+    },
+    {
+      "series": 0,
+      "frame": 58,
+      "render_us": 169801,
+      "orbit_angle_deg": 145.0,
+      "orbit_revolution": 0.4027777777777778
+    },
+    {
+      "series": 0,
+      "frame": 59,
+      "render_us": 169335,
+      "orbit_angle_deg": 147.5,
+      "orbit_revolution": 0.4097222222222222
+    },
+    {
+      "series": 0,
+      "frame": 60,
+      "render_us": 169112,
+      "orbit_angle_deg": 150.0,
+      "orbit_revolution": 0.4166666666666667
+    },
+    {
+      "series": 0,
+      "frame": 61,
+      "render_us": 168413,
+      "orbit_angle_deg": 152.5,
+      "orbit_revolution": 0.4236111111111111
+    },
+    {
+      "series": 0,
+      "frame": 62,
+      "render_us": 167350,
+      "orbit_angle_deg": 155.0,
+      "orbit_revolution": 0.4305555555555556
+    },
+    {
+      "series": 0,
+      "frame": 63,
+      "render_us": 169028,
+      "orbit_angle_deg": 157.5,
+      "orbit_revolution": 0.4375
+    },
+    {
+      "series": 0,
+      "frame": 64,
+      "render_us": 175883,
+      "orbit_angle_deg": 160.0,
+      "orbit_revolution": 0.4444444444444444
+    },
+    {
+      "series": 0,
+      "frame": 65,
+      "render_us": 185330,
+      "orbit_angle_deg": 162.5,
+      "orbit_revolution": 0.4513888888888889
+    },
+    {
+      "series": 0,
+      "frame": 66,
+      "render_us": 196865,
+      "orbit_angle_deg": 165.0,
+      "orbit_revolution": 0.4583333333333333
+    },
+    {
+      "series": 0,
+      "frame": 67,
+      "render_us": 201706,
+      "orbit_angle_deg": 167.5,
+      "orbit_revolution": 0.4652777777777778
+    },
+    {
+      "series": 0,
+      "frame": 68,
+      "render_us": 201238,
+      "orbit_angle_deg": 170.0,
+      "orbit_revolution": 0.4722222222222222
+    },
+    {
+      "series": 0,
+      "frame": 69,
+      "render_us": 200378,
+      "orbit_angle_deg": 172.5,
+      "orbit_revolution": 0.4791666666666667
+    },
+    {
+      "series": 0,
+      "frame": 70,
+      "render_us": 199319,
+      "orbit_angle_deg": 175.0,
+      "orbit_revolution": 0.4861111111111111
+    },
+    {
+      "series": 0,
+      "frame": 71,
+      "render_us": 197567,
+      "orbit_angle_deg": 177.5,
+      "orbit_revolution": 0.4930555555555556
+    },
+    {
+      "series": 0,
+      "frame": 72,
+      "render_us": 195274,
+      "orbit_angle_deg": 180.0,
+      "orbit_revolution": 0.5
+    },
+    {
+      "series": 0,
+      "frame": 73,
+      "render_us": 198456,
+      "orbit_angle_deg": 182.5,
+      "orbit_revolution": 0.5069444444444444
+    },
+    {
+      "series": 0,
+      "frame": 74,
+      "render_us": 200242,
+      "orbit_angle_deg": 185.0,
+      "orbit_revolution": 0.5138888888888888
+    },
+    {
+      "series": 0,
+      "frame": 75,
+      "render_us": 202985,
+      "orbit_angle_deg": 187.5,
+      "orbit_revolution": 0.5208333333333334
+    },
+    {
+      "series": 0,
+      "frame": 76,
+      "render_us": 204984,
+      "orbit_angle_deg": 190.0,
+      "orbit_revolution": 0.5277777777777778
+    },
+    {
+      "series": 0,
+      "frame": 77,
+      "render_us": 208603,
+      "orbit_angle_deg": 192.5,
+      "orbit_revolution": 0.5347222222222222
+    },
+    {
+      "series": 0,
+      "frame": 78,
+      "render_us": 202774,
+      "orbit_angle_deg": 195.0,
+      "orbit_revolution": 0.5416666666666666
+    },
+    {
+      "series": 0,
+      "frame": 79,
+      "render_us": 192343,
+      "orbit_angle_deg": 197.5,
+      "orbit_revolution": 0.5486111111111112
+    },
+    {
+      "series": 0,
+      "frame": 80,
+      "render_us": 182410,
+      "orbit_angle_deg": 200.0,
+      "orbit_revolution": 0.5555555555555556
+    },
+    {
+      "series": 0,
+      "frame": 81,
+      "render_us": 175933,
+      "orbit_angle_deg": 202.5,
+      "orbit_revolution": 0.5625
+    },
+    {
+      "series": 0,
+      "frame": 82,
+      "render_us": 171941,
+      "orbit_angle_deg": 205.0,
+      "orbit_revolution": 0.5694444444444444
+    },
+    {
+      "series": 0,
+      "frame": 83,
+      "render_us": 173211,
+      "orbit_angle_deg": 207.5,
+      "orbit_revolution": 0.5763888888888888
+    },
+    {
+      "series": 0,
+      "frame": 84,
+      "render_us": 175397,
+      "orbit_angle_deg": 210.0,
+      "orbit_revolution": 0.5833333333333334
+    },
+    {
+      "series": 0,
+      "frame": 85,
+      "render_us": 177620,
+      "orbit_angle_deg": 212.5,
+      "orbit_revolution": 0.5902777777777778
+    },
+    {
+      "series": 0,
+      "frame": 86,
+      "render_us": 177853,
+      "orbit_angle_deg": 215.0,
+      "orbit_revolution": 0.5972222222222222
+    },
+    {
+      "series": 0,
+      "frame": 87,
+      "render_us": 177810,
+      "orbit_angle_deg": 217.5,
+      "orbit_revolution": 0.6041666666666666
+    },
+    {
+      "series": 0,
+      "frame": 88,
+      "render_us": 177354,
+      "orbit_angle_deg": 220.0,
+      "orbit_revolution": 0.6111111111111112
+    },
+    {
+      "series": 0,
+      "frame": 89,
+      "render_us": 176149,
+      "orbit_angle_deg": 222.5,
+      "orbit_revolution": 0.6180555555555556
+    },
+    {
+      "series": 0,
+      "frame": 90,
+      "render_us": 175987,
+      "orbit_angle_deg": 225.0,
+      "orbit_revolution": 0.625
+    },
+    {
+      "series": 0,
+      "frame": 91,
+      "render_us": 176696,
+      "orbit_angle_deg": 227.5,
+      "orbit_revolution": 0.6319444444444444
+    },
+    {
+      "series": 0,
+      "frame": 92,
+      "render_us": 176997,
+      "orbit_angle_deg": 230.0,
+      "orbit_revolution": 0.6388888888888888
+    },
+    {
+      "series": 0,
+      "frame": 93,
+      "render_us": 176706,
+      "orbit_angle_deg": 232.5,
+      "orbit_revolution": 0.6458333333333334
+    },
+    {
+      "series": 0,
+      "frame": 94,
+      "render_us": 177297,
+      "orbit_angle_deg": 235.0,
+      "orbit_revolution": 0.6527777777777778
+    },
+    {
+      "series": 0,
+      "frame": 95,
+      "render_us": 176343,
+      "orbit_angle_deg": 237.5,
+      "orbit_revolution": 0.6597222222222222
+    },
+    {
+      "series": 0,
+      "frame": 96,
+      "render_us": 174837,
+      "orbit_angle_deg": 240.0,
+      "orbit_revolution": 0.6666666666666666
+    },
+    {
+      "series": 0,
+      "frame": 97,
+      "render_us": 174064,
+      "orbit_angle_deg": 242.5,
+      "orbit_revolution": 0.6736111111111112
+    },
+    {
+      "series": 0,
+      "frame": 98,
+      "render_us": 173992,
+      "orbit_angle_deg": 245.0,
+      "orbit_revolution": 0.6805555555555556
+    },
+    {
+      "series": 0,
+      "frame": 99,
+      "render_us": 174966,
+      "orbit_angle_deg": 247.5,
+      "orbit_revolution": 0.6875
+    },
+    {
+      "series": 0,
+      "frame": 100,
+      "render_us": 178020,
+      "orbit_angle_deg": 250.0,
+      "orbit_revolution": 0.6944444444444444
+    },
+    {
+      "series": 0,
+      "frame": 101,
+      "render_us": 182742,
+      "orbit_angle_deg": 252.5,
+      "orbit_revolution": 0.7013888888888888
+    },
+    {
+      "series": 0,
+      "frame": 102,
+      "render_us": 188354,
+      "orbit_angle_deg": 255.0,
+      "orbit_revolution": 0.7083333333333334
+    },
+    {
+      "series": 0,
+      "frame": 103,
+      "render_us": 192368,
+      "orbit_angle_deg": 257.5,
+      "orbit_revolution": 0.7152777777777778
+    },
+    {
+      "series": 0,
+      "frame": 104,
+      "render_us": 196158,
+      "orbit_angle_deg": 260.0,
+      "orbit_revolution": 0.7222222222222222
+    },
+    {
+      "series": 0,
+      "frame": 105,
+      "render_us": 200360,
+      "orbit_angle_deg": 262.5,
+      "orbit_revolution": 0.7291666666666666
+    },
+    {
+      "series": 0,
+      "frame": 106,
+      "render_us": 202244,
+      "orbit_angle_deg": 265.0,
+      "orbit_revolution": 0.7361111111111112
+    },
+    {
+      "series": 0,
+      "frame": 107,
+      "render_us": 201894,
+      "orbit_angle_deg": 267.5,
+      "orbit_revolution": 0.7430555555555556
+    },
+    {
+      "series": 0,
+      "frame": 108,
+      "render_us": 201573,
+      "orbit_angle_deg": 270.0,
+      "orbit_revolution": 0.75
+    },
+    {
+      "series": 0,
+      "frame": 109,
+      "render_us": 202531,
+      "orbit_angle_deg": 272.5,
+      "orbit_revolution": 0.7569444444444444
+    },
+    {
+      "series": 0,
+      "frame": 110,
+      "render_us": 201230,
+      "orbit_angle_deg": 275.0,
+      "orbit_revolution": 0.7638888888888888
+    },
+    {
+      "series": 0,
+      "frame": 111,
+      "render_us": 199810,
+      "orbit_angle_deg": 277.5,
+      "orbit_revolution": 0.7708333333333334
+    },
+    {
+      "series": 0,
+      "frame": 112,
+      "render_us": 198816,
+      "orbit_angle_deg": 280.0,
+      "orbit_revolution": 0.7777777777777778
+    },
+    {
+      "series": 0,
+      "frame": 113,
+      "render_us": 197248,
+      "orbit_angle_deg": 282.5,
+      "orbit_revolution": 0.7847222222222222
+    },
+    {
+      "series": 0,
+      "frame": 114,
+      "render_us": 195810,
+      "orbit_angle_deg": 285.0,
+      "orbit_revolution": 0.7916666666666666
+    },
+    {
+      "series": 0,
+      "frame": 115,
+      "render_us": 187146,
+      "orbit_angle_deg": 287.5,
+      "orbit_revolution": 0.7986111111111112
+    },
+    {
+      "series": 0,
+      "frame": 116,
+      "render_us": 175180,
+      "orbit_angle_deg": 290.0,
+      "orbit_revolution": 0.8055555555555556
+    },
+    {
+      "series": 0,
+      "frame": 117,
+      "render_us": 175401,
+      "orbit_angle_deg": 292.5,
+      "orbit_revolution": 0.8125
+    },
+    {
+      "series": 0,
+      "frame": 118,
+      "render_us": 178276,
+      "orbit_angle_deg": 295.0,
+      "orbit_revolution": 0.8194444444444444
+    },
+    {
+      "series": 0,
+      "frame": 119,
+      "render_us": 178667,
+      "orbit_angle_deg": 297.5,
+      "orbit_revolution": 0.8263888888888888
+    },
+    {
+      "series": 0,
+      "frame": 120,
+      "render_us": 179523,
+      "orbit_angle_deg": 300.0,
+      "orbit_revolution": 0.8333333333333334
+    },
+    {
+      "series": 0,
+      "frame": 121,
+      "render_us": 180257,
+      "orbit_angle_deg": 302.5,
+      "orbit_revolution": 0.8402777777777778
+    },
+    {
+      "series": 0,
+      "frame": 122,
+      "render_us": 180287,
+      "orbit_angle_deg": 305.0,
+      "orbit_revolution": 0.8472222222222222
+    },
+    {
+      "series": 0,
+      "frame": 123,
+      "render_us": 179648,
+      "orbit_angle_deg": 307.5,
+      "orbit_revolution": 0.8541666666666666
+    },
+    {
+      "series": 0,
+      "frame": 124,
+      "render_us": 179559,
+      "orbit_angle_deg": 310.0,
+      "orbit_revolution": 0.8611111111111112
+    },
+    {
+      "series": 0,
+      "frame": 125,
+      "render_us": 179158,
+      "orbit_angle_deg": 312.5,
+      "orbit_revolution": 0.8680555555555556
+    },
+    {
+      "series": 0,
+      "frame": 126,
+      "render_us": 179240,
+      "orbit_angle_deg": 315.0,
+      "orbit_revolution": 0.875
+    },
+    {
+      "series": 0,
+      "frame": 127,
+      "render_us": 181292,
+      "orbit_angle_deg": 317.5,
+      "orbit_revolution": 0.8819444444444444
+    },
+    {
+      "series": 0,
+      "frame": 128,
+      "render_us": 182351,
+      "orbit_angle_deg": 320.0,
+      "orbit_revolution": 0.8888888888888888
+    },
+    {
+      "series": 0,
+      "frame": 129,
+      "render_us": 182648,
+      "orbit_angle_deg": 322.5,
+      "orbit_revolution": 0.8958333333333334
+    },
+    {
+      "series": 0,
+      "frame": 130,
+      "render_us": 183750,
+      "orbit_angle_deg": 325.0,
+      "orbit_revolution": 0.9027777777777778
+    },
+    {
+      "series": 0,
+      "frame": 131,
+      "render_us": 181293,
+      "orbit_angle_deg": 327.5,
+      "orbit_revolution": 0.9097222222222222
+    },
+    {
+      "series": 0,
+      "frame": 132,
+      "render_us": 178222,
+      "orbit_angle_deg": 330.0,
+      "orbit_revolution": 0.9166666666666666
+    },
+    {
+      "series": 0,
+      "frame": 133,
+      "render_us": 175246,
+      "orbit_angle_deg": 332.5,
+      "orbit_revolution": 0.9236111111111112
+    },
+    {
+      "series": 0,
+      "frame": 134,
+      "render_us": 172194,
+      "orbit_angle_deg": 335.0,
+      "orbit_revolution": 0.9305555555555556
+    },
+    {
+      "series": 0,
+      "frame": 135,
+      "render_us": 172617,
+      "orbit_angle_deg": 337.5,
+      "orbit_revolution": 0.9375
+    },
+    {
+      "series": 0,
+      "frame": 136,
+      "render_us": 177275,
+      "orbit_angle_deg": 340.0,
+      "orbit_revolution": 0.9444444444444444
+    },
+    {
+      "series": 0,
+      "frame": 137,
+      "render_us": 180203,
+      "orbit_angle_deg": 342.5,
+      "orbit_revolution": 0.9513888888888888
+    },
+    {
+      "series": 0,
+      "frame": 138,
+      "render_us": 183068,
+      "orbit_angle_deg": 345.0,
+      "orbit_revolution": 0.9583333333333334
+    },
+    {
+      "series": 0,
+      "frame": 139,
+      "render_us": 183063,
+      "orbit_angle_deg": 347.5,
+      "orbit_revolution": 0.9652777777777778
+    },
+    {
+      "series": 0,
+      "frame": 140,
+      "render_us": 182743,
+      "orbit_angle_deg": 350.0,
+      "orbit_revolution": 0.9722222222222222
+    },
+    {
+      "series": 0,
+      "frame": 141,
+      "render_us": 181539,
+      "orbit_angle_deg": 352.5,
+      "orbit_revolution": 0.9791666666666666
+    },
+    {
+      "series": 0,
+      "frame": 142,
+      "render_us": 182348,
+      "orbit_angle_deg": 355.0,
+      "orbit_revolution": 0.9861111111111112
+    },
+    {
+      "series": 0,
+      "frame": 143,
+      "render_us": 182239,
+      "orbit_angle_deg": 357.5,
+      "orbit_revolution": 0.9930555555555556
+    },
+    {
+      "series": 0,
+      "frame": 144,
+      "render_us": 181642,
+      "orbit_angle_deg": 360.0,
+      "orbit_revolution": 1.0
+    },
+    {
+      "series": 0,
+      "frame": 145,
+      "render_us": 182234,
+      "orbit_angle_deg": 362.5,
+      "orbit_revolution": 1.0069444444444444
+    },
+    {
+      "series": 0,
+      "frame": 146,
+      "render_us": 182871,
+      "orbit_angle_deg": 365.0,
+      "orbit_revolution": 1.0138888888888888
+    },
+    {
+      "series": 0,
+      "frame": 147,
+      "render_us": 182692,
+      "orbit_angle_deg": 367.5,
+      "orbit_revolution": 1.0208333333333333
+    },
+    {
+      "series": 0,
+      "frame": 148,
+      "render_us": 182877,
+      "orbit_angle_deg": 370.0,
+      "orbit_revolution": 1.0277777777777777
+    },
+    {
+      "series": 0,
+      "frame": 149,
+      "render_us": 182065,
+      "orbit_angle_deg": 372.5,
+      "orbit_revolution": 1.0347222222222223
+    },
+    {
+      "series": 0,
+      "frame": 150,
+      "render_us": 182678,
+      "orbit_angle_deg": 375.0,
+      "orbit_revolution": 1.0416666666666667
+    },
+    {
+      "series": 0,
+      "frame": 151,
+      "render_us": 179632,
+      "orbit_angle_deg": 377.5,
+      "orbit_revolution": 1.0486111111111112
+    },
+    {
+      "series": 0,
+      "frame": 152,
+      "render_us": 176630,
+      "orbit_angle_deg": 380.0,
+      "orbit_revolution": 1.0555555555555556
+    },
+    {
+      "series": 0,
+      "frame": 153,
+      "render_us": 171988,
+      "orbit_angle_deg": 382.5,
+      "orbit_revolution": 1.0625
+    },
+    {
+      "series": 0,
+      "frame": 154,
+      "render_us": 169467,
+      "orbit_angle_deg": 385.0,
+      "orbit_revolution": 1.0694444444444444
+    },
+    {
+      "series": 0,
+      "frame": 155,
+      "render_us": 170898,
+      "orbit_angle_deg": 387.5,
+      "orbit_revolution": 1.0763888888888888
+    },
+    {
+      "series": 0,
+      "frame": 156,
+      "render_us": 172264,
+      "orbit_angle_deg": 390.0,
+      "orbit_revolution": 1.0833333333333333
+    },
+    {
+      "series": 0,
+      "frame": 157,
+      "render_us": 173337,
+      "orbit_angle_deg": 392.5,
+      "orbit_revolution": 1.0902777777777777
+    },
+    {
+      "series": 0,
+      "frame": 158,
+      "render_us": 173606,
+      "orbit_angle_deg": 395.0,
+      "orbit_revolution": 1.0972222222222223
+    },
+    {
+      "series": 0,
+      "frame": 159,
+      "render_us": 173466,
+      "orbit_angle_deg": 397.5,
+      "orbit_revolution": 1.1041666666666667
+    },
+    {
+      "series": 0,
+      "frame": 160,
+      "render_us": 172798,
+      "orbit_angle_deg": 400.0,
+      "orbit_revolution": 1.1111111111111112
+    },
+    {
+      "series": 0,
+      "frame": 161,
+      "render_us": 172174,
+      "orbit_angle_deg": 402.5,
+      "orbit_revolution": 1.1180555555555556
+    },
+    {
+      "series": 0,
+      "frame": 162,
+      "render_us": 172428,
+      "orbit_angle_deg": 405.0,
+      "orbit_revolution": 1.125
+    },
+    {
+      "series": 0,
+      "frame": 163,
+      "render_us": 172479,
+      "orbit_angle_deg": 407.5,
+      "orbit_revolution": 1.1319444444444444
+    },
+    {
+      "series": 0,
+      "frame": 164,
+      "render_us": 172811,
+      "orbit_angle_deg": 410.0,
+      "orbit_revolution": 1.1388888888888888
+    },
+    {
+      "series": 0,
+      "frame": 165,
+      "render_us": 173433,
+      "orbit_angle_deg": 412.5,
+      "orbit_revolution": 1.1458333333333333
+    },
+    {
+      "series": 0,
+      "frame": 166,
+      "render_us": 174155,
+      "orbit_angle_deg": 415.0,
+      "orbit_revolution": 1.1527777777777777
+    },
+    {
+      "series": 0,
+      "frame": 167,
+      "render_us": 174030,
+      "orbit_angle_deg": 417.5,
+      "orbit_revolution": 1.1597222222222223
+    },
+    {
+      "series": 0,
+      "frame": 168,
+      "render_us": 173343,
+      "orbit_angle_deg": 420.0,
+      "orbit_revolution": 1.1666666666666667
+    },
+    {
+      "series": 0,
+      "frame": 169,
+      "render_us": 170168,
+      "orbit_angle_deg": 422.5,
+      "orbit_revolution": 1.1736111111111112
+    },
+    {
+      "series": 0,
+      "frame": 170,
+      "render_us": 168241,
+      "orbit_angle_deg": 425.0,
+      "orbit_revolution": 1.1805555555555556
+    },
+    {
+      "series": 0,
+      "frame": 171,
+      "render_us": 169135,
+      "orbit_angle_deg": 427.5,
+      "orbit_revolution": 1.1875
+    },
+    {
+      "series": 0,
+      "frame": 172,
+      "render_us": 177366,
+      "orbit_angle_deg": 430.0,
+      "orbit_revolution": 1.1944444444444444
+    },
+    {
+      "series": 0,
+      "frame": 173,
+      "render_us": 197737,
+      "orbit_angle_deg": 432.5,
+      "orbit_revolution": 1.2013888888888888
+    },
+    {
+      "series": 0,
+      "frame": 174,
+      "render_us": 215566,
+      "orbit_angle_deg": 435.0,
+      "orbit_revolution": 1.2083333333333333
+    },
+    {
+      "series": 0,
+      "frame": 175,
+      "render_us": 224351,
+      "orbit_angle_deg": 437.5,
+      "orbit_revolution": 1.2152777777777777
+    },
+    {
+      "series": 0,
+      "frame": 176,
+      "render_us": 223407,
+      "orbit_angle_deg": 440.0,
+      "orbit_revolution": 1.2222222222222223
+    },
+    {
+      "series": 0,
+      "frame": 177,
+      "render_us": 220126,
+      "orbit_angle_deg": 442.5,
+      "orbit_revolution": 1.2291666666666667
+    },
+    {
+      "series": 0,
+      "frame": 178,
+      "render_us": 218585,
+      "orbit_angle_deg": 445.0,
+      "orbit_revolution": 1.2361111111111112
+    },
+    {
+      "series": 0,
+      "frame": 179,
+      "render_us": 215831,
+      "orbit_angle_deg": 447.5,
+      "orbit_revolution": 1.2430555555555556
+    },
+    {
+      "series": 0,
+      "frame": 180,
+      "render_us": 212155,
+      "orbit_angle_deg": 450.0,
+      "orbit_revolution": 1.25
+    },
+    {
+      "series": 0,
+      "frame": 181,
+      "render_us": 216758,
+      "orbit_angle_deg": 452.5,
+      "orbit_revolution": 1.2569444444444444
+    },
+    {
+      "series": 0,
+      "frame": 182,
+      "render_us": 221039,
+      "orbit_angle_deg": 455.0,
+      "orbit_revolution": 1.2638888888888888
+    },
+    {
+      "series": 0,
+      "frame": 183,
+      "render_us": 225916,
+      "orbit_angle_deg": 457.5,
+      "orbit_revolution": 1.2708333333333333
+    },
+    {
+      "series": 0,
+      "frame": 184,
+      "render_us": 229428,
+      "orbit_angle_deg": 460.0,
+      "orbit_revolution": 1.2777777777777777
+    },
+    {
+      "series": 0,
+      "frame": 185,
+      "render_us": 228887,
+      "orbit_angle_deg": 462.5,
+      "orbit_revolution": 1.2847222222222223
+    },
+    {
+      "series": 0,
+      "frame": 186,
+      "render_us": 219565,
+      "orbit_angle_deg": 465.0,
+      "orbit_revolution": 1.2916666666666667
+    },
+    {
+      "series": 0,
+      "frame": 187,
+      "render_us": 198524,
+      "orbit_angle_deg": 467.5,
+      "orbit_revolution": 1.2986111111111112
+    },
+    {
+      "series": 0,
+      "frame": 188,
+      "render_us": 179330,
+      "orbit_angle_deg": 470.0,
+      "orbit_revolution": 1.3055555555555556
+    },
+    {
+      "series": 0,
+      "frame": 189,
+      "render_us": 168975,
+      "orbit_angle_deg": 472.5,
+      "orbit_revolution": 1.3125
+    },
+    {
+      "series": 0,
+      "frame": 190,
+      "render_us": 169433,
+      "orbit_angle_deg": 475.0,
+      "orbit_revolution": 1.3194444444444444
+    },
+    {
+      "series": 0,
+      "frame": 191,
+      "render_us": 169853,
+      "orbit_angle_deg": 477.5,
+      "orbit_revolution": 1.3263888888888888
+    },
+    {
+      "series": 0,
+      "frame": 192,
+      "render_us": 170231,
+      "orbit_angle_deg": 480.0,
+      "orbit_revolution": 1.3333333333333333
+    },
+    {
+      "series": 0,
+      "frame": 193,
+      "render_us": 170658,
+      "orbit_angle_deg": 482.5,
+      "orbit_revolution": 1.3402777777777777
+    },
+    {
+      "series": 0,
+      "frame": 194,
+      "render_us": 170754,
+      "orbit_angle_deg": 485.0,
+      "orbit_revolution": 1.3472222222222223
+    },
+    {
+      "series": 0,
+      "frame": 195,
+      "render_us": 170805,
+      "orbit_angle_deg": 487.5,
+      "orbit_revolution": 1.3541666666666667
+    },
+    {
+      "series": 0,
+      "frame": 196,
+      "render_us": 170770,
+      "orbit_angle_deg": 490.0,
+      "orbit_revolution": 1.3611111111111112
+    },
+    {
+      "series": 0,
+      "frame": 197,
+      "render_us": 170413,
+      "orbit_angle_deg": 492.5,
+      "orbit_revolution": 1.3680555555555556
+    },
+    {
+      "series": 0,
+      "frame": 198,
+      "render_us": 170434,
+      "orbit_angle_deg": 495.0,
+      "orbit_revolution": 1.375
+    },
+    {
+      "series": 0,
+      "frame": 199,
+      "render_us": 170163,
+      "orbit_angle_deg": 497.5,
+      "orbit_revolution": 1.3819444444444444
+    },
+    {
+      "series": 0,
+      "frame": 200,
+      "render_us": 170424,
+      "orbit_angle_deg": 500.0,
+      "orbit_revolution": 1.3888888888888888
+    },
+    {
+      "series": 0,
+      "frame": 201,
+      "render_us": 170347,
+      "orbit_angle_deg": 502.5,
+      "orbit_revolution": 1.3958333333333333
+    },
+    {
+      "series": 0,
+      "frame": 202,
+      "render_us": 170585,
+      "orbit_angle_deg": 505.0,
+      "orbit_revolution": 1.4027777777777777
+    },
+    {
+      "series": 0,
+      "frame": 203,
+      "render_us": 170779,
+      "orbit_angle_deg": 507.5,
+      "orbit_revolution": 1.4097222222222223
+    },
+    {
+      "series": 0,
+      "frame": 204,
+      "render_us": 170557,
+      "orbit_angle_deg": 510.0,
+      "orbit_revolution": 1.4166666666666667
+    },
+    {
+      "series": 0,
+      "frame": 205,
+      "render_us": 169069,
+      "orbit_angle_deg": 512.5,
+      "orbit_revolution": 1.4236111111111112
+    },
+    {
+      "series": 0,
+      "frame": 206,
+      "render_us": 167526,
+      "orbit_angle_deg": 515.0,
+      "orbit_revolution": 1.4305555555555556
+    },
+    {
+      "series": 0,
+      "frame": 207,
+      "render_us": 166025,
+      "orbit_angle_deg": 517.5,
+      "orbit_revolution": 1.4375
+    },
+    {
+      "series": 0,
+      "frame": 208,
+      "render_us": 165899,
+      "orbit_angle_deg": 520.0,
+      "orbit_revolution": 1.4444444444444444
+    },
+    {
+      "series": 0,
+      "frame": 209,
+      "render_us": 181262,
+      "orbit_angle_deg": 522.5,
+      "orbit_revolution": 1.4513888888888888
+    },
+    {
+      "series": 0,
+      "frame": 210,
+      "render_us": 199820,
+      "orbit_angle_deg": 525.0,
+      "orbit_revolution": 1.4583333333333333
+    },
+    {
+      "series": 0,
+      "frame": 211,
+      "render_us": 203229,
+      "orbit_angle_deg": 527.5,
+      "orbit_revolution": 1.4652777777777777
+    },
+    {
+      "series": 0,
+      "frame": 212,
+      "render_us": 203455,
+      "orbit_angle_deg": 530.0,
+      "orbit_revolution": 1.4722222222222223
+    },
+    {
+      "series": 0,
+      "frame": 213,
+      "render_us": 201960,
+      "orbit_angle_deg": 532.5,
+      "orbit_revolution": 1.4791666666666667
+    },
+    {
+      "series": 0,
+      "frame": 214,
+      "render_us": 200615,
+      "orbit_angle_deg": 535.0,
+      "orbit_revolution": 1.4861111111111112
+    },
+    {
+      "series": 0,
+      "frame": 215,
+      "render_us": 197938,
+      "orbit_angle_deg": 537.5,
+      "orbit_revolution": 1.4930555555555556
+    },
+    {
+      "series": 0,
+      "frame": 216,
+      "render_us": 195454,
+      "orbit_angle_deg": 540.0,
+      "orbit_revolution": 1.5
+    },
+    {
+      "series": 0,
+      "frame": 217,
+      "render_us": 197937,
+      "orbit_angle_deg": 542.5,
+      "orbit_revolution": 1.5069444444444444
+    },
+    {
+      "series": 0,
+      "frame": 218,
+      "render_us": 199062,
+      "orbit_angle_deg": 545.0,
+      "orbit_revolution": 1.5138888888888888
+    },
+    {
+      "series": 0,
+      "frame": 219,
+      "render_us": 201787,
+      "orbit_angle_deg": 547.5,
+      "orbit_revolution": 1.5208333333333333
+    },
+    {
+      "series": 0,
+      "frame": 220,
+      "render_us": 205584,
+      "orbit_angle_deg": 550.0,
+      "orbit_revolution": 1.5277777777777777
+    },
+    {
+      "series": 0,
+      "frame": 221,
+      "render_us": 208065,
+      "orbit_angle_deg": 552.5,
+      "orbit_revolution": 1.5347222222222223
+    },
+    {
+      "series": 0,
+      "frame": 222,
+      "render_us": 197463,
+      "orbit_angle_deg": 555.0,
+      "orbit_revolution": 1.5416666666666667
+    },
+    {
+      "series": 0,
+      "frame": 223,
+      "render_us": 185115,
+      "orbit_angle_deg": 557.5,
+      "orbit_revolution": 1.5486111111111112
+    },
+    {
+      "series": 0,
+      "frame": 224,
+      "render_us": 172628,
+      "orbit_angle_deg": 560.0,
+      "orbit_revolution": 1.5555555555555556
+    },
+    {
+      "series": 0,
+      "frame": 225,
+      "render_us": 169571,
+      "orbit_angle_deg": 562.5,
+      "orbit_revolution": 1.5625
+    },
+    {
+      "series": 0,
+      "frame": 226,
+      "render_us": 170802,
+      "orbit_angle_deg": 565.0,
+      "orbit_revolution": 1.5694444444444444
+    },
+    {
+      "series": 0,
+      "frame": 227,
+      "render_us": 174103,
+      "orbit_angle_deg": 567.5,
+      "orbit_revolution": 1.5763888888888888
+    },
+    {
+      "series": 0,
+      "frame": 228,
+      "render_us": 175974,
+      "orbit_angle_deg": 570.0,
+      "orbit_revolution": 1.5833333333333333
+    },
+    {
+      "series": 0,
+      "frame": 229,
+      "render_us": 177119,
+      "orbit_angle_deg": 572.5,
+      "orbit_revolution": 1.5902777777777777
+    },
+    {
+      "series": 0,
+      "frame": 230,
+      "render_us": 176855,
+      "orbit_angle_deg": 575.0,
+      "orbit_revolution": 1.5972222222222223
+    },
+    {
+      "series": 0,
+      "frame": 231,
+      "render_us": 176323,
+      "orbit_angle_deg": 577.5,
+      "orbit_revolution": 1.6041666666666667
+    },
+    {
+      "series": 0,
+      "frame": 232,
+      "render_us": 176156,
+      "orbit_angle_deg": 580.0,
+      "orbit_revolution": 1.6111111111111112
+    },
+    {
+      "series": 0,
+      "frame": 233,
+      "render_us": 175576,
+      "orbit_angle_deg": 582.5,
+      "orbit_revolution": 1.6180555555555556
+    },
+    {
+      "series": 0,
+      "frame": 234,
+      "render_us": 175742,
+      "orbit_angle_deg": 585.0,
+      "orbit_revolution": 1.625
+    },
+    {
+      "series": 0,
+      "frame": 235,
+      "render_us": 176622,
+      "orbit_angle_deg": 587.5,
+      "orbit_revolution": 1.6319444444444444
+    },
+    {
+      "series": 0,
+      "frame": 236,
+      "render_us": 176796,
+      "orbit_angle_deg": 590.0,
+      "orbit_revolution": 1.6388888888888888
+    },
+    {
+      "series": 0,
+      "frame": 237,
+      "render_us": 176720,
+      "orbit_angle_deg": 592.5,
+      "orbit_revolution": 1.6458333333333333
+    },
+    {
+      "series": 0,
+      "frame": 238,
+      "render_us": 176937,
+      "orbit_angle_deg": 595.0,
+      "orbit_revolution": 1.6527777777777777
+    },
+    {
+      "series": 0,
+      "frame": 239,
+      "render_us": 176097,
+      "orbit_angle_deg": 597.5,
+      "orbit_revolution": 1.6597222222222223
+    },
+    {
+      "series": 0,
+      "frame": 240,
+      "render_us": 175591,
+      "orbit_angle_deg": 600.0,
+      "orbit_revolution": 1.6666666666666667
+    },
+    {
+      "series": 0,
+      "frame": 241,
+      "render_us": 177499,
+      "orbit_angle_deg": 602.5,
+      "orbit_revolution": 1.6736111111111112
+    },
+    {
+      "series": 0,
+      "frame": 242,
+      "render_us": 178196,
+      "orbit_angle_deg": 605.0,
+      "orbit_revolution": 1.6805555555555556
+    },
+    {
+      "series": 0,
+      "frame": 243,
+      "render_us": 179072,
+      "orbit_angle_deg": 607.5,
+      "orbit_revolution": 1.6875
+    },
+    {
+      "series": 0,
+      "frame": 244,
+      "render_us": 180232,
+      "orbit_angle_deg": 610.0,
+      "orbit_revolution": 1.6944444444444444
+    },
+    {
+      "series": 0,
+      "frame": 245,
+      "render_us": 184395,
+      "orbit_angle_deg": 612.5,
+      "orbit_revolution": 1.7013888888888888
+    },
+    {
+      "series": 0,
+      "frame": 246,
+      "render_us": 188624,
+      "orbit_angle_deg": 615.0,
+      "orbit_revolution": 1.7083333333333333
+    },
+    {
+      "series": 0,
+      "frame": 247,
+      "render_us": 194208,
+      "orbit_angle_deg": 617.5,
+      "orbit_revolution": 1.7152777777777777
+    },
+    {
+      "series": 0,
+      "frame": 248,
+      "render_us": 198721,
+      "orbit_angle_deg": 620.0,
+      "orbit_revolution": 1.7222222222222223
+    },
+    {
+      "series": 0,
+      "frame": 249,
+      "render_us": 199424,
+      "orbit_angle_deg": 622.5,
+      "orbit_revolution": 1.7291666666666667
+    },
+    {
+      "series": 0,
+      "frame": 250,
+      "render_us": 199841,
+      "orbit_angle_deg": 625.0,
+      "orbit_revolution": 1.7361111111111112
+    },
+    {
+      "series": 0,
+      "frame": 251,
+      "render_us": 200277,
+      "orbit_angle_deg": 627.5,
+      "orbit_revolution": 1.7430555555555556
+    },
+    {
+      "series": 0,
+      "frame": 252,
+      "render_us": 200262,
+      "orbit_angle_deg": 630.0,
+      "orbit_revolution": 1.75
+    },
+    {
+      "series": 0,
+      "frame": 253,
+      "render_us": 201317,
+      "orbit_angle_deg": 632.5,
+      "orbit_revolution": 1.7569444444444444
+    },
+    {
+      "series": 0,
+      "frame": 254,
+      "render_us": 202008,
+      "orbit_angle_deg": 635.0,
+      "orbit_revolution": 1.7638888888888888
+    },
+    {
+      "series": 0,
+      "frame": 255,
+      "render_us": 201805,
+      "orbit_angle_deg": 637.5,
+      "orbit_revolution": 1.7708333333333333
+    },
+    {
+      "series": 0,
+      "frame": 256,
+      "render_us": 199447,
+      "orbit_angle_deg": 640.0,
+      "orbit_revolution": 1.7777777777777777
+    },
+    {
+      "series": 0,
+      "frame": 257,
+      "render_us": 194691,
+      "orbit_angle_deg": 642.5,
+      "orbit_revolution": 1.7847222222222223
+    },
+    {
+      "series": 0,
+      "frame": 258,
+      "render_us": 190298,
+      "orbit_angle_deg": 645.0,
+      "orbit_revolution": 1.7916666666666667
+    },
+    {
+      "series": 0,
+      "frame": 259,
+      "render_us": 183128,
+      "orbit_angle_deg": 647.5,
+      "orbit_revolution": 1.7986111111111112
+    },
+    {
+      "series": 0,
+      "frame": 260,
+      "render_us": 174921,
+      "orbit_angle_deg": 650.0,
+      "orbit_revolution": 1.8055555555555556
+    },
+    {
+      "series": 0,
+      "frame": 261,
+      "render_us": 173206,
+      "orbit_angle_deg": 652.5,
+      "orbit_revolution": 1.8125
+    },
+    {
+      "series": 0,
+      "frame": 262,
+      "render_us": 175448,
+      "orbit_angle_deg": 655.0,
+      "orbit_revolution": 1.8194444444444444
+    },
+    {
+      "series": 0,
+      "frame": 263,
+      "render_us": 180124,
+      "orbit_angle_deg": 657.5,
+      "orbit_revolution": 1.8263888888888888
+    },
+    {
+      "series": 0,
+      "frame": 264,
+      "render_us": 183321,
+      "orbit_angle_deg": 660.0,
+      "orbit_revolution": 1.8333333333333333
+    },
+    {
+      "series": 0,
+      "frame": 265,
+      "render_us": 184130,
+      "orbit_angle_deg": 662.5,
+      "orbit_revolution": 1.8402777777777777
+    },
+    {
+      "series": 0,
+      "frame": 266,
+      "render_us": 183289,
+      "orbit_angle_deg": 665.0,
+      "orbit_revolution": 1.8472222222222223
+    },
+    {
+      "series": 0,
+      "frame": 267,
+      "render_us": 182637,
+      "orbit_angle_deg": 667.5,
+      "orbit_revolution": 1.8541666666666667
+    },
+    {
+      "series": 0,
+      "frame": 268,
+      "render_us": 182195,
+      "orbit_angle_deg": 670.0,
+      "orbit_revolution": 1.8611111111111112
+    },
+    {
+      "series": 0,
+      "frame": 269,
+      "render_us": 182864,
+      "orbit_angle_deg": 672.5,
+      "orbit_revolution": 1.8680555555555556
+    },
+    {
+      "series": 0,
+      "frame": 270,
+      "render_us": 182343,
+      "orbit_angle_deg": 675.0,
+      "orbit_revolution": 1.875
+    },
+    {
+      "series": 0,
+      "frame": 271,
+      "render_us": 183633,
+      "orbit_angle_deg": 677.5,
+      "orbit_revolution": 1.8819444444444444
+    },
+    {
+      "series": 0,
+      "frame": 272,
+      "render_us": 183991,
+      "orbit_angle_deg": 680.0,
+      "orbit_revolution": 1.8888888888888888
+    },
+    {
+      "series": 0,
+      "frame": 273,
+      "render_us": 184122,
+      "orbit_angle_deg": 682.5,
+      "orbit_revolution": 1.8958333333333333
+    },
+    {
+      "series": 0,
+      "frame": 274,
+      "render_us": 184325,
+      "orbit_angle_deg": 685.0,
+      "orbit_revolution": 1.9027777777777777
+    },
+    {
+      "series": 0,
+      "frame": 275,
+      "render_us": 182796,
+      "orbit_angle_deg": 687.5,
+      "orbit_revolution": 1.9097222222222223
+    },
+    {
+      "series": 0,
+      "frame": 276,
+      "render_us": 179621,
+      "orbit_angle_deg": 690.0,
+      "orbit_revolution": 1.9166666666666667
+    },
+    {
+      "series": 0,
+      "frame": 277,
+      "render_us": 174993,
+      "orbit_angle_deg": 692.5,
+      "orbit_revolution": 1.9236111111111112
+    },
+    {
+      "series": 0,
+      "frame": 278,
+      "render_us": 172059,
+      "orbit_angle_deg": 695.0,
+      "orbit_revolution": 1.9305555555555556
+    },
+    {
+      "series": 0,
+      "frame": 279,
+      "render_us": 173609,
+      "orbit_angle_deg": 697.5,
+      "orbit_revolution": 1.9375
+    },
+    {
+      "series": 0,
+      "frame": 280,
+      "render_us": 177096,
+      "orbit_angle_deg": 700.0,
+      "orbit_revolution": 1.9444444444444444
+    },
+    {
+      "series": 0,
+      "frame": 281,
+      "render_us": 180507,
+      "orbit_angle_deg": 702.5,
+      "orbit_revolution": 1.9513888888888888
+    },
+    {
+      "series": 0,
+      "frame": 282,
+      "render_us": 182288,
+      "orbit_angle_deg": 705.0,
+      "orbit_revolution": 1.9583333333333333
+    },
+    {
+      "series": 0,
+      "frame": 283,
+      "render_us": 183639,
+      "orbit_angle_deg": 707.5,
+      "orbit_revolution": 1.9652777777777777
+    },
+    {
+      "series": 0,
+      "frame": 284,
+      "render_us": 183527,
+      "orbit_angle_deg": 710.0,
+      "orbit_revolution": 1.9722222222222223
+    },
+    {
+      "series": 0,
+      "frame": 285,
+      "render_us": 183487,
+      "orbit_angle_deg": 712.5,
+      "orbit_revolution": 1.9791666666666667
+    },
+    {
+      "series": 0,
+      "frame": 286,
+      "render_us": 184178,
+      "orbit_angle_deg": 715.0,
+      "orbit_revolution": 1.9861111111111112
+    },
+    {
+      "series": 0,
+      "frame": 287,
+      "render_us": 183928,
+      "orbit_angle_deg": 717.5,
+      "orbit_revolution": 1.9930555555555556
+    },
+    {
+      "series": 0,
+      "frame": 288,
+      "render_us": 183424,
+      "orbit_angle_deg": 720.0,
+      "orbit_revolution": 2.0
+    }
+  ]
+}

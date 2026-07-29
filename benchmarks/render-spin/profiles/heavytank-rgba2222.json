@@ -1,0 +1,23 @@
+{
+  "name": "heavytank-rgba2222",
+  "description": "Asymmetric HeavyTank 36-frame Y-axis RGBA2222 render benchmark",
+  "model_obj_source": "src/blender/heavytank.obj",
+  "texture_png_source": "src/blender/blenderaxes.png",
+  "texture_filename": "blenderaxes.rgba2",
+  "texture_format": "rgba2222",
+  "target_format": "rgba2222",
+  "texture_width": 34,
+  "texture_height": 34,
+  "control_id": 1300,
+  "texture_bitmap_id": 1256,
+  "target_bitmap_id": 1257,
+  "warmup_target_bitmap_id": 1258,
+  "object_scale": 1280,
+  "camera_pose": [0, 0, 3200],
+  "resolution": [320, 240],
+  "warmup_frames": 8,
+  "measured_frames": 36,
+  "series_runs": 5,
+  "rotation_axis": "y",
+  "rotation_step_degrees": 10
+}

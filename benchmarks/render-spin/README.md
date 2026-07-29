@@ -64,6 +64,28 @@ The initial profiles demonstrate reuse:
 7. `earthico-rgba8888.json` pairs with `earthico-rgba2222.json` in the same
    fashion. Together, the four Earth profiles form two sequential two-model
    firmware suites: corrected RGBA8888 and current one-byte RGBA2222.
+8. `cube-frustum-sweep-rgba2222.json` retains Cube's labeled visual control
+   while combining its 10-degree absolute rotations with deterministic
+   absolute translation. Over one revolution the object moves closer and
+   farther, crosses the left and right sides once, and crosses the top and
+   bottom twice. This produces visible, partially clipped, and wholly
+   offscreen intervals for culling experiments without changing the stationary
+   Cube control.
+9. `earthuv-frustum-sweep-rgba2222.json` applies the identical motion to the
+   960-triangle EarthUV mesh. Cube makes clipping mistakes conspicuous;
+   EarthUV magnifies per-triangle culling cost and potential offscreen savings.
+
+An optional `translation_motion` profile object defines reusable sinusoidal
+motion with three-element `center`, `amplitude`, `cycles`, and `phase_degrees`
+arrays. For each frame and axis, the generated absolute VDU translation is:
+
+```text
+center + amplitude * sin(cycles * rotation_degrees + phase_degrees)
+```
+
+All results are rounded to signed 16-bit VDU words. The generator rejects a
+declared range that could exceed those limits. Translation is sent before
+rotation for every pose; neither operation relies on firmware accumulation.
 
 The benchmark loader stages a complete texture in eZ80 RAM before uploading
 it. Applications begin at `0x40000`, and MOS exposes RAM through `0xBFFFF`, so
@@ -184,6 +206,7 @@ tests with:
 ```bash
 PYTHONDONTWRITEBYTECODE=1 \
   .venv/bin/python -m unittest \
+  build/scripts/test_build_render_benchmark.py \
   build/scripts/test_summarize_render_benchmark.py
 ```
 

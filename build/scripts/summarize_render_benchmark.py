@@ -13,6 +13,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from build_render_benchmark import motion_translation
+
 
 RECORD_RE = re.compile(
     r"PINGO_RENDER\s+seq=(\d+)(?:\s+bmid=(\d+))?\s+render_us=(\d+)"
@@ -23,7 +25,7 @@ EXTENDED_RECORD_RE = re.compile(
 
 TIMING_RESIDUAL_TOLERANCE_US = 8
 
-DIAGNOSTIC_KEYS = (
+DIAGNOSTIC_V1_KEYS = (
     "d",
     "w",
     "h",
@@ -50,6 +52,15 @@ DIAGNOSTIC_KEYS = (
     "pu",
     "ps",
 )
+DIAGNOSTIC_V2_KEYS = (
+    *DIAGNOSTIC_V1_KEYS[:14],
+    "tfr",
+    *DIAGNOSTIC_V1_KEYS[14:],
+)
+DIAGNOSTIC_KEYS_BY_VERSION = {
+    1: DIAGNOSTIC_V1_KEYS,
+    2: DIAGNOSTIC_V2_KEYS,
+}
 
 DIAGNOSTIC_NAMES = {
     "w": "width",
@@ -65,6 +76,7 @@ DIAGNOSTIC_NAMES = {
     "ob": "objects",
     "ti": "triangles_submitted",
     "tz": "triangles_z_rejected",
+    "tfr": "triangles_frustum_rejected",
     "tf": "triangles_backface_rejected",
     "td": "triangles_degenerate",
     "to": "triangles_bbox_rejected",
@@ -110,8 +122,12 @@ def parse_diagnostics(tail: str) -> dict[str, int] | None:
             )
         fields[key] = int(value)
 
-    missing = set(DIAGNOSTIC_KEYS) - fields.keys()
-    unknown = fields.keys() - set(DIAGNOSTIC_KEYS)
+    version = fields.get("d")
+    if version not in DIAGNOSTIC_KEYS_BY_VERSION:
+        raise ValueError(f"unsupported diagnostic schema version {version}")
+    expected_keys = set(DIAGNOSTIC_KEYS_BY_VERSION[version])
+    missing = expected_keys - fields.keys()
+    unknown = fields.keys() - expected_keys
     if missing:
         raise ValueError(
             "diagnostic record is missing fields: " + ", ".join(sorted(missing))
@@ -120,14 +136,13 @@ def parse_diagnostics(tail: str) -> dict[str, int] | None:
         raise ValueError(
             "diagnostic record has unknown fields: " + ", ".join(sorted(unknown))
         )
-    if fields["d"] != 1:
-        raise ValueError(f"unsupported diagnostic schema version {fields['d']}")
     if fields["w"] <= 0 or fields["h"] <= 0:
         raise ValueError("diagnostic dimensions must be positive")
     if fields["fmt"] not in (2, 8):
         raise ValueError("diagnostic fmt must be 2 (RGBA2222) or 8 (RGBA8888)")
     if fields["ti"] != (
         fields["tz"]
+        + fields.get("tfr", 0)
         + fields["tf"]
         + fields["td"]
         + fields["to"]
@@ -322,6 +337,9 @@ def build_summary(
 
     run_residuals: list[tuple[int, int]] | None = None
     if run_diagnostics is not None:
+        schema_versions = {item["d"] for item in run_diagnostics}
+        if len(schema_versions) != 1:
+            raise ValueError("selected diagnostic run changes schema version")
         identities = {
             (item["w"], item["h"], item["fmt"])
             for item in run_diagnostics
@@ -347,18 +365,28 @@ def build_summary(
         ]
 
     durations = [duration for _, _, duration, _ in measured]
-    step = int(profile["rotation_step_degrees"])
     frames = []
     for index, (_, _, duration, _) in enumerate(measured):
         frame_in_series = index % measured_count
-        frames.append(
-            {
-                "series": index // measured_count,
-                "frame": frame_in_series,
-                "angle_deg": frame_in_series * step,
-                "render_us": duration,
-            }
-        )
+        frame = {
+            "series": index // measured_count,
+            "frame": frame_in_series,
+            "render_us": duration,
+        }
+        if "frames_per_orbit" in profile:
+            orbit_degrees = (
+                frame_in_series * 360.0 / int(profile["frames_per_orbit"])
+            )
+            frame["orbit_angle_deg"] = orbit_degrees
+            frame["orbit_revolution"] = orbit_degrees / 360.0
+        else:
+            step = int(profile["rotation_step_degrees"])
+            angle_degrees = frame_in_series * step
+            frame["angle_deg"] = angle_degrees
+            translation = motion_translation(profile, angle_degrees)
+            if translation is not None:
+                frame["translation_words"] = list(translation)
+        frames.append(frame)
 
     if run_diagnostics is not None and run_residuals is not None:
         measured_diagnostics = [
@@ -446,7 +474,8 @@ def build_summary(
             key: sum(item[key] for item in measured_diagnostics)
             for key in timing_keys
         }
-        counter_keys = (
+        schema_version = measured_diagnostics[0]["d"]
+        counter_keys = [
             "ob",
             "ti",
             "tz",
@@ -461,7 +490,9 @@ def build_summary(
             "pd",
             "pu",
             "ps",
-        )
+        ]
+        if schema_version >= 2:
+            counter_keys.insert(3, "tfr")
         counter_totals = {
             key: sum(item[key] for item in measured_diagnostics)
             for key in counter_keys
@@ -501,7 +532,7 @@ def build_summary(
             return value / denominator if denominator else 0.0
 
         summary["renderer_diagnostics"] = {
-            "schema_version": 1,
+            "schema_version": schema_version,
             "measurement_warning": (
                 "Instrumented timings and counters are attribution data; "
                 "compare ordinary firmware for release performance."
@@ -599,6 +630,10 @@ def build_summary(
                 counter_totals["ps"], counter_totals["pc"]
             ),
         }
+        if schema_version >= 2:
+            summary["renderer_diagnostics"]["triangle_outcome_ratios"][
+                "frustum_rejected"
+            ] = share(counter_totals["tfr"], counter_totals["ti"])
     return summary
 
 
@@ -625,7 +660,7 @@ def main() -> int:
     parser.add_argument(
         "--require-diagnostics",
         action="store_true",
-        help="reject a selected run without complete version-1 diagnostics",
+        help="reject a selected run without a complete supported diagnostic schema",
     )
     args = parser.parse_args()
 
@@ -687,6 +722,26 @@ def main() -> int:
             f"reciprocal-W reject "
             f"{diagnostics['reciprocal_w_reject_ratio']:.1%}, "
             f"shaded {diagnostics['shade_ratio']:.1%}"
+        )
+        triangle_ratios = diagnostics["triangle_outcome_ratios"]
+        outcomes = [
+            f"near/camera {triangle_ratios['z_rejected']:.1%}",
+        ]
+        if "frustum_rejected" in triangle_ratios:
+            outcomes.append(
+                f"frustum {triangle_ratios['frustum_rejected']:.1%}"
+            )
+        outcomes.extend(
+            (
+                f"backface {triangle_ratios['backface_rejected']:.1%}",
+                f"degenerate {triangle_ratios['degenerate']:.1%}",
+                f"bbox {triangle_ratios['bbox_rejected']:.1%}",
+                f"rasterized {triangle_ratios['rasterized']:.1%}",
+            )
+        )
+        print(
+            f"Triangle outcomes (schema {diagnostics['schema_version']}): "
+            + ", ".join(outcomes)
         )
     if args.json_output:
         args.json_output.write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
