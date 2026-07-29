@@ -1,0 +1,129 @@
+{
+  "schema_version": 1,
+  "generated_utc": "2026-07-29T21:41:30Z",
+  "profile": {
+    "key": "quick",
+    "description": "Shortened 507-frame near-plane development chain",
+    "frames_per_run": 507,
+    "stream_end_sequences": {
+      "1257": 217,
+      "1410": 288
+    }
+  },
+  "baseline": {
+    "label": "Working pre-Hecker baseline (Console8)",
+    "log": "benchmarks/render-spin/results/working-pre-hecker-shared-507-derived.log",
+    "log_sha256": "3050d85c553778bc68b150e8b2f4f85a27c389647654b2be6f24b576b8bf8309",
+    "complete_runs": {
+      "1257": 3,
+      "1410": 3
+    }
+  },
+  "candidate": {
+    "label": "Latest incremental-depth firmware (Olimex)",
+    "log": "benchmarks/render-spin/results/olimex-subdivided-affine-plus-incremental-depth-two-run-hardware-2026-07-29.log",
+    "log_sha256": "ac942bea73aea8ffde1320ab74084f327fc55c4850c00cbf1c57820c3e1a940d",
+    "complete_runs": {
+      "1257": 2,
+      "1410": 2
+    }
+  },
+  "rows": [
+    {
+      "fixture": "Cube",
+      "frames": 36,
+      "baseline": {
+        "mean_us": 203380.00925925927,
+        "fps": 4.916904093190629,
+        "run_spread_us": 9.027777777781012
+      },
+      "candidate": {
+        "mean_us": 84462.44444444444,
+        "fps": 11.839581562877388,
+        "run_spread_us": 0.8333333333284827
+      },
+      "fps_gain_percent": 140.79342078837587,
+      "render_time_change_percent": -58.4706261190225
+    },
+    {
+      "fixture": "EarthUV",
+      "frames": 36,
+      "baseline": {
+        "mean_us": 144026.55555555556,
+        "fps": 6.9431640307073,
+        "run_spread_us": 5.111111111124046
+      },
+      "candidate": {
+        "mean_us": 86301.04166666666,
+        "fps": 11.587345652934859,
+        "run_spread_us": 0.19444444445252884
+      },
+      "fps_gain_percent": 66.88854824238477,
+      "render_time_change_percent": -40.07977116874281
+    },
+    {
+      "fixture": "Earth party ellipse",
+      "frames": 289,
+      "baseline": {
+        "mean_us": 174820.1049596309,
+        "fps": 5.72016588269935,
+        "run_spread_us": 0.6366782006807625
+      },
+      "candidate": {
+        "mean_us": 124822.79584775087,
+        "fps": 8.011357166039785,
+        "run_spread_us": 0.4705882353009656
+      },
+      "fps_gain_percent": 40.05463006361663,
+      "render_time_change_percent": -28.599290180854954
+    },
+    {
+      "fixture": "Cube near-plane",
+      "frames": 73,
+      "baseline": {
+        "mean_us": 263422.47488584474,
+        "fps": 3.796183299976034,
+        "run_spread_us": 11.054794520547148
+      },
+      "candidate": {
+        "mean_us": 99534.50684931508,
+        "fps": 10.046767012307564,
+        "run_spread_us": 6.0547945205617
+      },
+      "fps_gain_percent": 164.65442309835225,
+      "render_time_change_percent": -62.214876732727994
+    },
+    {
+      "fixture": "EarthUV near-plane",
+      "frames": 73,
+      "baseline": {
+        "mean_us": 225860.85388127854,
+        "fps": 4.427504734953494,
+        "run_spread_us": 4.465753424650757
+      },
+      "candidate": {
+        "mean_us": 104019.82876712328,
+        "fps": 9.613551683869547,
+        "run_spread_us": 0.3150684931461001
+      },
+      "fps_gain_percent": 117.13249921505789,
+      "render_time_change_percent": -53.945171560451
+    },
+    {
+      "fixture": "All quick-chain frames (weighted)",
+      "frames": 507,
+      "baseline": {
+        "mean_us": 194767.90861275478,
+        "fps": 5.134316054028384,
+        "run_spread_us": 2.118343195266789
+      },
+      "candidate": {
+        "mean_us": 112585.28599605523,
+        "fps": 8.882155346969924,
+        "run_spread_us": 1.2307692307658726
+      },
+      "fps_gain_percent": 72.99588209029295,
+      "render_time_change_percent": -42.195155866307665
+    }
+  ]
+}
