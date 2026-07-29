@@ -128,9 +128,10 @@ Build a profile from anywhere:
 
 Profiles select geometry, texture format, render-target format, dimensions,
 IDs, scale, camera, resolution, warmups, frame count, rotation axis, and
-angular step. The generator copies provenance-marked model/helpers into a
-self-contained `src/`, copies the texture into `tgt/`, expands deterministic
-absolute poses, and invokes `ez80asm`.
+angular step. `series_runs` selects how many complete warmup-plus-revolution
+series execute in one invocation. The generator copies provenance-marked
+model/helpers into a self-contained `src/`, copies the texture into `tgt/`,
+expands deterministic absolute poses, and invokes `ez80asm`.
 
 Reserved IDs distinguish benchmark traffic:
 
@@ -138,9 +139,17 @@ Reserved IDs distinguish benchmark traffic:
 control=1300, texture=1256, measured target=1257, warmup target=1258
 ```
 
-The summarizer recognizes eight `bmid=1258` records followed by 36
-`bmid=1257` records. It rejects incomplete runs and ignores resets, repeated
-runs, and interactive render traffic in the same log.
+The qualified profiles repeat five times. For each series, the summarizer
+recognizes eight `bmid=1258` records followed by 36 `bmid=1257` records. It
+requires all five contiguous series, rejects incomplete suites, and ignores
+resets and interactive render traffic outside the selected suite.
+
+With the compile-time Pingo diagnostic firmware, the same prefix carries a
+version-1 suffix containing renderer phase times and workload counters.
+`summarize_render_benchmark.py --require-diagnostics` strictly validates that
+suffix and emits attribution ratios while remaining compatible with ordinary
+three-field records. Capture different model profiles separately for now:
+their common IDs and 8+36 signature do not make a chained log self-identifying.
 
 ## HeavyTank generation
 
@@ -201,7 +210,10 @@ The current pipeline is accepted when:
 6. strict command-scope and native renderer smoke tests pass; and
 7. cube and HeavyTank pass visual review on hardware and the isolated emulator;
 8. both render-spin profiles assemble; and
-9. a mixed synthetic log yields only the bitmap-tagged benchmark signature.
+9. a mixed synthetic log yields only the bitmap-tagged benchmark signature;
+   and
+10. the benchmark-parser unit tests accept ordinary and complete diagnostic
+    records while rejecting malformed schemas and broken counter partitions.
 
 ## Known limitations
 

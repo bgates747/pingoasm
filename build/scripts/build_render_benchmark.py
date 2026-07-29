@@ -90,6 +90,9 @@ def load_profile(path: Path) -> dict[str, Any]:
         raise ValueError("camera_pose needs 3 values and resolution needs 2")
     if profile["measured_frames"] * profile["rotation_step_degrees"] != 360:
         raise ValueError("measured_frames * rotation_step_degrees must equal 360")
+    series_runs = int(profile.get("series_runs", 1))
+    if not 1 <= series_runs <= 255:
+        raise ValueError("series_runs must be between 1 and 255")
     return profile
 
 
@@ -186,6 +189,7 @@ objbmid: equ {profile["texture_bitmap_id"]}
 tgtbmid: equ {profile["target_bitmap_id"]}
 warmupbmid: equ {profile["warmup_target_bitmap_id"]}
 obj_scale: equ {profile["object_scale"]}
+benchmark_series_runs: equ {int(profile.get("series_runs", 1))}
 
 benchmark_texture_width: equ {profile["texture_width"]}
 benchmark_texture_height: equ {profile["texture_height"]}
@@ -232,7 +236,14 @@ main:
     ld iy,{camera_z}
     call scdabs
 
+    ld a,benchmark_series_runs
+benchmark_series_loop:
+    push af
 {pose_code}\
+    pop af
+    dec a
+    jp nz,benchmark_series_loop
+
     xor a
     call vdu_set_screen_mode
     ld a,1

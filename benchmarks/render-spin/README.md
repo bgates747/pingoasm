@@ -38,8 +38,10 @@ The generated source is self-contained and carries provenance banners. The
 
 To define another workload, copy a JSON file under `profiles/` and change its
 model, texture, texture format, target format, dimensions, scale, camera, or
-rotation settings. The generator deliberately keeps texture and target metadata
-outside the geometry include.
+rotation settings. `series_runs` controls how many complete warmup-plus-
+revolution series execute in one invocation; the qualified profiles use five.
+The generator deliberately keeps texture and target metadata outside the
+geometry include.
 
 The initial profiles demonstrate reuse:
 
@@ -75,10 +77,17 @@ payload at 204,800 bytes and provides a valid like-for-like firmware test.
 
 Copy the fixture's `tgt` files to one directory on the hardware SD card and run
 `benchmark.bin`. Hardware is the authoritative performance target. The program
-performs its warmups, renders the configured revolution without input, restores
-the normal display mode, and exits to MOS.
+performs the configured number of complete series; each series performs its
+warmups and renders one revolution without input. It restores the normal
+display mode and exits to MOS only after all series finish.
 
-Pingo command 38 emits one firmware diagnostic per render:
+The generated assembly defines `benchmark_series_runs` with `EQU`. It loads
+that value into `A`, saves it across the unrolled render sequence on the stack,
+then restores, decrements, and loops while nonzero. This deliberately keeps the
+individual poses unrolled and makes repetition cheap without imposing that
+benchmark-specific idiom on production applications.
+
+Ordinary firmware emits one stable timing record per Pingo command 38:
 
 ```text
 PINGO_RENDER seq=0 bmid=1258 render_us=123456
@@ -87,8 +96,9 @@ PINGO_RENDER seq=0 bmid=1258 render_us=123456
 The interval contains only `rendererRender()`. It excludes bitmap copying,
 display, buffer flip, VDU parsing, and the diagnostic itself. Generated
 fixtures reserve separate warmup and measured target bitmap IDs. The
-summarizer recognizes the resulting 8-warmup/36-measured signature, so
-unrelated interactive renders in the same log are ignored.
+summarizer recognizes the profile-declared number of consecutive
+8-warmup/36-measured signatures, so unrelated interactive renders in the same
+log are ignored.
 
 Start the reconnecting debug listener before running a hardware fixture:
 
@@ -136,10 +146,112 @@ python3 build/scripts/summarize_render_benchmark.py \
   --json-output cube-hardware.json
 ```
 
-The summarizer finds the latest complete tagged benchmark sequence, removes the
-profile-declared warmups, assigns angles to measured frames, validates the count
-and ordering, and reports total, minimum, mean, median, population standard
-deviation, p95, maximum, and equivalent mean FPS.
+The summarizer finds the latest complete tagged benchmark suite, removes each
+series' profile-declared warmups, assigns series and angle identities to every
+measured frame, validates the count and ordering, and reports aggregate and
+per-series statistics. Those include total, minimum, mean, median, population
+standard deviation, p95, maximum, and equivalent mean FPS.
+
+The profiles previously described one series, so historical raw logs contain
+only one 8+36 signature. Reparse one of those without editing its durable
+profile by adding `--series-runs 1`.
+
+## Renderer-attribution diagnostics
+
+The separate `esp32dev-pingo-diag` firmware variant appends versioned phase
+timings and workload counters to the same stable record prefix. Capture one
+model per log initially: the current model profiles deliberately reuse the
+same bitmap IDs and frame signature, so a chained multi-model log does not
+identify which complete run belongs to which model.
+
+Require and summarize the extended schema with:
+
+```bash
+python3 build/scripts/summarize_render_benchmark.py \
+  benchmarks/render-spin/profiles/cube-rgba2222.json \
+  hardware-console.log \
+  --require-diagnostics \
+  --platform hardware \
+  --firmware "pingo-codex diagnostic" \
+  --json-output cube-diagnostics.json
+```
+
+The parser validates the schema and both counter partitions before computing
+renderer-phase shares, raster coverage, depth-rejection, and shade ratios.
+Per-frame raw counters and timings are retained in the JSON. Run its regression
+tests with:
+
+```bash
+PYTHONDONTWRITEBYTECODE=1 \
+  .venv/bin/python -m unittest \
+  build/scripts/test_summarize_render_benchmark.py
+```
+
+Diagnostic builds add clocks and counters and therefore are for attribution,
+not release-speed comparisons. Measure observer effect by running the same
+fixture under ordinary firmware. The diagnostic command timer ends when the
+selected target bitmap is ready; later display and buffer-flip commands are
+outside its scope. The authoritative field definitions and firmware workflow
+are in `agon-vdp/docs/pingo-render-diagnostics.md`.
+
+## Qualified five-series diagnostics
+
+The first qualified hardware suite used the RGBA2222 Cube profile and
+diagnostic firmware. All 220 records arrived contiguously: five repetitions of
+eight warmups plus 36 measured frames. The aggregate over 180 measured frames
+was:
+
+| Measurement | Result |
+| --- | ---: |
+| Mean renderer time | 209.210 ms |
+| Equivalent rate | 4.780 FPS |
+| Clear share | 12.751% |
+| Transform share | 0.319% |
+| Triangle-setup share | 0.088% |
+| Raster share | 86.751% |
+| Bounding-box coverage | 47.665% |
+| Backface rejected | 72.222% |
+| Rasterized triangles | 27.778% |
+
+The five series means ranged only from 209.208 to 209.212 ms, a 3.94 µs or
+0.0019% span. This is diagnostic attribution, not a release-speed comparison.
+The durable summary is
+`results/cube-rgba2222-diagnostics-hardware-2026-07-28.json`; its raw serial
+capture is retained beside it locally.
+
+The matching EarthIco suite also delivered all 220 records and passed every
+strict invariant:
+
+| Measurement | Cube | EarthIco | EarthUV |
+| --- | ---: | ---: | ---: |
+| Mean renderer time | 209.210 ms | 99.441 ms | 150.039 ms |
+| Equivalent rate | 4.780 FPS | 10.056 FPS | 6.665 FPS |
+| Clear mean | 26.676 ms | 26.673 ms | 26.669 ms |
+| Transform mean | 0.668 ms | 0.695 ms | 11.966 ms |
+| Triangle-setup mean | 0.185 ms | 0.206 ms | 2.184 ms |
+| Raster mean | 181.492 ms | 71.667 ms | 108.436 ms |
+| Bounding-box candidates | 14,595,160 | 6,347,485 | 9,744,415 |
+| Covered fragments | 6,956,760 | 2,695,105 | 3,651,825 |
+| Bounding-box coverage | 47.665% | 42.459% | 37.476% |
+| Submitted triangles | 2,160 | 3,600 | 172,800 |
+| Rasterized triangles | 600 | 1,560 | 62,420 |
+
+The clear cost is effectively identical, as expected for equal 320×240
+targets. EarthIco submits and rasterizes more triangles, yet Cube visits 2.30
+times as many bounding-box candidates and shades 2.58 times as many
+fragments. This directly shows that the present renderer is dominated by
+screen-space raster workload rather than raw triangle count for these models.
+EarthIco's five series means span 9.69 µs, or 0.0097%. Its durable summary is
+`results/earthico-rgba2222-diagnostics-hardware-2026-07-28.json`.
+
+EarthUV supplies the complementary geometry-heavy result. It submits 48 times
+as many triangles as EarthIco, raising transform plus setup from 0.9% to 9.4%
+of frame time, but visits only 1.54 times as many bounding-box pixels. Its
+raster phase remains the largest cost at 72.3%. Compared with Cube, EarthUV
+submits 80 times as many triangles while testing only two thirds as many
+bounding-box pixels and completing 28.3% sooner. EarthUV's five series means
+span 35.47 µs, or 0.0236%. Its durable summary is
+`results/earthuv-rgba2222-diagnostics-hardware-2026-07-28.json`.
 
 Do not compare emulator timings as ESP32 performance. The same fixture may be
 run there for correctness and for emulator-specific regression measurements

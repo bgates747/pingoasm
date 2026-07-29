@@ -48,6 +48,7 @@ objbmid: equ 1256
 tgtbmid: equ 1257
 warmupbmid: equ 1258
 obj_scale: equ 1280
+benchmark_series_runs: equ 5
 
 benchmark_texture_width: equ 320
 benchmark_texture_height: equ 160
@@ -94,6 +95,9 @@ main:
     ld iy,3200
     call scdabs
 
+    ld a,benchmark_series_runs
+benchmark_series_loop:
+    push af
     ; warmup frame 00, 000 degrees
     ld hl,oid
     ld bc,0
@@ -445,6 +449,10 @@ main:
     ld iy,0
     call sorabs
     call render_frame
+
+    pop af
+    dec a
+    jp nz,benchmark_series_loop
 
     xor a
     call vdu_set_screen_mode
