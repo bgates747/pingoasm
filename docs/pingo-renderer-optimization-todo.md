@@ -124,8 +124,11 @@ helpers once per affected triangle.
 3.3 [ ] Hoist framebuffer half-width, half-height, material state, and other
 object-invariant values out of the triangle loop.
 
-3.4 [ ] Evaluate a guarded `vec3Normalize` improvement: one square root, one
-reciprocal, and three multiplies instead of three software divisions.
+3.4 [x] Evaluate and retain the guarded upstream `vec3Normalize` improvement:
+one square root, one reciprocal, and three multiplies instead of three
+software divisions. Zero and exact-unit inputs have explicit fast paths.
+Native tests and emulator target equivalence pass; hardware qualification
+remains part of item 8.2.
 
 3.5 [ ] Cache framebuffer and z-buffer pointers and avoid repeated backend
 callback lookup in the fragment loop. Compute and increment a linear pixel
@@ -136,9 +139,11 @@ raster loop can use one bitwise-OR coverage test. Account explicitly for the
 viewport Y reflection and integer overflow; copying upstream's positive-area
 test directly would be wrong.
 
-3.7 [ ] Evaluate model/view/projection composition outside the triangle loop.
-Keep lighting-space semantics and floating-point ordering under explicit
-correctness tests rather than folding this into the simpler hoists.
+3.7 [x] Evaluate and retain a locally derived view/projection composition
+outside the triangle loop. It is computed once per object, preserves
+model-space lighting, and is covered by a nontrivial sequential-versus-composed
+math test and final-target equivalence. Hardware qualification remains part of
+item 8.2.
 
 3.8 [ ] Treat each item above as its own A/B experiment. EarthUV is the primary
 geometry-pressure fixture; Cube remains the primary raster-pressure and visual
@@ -186,18 +191,28 @@ covers less screen area than the previous one.
 
 ## Phase 5: upstream math changes
 
-5.1 [ ] Diff each upstream vector and matrix change against the TurboVega-era
+5.1 [x] Diff each upstream vector and matrix change against the TurboVega-era
 math retained by this port.
 
-5.2 [ ] Separate correctness repairs, API refactors, desktop/SIMD assumptions,
+5.2 [x] Separate correctness repairs, API refactors, desktop/SIMD assumptions,
 and genuine scalar ESP32 optimizations.
 
-5.3 [ ] Add equivalence and edge-case tests before replacing one routine at a
+5.3 [x] Add equivalence and edge-case tests before replacing one routine at a
 time.
 
 5.4 [ ] Benchmark math routines in isolation and then measure whole-frame
 hardware impact. Upstream desktop percentage claims are hypotheses, not Agon
-results.
+results. Same-host emulator screening and attribution are complete for the
+accepted candidates; embedded visual and timing qualification remain.
+
+5.5 [x] Reject upstream's incompatible `Entity`/callback object-model rewrite,
+camera inversion in the renderer, scale-only inverse without a zero guard,
+and matrix composition performed inside the triangle loop.
+
+5.6 [x] Preserve provenance for accepted adaptations and durable evidence for
+rejected candidates. The accepted sources are `fb67d951` for normalization
+and translation-only inverse, plus a locally derived view/projection
+composition inspired by upstream `a0ed0cb`.
 
 ## Phase 6: raster-loop evolution
 

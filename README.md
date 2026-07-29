@@ -136,9 +136,30 @@ Hardware is the only copy deployment:
 It replaces `apps/<app>/tgt` at the matching mounted SD path, normally beneath
 `/media/smith/AGON`. Deployment never edits `autoexec.txt`.
 
-The local `~/copy_to_sd.sh` helper currently replaces the hardware copy of the
-generated asynchronous Cube target and selects `async_cube.bin` for automatic
-execution in `autoexec.txt`.
+Generated benchmark fixtures use a deliberately short, runtime-only hardware
+layout:
+
+```text
+/pingo/<fixture>/benchmark.bin
+/pingo/<fixture>/<texture files>
+```
+
+There is no source-tree hierarchy or redundant `tgt` directory on the card.
+The render-spin and orbit-scene deployers replace only the named fixture
+directories within the shared `/pingo` root, so the two suites coexist.
+Fixture names form one global hardware namespace; both deployers reject a name
+that exists in the other suite:
+
+```bash
+.venv/bin/python build/scripts/deploy_render_benchmark_suite.py
+.venv/bin/python build/scripts/deploy_orbit_scene.py \
+  earth-party-camera-ellipse-rgba2222
+```
+
+These benchmark deployers intentionally select their fixture or suite in
+`autoexec.txt`. The local `~/copy_to_sd.sh` helper uses the same `/pingo`
+convention for every built render-spin fixture and selects the requested
+fixture, defaulting to `cube-rgba2222`.
 
 Refresh the isolated VDP snapshot only after hardware passes:
 

@@ -39,7 +39,9 @@ The generated source is self-contained and carries provenance banners. The
 To define another workload, copy a JSON file under `profiles/` and change its
 model, texture, texture format, target format, dimensions, scale, camera, or
 rotation settings. `series_runs` controls how many complete warmup-plus-
-revolution series execute in one invocation; the qualified profiles use five.
+revolution series execute in one invocation. The overnight regression profiles
+use one series and no warmups; historical statistical baselines retain their
+five-series evidence in `results/`.
 The generator deliberately keeps texture and target metadata outside the
 geometry include.
 
@@ -87,6 +89,18 @@ All results are rounded to signed 16-bit VDU words. The generator rejects a
 declared range that could exceed those limits. Translation is sent before
 rotation for every pose; neither operation relies on firmware accumulation.
 
+An optional `camera_linear_motion` object defines `start` and `turnaround`
+three-component camera positions. Over one series, the generator linearly
+interpolates `start -> turnaround -> start` and emits an absolute camera pose
+before each render. An odd measured-frame count places one frame exactly at
+the turnaround. Cube, EarthUV, Jet, and Airliner have near-plane profiles.
+Each uses 73 poses at 10-degree steps: two complete object revolutions,
+including the closing 720-degree pose, while the camera performs one
+`(0,0,3200) -> (0,0,0) -> (0,0,3200)` cycle. The exact 360-degree midpoint
+places the camera at the mesh center, and the final pose restores both camera
+and object phase. These are clipping/correctness fixtures, not stationary
+performance controls.
+
 The benchmark loader stages a complete texture in eZ80 RAM before uploading
 it. Applications begin at `0x40000`, and MOS exposes RAM through `0xBFFFF`, so
 the executable and staged texture must fit within approximately 512 KiB. A
@@ -97,11 +111,29 @@ payload at 204,800 bytes and provides a valid like-for-like firmware test.
 
 ## Run and capture
 
-Copy the fixture's `tgt` files to one directory on the hardware SD card and run
-`benchmark.bin`. Hardware is the authoritative performance target. The program
-performs the configured number of complete series; each series performs its
-warmups and renders one revolution without input. It restores the normal
-display mode and exits to MOS only after all series finish.
+Deploy the qualified suite to the mounted hardware SD card with:
+
+```bash
+python3 build/scripts/deploy_render_benchmark_suite.py
+```
+
+Each source `tgt` is flattened into the short runtime-only layout:
+
+```text
+/pingo/<fixture>/benchmark.bin
+/pingo/<fixture>/<texture files>
+```
+
+The deployer replaces only the named fixture directories under `/pingo`, so
+orbit-scene fixtures remain in place. It writes a sequential `autoexec.txt`
+for the selected suite. Render-spin and orbit-scene fixture names must remain
+globally unique because they share this flat hardware namespace; deployment
+rejects a collision.
+
+Hardware is the authoritative performance target. Each program performs the
+configured number of complete series; each series performs its warmups and
+renders one revolution without input. It restores the normal display mode and
+exits to MOS only after all series finish.
 
 The generated assembly defines `benchmark_series_runs` with `EQU`. It loads
 that value into `A`, saves it across the unrolled render sequence on the stack,
@@ -118,9 +150,8 @@ PINGO_RENDER seq=0 bmid=1258 render_us=123456
 The interval contains only `rendererRender()`. It excludes bitmap copying,
 display, buffer flip, VDU parsing, and the diagnostic itself. Generated
 fixtures reserve separate warmup and measured target bitmap IDs. The
-summarizer recognizes the profile-declared number of consecutive
-8-warmup/36-measured signatures, so unrelated interactive renders in the same
-log are ignored.
+summarizer recognizes the profile-declared warmup, measured-frame, and series
+counts, so unrelated interactive renders in the same log are ignored.
 
 Start the reconnecting debug listener before running a hardware fixture:
 

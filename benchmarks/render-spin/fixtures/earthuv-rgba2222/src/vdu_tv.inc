@@ -227,6 +227,26 @@ scdabs:
 @z: dw 0x0000
 @end: db 0x00 ; padding
 
+; set pingo camera rotation angles
+; inputs: bc anglex, de angley, iy anglez
+scrabs:
+    ld (@rx),bc
+    ld (@ry),de
+    ld (@rz),iy
+    ld hl,@beg
+    ld bc,@end-@beg
+    rst.lil $18
+    ret
+@beg:
+; VDU 23, 0, &A0, sid; &49, 21, anglex; angley; anglez; Set Camera XYZ Rotation Angles
+    db 23,0,$A0
+    dw sid
+    db $49,21
+@rx: dw 0x0000
+@ry: dw 0x0000
+@rz: dw 0x0000
+@end: db 0x00 ; padding
+
 ; set pingo object distance
 ; inputs: hl oid, bc distx, de disty, iy distz
 sodabs:

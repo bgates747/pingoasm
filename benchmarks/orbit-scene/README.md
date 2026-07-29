@@ -69,6 +69,28 @@ cleanly. A subsequent 2.5-degree hardware review completed all 289 poses with
 stable model identities and correct motion. Emulator timings are never
 reported as ESP32 performance.
 
+## Hardware SD card
+
+Deploy one generated orbit fixture with:
+
+```bash
+.venv/bin/python build/scripts/deploy_orbit_scene.py \
+  earth-party-camera-ellipse-rgba2222
+```
+
+The source `tgt` contents are copied directly into:
+
+```text
+/pingo/<fixture>/benchmark.bin
+/pingo/<fixture>/<texture files>
+```
+
+There is no project-source hierarchy or redundant `tgt` directory on the
+hardware card. The deployer replaces only the selected fixture directory,
+preserves render-spin fixtures sharing `/pingo`, and selects only this
+application in `autoexec.txt`. Orbit-scene and render-spin fixture names must
+remain globally unique; deployment rejects a collision.
+
 ## Capture
 
 The generated effective profile is directly consumable by the common

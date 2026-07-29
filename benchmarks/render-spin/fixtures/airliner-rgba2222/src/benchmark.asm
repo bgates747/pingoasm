@@ -48,7 +48,7 @@ objbmid: equ 1256
 tgtbmid: equ 1257
 warmupbmid: equ 1258
 obj_scale: equ 1280
-benchmark_series_runs: equ 5
+benchmark_series_runs: equ 1
 
 benchmark_texture_width: equ 512
 benchmark_texture_height: equ 512
@@ -98,70 +98,6 @@ main:
     ld a,benchmark_series_runs
 benchmark_series_loop:
     push af
-    ; warmup frame 00, 000 degrees
-    ld hl,oid
-    ld bc,0
-    ld de,0
-    ld iy,0
-    call sorabs
-    call render_warmup_frame
-
-    ; warmup frame 01, 010 degrees
-    ld hl,oid
-    ld bc,0
-    ld de,910
-    ld iy,0
-    call sorabs
-    call render_warmup_frame
-
-    ; warmup frame 02, 020 degrees
-    ld hl,oid
-    ld bc,0
-    ld de,1820
-    ld iy,0
-    call sorabs
-    call render_warmup_frame
-
-    ; warmup frame 03, 030 degrees
-    ld hl,oid
-    ld bc,0
-    ld de,2731
-    ld iy,0
-    call sorabs
-    call render_warmup_frame
-
-    ; warmup frame 04, 040 degrees
-    ld hl,oid
-    ld bc,0
-    ld de,3641
-    ld iy,0
-    call sorabs
-    call render_warmup_frame
-
-    ; warmup frame 05, 050 degrees
-    ld hl,oid
-    ld bc,0
-    ld de,4551
-    ld iy,0
-    call sorabs
-    call render_warmup_frame
-
-    ; warmup frame 06, 060 degrees
-    ld hl,oid
-    ld bc,0
-    ld de,5461
-    ld iy,0
-    call sorabs
-    call render_warmup_frame
-
-    ; warmup frame 07, 070 degrees
-    ld hl,oid
-    ld bc,0
-    ld de,6371
-    ld iy,0
-    call sorabs
-    call render_warmup_frame
-
     ; measured frame 00, 000 degrees
     ld hl,oid
     ld bc,0

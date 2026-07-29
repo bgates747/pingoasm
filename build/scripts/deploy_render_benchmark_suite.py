@@ -11,7 +11,10 @@ from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 FIXTURES_ROOT = PROJECT_ROOT / "benchmarks" / "render-spin" / "fixtures"
-SD_FIXTURES_PATH = Path("mystuff/pingoasm/benchmarks/render-spin/fixtures")
+OTHER_FIXTURES_ROOT = (
+    PROJECT_ROOT / "benchmarks" / "orbit-scene" / "fixtures"
+)
+SD_FIXTURES_PATH = Path("pingo")
 EXECUTABLE = "benchmark.bin"
 DEFAULT_SUITE = (
     "cube-rgba2222",
@@ -45,12 +48,17 @@ def validate_suite(names: tuple[str, ...]) -> None:
         source = fixture_target(name)
         if not (source / EXECUTABLE).is_file():
             raise ValueError(f"fixture has not been built: {source / EXECUTABLE}")
+        if (OTHER_FIXTURES_ROOT / name).is_dir():
+            raise ValueError(
+                "fixture name collides in the shared /pingo namespace: "
+                f"{name}"
+            )
 
 
 def autoexec_lines(names: tuple[str, ...]) -> list[str]:
     lines = ["SET KEYBOARD 1"]
     for name in names:
-        mos_path = f"/{SD_FIXTURES_PATH.as_posix()}/{name}/tgt"
+        mos_path = f"/{SD_FIXTURES_PATH.as_posix()}/{name}"
         lines.extend((f"cd {mos_path}", f"load {EXECUTABLE}", "run"))
     return lines
 
@@ -60,12 +68,21 @@ def deploy(sd_root: Path, names: tuple[str, ...]) -> None:
     validate_suite(names)
 
     target_root = sd_root / SD_FIXTURES_PATH
-    if target_root.exists():
-        shutil.rmtree(target_root)
-    target_root.mkdir(parents=True)
+    if target_root.exists() and (
+        target_root.is_symlink() or not target_root.is_dir()
+    ):
+        raise ValueError(f"refusing unexpected deployment target: {target_root}")
+    target_root.mkdir(parents=True, exist_ok=True)
 
     for name in names:
-        shutil.copytree(fixture_target(name), target_root / name / "tgt")
+        destination = target_root / name
+        if destination.exists():
+            if destination.is_symlink() or not destination.is_dir():
+                raise ValueError(
+                    f"refusing unexpected fixture target: {destination}"
+                )
+            shutil.rmtree(destination)
+        shutil.copytree(fixture_target(name), destination)
 
     autoexec = sd_root / "autoexec.txt"
     payload = "\r\n".join(autoexec_lines(names)) + "\r\n"

@@ -1,0 +1,29 @@
+{
+  "name": "earthuv-near-plane-rgba2222",
+  "description": "High-detail Earth rotating twice while the camera makes one far-to-center-to-far pass",
+  "model_obj_source": "src/blender/earthuv.obj",
+  "texture_png_source": "src/blender/earth320x160.png",
+  "texture_filename": "earth320x160.rgba2",
+  "texture_format": "rgba2222",
+  "target_format": "rgba2222",
+  "texture_width": 320,
+  "texture_height": 160,
+  "control_id": 1300,
+  "texture_bitmap_id": 1256,
+  "target_bitmap_id": 1257,
+  "warmup_target_bitmap_id": 1258,
+  "object_scale": 1280,
+  "camera_pose": [0, 0, 3200],
+  "resolution": [320, 240],
+  "warmup_frames": 0,
+  "measured_frames": 73,
+  "series_runs": 1,
+  "rotation_axis": "y",
+  "rotation_step_degrees": 10,
+  "rotation_revolutions": 2,
+  "include_closing_pose": true,
+  "camera_linear_motion": {
+    "start": [0, 0, 3200],
+    "turnaround": [0, 0, 0]
+  }
+}

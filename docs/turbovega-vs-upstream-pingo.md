@@ -52,6 +52,48 @@ repairs on the exact TurboVega baseline.
 5. Entity/callback architecture and cosmetic API renames offer no immediate
    correctness or performance benefit to the Agon bridge.
 
+## Selective upstream sweep result — 2026-07-29
+
+Modern upstream was re-audited routine by routine against the
+`working-pre-optimization` lineage. The object-model concern was valid:
+wholesale adoption would mix camera, transform, traversal, UV-ownership, and
+backend semantics into an optimization experiment. No `Entity` or callback
+scene code was imported.
+
+The emulator-qualified candidate retains only:
+
+1. upstream `fb67d951`'s guarded `vec3Normalize` structure, replacing three
+   divisions with one reciprocal and three multiplies;
+2. that commit's exact translation-only matrix inverse, adapted so the same
+   predicate covers identity and excluding the unsafe scale-only path; and
+3. a locally derived `projection × view` composition performed once per
+   object. It is inspired by upstream lineage (`a0ed0cb`, with historical
+   antecedent `6d8dd2f`) but preserves model-space lighting and the Agon
+   camera-pose contract.
+
+Rejected measured candidates include arbitrary-input-W matrix-vector work,
+broad and narrow raster cleanups, general matrix-multiply identity/translation
+predicates, and additional renderer state to hoist the composed matrix from
+once per object to once per render. They were neutral or slower on the
+same-host ellipse workload. Upstream's object-model rewrite, renderer-side
+camera inversion, scale-only inverse without a zero guard, hard-coded far
+distance, and composition inside the triangle loop were rejected on semantic
+or safety grounds.
+
+The exact final candidate passed ordinary and diagnostic native suites. A
+temporary Cube probe found its final 76,800-byte RGBA2222 Pingo target
+byte-identical to the pre-sweep target:
+
+```text
+aa3033b451bd8fe6168a998073dd445738ec9ce1bd91b4a6dd515244b13fb859
+```
+
+On the five-object polar ellipse, exact final source averaged 713.496
+microseconds versus a pooled 785.110-microsecond pre-sweep control, a 9.12%
+same-host reduction. This is emulator screening evidence, not an ESP32
+performance claim. Human review of the five-object polar ellipse passed in the
+current emulator; hardware visual and timing qualification remain required.
+
 ## Decided coordinate contract
 
 1. World space is right-handed: `+X` right, `+Y` up, `+Z` toward the viewer.

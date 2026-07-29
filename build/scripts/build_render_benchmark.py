@@ -89,8 +89,18 @@ def load_profile(path: Path) -> dict[str, Any]:
         raise ValueError("control and bitmap IDs must be distinct")
     if len(profile["camera_pose"]) != 3 or len(profile["resolution"]) != 2:
         raise ValueError("camera_pose needs 3 values and resolution needs 2")
-    if profile["measured_frames"] * profile["rotation_step_degrees"] != 360:
-        raise ValueError("measured_frames * rotation_step_degrees must equal 360")
+    closing_pose = profile.get("include_closing_pose", False)
+    if not isinstance(closing_pose, bool):
+        raise ValueError("include_closing_pose must be boolean")
+    intervals = profile["measured_frames"] - (1 if closing_pose else 0)
+    revolutions = int(profile.get("rotation_revolutions", 1))
+    if revolutions < 1:
+        raise ValueError("rotation_revolutions must be positive")
+    if intervals * profile["rotation_step_degrees"] != 360 * revolutions:
+        raise ValueError(
+            "rotation intervals * rotation_step_degrees must equal "
+            "360 * rotation_revolutions"
+        )
     series_runs = int(profile.get("series_runs", 1))
     if not 1 <= series_runs <= 255:
         raise ValueError("series_runs must be between 1 and 255")
@@ -141,6 +151,34 @@ def load_profile(path: Path) -> dict[str, Any]:
                 raise ValueError(
                     "translation_motion exceeds the -32767..32767 VDU range"
                 )
+    camera_motion = profile.get("camera_linear_motion")
+    if camera_motion is not None:
+        if not isinstance(camera_motion, dict):
+            raise ValueError("camera_linear_motion must be an object")
+        required_camera_motion = {"start", "turnaround"}
+        if set(camera_motion) != required_camera_motion:
+            raise ValueError(
+                "camera_linear_motion requires exactly start and turnaround"
+            )
+        for field in sorted(required_camera_motion):
+            values = camera_motion[field]
+            if (
+                not isinstance(values, list)
+                or len(values) != 3
+                or not all(
+                    not isinstance(value, bool) and isinstance(value, (int, float))
+                    for value in values
+                )
+                or not all(math.isfinite(value) for value in values)
+            ):
+                raise ValueError(
+                    f"camera_linear_motion.{field} needs three finite numeric values"
+                )
+            if any(value < -32767 or value > 32767 for value in values):
+                raise ValueError(
+                    f"camera_linear_motion.{field} exceeds the "
+                    "-32767..32767 VDU range"
+                )
     return profile
 
 
@@ -178,12 +216,32 @@ def motion_translation(
     return values[0], values[1], values[2]
 
 
+def camera_linear_translation(
+    profile: dict[str, Any], index: int, frame_count: int
+) -> tuple[int, int, int] | None:
+    """Interpolate start -> turnaround -> start over one series."""
+    motion = profile.get("camera_linear_motion")
+    if motion is None:
+        return None
+    if frame_count < 2:
+        return tuple(round(value) for value in motion["start"])
+    phase = index / (frame_count - 1)
+    fraction = phase * 2.0 if phase <= 0.5 else (1.0 - phase) * 2.0
+    return tuple(
+        round(start + (turnaround - start) * fraction)
+        for start, turnaround in zip(
+            motion["start"], motion["turnaround"], strict=True
+        )
+    )
+
+
 def render_pose(
     axis: str,
     degrees: int,
     role: str,
     index: int,
     translation: tuple[int, int, int] | None = None,
+    camera_translation: tuple[int, int, int] | None = None,
 ) -> str:
     registers = [
         value.format(angle=str(angle_word(degrees)))
@@ -202,9 +260,20 @@ def render_pose(
             f"    ld iy,{z}\n"
             "    call sodabs\n"
         )
+    camera_code = ""
+    if camera_translation is not None:
+        camera_x, camera_y, camera_z = camera_translation
+        comment += f", camera translation ({camera_x}, {camera_y}, {camera_z})"
+        camera_code = (
+            f"    ld bc,{camera_x}\n"
+            f"    ld de,{camera_y}\n"
+            f"    ld iy,{camera_z}\n"
+            "    call scdabs\n"
+        )
     return (
         comment + "\n"
         + translation_code
+        + camera_code
         + "    ld hl,oid\n"
         f"    ld bc,{registers[0]}\n"
         f"    ld de,{registers[1]}\n"
@@ -231,6 +300,7 @@ def assembly(profile: dict[str, Any], profile_path: Path, texture_name: str) -> 
                 "warmup",
                 index,
                 motion_translation(profile, degrees),
+                camera_linear_translation(profile, index, warmups),
             )
         )
     for index in range(measured):
@@ -242,6 +312,7 @@ def assembly(profile: dict[str, Any], profile_path: Path, texture_name: str) -> 
                 "measured",
                 index,
                 motion_translation(profile, degrees),
+                camera_linear_translation(profile, index, measured),
             )
         )
     pose_code = "".join(poses)

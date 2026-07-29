@@ -187,11 +187,19 @@ Targets:
 Hardware deployment replaces only the selected `apps/<app>/tgt` at the
 matching SD path. Hardware is tested before any refreshed emulator module.
 
-The generated RGBA2222 Cube benchmark is deployed by `~/copy_to_sd.sh` to:
+Generated benchmark fixtures use a short runtime-only hardware layout:
 
 ```text
-/mystuff/pingoasm/benchmarks/render-spin/fixtures/cube-rgba2222/tgt
+/pingo/<fixture>
 ```
+
+Each fixture directory contains `benchmark.bin` and its runtime textures
+directly; source-tree categories and the redundant `tgt` level are omitted
+from the SD card. Render-spin and orbit-scene deployers replace only their
+named children under the shared `/pingo` root, preserving fixtures from the
+other suite. Fixture names are one global hardware namespace, and both
+deployers reject a cross-suite collision. `~/copy_to_sd.sh` follows the same
+convention for render-spin.
 
 The reconnecting `build/scripts/listen_vdp_debug.py` tees raw VDP output to a
 log and terminal. Pressing `R` pulses hardware reset without stopping capture;

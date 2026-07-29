@@ -62,6 +62,44 @@ class MotionTranslationTests(unittest.TestCase):
         self.assertIn("ld de,8192", source)
 
 
+class CameraLinearTranslationTests(unittest.TestCase):
+    def test_out_and_back_includes_endpoints(self) -> None:
+        profile = {
+            "camera_linear_motion": {
+                "start": [0, 0, 3200],
+                "turnaround": [0, 0, 0],
+            }
+        }
+        self.assertEqual(
+            benchmark.camera_linear_translation(profile, 0, 5), (0, 0, 3200)
+        )
+        self.assertEqual(
+            benchmark.camera_linear_translation(profile, 2, 5), (0, 0, 0)
+        )
+        self.assertEqual(
+            benchmark.camera_linear_translation(profile, 4, 5), (0, 0, 3200)
+        )
+
+    def test_profile_without_camera_motion_is_stationary(self) -> None:
+        self.assertIsNone(benchmark.camera_linear_translation({}, 0, 36))
+
+    def test_two_revolution_closing_pose_hits_midpoint_and_endpoints(self) -> None:
+        profile = {
+            "camera_linear_motion": {
+                "start": [0, 0, 3200],
+                "turnaround": [0, 0, 0],
+            }
+        }
+        self.assertEqual(
+            benchmark.camera_linear_translation(profile, 0, 73), (0, 0, 3200)
+        )
+        self.assertEqual(
+            benchmark.camera_linear_translation(profile, 36, 73), (0, 0, 0)
+        )
+        self.assertEqual(
+            benchmark.camera_linear_translation(profile, 72, 73), (0, 0, 3200)
+        )
+
 class MotionProfileValidationTests(unittest.TestCase):
     def setUp(self) -> None:
         self.profile = {

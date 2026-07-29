@@ -11,7 +11,10 @@ from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 FIXTURES_ROOT = PROJECT_ROOT / "benchmarks" / "orbit-scene" / "fixtures"
-SD_FIXTURES_PATH = Path("mystuff/pingoasm/benchmarks/orbit-scene/fixtures")
+OTHER_FIXTURES_ROOT = (
+    PROJECT_ROOT / "benchmarks" / "render-spin" / "fixtures"
+)
+SD_FIXTURES_PATH = Path("pingo")
 DEFAULT_SD_ROOT = Path("/media/smith/AGON")
 DEFAULT_FIXTURE = "earth-party-rgba2222"
 EXECUTABLE = "benchmark.bin"
@@ -23,6 +26,16 @@ def fixture_name(value: str) -> str:
     return value
 
 
+def autoexec_lines(name: str) -> tuple[str, ...]:
+    mos_path = f"/{SD_FIXTURES_PATH.as_posix()}/{name}"
+    return (
+        "SET KEYBOARD 1",
+        f"cd {mos_path}",
+        f"load {EXECUTABLE}",
+        "run",
+    )
+
+
 def deploy(sd_root: Path, name: str) -> Path:
     if not sd_root.is_dir() or not os.path.ismount(sd_root):
         raise ValueError(f"Agon SD card is not mounted at {sd_root}")
@@ -30,23 +43,29 @@ def deploy(sd_root: Path, name: str) -> Path:
     source = FIXTURES_ROOT / name / "tgt"
     if not (source / EXECUTABLE).is_file():
         raise ValueError(f"fixture has not been built: {source / EXECUTABLE}")
+    if (OTHER_FIXTURES_ROOT / name).is_dir():
+        raise ValueError(
+            f"fixture name collides in the shared /pingo namespace: {name}"
+        )
 
     target_root = sd_root / SD_FIXTURES_PATH
-    if target_root.exists():
-        if target_root.is_symlink() or not target_root.is_dir():
-            raise ValueError(f"refusing unexpected deployment target: {target_root}")
-        shutil.rmtree(target_root)
-    destination = target_root / name / "tgt"
+    if target_root.exists() and (
+        target_root.is_symlink() or not target_root.is_dir()
+    ):
+        raise ValueError(f"refusing unexpected deployment target: {target_root}")
+    target_root.mkdir(parents=True, exist_ok=True)
+
+    destination = target_root / name
+    if destination.exists():
+        if destination.is_symlink() or not destination.is_dir():
+            raise ValueError(
+                f"refusing unexpected fixture target: {destination}"
+            )
+        shutil.rmtree(destination)
     shutil.copytree(source, destination)
 
     autoexec = sd_root / "autoexec.txt"
-    mos_path = f"/{SD_FIXTURES_PATH.as_posix()}/{name}/tgt"
-    lines = (
-        "SET KEYBOARD 1",
-        f"cd {mos_path}",
-        f"load {EXECUTABLE}",
-        "run",
-    )
+    lines = autoexec_lines(name)
     autoexec.write_bytes(("\r\n".join(lines) + "\r\n").encode("ascii"))
     print(f"Deployed {name} to {destination}")
     print(f"Selected only {name}/{EXECUTABLE} in {autoexec}")
