@@ -1,6 +1,8 @@
 # Hecker rasterizer overnight test plan
 
-Status: proposed 2026-07-29; no Hecker changes have been made under this plan.
+Status: emulator-qualified exact-output candidate at `agon-vdp:b87c95e`;
+hardware remains on `working-pre-hecker` pending privileged upload approval
+and human qualification.
 
 The objective is to investigate and, if justified by evidence, adapt the
 Hecker-derived scanline work without sacrificing the renderer behavior already
@@ -17,17 +19,17 @@ tranche before beginning Hecker work.
 departure. Archive its ordinary and diagnostic firmware binaries outside Git,
 with source commit and SHA-256 identities.
 
-1.3 [ ] Create one `experiment/hecker-rasterizer` branch. Use one small commit
+1.3 [x] Create one `experiment/hecker-rasterizer` branch. Use one small commit
 per independently reversible experiment instead of creating a branch for
 every variation.
 
-1.4 [ ] Do not import either historical `hecker` branch wholesale. Treat
+1.4 [x] Do not import either historical `hecker` branch wholesale. Treat
 `~/Agon/mystuff/pingo-hecker-reference/{hecker,hecker2}` and their patches as
 provenance and hypotheses only. Those branches also changed mesh ownership,
 removed or bypassed established lighting/depth behavior, wrapped UVs, and
 contained incomplete viewport and edge handling.
 
-1.5 [ ] Preserve the current VDU protocol, object model, coordinate
+1.5 [x] Preserve the current VDU protocol, object model, coordinate
 conventions, RGBA2222 render target, back-face convention, perspective-correct
 UV behavior, depth buffer, illumination, and callback contract.
 
@@ -36,7 +38,7 @@ overnight application-level testing. Native unit fixtures may exercise
 individual raster functions but may not be used to claim application
 compatibility.
 
-1.7 [ ] Do not alter the project emulator snapshot or commit emulator changes
+1.7 [x] Do not alter the project emulator snapshot or commit emulator changes
 overnight. Temporary emulator modules and headless result directories are
 allowed. The user must visually approve any durable emulator change before it
 is committed.
@@ -46,7 +48,7 @@ is committed.
 2.1 [ ] Record a manifest containing the SHA-256 and size of every
 `/pingo/<fixture>/benchmark.bin`, texture, and the card's `autoexec.txt`.
 
-2.2 [ ] Configure `autoexec.txt` as one synchronous, fixed-order chain:
+2.2 [x] Configure `autoexec.txt` as one synchronous, fixed-order chain:
 
 1. `cube-rgba2222`
 2. `heavytank-rgba2222`
@@ -70,7 +72,7 @@ perspective errors; EarthUV stresses triangle and texture work; the ellipse
 fixture stresses multiple objects, camera pose, occlusion, and offscreen
 motion.
 
-2.3 [ ] Teach the capture parser the two persistent control streams. The
+2.3 [x] Teach the capture parser the two persistent control streams. The
 single-model applications reuse bitmap 1257 and continue one sequence; the
 three orbit applications reuse bitmap 1410 and continue another. The streams
 interleave in the fixed application order, so fixture-level summaries still
@@ -103,19 +105,19 @@ artifacts, and terminal status.
 
 ## 4. Automatic gates for every candidate
 
-4.1 [ ] Reject a candidate immediately if the scope diff contains unrelated
+4.1 [x] Reject a candidate immediately if the scope diff contains unrelated
 VDU, object-model, coordinate, texture-format, callback, or deployment
 changes.
 
-4.2 [ ] Require ordinary and diagnostic native tests to pass.
+4.2 [x] Require ordinary and diagnostic native tests to pass.
 
-4.3 [ ] Require ordinary and diagnostic PlatformIO firmware builds to pass.
+4.3 [x] Require ordinary and diagnostic PlatformIO firmware builds to pass.
 
-4.4 [ ] Run the headless emulator before flashing hardware. For a
+4.4 [x] Run the headless emulator before flashing hardware. For a
 semantics-preserving optimization, require exact selected-frame and
 final-target equality across all fifteen fixtures.
 
-4.5 [ ] If a candidate intentionally changes pixel coverage rules, preserve
+4.5 [x] If a candidate intentionally changes pixel coverage rules, preserve
 its images and pixel-difference report, then stop that line of work for human
 review. Do not classify a visually plausible difference as correct
 unattended.
@@ -135,7 +137,7 @@ hypothesis on an unexplained failure.
 
 ## 5. Evolutionary implementation sequence
 
-5.1 [ ] First extract testable raster primitives and characterize current
+5.1 [x] First extract testable raster primitives and characterize current
 coverage at horizontal edges, vertical edges, shared diagonals, both accepted
 area signs, degenerate triangles, subpixel coordinates, viewport boundaries,
 and negative or zero reciprocal depth. This step changes no rendering.
@@ -145,11 +147,12 @@ rasterizer: advance edge functions, depth, `1/W`, `U/W`, and `V/W` across
 pixels and rows while retaining current coverage and z-buffer decisions.
 Change one interpolant family at a time and require exact image equality.
 
-5.3 [ ] Replace the two per-fragment perspective divisions with one reciprocal
-of interpolated `1/W`, followed by two multiplies. Retain the current endpoint,
-depth, and texture-clamp semantics.
+5.3 [x] Evaluate replacing the two per-fragment perspective divisions with one
+reciprocal of interpolated `1/W`, followed by two multiplies. The candidate
+changed color in 9 of 1,447 frames while preserving every z-buffer, so it was
+rejected and reverted.
 
-5.4 [ ] Introduce scanline span bounds as a coverage accelerator while keeping
+5.4 [x] Introduce scanline span bounds as a coverage accelerator while keeping
 the current fragment shader and depth path intact. Prove the span endpoints
 against current edge coverage before deleting any old coverage check.
 
@@ -167,7 +170,7 @@ non-wrapping texture sampler.
 exercise offscreen objects, but they are not a controlled near-plane clipping
 torture suite. Do not mix clipping into a Hecker performance result.
 
-5.8 [ ] Run diagnostic firmware only to attribute a change. State absolute
+5.8 [x] Run diagnostic firmware only to attribute a change. State absolute
 frame-time and FPS improvements only from ordinary firmware.
 
 ## 6. Hardware test cadence
@@ -197,18 +200,20 @@ requires human hardware visual review.
 Agon, `/dev/ttyUSB0` is stable, the serial listener is not competing with the
 uploader, and a known-good upload/reset/capture cycle completes.
 
-7.2 [ ] Bound the number of candidate flashes and retries. A failed upload may
+7.2 [x] Bound the number of candidate flashes and retries. A failed upload may
 be retried once after reconnecting; repeated failure ends hardware work and
-leaves the known-good firmware restored if possible.
+leaves the known-good firmware restored if possible. Privileged approval
+timed out twice before the uploader started, so no flash was attempted.
 
-7.3 [ ] Never rewrite the SD card, change MOS, or change application binaries
+7.3 [x] Never rewrite the SD card, change MOS, or change application binaries
 during the unattended run.
 
-7.4 [ ] Leave a machine-readable ledger showing every candidate attempted,
+7.4 [x] Leave a machine-readable ledger showing every candidate attempted,
 commit/diff identity, emulator result, hardware result, performance summary,
-reason retained or rejected, and final firmware left on the device.
+reason retained or rejected, and final firmware left on the device. See the
+dated rasterizer experiment document in `agon-vdp/docs`.
 
-7.5 [ ] End with the known-good firmware unless one candidate passed every
+7.5 [x] End with the known-good firmware unless one candidate passed every
 automatic gate. Even then, mark the candidate “awaiting human visual
 qualification,” not accepted.
 
@@ -238,16 +243,16 @@ roadmap item 1.8.
 
 ## 9. Deliverables for the morning
 
-9.1 [ ] A concise ledger of accepted and rejected experiments.
+9.1 [x] A concise ledger of accepted and rejected experiments.
 
 9.2 [ ] Raw and parsed emulator and hardware evidence for every retained or
 important rejected candidate.
 
-9.3 [ ] Separate commits for each reversible code experiment, with no emulator
+9.3 [x] Separate commits for each reversible code experiment, with no emulator
 snapshot commit.
 
-9.4 [ ] A recommendation to retain, revise, or abandon the Hecker direction,
+9.4 [x] A recommendation to retain, revise, or abandon the Hecker direction,
 including which raster subphase changed and which fixtures benefited.
 
-9.5 [ ] The exact firmware identity left on the hardware and the command to
+9.5 [x] The exact firmware identity left on the hardware and the command to
 restore the known-working image.
