@@ -1,0 +1,110 @@
+{
+  "schema_version": 2,
+  "generated_utc": "2026-07-29T23:02:32Z",
+  "profile": {
+    "key": "object-culling",
+    "description": "Three-scene 867-frame object-frustum-culling chain",
+    "frames_per_run": 867,
+    "stream_end_sequences": {
+      "1410": 866
+    }
+  },
+  "baseline": {
+    "label": "Incremental depth control",
+    "log": "benchmarks/render-spin/results/object-aabb-control-hardware-2026-07-29.log",
+    "log_sha256": "b9f4835cf0893c4baa94deff0b7bd4d59c0269b4ce4ac2dd50e56a458b911a6f",
+    "complete_runs": {
+      "1410": 1
+    }
+  },
+  "candidate": {
+    "label": "Object AABB candidate",
+    "log": "benchmarks/render-spin/results/object-aabb-candidate-hardware-2026-07-29.log",
+    "log_sha256": "322a31b73b71f21f658d42697d111b644c747a17d74c86d4dd16fbb77c455215",
+    "complete_runs": {
+      "1410": 2
+    },
+    "sources": [
+      {
+        "log": "benchmarks/render-spin/results/object-aabb-candidate-hardware-2026-07-29.log",
+        "log_sha256": "322a31b73b71f21f658d42697d111b644c747a17d74c86d4dd16fbb77c455215",
+        "complete_runs": {
+          "1410": 1
+        }
+      },
+      {
+        "log": "benchmarks/render-spin/results/object-aabb-candidate-b2-hardware-2026-07-29.log",
+        "log_sha256": "b5c212740eb9498877d0d417e4b3f2bef87234662ef9b753d3e7617335a33ac9",
+        "complete_runs": {
+          "1410": 1
+        }
+      }
+    ]
+  },
+  "rows": [
+    {
+      "fixture": "Earth party camera ellipse",
+      "frames": 289,
+      "baseline": {
+        "mean_us": 125576.84775086505,
+        "fps": 7.963251331040927,
+        "run_spread_us": 0.0
+      },
+      "candidate": {
+        "mean_us": 109405.47577854671,
+        "fps": 9.140310326186523,
+        "run_spread_us": 1.5743944636633387
+      },
+      "fps_gain_percent": 14.781135822718472,
+      "render_time_change_percent": -12.877669938332204
+    },
+    {
+      "fixture": "Earth party",
+      "frames": 289,
+      "baseline": {
+        "mean_us": 127330.91349480969,
+        "fps": 7.853552390015347,
+        "run_spread_us": 0.0
+      },
+      "candidate": {
+        "mean_us": 112544.69896193771,
+        "fps": 8.885358521756737,
+        "run_spread_us": 1.141868512117071
+      },
+      "fps_gain_percent": 13.138081730417728,
+      "render_time_change_percent": -11.612431048391636
+    },
+    {
+      "fixture": "Earth party camera dolly",
+      "frames": 289,
+      "baseline": {
+        "mean_us": 113282.80968858131,
+        "fps": 8.82746466784358,
+        "run_spread_us": 0.0
+      },
+      "candidate": {
+        "mean_us": 110697.79757785467,
+        "fps": 9.033603394834408,
+        "run_spread_us": 5.055363321793266
+      },
+      "fps_gain_percent": 2.335197417914836,
+      "render_time_change_percent": -2.2819103073387192
+    },
+    {
+      "fixture": "All object-culling frames (weighted)",
+      "frames": 867,
+      "baseline": {
+        "mean_us": 122063.52364475201,
+        "fps": 8.192455617702413,
+        "run_spread_us": 0.0
+      },
+      "candidate": {
+        "mean_us": 110882.65743944637,
+        "fps": 9.018542873091814,
+        "run_spread_us": 0.7797001153521705
+      },
+      "fps_gain_percent": 10.083512123085248,
+      "render_time_change_percent": -9.15987501544353
+    }
+  ]
+}

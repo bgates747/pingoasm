@@ -186,6 +186,9 @@ Targets:
 
 Hardware deployment replaces only the selected `apps/<app>/tgt` at the
 matching SD path. Hardware is tested before any refreshed emulator module.
+Every process that writes the physical card must then flush it, safely unmount
+the card, verify that the partition is no longer mounted, and only afterward
+ask the author to transfer it to an Agon.
 
 Generated benchmark fixtures use a short runtime-only hardware layout:
 

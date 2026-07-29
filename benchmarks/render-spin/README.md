@@ -211,10 +211,12 @@ profile by adding `--series-runs 1`.
 
 ## Compare two firmware versions
 
-`build/scripts/compare_pingo_versions.py` compares complete runs of either the
-canonical 1,447-frame suite (the default `full` profile) or the 507-frame
-near-plane development chain (`--profile quick`). It ignores partial traffic before the
-first sequence zero, validates both persistent bitmap streams, prints an
+`build/scripts/compare_pingo_versions.py` compares complete runs of the
+canonical 1,447-frame suite (the default `full` profile), the 507-frame
+near-plane development chain (`--profile quick`), or the three-scene,
+867-frame orbit chain used for object-frustum-culling work
+(`--profile object-culling`). It ignores partial traffic before the first
+sequence zero, validates the expected persistent bitmap streams, prints an
 FPS-first A/B table, writes machine-readable JSON evidence, and updates a
 standalone HTML dashboard with an SVG bar graph. It requires no third-party
 Python packages.
@@ -224,11 +226,19 @@ python3 build/scripts/compare_pingo_versions.py \
   benchmarks/render-spin/results/baseline.log \
   benchmarks/render-spin/results/candidate.log \
   --profile quick \
+  --candidate-extra-log benchmarks/render-spin/results/candidate-repeat.log \
   --baseline-label "Version A" \
   --candidate-label "Version B" \
   --json-output benchmarks/render-spin/results/version-a-vs-version-b-hardware-YYYY-MM-DD.json \
   --html-output benchmarks/render-spin/performance.html
 ```
+
+The optional `--baseline-extra-log` and `--candidate-extra-log` arguments are
+repeatable. Each input must contain a complete run for the selected profile.
+The comparison averages per-run fixture means and records every source path,
+SHA-256 digest, and per-source run count in schema-2 JSON while retaining the
+schema-1 singular source fields for older readers. A comparison with only one
+source on each side retains the original schema 1.
 
 `benchmarks/render-spin/performance.html` is the living view: each new
 comparison intentionally replaces it. Give every raw capture and JSON report a

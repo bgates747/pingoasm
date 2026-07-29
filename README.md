@@ -135,6 +135,10 @@ Hardware is the only copy deployment:
 
 It replaces `apps/<app>/tgt` at the matching mounted SD path, normally beneath
 `/media/smith/AGON`. Deployment never edits `autoexec.txt`.
+After every card write, flush and safely unmount the hardware SD, verify that
+its partition is no longer mounted, and only then ask the author to move it
+from the PC to an Agon. Routine dismounting is part of the deployment
+workflow, not a manual cleanup left to the author.
 
 Generated benchmark fixtures use a deliberately short, runtime-only hardware
 layout:

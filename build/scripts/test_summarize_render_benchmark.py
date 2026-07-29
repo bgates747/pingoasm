@@ -64,6 +64,13 @@ DIAGNOSTIC_FIELDS_V2 = {
     "d": 2,
     "tfr": 0,
 }
+DIAGNOSTIC_FIELDS_V3 = {
+    **DIAGNOSTIC_FIELDS_V2,
+    "d": 3,
+    "obt": 1,
+    "ofr": 0,
+    "ta": 0,
+}
 
 
 def ordinary_line(
@@ -141,6 +148,11 @@ class ParseRenderDiagnosticsTests(unittest.TestCase):
         self.assertEqual(len(records), 1)
         self.assertEqual(records[0][3], DIAGNOSTIC_FIELDS_V2)
 
+    def test_complete_version_three_record(self) -> None:
+        records = parse_records(diagnostic_line(fields=DIAGNOSTIC_FIELDS_V3))
+        self.assertEqual(len(records), 1)
+        self.assertEqual(records[0][3], DIAGNOSTIC_FIELDS_V3)
+
     def test_version_one_rejects_version_two_field(self) -> None:
         fields = dict(DIAGNOSTIC_FIELDS, tfr=0)
         tail = " ".join(f"{key}={value}" for key, value in fields.items())
@@ -152,6 +164,70 @@ class ParseRenderDiagnosticsTests(unittest.TestCase):
         tail = " ".join(f"{key}={value}" for key, value in fields.items())
         with self.assertRaisesRegex(ValueError, "missing fields: tfr"):
             parse_diagnostics(tail)
+
+    def test_version_two_rejects_object_culling_fields(self) -> None:
+        fields = dict(
+            DIAGNOSTIC_FIELDS_V2,
+            obt=1,
+            ofr=0,
+            ta=0,
+        )
+        tail = " ".join(f"{key}={value}" for key, value in fields.items())
+        with self.assertRaisesRegex(
+            ValueError, "unknown fields: obt, ofr, ta"
+        ):
+            parse_diagnostics(tail)
+
+    def test_version_three_requires_all_object_culling_fields(self) -> None:
+        for missing in ("obt", "ofr", "ta"):
+            fields = dict(DIAGNOSTIC_FIELDS_V3)
+            del fields[missing]
+            tail = " ".join(
+                f"{key}={value}" for key, value in fields.items()
+            )
+            with self.subTest(missing=missing):
+                with self.assertRaisesRegex(
+                    ValueError, f"missing fields: {missing}"
+                ):
+                    parse_diagnostics(tail)
+
+    def test_version_three_enforces_object_counter_bounds(self) -> None:
+        for fields in (
+            dict(DIAGNOSTIC_FIELDS_V3, obt=2),
+            dict(DIAGNOSTIC_FIELDS_V3, ofr=2),
+            dict(DIAGNOSTIC_FIELDS_V3, obt=0, ofr=0, ta=1),
+        ):
+            tail = " ".join(
+                f"{key}={value}" for key, value in fields.items()
+            )
+            with self.assertRaisesRegex(
+                ValueError, "object counters|require a rejected object"
+            ):
+                parse_diagnostics(tail)
+
+    def test_version_three_allows_fully_rejected_object(self) -> None:
+        fields = dict(
+            DIAGNOSTIC_FIELDS_V3,
+            obt=1,
+            ofr=1,
+            ta=12,
+            ti=0,
+            tz=0,
+            tfr=0,
+            tf=0,
+            td=0,
+            to=0,
+            tr=0,
+            tv=0,
+            pt=0,
+            pc=0,
+            pz=0,
+            pd=0,
+            pu=0,
+            ps=0,
+        )
+        tail = " ".join(f"{key}={value}" for key, value in fields.items())
+        self.assertEqual(parse_diagnostics(tail), fields)
 
     def test_malformed_record_is_preserved_for_run_selection(self) -> None:
         records = parse_records(
@@ -383,7 +459,7 @@ class BuildRenderSummaryTests(unittest.TestCase):
     def test_selected_run_cannot_mix_schema_versions(self) -> None:
         fields = (
             DIAGNOSTIC_FIELDS,
-            DIAGNOSTIC_FIELDS_V2,
+            DIAGNOSTIC_FIELDS_V3,
             DIAGNOSTIC_FIELDS,
         )
         with self.assertRaisesRegex(ValueError, "changes schema version"):
@@ -472,6 +548,59 @@ class BuildRenderSummaryTests(unittest.TestCase):
         self.assertAlmostEqual(
             diagnostics["triangle_outcome_ratios"]["frustum_rejected"],
             1 / 12,
+        )
+
+    def test_version_three_aggregate_reports_object_culling(self) -> None:
+        fields = tuple(
+            dict(
+                DIAGNOSTIC_FIELDS_V3,
+                obt=1,
+                ofr=1,
+                ta=12,
+                ti=0,
+                tz=0,
+                tfr=0,
+                tf=0,
+                td=0,
+                to=0,
+                tr=0,
+                tv=0,
+                pt=0,
+                pc=0,
+                pz=0,
+                pd=0,
+                pu=0,
+                ps=0,
+            )
+            for _ in range(3)
+        )
+        summary = build_summary(
+            PROFILE,
+            parse_records(diagnostic_run(fields=fields)),
+            require_diagnostics=True,
+        )
+        diagnostics = summary["renderer_diagnostics"]
+        self.assertEqual(diagnostics["schema_version"], 3)
+        self.assertEqual(
+            diagnostics["counter_totals"]["objects_bounds_tested"],
+            2,
+        )
+        self.assertEqual(
+            diagnostics["counter_totals"]["objects_frustum_rejected"],
+            2,
+        )
+        self.assertEqual(
+            diagnostics["counter_totals"]["triangles_avoided"],
+            24,
+        )
+        self.assertAlmostEqual(
+            diagnostics["object_bounds_test_ratio"], 1.0
+        )
+        self.assertAlmostEqual(
+            diagnostics["object_frustum_reject_ratio"], 1.0
+        )
+        self.assertAlmostEqual(
+            diagnostics["triangle_avoidance_ratio"], 1.0
         )
 
     def test_motion_profile_adds_absolute_translation_to_frames(self) -> None:

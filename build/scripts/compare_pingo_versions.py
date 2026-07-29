@@ -59,6 +59,12 @@ QUICK_FIXTURES = (
     Fixture("EarthUV near-plane", 1257, 145, 217),
 )
 
+OBJECT_CULLING_FIXTURES = (
+    Fixture("Earth party camera ellipse", 1410, 0, 288),
+    Fixture("Earth party", 1410, 289, 577),
+    Fixture("Earth party camera dolly", 1410, 578, 866),
+)
+
 
 @dataclass(frozen=True)
 class SuiteProfile:
@@ -87,6 +93,13 @@ PROFILES = {
         fixtures=QUICK_FIXTURES,
         expected_last_sequence={1257: 217, 1410: 288},
         weighted_label="All quick-chain frames (weighted)",
+    ),
+    "object-culling": SuiteProfile(
+        key="object-culling",
+        description="Three-scene 867-frame object-frustum-culling chain",
+        fixtures=OBJECT_CULLING_FIXTURES,
+        expected_last_sequence={1410: 866},
+        weighted_label="All object-culling frames (weighted)",
     ),
 }
 
@@ -146,6 +159,23 @@ def parse_complete_runs(
             f"{path}: no complete run for bitmap stream(s) {', '.join(missing)}"
         )
     return runs
+
+
+def parse_complete_runs_many(
+    paths: tuple[Path, ...],
+    expected_last_sequence: dict[int, int] | None = None,
+) -> dict[int, list[list[int]]]:
+    if not paths:
+        raise ValueError("at least one log path is required")
+    expected = expected_last_sequence or EXPECTED_LAST_SEQUENCE
+    merged: dict[int, list[list[int]]] = {
+        bitmap_id: [] for bitmap_id in expected
+    }
+    for path in paths:
+        parsed = parse_complete_runs(path, expected)
+        for bitmap_id, stream_runs in parsed.items():
+            merged[bitmap_id].extend(stream_runs)
+    return merged
 
 
 def fixture_run_means(
@@ -278,30 +308,57 @@ def json_report(
     results: list[Result],
     baseline_label: str,
     candidate_label: str,
-    baseline_log: Path,
-    candidate_log: Path,
+    baseline_logs: Path | tuple[Path, ...],
+    candidate_logs: Path | tuple[Path, ...],
     baseline_runs: dict[int, list[list[int]]],
     candidate_runs: dict[int, list[list[int]]],
     profile: SuiteProfile,
     generated_utc: str,
 ) -> dict[str, Any]:
+    def normalize_paths(paths: Path | tuple[Path, ...]) -> tuple[Path, ...]:
+        return (paths,) if isinstance(paths, Path) else paths
+
     def version(
         label: str,
-        log_path: Path,
+        log_paths: Path | tuple[Path, ...],
         runs: dict[int, list[list[int]]],
     ) -> dict[str, Any]:
-        return {
+        paths = normalize_paths(log_paths)
+        sources = [
+            {
+                "log": str(path),
+                "log_sha256": sha256(path),
+                "complete_runs": {
+                    str(bitmap_id): len(stream_runs)
+                    for bitmap_id, stream_runs in parse_complete_runs(
+                        path, profile.expected_last_sequence
+                    ).items()
+                },
+            }
+            for path in paths
+        ]
+        result = {
             "label": label,
-            "log": str(log_path),
-            "log_sha256": sha256(log_path),
+            # Retain the original singular fields for older report consumers.
+            "log": sources[0]["log"],
+            "log_sha256": sources[0]["log_sha256"],
             "complete_runs": {
                 str(bitmap_id): len(stream_runs)
                 for bitmap_id, stream_runs in runs.items()
             },
         }
+        if len(paths) > 1:
+            result["sources"] = sources
+        return result
 
+    baseline_paths = normalize_paths(baseline_logs)
+    candidate_paths = normalize_paths(candidate_logs)
     return {
-        "schema_version": 1,
+        "schema_version": (
+            2
+            if len(baseline_paths) > 1 or len(candidate_paths) > 1
+            else 1
+        ),
         "generated_utc": generated_utc,
         "profile": {
             "key": profile.key,
@@ -312,8 +369,8 @@ def json_report(
                 for bitmap_id, sequence in profile.expected_last_sequence.items()
             },
         },
-        "baseline": version(baseline_label, baseline_log, baseline_runs),
-        "candidate": version(candidate_label, candidate_log, candidate_runs),
+        "baseline": version(baseline_label, baseline_paths, baseline_runs),
+        "candidate": version(candidate_label, candidate_paths, candidate_runs),
         "rows": [
             {
                 "fixture": result.name,
@@ -343,8 +400,8 @@ def html_report(
     *,
     profile: SuiteProfile | None = None,
     generated_utc: str | None = None,
-    baseline_log: Path | None = None,
-    candidate_log: Path | None = None,
+    baseline_log: Path | tuple[Path, ...] | None = None,
+    candidate_log: Path | tuple[Path, ...] | None = None,
     json_href: str | None = None,
 ) -> str:
     maximum_fps = max(
@@ -395,13 +452,25 @@ def html_report(
     profile_text = profile.description if profile else "Pingo benchmark comparison"
     generated_text = generated_utc or "not recorded"
 
-    def source_line(label: str, path: Path | None) -> str:
-        if path is None:
+    def source_line(
+        label: str,
+        log_paths: Path | tuple[Path, ...] | None,
+    ) -> str:
+        if log_paths is None:
             return ""
+        paths = (
+            (log_paths,)
+            if isinstance(log_paths, Path)
+            else log_paths
+        )
+        source_paths = "".join(
+            f'<code title="{html.escape(str(path))}">'
+            f"{html.escape(path.name)}</code>"
+            for path in paths
+        )
         return (
             f'<div><span class="source-label">{html.escape(label)}</span>'
-            f'<code title="{html.escape(str(path))}">'
-            f"{html.escape(path.name)}</code></div>"
+            f"{source_paths}</div>"
         )
 
     evidence_link = (
@@ -439,6 +508,7 @@ th {{ position:sticky; top:0; background:#171d27; }}
 .provenance {{ display:flex; flex-wrap:wrap; gap:.5rem 2rem; margin:1rem 0; }}
 .source-label {{ display:block; font-size:.8rem; text-transform:uppercase; }}
 code {{ color:#d8e4f2; }}
+.provenance code + code {{ display:block; margin-top:.25rem; }}
 a {{ color:#6ee7d8; }}
 </style>
 </head>
@@ -499,6 +569,20 @@ def main() -> int:
     parser.add_argument("baseline_log", type=Path)
     parser.add_argument("candidate_log", type=Path)
     parser.add_argument(
+        "--baseline-extra-log",
+        action="append",
+        default=[],
+        type=Path,
+        help="add another complete baseline capture (repeatable)",
+    )
+    parser.add_argument(
+        "--candidate-extra-log",
+        action="append",
+        default=[],
+        type=Path,
+        help="add another complete candidate capture (repeatable)",
+    )
+    parser.add_argument(
         "--profile",
         choices=tuple(PROFILES),
         default="full",
@@ -515,11 +599,19 @@ def main() -> int:
     args = parser.parse_args()
 
     profile = PROFILES[args.profile]
-    baseline = parse_complete_runs(
-        args.baseline_log, profile.expected_last_sequence
+    baseline_logs = (
+        args.baseline_log,
+        *args.baseline_extra_log,
     )
-    candidate = parse_complete_runs(
-        args.candidate_log, profile.expected_last_sequence
+    candidate_logs = (
+        args.candidate_log,
+        *args.candidate_extra_log,
+    )
+    baseline = parse_complete_runs_many(
+        baseline_logs, profile.expected_last_sequence
+    )
+    candidate = parse_complete_runs_many(
+        candidate_logs, profile.expected_last_sequence
     )
     results = compare(
         baseline,
@@ -540,8 +632,8 @@ def main() -> int:
                     results,
                     args.baseline_label,
                     args.candidate_label,
-                    args.baseline_log,
-                    args.candidate_log,
+                    baseline_logs,
+                    candidate_logs,
                     baseline,
                     candidate,
                     profile,
@@ -571,8 +663,8 @@ def main() -> int:
                 args.candidate_label,
                 profile=profile,
                 generated_utc=generated_utc,
-                baseline_log=args.baseline_log,
-                candidate_log=args.candidate_log,
+                baseline_log=baseline_logs,
+                candidate_log=candidate_logs,
                 json_href=json_href,
             ),
             encoding="utf-8",

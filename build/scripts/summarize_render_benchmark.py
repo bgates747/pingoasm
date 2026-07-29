@@ -57,9 +57,17 @@ DIAGNOSTIC_V2_KEYS = (
     "tfr",
     *DIAGNOSTIC_V1_KEYS[14:],
 )
+DIAGNOSTIC_V3_KEYS = (
+    *DIAGNOSTIC_V2_KEYS[:12],
+    "obt",
+    "ofr",
+    "ta",
+    *DIAGNOSTIC_V2_KEYS[12:],
+)
 DIAGNOSTIC_KEYS_BY_VERSION = {
     1: DIAGNOSTIC_V1_KEYS,
     2: DIAGNOSTIC_V2_KEYS,
+    3: DIAGNOSTIC_V3_KEYS,
 }
 
 DIAGNOSTIC_NAMES = {
@@ -74,6 +82,9 @@ DIAGNOSTIC_NAMES = {
     "ras": "raster_us",
     "out": "output_finalize_us",
     "ob": "objects",
+    "obt": "objects_bounds_tested",
+    "ofr": "objects_frustum_rejected",
+    "ta": "triangles_avoided",
     "ti": "triangles_submitted",
     "tz": "triangles_z_rejected",
     "tfr": "triangles_frustum_rejected",
@@ -140,6 +151,15 @@ def parse_diagnostics(tail: str) -> dict[str, int] | None:
         raise ValueError("diagnostic dimensions must be positive")
     if fields["fmt"] not in (2, 8):
         raise ValueError("diagnostic fmt must be 2 (RGBA2222) or 8 (RGBA8888)")
+    if version >= 3:
+        if fields["ofr"] > fields["obt"] or fields["obt"] > fields["ob"]:
+            raise ValueError(
+                "diagnostic object counters violate their bounds"
+            )
+        if fields["ta"] > 0 and fields["ofr"] == 0:
+            raise ValueError(
+                "diagnostic avoided triangles require a rejected object"
+            )
     if fields["ti"] != (
         fields["tz"]
         + fields.get("tfr", 0)
@@ -493,6 +513,8 @@ def build_summary(
         ]
         if schema_version >= 2:
             counter_keys.insert(3, "tfr")
+        if schema_version >= 3:
+            counter_keys[1:1] = ["obt", "ofr", "ta"]
         counter_totals = {
             key: sum(item[key] for item in measured_diagnostics)
             for key in counter_keys
@@ -634,6 +656,21 @@ def build_summary(
             summary["renderer_diagnostics"]["triangle_outcome_ratios"][
                 "frustum_rejected"
             ] = share(counter_totals["tfr"], counter_totals["ti"])
+        if schema_version >= 3:
+            summary["renderer_diagnostics"].update(
+                {
+                    "object_bounds_test_ratio": share(
+                        counter_totals["obt"], counter_totals["ob"]
+                    ),
+                    "object_frustum_reject_ratio": share(
+                        counter_totals["ofr"], counter_totals["obt"]
+                    ),
+                    "triangle_avoidance_ratio": share(
+                        counter_totals["ta"],
+                        counter_totals["ti"] + counter_totals["ta"],
+                    ),
+                }
+            )
     return summary
 
 
@@ -723,6 +760,16 @@ def main() -> int:
             f"{diagnostics['reciprocal_w_reject_ratio']:.1%}, "
             f"shaded {diagnostics['shade_ratio']:.1%}"
         )
+        if diagnostics["schema_version"] >= 3:
+            print(
+                "Object culling: "
+                f"bounds tested "
+                f"{diagnostics['object_bounds_test_ratio']:.1%}, "
+                f"tested objects rejected "
+                f"{diagnostics['object_frustum_reject_ratio']:.1%}, "
+                f"potential triangles avoided "
+                f"{diagnostics['triangle_avoidance_ratio']:.1%}"
+            )
         triangle_ratios = diagnostics["triangle_outcome_ratios"]
         outcomes = [
             f"near/camera {triangle_ratios['z_rejected']:.1%}",

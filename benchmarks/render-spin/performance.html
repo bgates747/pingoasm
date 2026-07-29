@@ -27,61 +27,54 @@ th { position:sticky; top:0; background:#171d27; }
 .provenance { display:flex; flex-wrap:wrap; gap:.5rem 2rem; margin:1rem 0; }
 .source-label { display:block; font-size:.8rem; text-transform:uppercase; }
 code { color:#d8e4f2; }
+.provenance code + code { display:block; margin-top:.25rem; }
 a { color:#6ee7d8; }
 </style>
 </head>
 <body>
 <h1>Pingo firmware performance comparison</h1>
-<p class="subtitle">Shortened 507-frame near-plane development chain. Equivalent FPS is 1,000,000
+<p class="subtitle">Three-scene 867-frame object-frustum-culling chain. Equivalent FPS is 1,000,000
 divided by mean renderer microseconds; higher is better.</p>
-<p class="subtitle"><strong>Cumulative comparison:</strong> the older
-working-pre-Hecker capture was reduced to the same five fixture ranges and
-its sequence identifiers were remapped to the revised 507-frame chain;
-recorded render times were not changed. The baseline ran on Console8 and the
-latest firmware on Olimex. A separate same-firmware hardware comparison found
-the Olimex only 0.223% faster in aggregate, effectively measurement noise.</p>
 <section class="summary" aria-label="Weighted comparison summary">
-<div class="card">Working pre-Hecker baseline (Console8)
-<span class="metric">5.134 FPS</span></div>
-<div class="card">Latest incremental-depth firmware (Olimex)
-<span class="metric">8.882 FPS</span></div>
+<div class="card">Incremental depth control
+<span class="metric">8.192 FPS</span></div>
+<div class="card">Object AABB candidate
+<span class="metric">9.019 FPS</span></div>
 <div class="card">Weighted FPS change
-<span class="metric gain">+72.996%</span></div>
+<span class="metric gain">+10.084%</span></div>
 </section>
 <div class="provenance">
-<div><span class="source-label">Baseline log</span><code title="benchmarks/render-spin/results/working-pre-hecker-shared-507-derived.log">working-pre-hecker-shared-507-derived.log</code></div>
-<div><span class="source-label">Candidate log</span><code title="benchmarks/render-spin/results/olimex-subdivided-affine-plus-incremental-depth-two-run-hardware-2026-07-29.log">olimex-subdivided-affine-plus-incremental-depth-two-run-hardware-2026-07-29.log</code></div>
+<div><span class="source-label">Baseline log</span><code title="benchmarks/render-spin/results/object-aabb-control-hardware-2026-07-29.log">object-aabb-control-hardware-2026-07-29.log</code></div>
+<div><span class="source-label">Candidate log</span><code title="benchmarks/render-spin/results/object-aabb-candidate-hardware-2026-07-29.log">object-aabb-candidate-hardware-2026-07-29.log</code><code title="benchmarks/render-spin/results/object-aabb-candidate-b2-hardware-2026-07-29.log">object-aabb-candidate-b2-hardware-2026-07-29.log</code></div>
 <div><span class="source-label">Generated UTC</span>
-<code>2026-07-29T21:41:30Z</code></div>
+<code>2026-07-29T23:02:32Z</code></div>
 </div>
-<a class="evidence" href="results/working-pre-hecker-vs-latest-incremental-depth-hardware-2026-07-29.json">Open immutable JSON evidence</a>
+<a class="evidence" href="results/incremental-depth-vs-object-aabb-hardware-2026-07-29.json">Open immutable JSON evidence</a>
 <div class="legend">
-<span><i class="swatch baseline"></i>Working pre-Hecker baseline (Console8)</span>
-<span><i class="swatch candidate"></i>Latest incremental-depth firmware (Olimex)</span>
+<span><i class="swatch baseline"></i>Incremental depth control</span>
+<span><i class="swatch candidate"></i>Object AABB candidate</span>
 </div>
-<svg viewBox="0 0 1100 302" role="img"
+<svg viewBox="0 0 1100 218" role="img"
  aria-label="Frames per second by fixture">
-<text x="0" y="48" class="label">Cube</text><rect x="190" y="35" width="344.69" height="14" class="baseline"/><text x="540.69" y="47" class="value">4.92</text><rect x="190" y="52" width="830.00" height="14" class="candidate"/><text x="1026.00" y="64" class="value">11.84</text><text x="0" y="90" class="label">EarthUV</text><rect x="190" y="77" width="486.74" height="14" class="baseline"/><text x="682.74" y="89" class="value">6.94</text><rect x="190" y="94" width="812.32" height="14" class="candidate"/><text x="1008.32" y="106" class="value">11.59</text><text x="0" y="132" class="label">Earth party ellipse</text><rect x="190" y="119" width="401.01" height="14" class="baseline"/><text x="597.01" y="131" class="value">5.72</text><rect x="190" y="136" width="561.63" height="14" class="candidate"/><text x="757.63" y="148" class="value">8.01</text><text x="0" y="174" class="label">Cube near-plane</text><rect x="190" y="161" width="266.13" height="14" class="baseline"/><text x="462.13" y="173" class="value">3.80</text><rect x="190" y="178" width="704.32" height="14" class="candidate"/><text x="900.32" y="190" class="value">10.05</text><text x="0" y="216" class="label">EarthUV near-plane</text><rect x="190" y="203" width="310.39" height="14" class="baseline"/><text x="506.39" y="215" class="value">4.43</text><rect x="190" y="220" width="673.95" height="14" class="candidate"/><text x="869.95" y="232" class="value">9.61</text><text x="0" y="258" class="label">All quick-chain frames (weighted)</text><rect x="190" y="245" width="359.94" height="14" class="baseline"/><text x="555.94" y="257" class="value">5.13</text><rect x="190" y="262" width="622.67" height="14" class="candidate"/><text x="818.67" y="274" class="value">8.88</text>
+<text x="0" y="48" class="label">Earth party camera ellipse</text><rect x="190" y="35" width="723.12" height="14" class="baseline"/><text x="919.12" y="47" class="value">7.96</text><rect x="190" y="52" width="830.00" height="14" class="candidate"/><text x="1026.00" y="64" class="value">9.14</text><text x="0" y="90" class="label">Earth party</text><rect x="190" y="77" width="713.15" height="14" class="baseline"/><text x="909.15" y="89" class="value">7.85</text><rect x="190" y="94" width="806.85" height="14" class="candidate"/><text x="1002.85" y="106" class="value">8.89</text><text x="0" y="132" class="label">Earth party camera dolly</text><rect x="190" y="119" width="801.59" height="14" class="baseline"/><text x="997.59" y="131" class="value">8.83</text><rect x="190" y="136" width="820.31" height="14" class="candidate"/><text x="1016.31" y="148" class="value">9.03</text><text x="0" y="174" class="label">All object-culling frames (weighted)</text><rect x="190" y="161" width="743.93" height="14" class="baseline"/><text x="939.93" y="173" class="value">8.19</text><rect x="190" y="178" width="818.94" height="14" class="candidate"/><text x="1014.94" y="190" class="value">9.02</text>
 </svg>
 <h2>Measurements</h2>
 <table>
 <thead><tr><th>Fixture</th>
 <th>Frames</th>
-<th>Working pre-Hecker baseline (Console8) FPS</th>
-<th>Latest incremental-depth firmware (Olimex) FPS</th>
+<th>Incremental depth control FPS</th>
+<th>Object AABB candidate FPS</th>
 <th>FPS gain</th>
-<th>Working pre-Hecker baseline (Console8) ms</th>
-<th>Latest incremental-depth firmware (Olimex) ms</th>
+<th>Incremental depth control ms</th>
+<th>Object AABB candidate ms</th>
 <th>Render-time change</th>
-<th>Working pre-Hecker baseline (Console8) run spread ms</th>
-<th>Latest incremental-depth firmware (Olimex) run spread ms</th>
+<th>Incremental depth control run spread ms</th>
+<th>Object AABB candidate run spread ms</th>
 </tr></thead>
-<tbody><tr><td>Cube</td><td>36</td><td>4.917</td><td>11.840</td><td>+140.79%</td><td>203.380</td><td>84.462</td><td>-58.47%</td><td>0.009</td><td>0.001</td></tr>
-<tr><td>EarthUV</td><td>36</td><td>6.943</td><td>11.587</td><td>+66.89%</td><td>144.027</td><td>86.301</td><td>-40.08%</td><td>0.005</td><td>0.000</td></tr>
-<tr><td>Earth party ellipse</td><td>289</td><td>5.720</td><td>8.011</td><td>+40.05%</td><td>174.820</td><td>124.823</td><td>-28.60%</td><td>0.001</td><td>0.000</td></tr>
-<tr><td>Cube near-plane</td><td>73</td><td>3.796</td><td>10.047</td><td>+164.65%</td><td>263.422</td><td>99.535</td><td>-62.21%</td><td>0.011</td><td>0.006</td></tr>
-<tr><td>EarthUV near-plane</td><td>73</td><td>4.428</td><td>9.614</td><td>+117.13%</td><td>225.861</td><td>104.020</td><td>-53.95%</td><td>0.004</td><td>0.000</td></tr>
-<tr><td>All quick-chain frames (weighted)</td><td>507</td><td>5.134</td><td>8.882</td><td>+73.00%</td><td>194.768</td><td>112.585</td><td>-42.20%</td><td>0.002</td><td>0.001</td></tr></tbody>
+<tbody><tr><td>Earth party camera ellipse</td><td>289</td><td>7.963</td><td>9.140</td><td>+14.78%</td><td>125.577</td><td>109.405</td><td>-12.88%</td><td>0.000</td><td>0.002</td></tr>
+<tr><td>Earth party</td><td>289</td><td>7.854</td><td>8.885</td><td>+13.14%</td><td>127.331</td><td>112.545</td><td>-11.61%</td><td>0.000</td><td>0.001</td></tr>
+<tr><td>Earth party camera dolly</td><td>289</td><td>8.827</td><td>9.034</td><td>+2.34%</td><td>113.283</td><td>110.698</td><td>-2.28%</td><td>0.000</td><td>0.005</td></tr>
+<tr><td>All object-culling frames (weighted)</td><td>867</td><td>8.192</td><td>9.019</td><td>+10.08%</td><td>122.064</td><td>110.883</td><td>-9.16%</td><td>0.000</td><td>0.001</td></tr></tbody>
 </table>
 </body>
 </html>
