@@ -1,0 +1,129 @@
+{
+  "schema_version": 1,
+  "generated_utc": "2026-07-29T20:27:59Z",
+  "profile": {
+    "key": "quick",
+    "description": "Shortened 507-frame near-plane development chain",
+    "frames_per_run": 507,
+    "stream_end_sequences": {
+      "1257": 217,
+      "1410": 288
+    }
+  },
+  "baseline": {
+    "label": "Olimex subdivided-affine float",
+    "log": "benchmarks/render-spin/results/olimex-subdivided-affine-two-run-hardware-2026-07-29.log",
+    "log_sha256": "e047774bc9cab0c236d2c0327c3ee49bc35a5f1ccc5f6bf3902836ebb4de2060",
+    "complete_runs": {
+      "1257": 2,
+      "1410": 2
+    }
+  },
+  "candidate": {
+    "label": "Olimex signed 16.16 span",
+    "log": "benchmarks/render-spin/results/olimex-fixed16-two-run-hardware-2026-07-29.log",
+    "log_sha256": "be1a9a09d7a278db5f5c8d4bc17aaa115e6f309bd46f22950a37d245dd9821fe",
+    "complete_runs": {
+      "1257": 2,
+      "1410": 2
+    }
+  },
+  "rows": [
+    {
+      "fixture": "Cube",
+      "frames": 36,
+      "baseline": {
+        "mean_us": 90664.11111111111,
+        "fps": 11.029722651496305,
+        "run_spread_us": 7.055555555562023
+      },
+      "candidate": {
+        "mean_us": 104443.65277777778,
+        "fps": 9.574540658087434,
+        "run_spread_us": 3.9166666666715173
+      },
+      "fps_gain_percent": -13.193278193731006,
+      "render_time_change_percent": 15.19845228480705
+    },
+    {
+      "fixture": "EarthUV",
+      "frames": 36,
+      "baseline": {
+        "mean_us": 88926.55555555556,
+        "fps": 11.24523483174005,
+        "run_spread_us": 0.8888888888905058
+      },
+      "candidate": {
+        "mean_us": 99868.80555555556,
+        "fps": 10.013136679037526,
+        "run_spread_us": 5.22222222223354
+      },
+      "fps_gain_percent": -10.956624482619837,
+      "render_time_change_percent": 12.304817083760767
+    },
+    {
+      "fixture": "Earth party ellipse",
+      "frames": 289,
+      "baseline": {
+        "mean_us": 126790.06055363323,
+        "fps": 7.887053572129117,
+        "run_spread_us": 0.01730103806767147
+      },
+      "candidate": {
+        "mean_us": 137540.36332179932,
+        "fps": 7.2705929797519016,
+        "run_spread_us": 1.4048442906641867
+      },
+      "fps_gain_percent": -7.816107583643584,
+      "render_time_change_percent": 8.478821384913381
+    },
+    {
+      "fixture": "Cube near-plane",
+      "frames": 73,
+      "baseline": {
+        "mean_us": 107769.1506849315,
+        "fps": 9.279093262259716,
+        "run_spread_us": 3.4794520548020955
+      },
+      "candidate": {
+        "mean_us": 126575.04109589041,
+        "fps": 7.900451711032212,
+        "run_spread_us": 5.095890410972061
+      },
+      "fps_gain_percent": -14.857502907474451,
+      "render_time_change_percent": 17.450161100312343
+    },
+    {
+      "fixture": "EarthUV near-plane",
+      "frames": 73,
+      "baseline": {
+        "mean_us": 110206.27397260274,
+        "fps": 9.073893562979906,
+        "run_spread_us": 2.4931506849388825
+      },
+      "candidate": {
+        "mean_us": 126613.96575342465,
+        "fps": 7.898022892257066,
+        "run_spread_us": 1.1369863013824215
+      },
+      "fps_gain_percent": -12.958832529402953,
+      "render_time_change_percent": 14.888164883335818
+    },
+    {
+      "fixture": "All quick-chain frames (weighted)",
+      "frames": 507,
+      "baseline": {
+        "mean_us": 116409.85700197238,
+        "fps": 8.590337843839603,
+        "run_spread_us": 0.4122287968348246
+      },
+      "candidate": {
+        "mean_us": 129363.33530571993,
+        "fps": 7.730165565356941,
+        "run_spread_us": 0.7455621301778592
+      },
+      "fps_gain_percent": -10.013253193522742,
+      "render_time_change_percent": 11.127475488203764
+    }
+  ]
+}
