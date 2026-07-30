@@ -64,10 +64,19 @@ DIAGNOSTIC_V3_KEYS = (
     "ta",
     *DIAGNOSTIC_V2_KEYS[12:],
 )
+DIAGNOSTIC_V4_KEYS = (
+    *DIAGNOSTIC_V3_KEYS[:18],
+    "tc",
+    "tu",
+    "tg",
+    "tp",
+    *DIAGNOSTIC_V3_KEYS[18:],
+)
 DIAGNOSTIC_KEYS_BY_VERSION = {
     1: DIAGNOSTIC_V1_KEYS,
     2: DIAGNOSTIC_V2_KEYS,
     3: DIAGNOSTIC_V3_KEYS,
+    4: DIAGNOSTIC_V4_KEYS,
 }
 
 DIAGNOSTIC_NAMES = {
@@ -88,6 +97,10 @@ DIAGNOSTIC_NAMES = {
     "ti": "triangles_submitted",
     "tz": "triangles_z_rejected",
     "tfr": "triangles_frustum_rejected",
+    "tc": "triangles_clipped",
+    "tu": "triangles_unclipped",
+    "tg": "triangles_generated",
+    "tp": "triangles_projection_rejected",
     "tf": "triangles_backface_rejected",
     "td": "triangles_degenerate",
     "to": "triangles_bbox_rejected",
@@ -160,7 +173,27 @@ def parse_diagnostics(tail: str) -> dict[str, int] | None:
             raise ValueError(
                 "diagnostic avoided triangles require a rejected object"
             )
-    if fields["ti"] != (
+    if version >= 4:
+        if fields["ti"] != (
+            fields["tz"]
+            + fields["tfr"]
+            + fields["tc"]
+            + fields["tu"]
+        ):
+            raise ValueError(
+                "diagnostic source-triangle counters violate their partition"
+            )
+        if fields["tg"] != (
+            fields["tp"]
+            + fields["tf"]
+            + fields["td"]
+            + fields["to"]
+            + fields["tr"]
+        ):
+            raise ValueError(
+                "diagnostic generated-triangle counters violate their partition"
+            )
+    elif fields["ti"] != (
         fields["tz"]
         + fields.get("tfr", 0)
         + fields["tf"]
@@ -515,6 +548,9 @@ def build_summary(
             counter_keys.insert(3, "tfr")
         if schema_version >= 3:
             counter_keys[1:1] = ["obt", "ofr", "ta"]
+        if schema_version >= 4:
+            insert_at = counter_keys.index("tfr") + 1
+            counter_keys[insert_at:insert_at] = ["tc", "tu", "tg", "tp"]
         counter_totals = {
             key: sum(item[key] for item in measured_diagnostics)
             for key in counter_keys
@@ -553,6 +589,11 @@ def build_summary(
         def share(value: int, denominator: int) -> float:
             return value / denominator if denominator else 0.0
 
+        generated_triangle_denominator = (
+            counter_totals["tg"]
+            if schema_version >= 4
+            else counter_totals["ti"]
+        )
         summary["renderer_diagnostics"] = {
             "schema_version": schema_version,
             "measurement_warning": (
@@ -621,20 +662,20 @@ def build_summary(
                     counter_totals["tz"], counter_totals["ti"]
                 ),
                 "backface_rejected": share(
-                    counter_totals["tf"], counter_totals["ti"]
+                    counter_totals["tf"], generated_triangle_denominator
                 ),
                 "degenerate": share(
-                    counter_totals["td"], counter_totals["ti"]
+                    counter_totals["td"], generated_triangle_denominator
                 ),
                 "bbox_rejected": share(
-                    counter_totals["to"], counter_totals["ti"]
+                    counter_totals["to"], generated_triangle_denominator
                 ),
                 "rasterized": share(
-                    counter_totals["tr"], counter_totals["ti"]
+                    counter_totals["tr"], generated_triangle_denominator
                 ),
             },
             "bbox_clamped_triangle_ratio": share(
-                counter_totals["tv"], counter_totals["ti"]
+                counter_totals["tv"], generated_triangle_denominator
             ),
             "coverage_ratio": share(
                 counter_totals["pc"], counter_totals["pt"]
@@ -656,6 +697,20 @@ def build_summary(
             summary["renderer_diagnostics"]["triangle_outcome_ratios"][
                 "frustum_rejected"
             ] = share(counter_totals["tfr"], counter_totals["ti"])
+        if schema_version >= 4:
+            summary["renderer_diagnostics"]["triangle_outcome_ratios"].update(
+                {
+                    "clipped": share(
+                        counter_totals["tc"], counter_totals["ti"]
+                    ),
+                    "unclipped": share(
+                        counter_totals["tu"], counter_totals["ti"]
+                    ),
+                    "projection_rejected": share(
+                        counter_totals["tp"], counter_totals["tg"]
+                    ),
+                }
+            )
         if schema_version >= 3:
             summary["renderer_diagnostics"].update(
                 {
@@ -777,6 +832,18 @@ def main() -> int:
         if "frustum_rejected" in triangle_ratios:
             outcomes.append(
                 f"frustum {triangle_ratios['frustum_rejected']:.1%}"
+            )
+        if "clipped" in triangle_ratios:
+            outcomes.extend(
+                (
+                    f"clipped {triangle_ratios['clipped']:.1%}",
+                    f"unclipped {triangle_ratios['unclipped']:.1%}",
+                )
+            )
+        if "projection_rejected" in triangle_ratios:
+            outcomes.append(
+                "projection "
+                f"{triangle_ratios['projection_rejected']:.1%}"
             )
         outcomes.extend(
             (

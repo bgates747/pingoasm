@@ -71,6 +71,22 @@ DIAGNOSTIC_FIELDS_V3 = {
     "ofr": 0,
     "ta": 0,
 }
+DIAGNOSTIC_FIELDS_V4 = {
+    **DIAGNOSTIC_FIELDS_V3,
+    "d": 4,
+    "ti": 12,
+    "tz": 1,
+    "tfr": 1,
+    "tc": 4,
+    "tu": 6,
+    "tg": 14,
+    "tp": 1,
+    "tf": 4,
+    "td": 1,
+    "to": 2,
+    "tr": 6,
+    "tv": 3,
+}
 
 
 def ordinary_line(
@@ -153,6 +169,11 @@ class ParseRenderDiagnosticsTests(unittest.TestCase):
         self.assertEqual(len(records), 1)
         self.assertEqual(records[0][3], DIAGNOSTIC_FIELDS_V3)
 
+    def test_complete_version_four_record(self) -> None:
+        records = parse_records(diagnostic_line(fields=DIAGNOSTIC_FIELDS_V4))
+        self.assertEqual(len(records), 1)
+        self.assertEqual(records[0][3], DIAGNOSTIC_FIELDS_V4)
+
     def test_version_one_rejects_version_two_field(self) -> None:
         fields = dict(DIAGNOSTIC_FIELDS, tfr=0)
         tail = " ".join(f"{key}={value}" for key, value in fields.items())
@@ -229,6 +250,33 @@ class ParseRenderDiagnosticsTests(unittest.TestCase):
         tail = " ".join(f"{key}={value}" for key, value in fields.items())
         self.assertEqual(parse_diagnostics(tail), fields)
 
+    def test_version_three_rejects_version_four_fields(self) -> None:
+        fields = dict(
+            DIAGNOSTIC_FIELDS_V3,
+            tc=0,
+            tu=12,
+            tg=12,
+            tp=0,
+        )
+        tail = " ".join(f"{key}={value}" for key, value in fields.items())
+        with self.assertRaisesRegex(
+            ValueError, "unknown fields: tc, tg, tp, tu"
+        ):
+            parse_diagnostics(tail)
+
+    def test_version_four_requires_all_clipping_fields(self) -> None:
+        for missing in ("tc", "tu", "tg", "tp"):
+            fields = dict(DIAGNOSTIC_FIELDS_V4)
+            del fields[missing]
+            tail = " ".join(
+                f"{key}={value}" for key, value in fields.items()
+            )
+            with self.subTest(missing=missing):
+                with self.assertRaisesRegex(
+                    ValueError, f"missing fields: {missing}"
+                ):
+                    parse_diagnostics(tail)
+
     def test_malformed_record_is_preserved_for_run_selection(self) -> None:
         records = parse_records(
             ordinary_line(sequence=7, bmid=1257).rstrip()
@@ -270,6 +318,24 @@ class ParseRenderDiagnosticsTests(unittest.TestCase):
         )
         tail = " ".join(f"{key}={value}" for key, value in fields.items())
         self.assertEqual(parse_diagnostics(tail), fields)
+
+    def test_version_four_source_triangle_partition_is_enforced(self) -> None:
+        fields = dict(DIAGNOSTIC_FIELDS_V4, tu=5)
+        tail = " ".join(f"{key}={value}" for key, value in fields.items())
+        with self.assertRaisesRegex(
+            ValueError, "source-triangle counters"
+        ):
+            parse_diagnostics(tail)
+
+    def test_version_four_generated_triangle_partition_is_enforced(
+        self,
+    ) -> None:
+        fields = dict(DIAGNOSTIC_FIELDS_V4, tr=5)
+        tail = " ".join(f"{key}={value}" for key, value in fields.items())
+        with self.assertRaisesRegex(
+            ValueError, "generated-triangle counters"
+        ):
+            parse_diagnostics(tail)
 
     def test_fragment_partition_is_enforced(self) -> None:
         fields = dict(DIAGNOSTIC_FIELDS, ps=44999)
@@ -602,6 +668,43 @@ class BuildRenderSummaryTests(unittest.TestCase):
         self.assertAlmostEqual(
             diagnostics["triangle_avoidance_ratio"], 1.0
         )
+
+    def test_version_four_aggregate_separates_source_and_generated_ratios(
+        self,
+    ) -> None:
+        fields = (
+            DIAGNOSTIC_FIELDS_V4,
+            DIAGNOSTIC_FIELDS_V4,
+            DIAGNOSTIC_FIELDS_V4,
+        )
+        summary = build_summary(
+            PROFILE,
+            parse_records(diagnostic_run(fields=fields)),
+            require_diagnostics=True,
+        )
+        diagnostics = summary["renderer_diagnostics"]
+        self.assertEqual(diagnostics["schema_version"], 4)
+        totals = diagnostics["counter_totals"]
+        self.assertEqual(totals["triangles_clipped"], 8)
+        self.assertEqual(totals["triangles_unclipped"], 12)
+        self.assertEqual(totals["triangles_generated"], 28)
+        self.assertEqual(totals["triangles_projection_rejected"], 2)
+        ratios = diagnostics["triangle_outcome_ratios"]
+        self.assertAlmostEqual(ratios["z_rejected"], 1 / 12)
+        self.assertAlmostEqual(ratios["frustum_rejected"], 1 / 12)
+        self.assertAlmostEqual(ratios["clipped"], 1 / 3)
+        self.assertAlmostEqual(ratios["unclipped"], 1 / 2)
+        self.assertAlmostEqual(ratios["projection_rejected"], 1 / 14)
+        self.assertAlmostEqual(ratios["backface_rejected"], 2 / 7)
+        self.assertAlmostEqual(ratios["degenerate"], 1 / 14)
+        self.assertAlmostEqual(ratios["bbox_rejected"], 1 / 7)
+        self.assertAlmostEqual(ratios["rasterized"], 3 / 7)
+        self.assertAlmostEqual(
+            diagnostics["bbox_clamped_triangle_ratio"], 3 / 14
+        )
+        frame_diagnostics = summary["frames"][0]["diagnostics"]
+        self.assertEqual(frame_diagnostics["triangles_clipped"], 4)
+        self.assertEqual(frame_diagnostics["triangles_generated"], 14)
 
     def test_motion_profile_adds_absolute_translation_to_frames(self) -> None:
         profile = {
