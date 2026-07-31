@@ -21,6 +21,11 @@ TARGET_DIR = APP_ROOT / "tgt"
 SCRIPTS_DIR = PROJECT_ROOT / "build" / "scripts"
 ASSEMBLY_FILENAME = "earth-party.asm"
 OUTPUT_FILENAME = "earth-party.bin"
+STARFIELD_INCLUDE = "starfield.inc"
+POSE_HELPER_INCLUDE = "pose-cycle.inc"
+EARTH_POSE_INCLUDE = "earth-spin-cycle.inc"
+COMMON_POSE_HELPER = PROJECT_ROOT / "apps" / "_common" / POSE_HELPER_INCLUDE
+GENERATOR = "build/scripts/build_earth_party_local.py"
 EZ80_APPLICATION_WINDOW = 0x80000
 EXPECTED_MODELS = (
     "jet",
@@ -74,6 +79,23 @@ def load_profile() -> dict[str, Any]:
         raise ValueError(
             "Earth Party models must be exactly: " + ", ".join(EXPECTED_MODELS)
         )
+
+    starfield = profile.get("starfield")
+    if not isinstance(starfield, dict):
+        raise ValueError("Earth Party profile needs a starfield section")
+    sys.path.insert(0, str(SCRIPTS_DIR))
+    from generate_earth_party_starfield import validate_configuration
+
+    validate_configuration(starfield)
+    for key in ("earth_tilt_x_units", "earth_tilt_z_units"):
+        value = starfield.get(key)
+        if not isinstance(value, int) or not -32768 <= value <= 32767:
+            raise ValueError(f"starfield.{key} must be a signed 16-bit integer")
+    catalog_source = project_path(str(starfield["catalog_source"]))
+    if not catalog_source.is_file():
+        raise ValueError(f"missing starfield catalog: {starfield['catalog_source']}")
+    textures.append(str(starfield["texture_filename"]))
+
     if len(textures) != len(set(textures)):
         raise ValueError("texture filenames must be unique")
     for texture in textures:
@@ -106,6 +128,12 @@ def build() -> Path:
     from PIL import Image
     from agonImages import img_to_rgba2
     from blender_obj_to_asm import parse_obj_file, write_data
+    from generate_earth_party_starfield import generate as generate_starfield
+    from generate_pose_cycle import (
+        PoseCycleSpec,
+        write_generated_snapshot,
+        write_pose_cycle_include,
+    )
 
     temporary_root = Path(tempfile.mkdtemp(prefix=".earth-party-build-", dir=APP_ROOT))
     generated_source = temporary_root / "src"
@@ -141,12 +169,51 @@ def build() -> Path:
                 ),
             )
 
-        # Only the six generated model includes are replaceable. Hand-written
-        # assembly, controls, and the app-local 3D snapshot remain untouched.
+        starfield = profile["starfield"]
+        starfield_texture = payload / str(starfield["texture_filename"])
+        generate_starfield(
+            project_path(str(starfield["catalog_source"])),
+            generated_source / STARFIELD_INCLUDE,
+            starfield_texture,
+            starfield,
+            provenance_path=str(starfield["catalog_source"]),
+        )
+        textures.append(starfield_texture)
+
+        write_generated_snapshot(
+            COMMON_POSE_HELPER,
+            generated_source / POSE_HELPER_INCLUDE,
+            generator=GENERATOR,
+            source_label="apps/_common/pose-cycle.inc",
+        )
+        write_pose_cycle_include(
+            generated_source / EARTH_POSE_INCLUDE,
+            PoseCycleSpec(
+                symbol="earth_spin_pose",
+                base_euler=(
+                    int(starfield["earth_tilt_x_units"]),
+                    0,
+                    int(starfield["earth_tilt_z_units"]),
+                ),
+                local_axis="y",
+                sample_count=256,
+            ),
+            generator=GENERATOR,
+            authoritative_input="apps/earth-party-local/profile.json",
+        )
+
+        # Only the six generated model includes and procedural starfield are
+        # replaceable. Hand-written controls and the app-local 3D snapshot
+        # remain untouched.
         for name in EXPECTED_MODELS:
             (generated_source / f"{name}.inc").replace(
                 SOURCE_DIR / f"{name}.inc"
             )
+        (generated_source / STARFIELD_INCLUDE).replace(
+            SOURCE_DIR / STARFIELD_INCLUDE
+        )
+        for filename in (POSE_HELPER_INCLUDE, EARTH_POSE_INCLUDE):
+            (generated_source / filename).replace(SOURCE_DIR / filename)
 
         temporary_output = payload / OUTPUT_FILENAME
         output_argument = os.path.relpath(

@@ -1,6 +1,19 @@
 {
   "name": "earth-party-local",
-  "description": "Interactive Jet and camera with a persistent-velocity Earth Party scene",
+  "description": "Interactive Jet and camera with a persistent-velocity Earth Party and real-star sky",
+  "starfield": {
+    "catalog_source": "apps/earth-party-local/assets/stars.tsv",
+    "texture_filename": "stars.rgba2",
+    "ra_center_hours": 6.0,
+    "shell_radius": 0.96,
+    "object_scale": 60000,
+    "fov_radians": 0.6,
+    "viewport_height": 240,
+    "minimum_radius_pixels": 2.0,
+    "maximum_radius_pixels": 5.5,
+    "earth_tilt_x_units": 1536,
+    "earth_tilt_z_units": 1536
+  },
   "models": [
     {
       "name": "jet",

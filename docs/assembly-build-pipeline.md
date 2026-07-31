@@ -89,9 +89,50 @@ project-local 3D API snapshot.
 `apps/earth-party-local` is a source-preserving hybrid application.
 `build_earth_party_local.py` leaves its hand-written control and 3D sources
 untouched while regenerating six symbol-prefixed model includes and six
-RGBA2222 runtime textures from `profile.json`, assembling
-`src/earth-party.asm`, and enforcing the 512 KiB executable-plus-staging
-window.
+model RGBA2222 textures from `profile.json`. It also deterministically turns
+the tracked 128-entry Bright Star Catalogue subset into one six-sector
+`starfield.inc` and a shared RGBA2222 palette texture. The same build snapshots
+`apps/_common/pose-cycle.inc` into the portable app source and uses
+`generate_pose_cycle.py` to produce `earth-spin-cycle.inc`. Each 24-byte
+sample contains fine 32767-unit Pingo wire Euler words plus the corresponding
+signed-Q15 internal matrix, so periodic poses close without accumulated drift
+or runtime inverse trigonometry. The generator is parameterized by base pose,
+local X/Y/Z axis, and sample count; the ordinary free-motion integrator is not
+changed. The builder then assembles `src/earth-party.asm` and enforces the
+512 KiB executable-plus-staging window. The normal build is offline;
+`update_earth_party_star_catalog.py` is the explicit networked maintenance
+path for refreshing the verified CDS V/50 source.
+
+`apps/earth-party-flat-local` is an isolated rendering-policy sibling. Its
+dedicated builder retains the same application logic and generated star sky,
+but converts Jet and Airliner to validated predominant-color palette meshes.
+All other model generation is unchanged. The source selects flat shading for
+those two vehicles and all star sectors, self illumination only for the stars,
+and a 32/127 ambient floor for every scene-lit mesh. It uses the same generated
+sampled-pose machinery as the ordinary Earth Party and assembles
+`tgt/earth-party-flat.bin` under the same staging-window guard.
+
+`apps/lighting-shading` is a standalone visual qualification application for
+scene-wide light direction, intensity, ambient floor, illumination bypass,
+and mesh-local textured/flat-palette selection. Its profile identifies the
+canonical Cube OBJ, labeled Cube texture, and row-major 8×8 Agon palette.
+`build_lighting_shading.py` generates portable namespaced includes only on an
+explicit regeneration, verifies the canonical packed palette, rejects any
+flat source triangle whose three final UV words select different palette
+cells, assembles `src/lighting-shading.asm`, and stages both RGBA2222 textures.
+
+The fixture places its Cubes at `x=−480` and `x=+480`, with `y=z=0`, and puts
+the unrotated camera at `(0,0,+3200)`. That camera looks along canonical `−Z`
+toward the origin; `+3200` is therefore the correct camera-side position.
+
+Build or explicitly regenerate it from anywhere:
+
+```bash
+~/Agon/mystuff/pingoasm/.venv/bin/python \
+  ~/Agon/mystuff/pingoasm/build/scripts/build_lighting_shading.py
+~/Agon/mystuff/pingoasm/.venv/bin/python \
+  ~/Agon/mystuff/pingoasm/build/scripts/build_lighting_shading.py --regenerate
+```
 
 Run from anywhere:
 
@@ -100,7 +141,7 @@ Run from anywhere:
   ~/Agon/mystuff/pingoasm/build/scripts/build_samples.py
 ```
 
-The successful build produces 17 binaries:
+The successful build produces 18 binaries:
 
 ```text
 apps/movecam/tgt/{jet,cube,earthuv,tri,heavytank}.bin
@@ -111,6 +152,7 @@ apps/wolf/tgt/wolf.bin
 apps/moveobj-local/tgt/jet.bin
 apps/moveair-local/tgt/jet.bin
 apps/earth-party-local/tgt/earth-party.bin
+apps/earth-party-flat-local/tgt/earth-party-flat.bin
 apps/lighting-shading/tgt/lighting-shading.bin
 ```
 
@@ -124,12 +166,15 @@ The driver:
 6. builds specialized applications;
 7. recreates the `moveobj-local` and `moveair-local` targets without modifying
    their sources;
-8. regenerates only the Earth Party model/texture assets, preserves its
-   hand-written source, and checks its staging bound;
-9. validates and assembles the tracked lighting/shading fixture without
+8. regenerates the Earth Party model/texture/star assets and portable sampled
+   pose support, preserves its hand-written source, and checks its staging
+   bound;
+9. independently builds the flat-vehicle, emissive-star Earth Party sibling
+   through the same sampled-pose contract;
+10. validates and assembles the tracked lighting/shading fixture without
    implicit source regeneration;
-10. exits nonzero on the first failure; and
-11. prints every output.
+11. exits nonzero on the first failure; and
+12. prints every output.
 
 Macro parameters use explicit names such as `VERTEX_DATA`, `VERTEX_COUNT`,
 `MESH_ID`, and `BITMAP_ID` to avoid ez80asm 2.1 replacing short parameter names
@@ -242,7 +287,7 @@ unattended rerun workflow.
 The current pipeline is accepted when:
 
 1. Python entry points compile;
-2. all 17 binaries assemble;
+2. all 18 binaries assemble;
 3. generated `src/` contains only `.asm`/`.inc`;
 4. `tgt/` contains only permitted binaries/textures;
 5. generated banners name their source and generator;

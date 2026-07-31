@@ -36,8 +36,10 @@ The central model library is temporary; see
 The build regenerates `movecam` and `moveobj` for five models—jet, cube,
 earthuv, triangle, and HeavyTank—then builds `moveair`, `movefsim`, `wolf`, and
 the source-preserved asynchronous `moveobj-local` and `moveair-local` Jet
-clients. It also regenerates the six prefixed models and textures for the
-interactive `earth-party-local` application. The complete build produces 16
+clients. It also regenerates the six prefixed models, real-star sky, and seven
+textures for the interactive `earth-party-local` application, then validates
+and builds its `earth-party-flat-local` rendering-policy sibling and the
+`lighting-shading` qualification fixture. The complete build produces 18
 binaries and exits on the first assembly failure.
 
 See [Assembly build pipeline](docs/assembly-build-pipeline.md).
@@ -64,7 +66,37 @@ axis. The four companions begin 90 degrees apart and obtain closed circular
 motion solely from persistent local forward and yaw velocities; their world
 positions are not scripted. Its profile-driven hybrid builder regenerates
 portable prefixed model includes and sequentially staged RGBA2222 textures
-from the authoritative OBJ/PNG sources.
+from the authoritative OBJ/PNG sources. A tracked Bright Star Catalogue
+selection adds 128 real stars with magnitude-scaled five-point glyphs and
+exaggerated B−V colors. Six spatial batches share one palette texture so
+Pingo's object-level frustum culling can reject most of the sky cheaply.
+
+`apps/earth-party-flat-local` preserves that simulation exactly while turning
+Jet and Airliner into predominant-palette-color flat meshes, selecting flat
+native-color rendering for all six self-illuminated star sectors, and setting
+the scene-lit ambient floor to 32/127. Earth, Crash, Lara, and HeavyTank remain
+textured and scene-lit.
+
+## Lighting and shading qualification
+
+`apps/lighting-shading` displays four simultaneous views of a textured Cube
+and a flat-palette Cube. The panels exercise default lighting, a side light,
+overdrive plus ambient light, and illumination bypass. Both mesh modes remain
+on the established Pingo geometry, clipping, depth, and RGBA2222 paths.
+
+Its normal build validates the tracked final flat-palette UV words and fails
+if one source triangle selects more than one palette cell; it does not silently
+regenerate edited source. Use the explicit `--regenerate` option only when the
+canonical OBJ, texture, palette, common VDU helper, or conversion code changes:
+
+```bash
+.venv/bin/python build/scripts/build_lighting_shading.py
+.venv/bin/python build/scripts/build_lighting_shading.py --regenerate
+```
+
+The two Cubes are at `(−480,0,0)` and `(+480,0,0)`. The unrotated camera is at
+`(0,0,+3200)` and looks along canonical `−Z` toward the scene; the positive-Z
+camera position is intentional under the project's right-handed convention.
 
 ## Render benchmark
 

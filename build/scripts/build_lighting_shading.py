@@ -191,6 +191,7 @@ def regenerate_source(
         textured_size,
         symbol_prefix="textured_cube",
         authoritative_input=model_source.relative_to(PROJECT_ROOT).as_posix(),
+        generator=GENERATOR,
     )
 
     palette_png = project_path(str(profile["palette_png_source"]))
@@ -207,6 +208,7 @@ def regenerate_source(
             f"{textured_png.relative_to(PROJECT_ROOT).as_posix()}; "
             f"{palette_png.relative_to(PROJECT_ROOT).as_posix()}"
         ),
+        generator=GENERATOR,
     )
     validate_flat_palette_asm(destination / "flat-cube.inc", "flat_cube")
     expected_cube_selections = [25, 12, 9, 16, 17, 10] * 2

@@ -331,6 +331,8 @@ pingo_illumination_off: equ 0
 pingo_illumination_on: equ 1
 pingo_shading_textured: equ 0
 pingo_shading_flat_palette: equ 1
+pingo_mesh_illumination_scene: equ 0
+pingo_mesh_illumination_self: equ 1
 
 ; Set the scene-wide directional-light vector.
 ; inputs: bc=x, de=y, iy=z (signed 16-bit ratios; zero vector is rejected)
@@ -411,6 +413,23 @@ pingo_set_mesh_shading_mode:
     db $49,47
 @mid: dw 0
 @mode: db pingo_shading_textured
+@end:
+
+; Select scene lighting or native-color self illumination for one mesh.
+; inputs: hl=mesh ID, a=pingo_mesh_illumination_scene/self
+pingo_set_mesh_illumination_mode:
+    ld (@mid),hl
+    ld (@mode),a
+    ld hl,@beg
+    ld bc,@end-@beg
+    rst.lil $18
+    ret
+@beg:
+    db 23,0,$A0
+    dw sid
+    db $49,48
+@mid: dw 0
+@mode: db pingo_mesh_illumination_scene
 @end:
 
 ; set pingo camera distance relative

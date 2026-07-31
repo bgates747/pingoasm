@@ -373,9 +373,26 @@ class StaticApplicationBuildTests(unittest.TestCase):
         self.assertEqual(output, expected)
         module.build.assert_called_once_with()
 
+    def test_flat_earth_party_uses_its_dedicated_builder(self) -> None:
+        expected = Path("apps/earth-party-flat-local/tgt/earth-party-flat.bin")
+        module = types.ModuleType("build_earth_party_flat_local")
+        module.build = mock.Mock(return_value=expected)
+
+        with mock.patch.dict(
+            "sys.modules",
+            {"build_earth_party_flat_local": module},
+        ):
+            output = build_samples.build_earth_party_flat_app()
+
+        self.assertEqual(output, expected)
+        module.build.assert_called_once_with()
+
     def test_master_build_includes_lighting_shading_fixture(self) -> None:
         earth_output = build_samples.PROJECT_ROOT / Path(
             "apps/earth-party-local/tgt/earth-party.bin"
+        )
+        flat_earth_output = build_samples.PROJECT_ROOT / Path(
+            "apps/earth-party-flat-local/tgt/earth-party-flat.bin"
         )
         lighting_output = build_samples.PROJECT_ROOT / Path(
             "apps/lighting-shading/tgt/lighting-shading.bin"
@@ -391,6 +408,11 @@ class StaticApplicationBuildTests(unittest.TestCase):
             ) as build_earth,
             mock.patch.object(
                 build_samples,
+                "build_earth_party_flat_app",
+                return_value=flat_earth_output,
+            ) as build_flat_earth,
+            mock.patch.object(
+                build_samples,
                 "build_lighting_shading_app",
                 return_value=lighting_output,
             ) as build_lighting,
@@ -399,6 +421,7 @@ class StaticApplicationBuildTests(unittest.TestCase):
             build_samples.main()
 
         build_earth.assert_called_once_with()
+        build_flat_earth.assert_called_once_with()
         build_lighting.assert_called_once_with()
 
     def test_build_static_app_replaces_only_target(self) -> None:

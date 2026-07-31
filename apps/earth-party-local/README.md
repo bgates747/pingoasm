@@ -1,12 +1,13 @@
 # Interactive eZ80-local Earth Party
 
 `earth-party-local` combines the qualified asynchronous moveair Jet and
-tracking camera with a six-object scene:
+tracking camera with six moving/solid bodies plus a six-sector real-star sky:
 
 1. the user-controlled Jet at `(0,0,-640)`;
 2. Earth at `(0,0,-4200)`;
 3. Crash, Lara, HeavyTank, and Airliner on a 2,500-unit X-Z orbit around
    Earth, initially separated by 90 degrees.
+4. 128 catalogued stars batched into six static spatial objects.
 
 The eZ80 owns every world pose. Current Pingo receives only absolute
 create/scale/rotation/translation commands and never receives a retired
@@ -32,10 +33,45 @@ or 4.267 seconds at 30 Hz. Radius remains between 2500.0 and 2516.1 units.
 
 Earth has a stable 23.69-degree coarse-Q15 approximation to the real
 23.44-degree obliquity. Its north pole points toward screen-left and toward
-the camera. Earth’s persistent local-Y rate advances an accumulated phase,
-but each absolute pose is derived from the immutable tilted basis. This
-avoids pole precession from repeatedly quantizing a compound orientation
-through coarse Euler words.
+the camera. Earth’s persistent local-Y rate advances a 32768-unit internal
+phase, wrapped explicitly after one turn. The nearest of 256 generated
+absolute pose samples supplies both the fine Pingo wire Euler angles and the
+matching signed-Q15 orientation matrix. One complete revolution therefore
+closes byte-exactly after 256 fixed ticks (8.533 seconds at 30 Hz), without
+either accumulated precession or the coarse inverse-trig snapping of the
+earlier fixed-basis implementation.
+
+The sampled-cycle mechanism is not Earth-specific. The reusable generator
+accepts any base Euler pose, local X/Y/Z spin axis, and up to 256 samples; the
+common assembly loader applies its 24-byte records to any `p3d` object. It is
+deliberately separate from the ordinary free-motion integrator used by the
+Jet and orbiters.
+
+## Real-star sky
+
+The sky contains every normal Bright Star Catalogue entry at Johnson
+`V <= 2.00`, plus the principal Bayer vertices of 19 familiar constellation
+figures. The resulting 128 visible stars retain catalogued J2000 right
+ascension, declination, V magnitude, B−V color, and spectral type. Close
+catalogue components such as Alpha Centauri and Acrux are merged by adding
+their V-band flux.
+
+Each star is a canonical five-point glyph: five triangles form its central
+pentagon and five more form its points. Apparent magnitude controls a
+deliberately compressed 2.0–5.5 pixel radius. B−V selects an exaggerated
+RGBA2222 palette, making Sirius saturated hot blue and Betelgeuse and Antares
+red.
+
+The sky is conceptually one generated asset but is partitioned by dominant
+cube-map direction into six meshes and six objects sharing one 24×2 texture.
+Pingo can normally reject five sector bounds before visiting their triangles;
+a single whole-sphere mesh would defeat object-level frustum culling and
+submit all 1,280 triangles every frame.
+
+Celestial north is rotated onto Earth's immutable tilted north-pole axis.
+The initial right-ascension phase places the Orion/Sirius region near the
+forward view. The camera remains at the world origin, so all six inward-facing
+sectors are created once and never enter the simulation dirty-state path.
 
 ## Simulation and rendering
 
@@ -64,10 +100,12 @@ completion registration command.
 
 ## Reproducible assets and build
 
-`profile.json` names all authoritative OBJ/PNG inputs. The dedicated builder
-regenerates the six app-local, symbol-prefixed model includes and RGBA2222
-textures, assembles `src/earth-party.asm`, and verifies that the executable
-plus the largest staged texture fits the 512 KiB eZ80 application window:
+`profile.json` names all authoritative OBJ/PNG and star-catalog inputs. The
+dedicated builder regenerates the six app-local, symbol-prefixed model
+includes, the six-sector `starfield.inc`, the app-local `pose-cycle.inc`
+snapshot, `earth-spin-cycle.inc`, and seven RGBA2222 textures. It then
+assembles `src/earth-party.asm` and verifies that the executable plus the
+largest staged texture fits the 512 KiB eZ80 application window:
 
 ```bash
 .venv/bin/python build/scripts/build_earth_party_local.py
@@ -86,6 +124,13 @@ apps/earth-party-local/tgt/earth-party.bin
 apps/earth-party-local/tgt/*.rgba2
 ```
 
+The ordinary build is offline. To deliberately refresh the tracked derived
+catalogue from the verified CDS V/50 source:
+
+```bash
+.venv/bin/python build/scripts/update_earth_party_star_catalog.py
+```
+
 Hardware deployment uses:
 
 ```bash
@@ -98,8 +143,12 @@ the canonical AgonMaths 3D API.
 ## Verification status
 
 The four autonomous orbiters close their complete retained states after 128
-fixed ticks in the deterministic oracle. The complete project build produces
-16 binaries and all 96 Python regressions pass.
+fixed ticks in the deterministic oracle. Starfield regressions verify the
+catalog anchors, deterministic sector assignment, magnitude/size ordering,
+palette extremes, Q15 bounds, inward winding, and Earth-pole alignment.
+Pose-cycle regressions additionally require 256 unique Earth poses, exact
+index closure, stable generated hashes, and adjacent physical steps within
+approximately 0.01 degree of the ideal 1.40625-degree increment.
 
 Human visual review passed on the isolated copied current-Pingo snapshot:
 

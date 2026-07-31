@@ -332,6 +332,113 @@ sorabs:
 @rz:    dw 0
 @end:   db 0 ; padding
 
+; Current Pingo scene-lighting and mesh-shading API.
+pingo_light_unity: equ 127
+pingo_illumination_off: equ 0
+pingo_illumination_on: equ 1
+pingo_shading_textured: equ 0
+pingo_shading_flat_palette: equ 1
+pingo_mesh_illumination_scene: equ 0
+pingo_mesh_illumination_self: equ 1
+
+; Set the scene-wide directional-light vector.
+; inputs: bc=x, de=y, iy=z (signed 16-bit ratios; zero vector is rejected)
+pingo_set_light_direction:
+    ld (@x),bc
+    ld (@y),de
+    ld (@z),iy
+    ld hl,@beg
+    ld bc,@end-@beg
+    rst.lil $18
+    ret
+@beg:
+    db 23,0,$A0
+    dw sid
+    db $49,43
+@x: dw 0
+@y: dw 0
+@z: dw 0
+@end: db 0 ; padding
+
+; Set directional-light intensity. 127 is unity; 128..255 overdrive.
+; inputs: a=intensity
+pingo_set_light_intensity:
+    ld (@intensity),a
+    ld hl,@beg
+    ld bc,@end-@beg
+    rst.lil $18
+    ret
+@beg:
+    db 23,0,$A0
+    dw sid
+    db $49,44
+@intensity: db pingo_light_unity
+@end:
+
+; Set the scene-wide ambient-light floor. 127 is unity.
+; inputs: a=ambient
+pingo_set_ambient_light:
+    ld (@ambient),a
+    ld hl,@beg
+    ld bc,@end-@beg
+    rst.lil $18
+    ret
+@beg:
+    db 23,0,$A0
+    dw sid
+    db $49,45
+@ambient: db 0
+@end:
+
+; Enable or disable illumination without changing the stored light settings.
+; inputs: a=pingo_illumination_off or pingo_illumination_on
+pingo_set_illumination_enabled:
+    ld (@enabled),a
+    ld hl,@beg
+    ld bc,@end-@beg
+    rst.lil $18
+    ret
+@beg:
+    db 23,0,$A0
+    dw sid
+    db $49,46
+@enabled: db pingo_illumination_on
+@end:
+
+; Select how a mesh interprets its existing UV data.
+; inputs: hl=mesh ID, a=pingo_shading_textured or pingo_shading_flat_palette
+pingo_set_mesh_shading_mode:
+    ld (@mid),hl
+    ld (@mode),a
+    ld hl,@beg
+    ld bc,@end-@beg
+    rst.lil $18
+    ret
+@beg:
+    db 23,0,$A0
+    dw sid
+    db $49,47
+@mid: dw 0
+@mode: db pingo_shading_textured
+@end:
+
+; Select scene lighting or native-color self illumination for one mesh.
+; inputs: hl=mesh ID, a=pingo_mesh_illumination_scene/self
+pingo_set_mesh_illumination_mode:
+    ld (@mid),hl
+    ld (@mode),a
+    ld hl,@beg
+    ld bc,@end-@beg
+    rst.lil $18
+    ret
+@beg:
+    db 23,0,$A0
+    dw sid
+    db $49,48
+@mid: dw 0
+@mode: db pingo_mesh_illumination_scene
+@end:
+
 ; set pingo camera distance relative
 ; inputs: bc distx, de disty, iy distz
 scdrel:

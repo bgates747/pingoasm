@@ -6,7 +6,8 @@
 ; remain dirty and are coalesced into the next absolute-state submission.
 ; The camera follows the user-controlled Jet. Earth spins about a tilted local
 ; axis, while four background objects retain constant forward and yaw
-; velocities that make closed, unscripted integer orbits.
+; velocities that make closed, unscripted integer orbits. A real 128-star sky
+; is split across six static spatial sectors for object-level frustum culling.
 ; =============================================================================
 
 mos_load:           equ 01h
@@ -55,6 +56,8 @@ vdp_version:
     include "vdu_pingo.inc"
     include "agon/3d.inc"
     include "agon/3d_sincos_table.inc"
+    include "pose-cycle.inc"
+    include "earth-spin-cycle.inc"
     include "inputair-local.inc"
     include "camera-follow.inc"
     include "render-async.inc"
@@ -64,6 +67,7 @@ vdp_version:
     include "lara.inc"
     include "heavytank.inc"
     include "airliner.inc"
+    include "starfield.inc"
 
 main:
     ld hl,vdp_version
@@ -121,6 +125,14 @@ main:
     ld a,1
     call vdu_load_img
 
+    ld bc,starfield_texture_width
+    ld de,starfield_texture_height
+    ld hl,starfield_bmid
+    ld ix,starfield_texture_size
+    ld iy,starfield_texture
+    ld a,1
+    call vdu_load_img
+
 ; The viewport is deliberately centralized below. At this point dimensions,
 ; rather than simulation frequency, are the main render-performance control.
     CTB2 tgtbmid,viewport_width,viewport_height
@@ -154,6 +166,39 @@ main:
     SMVI sid,airliner_mid,airliner_vertex_indices,airliner_indices_n
     STC sid,airliner_mid,airliner_uvs,airliner_uvs_n
     STCI sid,airliner_mid,airliner_uv_indices,airliner_indices_n
+
+; The real sky is one generated asset split into six cube-face sectors. The
+; six objects share one texture; their separate bounds let Pingo discard the
+; five sectors normally outside the camera frustum before triangle processing.
+    SV sid,starfield_px_mid,starfield_px_vertices,starfield_px_vertices_n
+    SMVI sid,starfield_px_mid,starfield_px_vertex_indices,starfield_px_indices_n
+    STC sid,starfield_px_mid,starfield_uvs,starfield_uvs_n
+    STCI sid,starfield_px_mid,starfield_px_uv_indices,starfield_px_indices_n
+
+    SV sid,starfield_nx_mid,starfield_nx_vertices,starfield_nx_vertices_n
+    SMVI sid,starfield_nx_mid,starfield_nx_vertex_indices,starfield_nx_indices_n
+    STC sid,starfield_nx_mid,starfield_uvs,starfield_uvs_n
+    STCI sid,starfield_nx_mid,starfield_nx_uv_indices,starfield_nx_indices_n
+
+    SV sid,starfield_py_mid,starfield_py_vertices,starfield_py_vertices_n
+    SMVI sid,starfield_py_mid,starfield_py_vertex_indices,starfield_py_indices_n
+    STC sid,starfield_py_mid,starfield_uvs,starfield_uvs_n
+    STCI sid,starfield_py_mid,starfield_py_uv_indices,starfield_py_indices_n
+
+    SV sid,starfield_ny_mid,starfield_ny_vertices,starfield_ny_vertices_n
+    SMVI sid,starfield_ny_mid,starfield_ny_vertex_indices,starfield_ny_indices_n
+    STC sid,starfield_ny_mid,starfield_uvs,starfield_uvs_n
+    STCI sid,starfield_ny_mid,starfield_ny_uv_indices,starfield_ny_indices_n
+
+    SV sid,starfield_pz_mid,starfield_pz_vertices,starfield_pz_vertices_n
+    SMVI sid,starfield_pz_mid,starfield_pz_vertex_indices,starfield_pz_indices_n
+    STC sid,starfield_pz_mid,starfield_uvs,starfield_uvs_n
+    STCI sid,starfield_pz_mid,starfield_pz_uv_indices,starfield_pz_indices_n
+
+    SV sid,starfield_nz_mid,starfield_nz_vertices,starfield_nz_vertices_n
+    SMVI sid,starfield_nz_mid,starfield_nz_vertex_indices,starfield_nz_indices_n
+    STC sid,starfield_nz_mid,starfield_uvs,starfield_uvs_n
+    STCI sid,starfield_nz_mid,starfield_nz_uv_indices,starfield_nz_indices_n
 
 ; 320x240x64 double-buffered display; the Pingo viewport may be tuned
 ; independently by changing the constants at the end of this file.
@@ -322,6 +367,27 @@ init_party_objects:
     ld ix,airliner_state
     ld iy,airliner_config
     call init_party_object
+
+; The camera remains at the origin, so these inward-facing celestial sectors
+; are initialized once and never acquire simulation velocity or dirty state.
+    ld ix,starfield_px_state
+    ld iy,starfield_px_config
+    call init_party_object
+    ld ix,starfield_nx_state
+    ld iy,starfield_nx_config
+    call init_party_object
+    ld ix,starfield_py_state
+    ld iy,starfield_py_config
+    call init_party_object
+    ld ix,starfield_ny_state
+    ld iy,starfield_ny_config
+    call init_party_object
+    ld ix,starfield_pz_state
+    ld iy,starfield_pz_config
+    call init_party_object
+    ld ix,starfield_nz_state
+    ld iy,starfield_nz_config
+    call init_party_object
     ret
 
 ; Advance every autonomous body once per fixed quantum. Nonzero persistent
@@ -337,11 +403,11 @@ simulate_party_step:
     ld ix,airliner_state
     jp p3d_object_step16
 
-; Spin Earth from a fixed tilted basis rather than repeatedly round-tripping
-; that basis through coarse Euler words. The ordinary object step is exact for
-; the pure-Y orbiters, but its intentional matrix/Euler reconciliation would
-; slowly precess a compound tilted axis. The retained angular velocity still
-; owns the rate; setting it to zero stops this integrator.
+; Advance an absolute sampled cycle rather than repeatedly round-tripping a
+; compound tilted pose through coarse Euler words. Each generated record owns
+; both the fine Pingo wire Euler angles and the matching internal Q15 matrix.
+; The retained local-Y angular velocity still owns rate and direction; zero
+; pauses the cycle.
 simulate_earth_spin:
     ld ix,earth_state
     ld e,(ix+p3d_object_local_angular_velocity+p3d_vec3_y)
@@ -354,31 +420,24 @@ simulate_earth_spin:
     ld a,(earth_spin_phase+1)
     ld h,a
     add.s hl,de
+    res 7,h
     ld a,l
     ld (earth_spin_phase),a
     ld a,h
     ld (earth_spin_phase+1),a
-    push hl
 
-; Restore the immutable obliquity matrix, then apply the complete accumulated
-; local-Y phase in one operation. This prevents time-dependent axis drift.
-    ld hl,earth_base_orientation
-    ld de,earth_state+p3d_object_orientation
-    ld bc,p3d_mat3_size
-    ldir
-    pop hl
-    ld ix,earth_state+p3d_object_orientation
-    call p3d_mat3_rotate_local_y16
-    ret c
-    ld iy,earth_state+p3d_object_pingo_rotation
-    call p3d_mat3_to_euler16
-    ret c
-    ld ix,earth_state
-    ld a,(ix+p3d_object_dirty)
-    or p3d_object_dirty_rotation
-    ld (ix+p3d_object_dirty),a
-    or a
-    ret
+; Select the nearest of 256 physical phases: ((phase+64)>>7)&255.
+    ld de,64
+    add.s hl,de
+    res 7,h
+    ld a,h
+    add a,a
+    bit 7,l
+    jr z,@sample_ready
+    inc a
+@sample_ready:
+    ld iy,earth_spin_pose_samples
+    jp p3d_object_apply_pose_sample8
 
 ; Return A nonzero when any object has an unsent absolute pose component.
 scene_pose_dirty:
@@ -540,6 +599,19 @@ heavytank_bmid: equ 261
 airliner_mid: equ 6
 airliner_oid: equ 6
 airliner_bmid: equ 262
+starfield_px_mid: equ 7
+starfield_px_oid: equ 7
+starfield_nx_mid: equ 8
+starfield_nx_oid: equ 8
+starfield_py_mid: equ 9
+starfield_py_oid: equ 9
+starfield_ny_mid: equ 10
+starfield_ny_oid: equ 10
+starfield_pz_mid: equ 11
+starfield_pz_oid: equ 11
+starfield_nz_mid: equ 12
+starfield_nz_oid: equ 12
+starfield_bmid: equ 263
 
 ; Initial behavioral baseline. Reduce these together to trade image area for
 ; render cadence while leaving the 30 Hz world simulation unchanged.
@@ -557,8 +629,6 @@ earth_x: equ 0
 earth_y: equ 0
 earth_z: equ -4200
 earth_scale: equ 1280
-earth_tilt_x: equ 1536
-earth_tilt_z: equ 1536
 earth_spin_step: equ 128
 
 orbit_center_z: equ earth_z
@@ -595,7 +665,7 @@ object_ids:
 earth_config:
     dw sid,earthuv_oid,earthuv_mid,earthuv_bmid
     dw earth_x,earth_y,earth_z
-    dw earth_tilt_x,0,earth_tilt_z
+    dw earth_spin_pose_base_x,earth_spin_pose_base_y,earth_spin_pose_base_z
     dw earth_scale
     dw 0,0,0
     dw 0,earth_spin_step,0
@@ -632,12 +702,53 @@ airliner_config:
     dw 0,0,orbit_forward_step
     dw 0,orbit_yaw_step,0
 
-; Coarse phase-aligned Rz(1536)*Rx(1536) basis. Its local +Y column is
-; (-9102,30006,9512): screen-left, mostly up, and toward the camera.
-earth_base_orientation:
-    dw 31356,-9102,2761
-    dw 9512,30006,-9102
-    dw 0,9512,31356
+starfield_px_config:
+    dw sid,starfield_px_oid,starfield_px_mid,starfield_bmid
+    dw 0,0,0
+    dw 0,0,0
+    dw starfield_object_scale
+    dw 0,0,0
+    dw 0,0,0
+
+starfield_nx_config:
+    dw sid,starfield_nx_oid,starfield_nx_mid,starfield_bmid
+    dw 0,0,0
+    dw 0,0,0
+    dw starfield_object_scale
+    dw 0,0,0
+    dw 0,0,0
+
+starfield_py_config:
+    dw sid,starfield_py_oid,starfield_py_mid,starfield_bmid
+    dw 0,0,0
+    dw 0,0,0
+    dw starfield_object_scale
+    dw 0,0,0
+    dw 0,0,0
+
+starfield_ny_config:
+    dw sid,starfield_ny_oid,starfield_ny_mid,starfield_bmid
+    dw 0,0,0
+    dw 0,0,0
+    dw starfield_object_scale
+    dw 0,0,0
+    dw 0,0,0
+
+starfield_pz_config:
+    dw sid,starfield_pz_oid,starfield_pz_mid,starfield_bmid
+    dw 0,0,0
+    dw 0,0,0
+    dw starfield_object_scale
+    dw 0,0,0
+    dw 0,0,0
+
+starfield_nz_config:
+    dw sid,starfield_nz_oid,starfield_nz_mid,starfield_bmid
+    dw 0,0,0
+    dw 0,0,0
+    dw starfield_object_scale
+    dw 0,0,0
+    dw 0,0,0
 
 object_state:
     ds p3d_object_size
@@ -650,6 +761,18 @@ lara_state:
 heavytank_state:
     ds p3d_object_size
 airliner_state:
+    ds p3d_object_size
+starfield_px_state:
+    ds p3d_object_size
+starfield_nx_state:
+    ds p3d_object_size
+starfield_py_state:
+    ds p3d_object_size
+starfield_ny_state:
+    ds p3d_object_size
+starfield_pz_state:
+    ds p3d_object_size
+starfield_nz_state:
     ds p3d_object_size
 
 object_packet:
