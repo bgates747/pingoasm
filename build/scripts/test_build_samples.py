@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import re
 import tempfile
+import types
 import unittest
 from pathlib import Path
 from unittest import mock
@@ -357,6 +358,48 @@ class StaticApplicationBuildTests(unittest.TestCase):
                 cwd=source_dir,
                 check=True,
             )
+
+    def test_lighting_shading_uses_non_regenerating_default_build(self) -> None:
+        expected = Path("apps/lighting-shading/tgt/lighting-shading.bin")
+        module = types.ModuleType("build_lighting_shading")
+        module.build = mock.Mock(return_value=expected)
+
+        with mock.patch.dict(
+            "sys.modules",
+            {"build_lighting_shading": module},
+        ):
+            output = build_samples.build_lighting_shading_app()
+
+        self.assertEqual(output, expected)
+        module.build.assert_called_once_with()
+
+    def test_master_build_includes_lighting_shading_fixture(self) -> None:
+        earth_output = build_samples.PROJECT_ROOT / Path(
+            "apps/earth-party-local/tgt/earth-party.bin"
+        )
+        lighting_output = build_samples.PROJECT_ROOT / Path(
+            "apps/lighting-shading/tgt/lighting-shading.bin"
+        )
+        with (
+            mock.patch.object(build_samples, "GENERATED_APPS", {}),
+            mock.patch.object(build_samples, "SPECIALIZED_APPS", {}),
+            mock.patch.object(build_samples, "STATIC_APPS", {}),
+            mock.patch.object(
+                build_samples,
+                "build_earth_party_app",
+                return_value=earth_output,
+            ) as build_earth,
+            mock.patch.object(
+                build_samples,
+                "build_lighting_shading_app",
+                return_value=lighting_output,
+            ) as build_lighting,
+            mock.patch("builtins.print"),
+        ):
+            build_samples.main()
+
+        build_earth.assert_called_once_with()
+        build_lighting.assert_called_once_with()
 
     def test_build_static_app_replaces_only_target(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_directory:

@@ -1,0 +1,12 @@
+{
+  "name": "lighting-shading",
+  "description": "Four-panel Cube fixture for scene lighting and mesh-local flat palette shading",
+  "model_obj_source": "src/blender/cube.obj",
+  "textured_texture_png_source": "src/blender/blenderaxes.png",
+  "textured_texture_filename": "blenderaxes.rgba2",
+  "textured_texture_size": [34, 34],
+  "palette_png_source": "src/blender/colors64.png",
+  "palette_rgba2_source": "src/blender/colors64.rgba2",
+  "palette_texture_filename": "colors64.rgba2",
+  "palette_texture_size": [8, 8]
+}

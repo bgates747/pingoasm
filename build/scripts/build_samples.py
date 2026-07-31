@@ -214,6 +214,13 @@ def build_earth_party_app() -> Path:
     return build()
 
 
+def build_lighting_shading_app() -> Path:
+    """Run the source-validating lighting/shading fixture build."""
+    from build_lighting_shading import build
+
+    return build()
+
+
 def main() -> None:
     outputs: list[Path] = []
 
@@ -233,6 +240,7 @@ def main() -> None:
         )
 
     outputs.append(build_earth_party_app())
+    outputs.append(build_lighting_shading_app())
 
     print(f"Built {len(outputs)} binaries:")
     for output in outputs:

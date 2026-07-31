@@ -1,5 +1,14 @@
+import math
 import os
 import shutil
+
+
+def encode_uv_word(coord):
+    """Encode a normalized UV coordinate in Pingo's unsigned 16-bit format."""
+    if not math.isfinite(coord):
+        raise ValueError(f'UV coordinate must be finite: {coord!r}')
+    coord = min(1.0, max(0.0, coord))
+    return round(coord * 65535)
 
 def write_data(
     base_filename,
@@ -70,7 +79,7 @@ def write_data(
         file.write(f'\n; -- TEXTURE UV COORDINATES --\n')
         file.write(f'{symbol_prefix}_uvs:\n')
         for item in texture_coords:
-            item = [round(coord * 65335) for coord in item]
+            item = [encode_uv_word(coord) for coord in item]
             file.write(f'\tdw {", ".join(map(str, item))}\n')
 
         # Write the texture vertex indices

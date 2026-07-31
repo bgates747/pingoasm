@@ -35,6 +35,11 @@ Common includes needed for assembly are copied from `_common`, so generated
 source never reaches outside its directory. Asset scripts must use the same
 provenance convention.
 
+The lighting/shading fixture is deliberately stricter: its ordinary build
+validates the tracked final flat-palette assembly words and assembles them
+unchanged. Regeneration occurs only with the explicit `--regenerate` option,
+after which the same final-word validation runs before source is promoted.
+
 ## Authoritative inputs
 
 `apps/_common/model_viewer.asm` contains marked build-manifest blocks:
@@ -95,7 +100,7 @@ Run from anywhere:
   ~/Agon/mystuff/pingoasm/build/scripts/build_samples.py
 ```
 
-The successful build produces 16 binaries:
+The successful build produces 17 binaries:
 
 ```text
 apps/movecam/tgt/{jet,cube,earthuv,tri,heavytank}.bin
@@ -106,6 +111,7 @@ apps/wolf/tgt/wolf.bin
 apps/moveobj-local/tgt/jet.bin
 apps/moveair-local/tgt/jet.bin
 apps/earth-party-local/tgt/earth-party.bin
+apps/lighting-shading/tgt/lighting-shading.bin
 ```
 
 The driver:
@@ -120,8 +126,10 @@ The driver:
    their sources;
 8. regenerates only the Earth Party model/texture assets, preserves its
    hand-written source, and checks its staging bound;
-9. exits nonzero on the first failure; and
-10. prints every output.
+9. validates and assembles the tracked lighting/shading fixture without
+   implicit source regeneration;
+10. exits nonzero on the first failure; and
+11. prints every output.
 
 Macro parameters use explicit names such as `VERTEX_DATA`, `VERTEX_COUNT`,
 `MESH_ID`, and `BITMAP_ID` to avoid ez80asm 2.1 replacing short parameter names
@@ -234,7 +242,7 @@ unattended rerun workflow.
 The current pipeline is accepted when:
 
 1. Python entry points compile;
-2. all 16 binaries assemble;
+2. all 17 binaries assemble;
 3. generated `src/` contains only `.asm`/`.inc`;
 4. `tgt/` contains only permitted binaries/textures;
 5. generated banners name their source and generator;
