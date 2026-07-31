@@ -34,10 +34,37 @@ The central model library is temporary; see
 ```
 
 The build regenerates `movecam` and `moveobj` for five models—jet, cube,
-earthuv, triangle, and HeavyTank—then builds `moveair`, `movefsim`, and `wolf`.
-It produces 13 binaries and exits on the first assembly failure.
+earthuv, triangle, and HeavyTank—then builds `moveair`, `movefsim`, `wolf`, and
+the source-preserved asynchronous `moveobj-local` and `moveair-local` Jet
+clients. It also regenerates the six prefixed models and textures for the
+interactive `earth-party-local` application. The complete build produces 16
+binaries and exits on the first assembly failure.
 
 See [Assembly build pipeline](docs/assembly-build-pipeline.md).
+
+## Local-transform Jet clients
+
+`apps/moveobj-local` and `apps/moveair-local` keep authoritative object pose
+and local velocities on the eZ80. Both advance fixed four-MOS-tick simulation
+steps at 30 Hz while current Pingo renders independently, allow one render in
+flight, and coalesce intermediate poses until the `P3DR` completion callback
+makes the renderer available. `moveobj-local` derives transient translation
+from held controls; `moveair-local` retains forward velocity between ticks and
+uses W/S as throttle. It also keeps a camera pose on the eZ80, aims that fixed
+world-space camera at the newest Jet position on simulation ticks, and sends
+only dirty absolute camera commands before rendering. Their 320×240
+render-target constants are the primary render-throughput knob; changing them
+does not change simulation time.
+
+## Interactive Earth Party
+
+`apps/earth-party-local` retains the moveair Jet and tracking camera while
+adding Earth, Crash, Lara, HeavyTank, and Airliner. Earth spins about a tilted
+axis. The four companions begin 90 degrees apart and obtain closed circular
+motion solely from persistent local forward and yaw velocities; their world
+positions are not scripted. Its profile-driven hybrid builder regenerates
+portable prefixed model includes and sequentially staged RGBA2222 textures
+from the authoritative OBJ/PNG sources.
 
 ## Render benchmark
 

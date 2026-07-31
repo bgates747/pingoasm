@@ -1,0 +1,48 @@
+{
+  "name": "earth-party-local",
+  "description": "Interactive Jet and camera with a persistent-velocity Earth Party scene",
+  "models": [
+    {
+      "name": "jet",
+      "model_obj_source": "src/blender/jet.obj",
+      "texture_png_source": "src/blender/jet.png",
+      "texture_filename": "jet.rgba2",
+      "texture_size": [512, 512]
+    },
+    {
+      "name": "earthuv",
+      "model_obj_source": "src/blender/earthuv.obj",
+      "texture_png_source": "src/blender/earth320x160.png",
+      "texture_filename": "earth320x160.rgba2",
+      "texture_size": [320, 160]
+    },
+    {
+      "name": "crash",
+      "model_obj_source": "src/blender/crash.obj",
+      "texture_png_source": "src/blender/crash/crashtex.png",
+      "texture_filename": "crashtex.rgba2",
+      "texture_size": [128, 128]
+    },
+    {
+      "name": "lara",
+      "model_obj_source": "src/blender/LaraCroft/LaraCroft.obj",
+      "texture_png_source": "src/blender/LaraCroft/Lara.png",
+      "texture_filename": "Lara.rgba2",
+      "texture_size": [256, 184]
+    },
+    {
+      "name": "heavytank",
+      "model_obj_source": "src/blender/heavytank.obj",
+      "texture_png_source": "src/blender/blenderaxes.png",
+      "texture_filename": "blenderaxes.rgba2",
+      "texture_size": [34, 34]
+    },
+    {
+      "name": "airliner",
+      "model_obj_source": "src/blender/airliner.obj",
+      "texture_png_source": "src/blender/airliner.png",
+      "texture_filename": "airliner.rgba2",
+      "texture_size": [512, 512]
+    }
+  ]
+}

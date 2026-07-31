@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import os
 import re
 import shutil
 import subprocess
@@ -24,6 +25,19 @@ SPECIALIZED_APPS = {
     "moveair": "jet.asm",
     "movefsim": "fsim.asm",
     "wolf": "wolf.asm",
+}
+
+# Hand-developed sources that the build must preserve. Their target payload is
+# recreated from explicit tracked runtime assets before assembly.
+STATIC_APPS = {
+    "moveobj-local": (
+        "jet.asm",
+        ("jet.rgba2",),
+    ),
+    "moveair-local": (
+        "jet.asm",
+        ("jet.rgba2",),
+    ),
 }
 
 INCLUDE_RE = re.compile(r'include\s+"([^"]+)"')
@@ -83,8 +97,9 @@ def select_include(line: str) -> str:
 def assemble(source_dir: Path, asm_filename: str, output: Path) -> None:
     output.parent.mkdir(parents=True, exist_ok=True)
     output.unlink(missing_ok=True)
+    output_argument = os.path.relpath(output.resolve(), source_dir.resolve())
     subprocess.run(
-        ["ez80asm", asm_filename, str(output.resolve())],
+        ["ez80asm", asm_filename, output_argument],
         cwd=source_dir,
         check=True,
     )
@@ -165,6 +180,40 @@ def build_specialized_app(app_name: str, asm_filename: str) -> Path:
     return binary_path
 
 
+def build_static_app(
+    app_name: str,
+    asm_filename: str,
+    runtime_assets: tuple[str, ...],
+) -> Path:
+    """Rebuild a hand-developed app's target without modifying its source."""
+    app_root = APPS_ROOT / app_name
+    source_dir = app_root / "src"
+    target_dir = app_root / "tgt"
+    if not source_dir.is_dir():
+        raise RuntimeError(f"Missing application source directory: {source_dir}")
+
+    if target_dir.exists():
+        shutil.rmtree(target_dir)
+    target_dir.mkdir()
+
+    for asset_filename in runtime_assets:
+        shutil.copy2(
+            MODELS_ROOT / asset_filename,
+            target_dir / asset_filename,
+        )
+
+    binary_path = target_dir / f"{Path(asm_filename).stem}.bin"
+    assemble(source_dir, asm_filename, binary_path)
+    return binary_path
+
+
+def build_earth_party_app() -> Path:
+    """Run the source-preserving generated-asset Earth Party build."""
+    from build_earth_party_local import build
+
+    return build()
+
+
 def main() -> None:
     outputs: list[Path] = []
 
@@ -173,6 +222,17 @@ def main() -> None:
 
     for app_name, asm_filename in SPECIALIZED_APPS.items():
         outputs.append(build_specialized_app(app_name, asm_filename))
+
+    for app_name, (asm_filename, runtime_assets) in STATIC_APPS.items():
+        outputs.append(
+            build_static_app(
+                app_name,
+                asm_filename,
+                runtime_assets,
+            )
+        )
+
+    outputs.append(build_earth_party_app())
 
     print(f"Built {len(outputs)} binaries:")
     for output in outputs:

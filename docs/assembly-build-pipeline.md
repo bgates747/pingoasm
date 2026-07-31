@@ -75,6 +75,19 @@ apps/movefsim/src/fsim.asm
 apps/wolf/src/wolf.asm
 ```
 
+`apps/moveobj-local` and `apps/moveair-local` are also hand-developed, but have
+reproducible static-app build paths. The builder replaces only each ignored
+`tgt/`, copies its declared runtime texture `jet.rgba2`, and assembles
+`src/jet.asm` to `tgt/jet.bin`; it never replaces either tracked `src/` or
+project-local 3D API snapshot.
+
+`apps/earth-party-local` is a source-preserving hybrid application.
+`build_earth_party_local.py` leaves its hand-written control and 3D sources
+untouched while regenerating six symbol-prefixed model includes and six
+RGBA2222 runtime textures from `profile.json`, assembling
+`src/earth-party.asm`, and enforcing the 512 KiB executable-plus-staging
+window.
+
 Run from anywhere:
 
 ```bash
@@ -82,7 +95,7 @@ Run from anywhere:
   ~/Agon/mystuff/pingoasm/build/scripts/build_samples.py
 ```
 
-The successful build produces 13 binaries:
+The successful build produces 16 binaries:
 
 ```text
 apps/movecam/tgt/{jet,cube,earthuv,tri,heavytank}.bin
@@ -90,6 +103,9 @@ apps/moveobj/tgt/{jet,cube,earthuv,tri,heavytank}.bin
 apps/moveair/tgt/jet.bin
 apps/movefsim/tgt/fsim.bin
 apps/wolf/tgt/wolf.bin
+apps/moveobj-local/tgt/jet.bin
+apps/moveair-local/tgt/jet.bin
+apps/earth-party-local/tgt/earth-party.bin
 ```
 
 The driver:
@@ -100,8 +116,12 @@ The driver:
 4. copies discovered textures;
 5. invokes `ez80asm` inside each app source directory;
 6. builds specialized applications;
-7. exits nonzero on the first failure; and
-8. prints every output.
+7. recreates the `moveobj-local` and `moveair-local` targets without modifying
+   their sources;
+8. regenerates only the Earth Party model/texture assets, preserves its
+   hand-written source, and checks its staging bound;
+9. exits nonzero on the first failure; and
+10. prints every output.
 
 Macro parameters use explicit names such as `VERTEX_DATA`, `VERTEX_COUNT`,
 `MESH_ID`, and `BITMAP_ID` to avoid ez80asm 2.1 replacing short parameter names
@@ -214,7 +234,7 @@ unattended rerun workflow.
 The current pipeline is accepted when:
 
 1. Python entry points compile;
-2. all 13 binaries assemble;
+2. all 16 binaries assemble;
 3. generated `src/` contains only `.asm`/`.inc`;
 4. `tgt/` contains only permitted binaries/textures;
 5. generated banners name their source and generator;
