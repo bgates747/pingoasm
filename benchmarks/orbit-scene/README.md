@@ -54,7 +54,7 @@ The VDP retains the resulting five texture bitmaps.
 
 ## Emulator
 
-The isolated current-Pingo emulator exposes the canonical `benchmarks/` tree
+The project-local PingoWolf emulator exposes the canonical `benchmarks/` tree
 by symlink. Its private `autoexec.txt` may select:
 
 ```text

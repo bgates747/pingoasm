@@ -16,7 +16,7 @@ from typing import Any
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 BENCHMARK_ROOT = PROJECT_ROOT / "benchmarks" / "orbit-scene"
 FIXTURES_ROOT = BENCHMARK_ROOT / "fixtures"
-VDU_HELPERS = PROJECT_ROOT / "apps" / "turbovega" / "src" / "vdu_tv.inc"
+VDU_HELPERS = PROJECT_ROOT / "benchmarks" / "_common" / "vdu_pingo.inc"
 SCRIPTS_DIR = PROJECT_ROOT / "build" / "scripts"
 GENERATOR = "build/scripts/build_orbit_scene.py"
 EZ80_APPLICATION_WINDOW = 0x80000
@@ -427,7 +427,7 @@ start:
     ld hl,0
     ret
 
-    include "vdu_tv.inc"
+    include "vdu_pingo.inc"
 {includes}
 
 sid: equ {profile["control_id"]}
@@ -557,7 +557,7 @@ def generate(
             authoritative_input=model_source.relative_to(PROJECT_ROOT).as_posix(),
         )
 
-    shutil.copy2(VDU_HELPERS, source_dir / "vdu_tv.inc")
+    shutil.copy2(VDU_HELPERS, source_dir / "vdu_pingo.inc")
     (source_dir / "benchmark.asm").write_text(
         assembly(profile, profile_path, overrides),
         encoding="utf-8",

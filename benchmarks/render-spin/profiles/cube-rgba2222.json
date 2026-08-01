@@ -1,7 +1,7 @@
 {
   "name": "cube-rgba2222",
   "description": "Paired 36-frame labeled-cube Y-axis RGBA2222 render benchmark",
-  "model_source": "apps/turbovega/src/cube.inc",
+  "model_source": "src/asm/models/cube.inc",
   "texture_source": "src/blender/blenderaxes.rgba2",
   "texture_filename": "blenderaxes.rgba2",
   "texture_format": "rgba2222",

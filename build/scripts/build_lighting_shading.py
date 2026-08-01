@@ -16,11 +16,11 @@ from typing import Any
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
-APP_ROOT = PROJECT_ROOT / "apps" / "lighting-shading"
+APP_ROOT = PROJECT_ROOT / "tests" / "apps" / "lighting-shading"
 PROFILE_PATH = APP_ROOT / "profile.json"
 SOURCE_DIR = APP_ROOT / "src"
 TARGET_DIR = APP_ROOT / "tgt"
-COMMON_HELPER = PROJECT_ROOT / "apps" / "_common" / "vdu_pingo.inc"
+COMMON_HELPER = PROJECT_ROOT / "tests" / "apps" / "_common" / "vdu_pingo.inc"
 SCRIPTS_DIR = PROJECT_ROOT / "build" / "scripts"
 ASSEMBLY_FILENAME = "lighting-shading.asm"
 OUTPUT_FILENAME = "lighting-shading.bin"

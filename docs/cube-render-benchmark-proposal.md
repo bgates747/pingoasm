@@ -240,7 +240,8 @@ The initial RGBA8888 fixture was accepted when:
 5. The application restores the display and exits to MOS without input.
 6. Repeated hardware runs produce reasonably stable distributions.
 7. Ordinary VDP operation remains healthy after the benchmark.
-8. The same fixture completes correctly in the isolated emulator after
+8. The same fixture completes correctly in the project-local PingoWolf
+   emulator after
    hardware qualification.
 
 ## Scope exclusions

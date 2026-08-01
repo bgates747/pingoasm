@@ -1,7 +1,7 @@
 {
   "name": "cube-frustum-sweep-rgba2222",
   "description": "Five-series Cube rotation with deterministic lateral and depth motion through the view frustum",
-  "model_source": "apps/turbovega/src/cube.inc",
+  "model_source": "src/asm/models/cube.inc",
   "texture_source": "src/blender/blenderaxes.rgba2",
   "texture_filename": "blenderaxes.rgba2",
   "texture_format": "rgba2222",

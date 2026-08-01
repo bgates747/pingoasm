@@ -189,7 +189,7 @@ reserved and render completion remains subcommand 41.
 unity intensity, textured meshes, and inherited illumination.
 
 3.9.7 Completed — The four-panel `lighting-shading` fixture and the mixed-policy
-`earth-party-flat-local` scene cover directional, intensity-adjusted, ambient,
+`earth-party-flat` scene cover directional, intensity-adjusted, ambient,
 unlit, textured, flat-palette, inherited, and self-illuminated behavior. Both
 firmware features passed emulator and physical-hardware review.
 
@@ -224,8 +224,8 @@ experiments must retain them.
 
 ## Phase 5: upstream math changes
 
-5.1 Completed — Diff each upstream vector and matrix change against the TurboVega-era
-math retained by this port.
+5.1 Completed — Diff each upstream vector and matrix change against the original
+port-era math retained by this codebase.
 
 5.2 Completed — Separate correctness repairs, API refactors, desktop/SIMD assumptions,
 and genuine scalar ESP32 optimizations.

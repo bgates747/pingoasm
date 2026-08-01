@@ -22,9 +22,9 @@
     320,
     240
   ],
-  "warmup_frames": 8,
+  "warmup_frames": 0,
   "measured_frames": 36,
-  "series_runs": 5,
+  "series_runs": 1,
   "rotation_axis": "y",
   "rotation_step_degrees": 10,
   "translation_motion": {

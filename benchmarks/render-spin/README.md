@@ -27,7 +27,7 @@ benchmarks/render-spin/fixtures/cube-rgba8888/
 ├── src/
 │   ├── benchmark.asm
 │   ├── model.inc
-│   └── vdu_tv.inc
+│   └── vdu_pingo.inc
 └── tgt/
     ├── benchmark.bin
     └── blenderaxes.rgba8

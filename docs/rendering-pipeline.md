@@ -10,9 +10,9 @@ emulator may invoke this pipeline but must not duplicate it.
 src/blender/        editable scenes, OBJ/MTL exports, source images
 build/scripts/      Blender, mesh, texture, and diagnostic tools
 src/asm/models/     temporary generated model/texture library
-apps/_common/       shared assembly and generic viewer
-apps/<app>/src/     flat portable assembly
-apps/<app>/tgt/     flat ignored binaries and runtime textures
+apps/earth-party-*/ showcased portable applications
+tests/apps/         preserved application-level fixtures and shared template
+benchmarks/         generated performance and torture fixtures
 ```
 
 The intended end-to-end path is:
@@ -69,9 +69,10 @@ which explained its inside-out rendering.
 
 Generated consumers are:
 
-1. `src/asm/models/heavytank.inc` for ordinary RGBA2222 apps.
-2. `apps/turbovega/src/heavytank.inc` for the strict RGBA8888 fixture.
-3. Generated `movecam`/`moveobj` `heavytank.asm/.inc` portable sources.
+1. `src/asm/models/heavytank.inc` as the authoritative assembly model.
+2. Generated `movecam`/`moveobj` `heavytank.asm/.inc` portable sources.
+3. Benchmark profiles that pair the authoritative geometry with either
+   RGBA2222 or RGBA8888 texture metadata.
 
 All numbered, axis-modified, inverse, and video HeavyTank experiments were
 deleted. Plainly named `heavytank.*` files are canonical.
@@ -105,7 +106,7 @@ span, and center. Add `--json` for machine-readable output.
 Many model-specific scripts predate the current layout and contain obsolete
 paths or assumptions. Treat them as historical until parameterized and tested.
 Legacy template utilities live under `build/scripts/legacy/template`;
-`apps/_common` is reserved for shared assembly.
+`tests/apps/_common` is reserved for shared assembly.
 
 ## Python environment
 

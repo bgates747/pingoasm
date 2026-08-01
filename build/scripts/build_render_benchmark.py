@@ -16,7 +16,7 @@ from typing import Any
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 BENCHMARK_ROOT = PROJECT_ROOT / "benchmarks" / "render-spin"
 FIXTURES_ROOT = BENCHMARK_ROOT / "fixtures"
-VDU_HELPERS = PROJECT_ROOT / "apps" / "turbovega" / "src" / "vdu_tv.inc"
+VDU_HELPERS = PROJECT_ROOT / "benchmarks" / "_common" / "vdu_pingo.inc"
 GENERATOR = "build/scripts/build_render_benchmark.py"
 SCRIPTS_DIR = PROJECT_ROOT / "build" / "scripts"
 
@@ -361,7 +361,7 @@ start:
     ld hl,0
     ret
 
-    include "vdu_tv.inc"
+    include "vdu_pingo.inc"
     include "model.inc"
 
 sid: equ {profile["control_id"]}
@@ -610,7 +610,7 @@ def main() -> int:
         generated_copy(model_source, source_dir / "model.inc", profile_path)
     else:
         generate_model(profile, source_dir / "model.inc", texture_target)
-    generated_copy(VDU_HELPERS, source_dir / "vdu_tv.inc", profile_path)
+    generated_copy(VDU_HELPERS, source_dir / "vdu_pingo.inc", profile_path)
     (source_dir / "benchmark.asm").write_text(
         assembly(profile, profile_path, texture_name),
         encoding="utf-8",

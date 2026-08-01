@@ -15,7 +15,7 @@ DEFAULT_PROFILE = (
     PROJECT_ROOT / "benchmarks" / "render-async" / "profiles" / "cube.json"
 )
 GENERATOR = "build/scripts/build_render_async.py"
-VDU_HELPERS = PROJECT_ROOT / "apps" / "turbovega" / "src" / "vdu_tv.inc"
+VDU_HELPERS = PROJECT_ROOT / "benchmarks" / "_common" / "vdu_pingo.inc"
 
 
 def banner(source: str) -> str:
@@ -85,7 +85,7 @@ start:
     ld hl,0
     ret
 
-    include "vdu_tv.inc"
+    include "vdu_pingo.inc"
     include "model.inc"
 
 sid: equ {profile["control_id"]}
@@ -625,7 +625,7 @@ def main() -> int:
     profile["texture_size"] = texture_target.stat().st_size
 
     generated_copy(model_source, source_dir / "model.inc", profile_source)
-    generated_copy(VDU_HELPERS, source_dir / "vdu_tv.inc", profile_source)
+    generated_copy(VDU_HELPERS, source_dir / "vdu_pingo.inc", profile_source)
     source_name = f"async_{fixture_name}.asm"
     (source_dir / source_name).write_text(
         assembly(profile, profile_source),

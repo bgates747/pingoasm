@@ -38,7 +38,7 @@ start:
     ld hl,0
     ret
 
-    include "vdu_tv.inc"
+    include "vdu_pingo.inc"
     include "model.inc"
 
 sid: equ 1310

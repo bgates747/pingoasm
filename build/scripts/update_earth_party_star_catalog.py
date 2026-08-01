@@ -24,7 +24,7 @@ from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_OUTPUT = (
-    PROJECT_ROOT / "apps" / "earth-party-local" / "assets" / "stars.tsv"
+    PROJECT_ROOT / "apps" / "earth-party-tex" / "assets" / "stars.tsv"
 )
 BSC5_URL = "https://cdsarc.cds.unistra.fr/ftp/V/50/catalog.gz"
 BSC5_SHA256 = "3dc44b1e90be8fbe5bcc7656032560f51275f985c7e3f783c9028e1838ec7bed"

@@ -8,15 +8,17 @@ build/scripts/build_samples.py
 
 ## Application contract
 
-Every `apps/<app>` has a flat pair:
+Every showcased `apps/<app>` and preserved `tests/apps/<fixture>` has a flat
+pair:
 
 1. `src/` contains tracked `.asm` and `.inc`.
 2. `tgt/` contains ignored `.bin` and runtime texture files.
 3. A complete `src/` is portable assembly source.
 4. A complete `tgt/` is the runtime payload copied to hardware.
 
-`apps/_common` sorts first deliberately and is shared build material, not a
-deployable application.
+`tests/apps/_common` is shared fixture-build material, not a deployable
+application. The two showcased Earth Party editions retain every assembly
+include needed to build in their own `src/` directories.
 
 ## Generated source policy
 
@@ -42,7 +44,7 @@ after which the same final-word validation runs before source is promoted.
 
 ## Authoritative inputs
 
-`apps/_common/model_viewer.asm` contains marked build-manifest blocks:
+`tests/apps/_common/model_viewer.asm` contains marked build-manifest blocks:
 
 1. `application includes` — dependencies copied into generated source.
 2. `control includes` — mutually exclusive camera/object controls.
@@ -75,24 +77,24 @@ jet, cube, earthuv, tri, heavytank
 The specialized hand-developed applications are:
 
 ```text
-apps/moveair/src/jet.asm
-apps/movefsim/src/fsim.asm
-apps/wolf/src/wolf.asm
+tests/apps/moveair/src/jet.asm
+tests/apps/movefsim/src/fsim.asm
+tests/apps/wolf/src/wolf.asm
 ```
 
-`apps/moveobj-local` and `apps/moveair-local` are also hand-developed, but have
+`tests/apps/moveobj-local` and `tests/apps/moveair-local` are also hand-developed, but have
 reproducible static-app build paths. The builder replaces only each ignored
 `tgt/`, copies its declared runtime texture `jet.rgba2`, and assembles
 `src/jet.asm` to `tgt/jet.bin`; it never replaces either tracked `src/` or
 project-local 3D API snapshot.
 
-`apps/earth-party-local` is a source-preserving hybrid application.
-`build_earth_party_local.py` leaves its hand-written control and 3D sources
+`apps/earth-party-tex` is a source-preserving hybrid application.
+`build_earth_party_tex.py` leaves its hand-written control and 3D sources
 untouched while regenerating six symbol-prefixed model includes and six
 model RGBA2222 textures from `profile.json`. It also deterministically turns
 the tracked 128-entry Bright Star Catalogue subset into one six-sector
 `starfield.inc` and a shared RGBA2222 palette texture. The same build snapshots
-`apps/_common/pose-cycle.inc` into the portable app source and uses
+`tests/apps/_common/pose-cycle.inc` into the portable app source and uses
 `generate_pose_cycle.py` to produce `earth-spin-cycle.inc`. Each 24-byte
 sample contains fine 32767-unit Pingo wire Euler words plus the corresponding
 signed-Q15 internal matrix, so periodic poses close without accumulated drift
@@ -103,7 +105,7 @@ changed. The builder then assembles `src/earth-party.asm` and enforces the
 `update_earth_party_star_catalog.py` is the explicit networked maintenance
 path for refreshing the verified CDS V/50 source.
 
-`apps/earth-party-flat-local` is an isolated rendering-policy sibling. Its
+`apps/earth-party-flat` is an isolated rendering-policy sibling. Its
 dedicated builder retains the same application logic and generated star sky,
 but converts Jet and Airliner to validated predominant-color palette meshes.
 All other model generation is unchanged. The source selects flat shading for
@@ -112,7 +114,7 @@ and a 32/127 ambient floor for every scene-lit mesh. It uses the same generated
 sampled-pose machinery as the ordinary Earth Party and assembles
 `tgt/earth-party-flat.bin` under the same staging-window guard.
 
-`apps/lighting-shading` is a standalone visual qualification application for
+`tests/apps/lighting-shading` is a standalone visual qualification application for
 scene-wide light direction, intensity, ambient floor, illumination bypass,
 and mesh-local textured/flat-palette selection. Its profile identifies the
 canonical Cube OBJ, labeled Cube texture, and row-major 8×8 Agon palette.
@@ -144,16 +146,16 @@ Run from anywhere:
 The successful build produces 18 binaries:
 
 ```text
-apps/movecam/tgt/{jet,cube,earthuv,tri,heavytank}.bin
-apps/moveobj/tgt/{jet,cube,earthuv,tri,heavytank}.bin
-apps/moveair/tgt/jet.bin
-apps/movefsim/tgt/fsim.bin
-apps/wolf/tgt/wolf.bin
-apps/moveobj-local/tgt/jet.bin
-apps/moveair-local/tgt/jet.bin
-apps/earth-party-local/tgt/earth-party.bin
-apps/earth-party-flat-local/tgt/earth-party-flat.bin
-apps/lighting-shading/tgt/lighting-shading.bin
+tests/apps/movecam/tgt/{jet,cube,earthuv,tri,heavytank}.bin
+tests/apps/moveobj/tgt/{jet,cube,earthuv,tri,heavytank}.bin
+tests/apps/moveair/tgt/jet.bin
+tests/apps/movefsim/tgt/fsim.bin
+tests/apps/wolf/tgt/wolf.bin
+tests/apps/moveobj-local/tgt/jet.bin
+tests/apps/moveair-local/tgt/jet.bin
+apps/earth-party-tex/tgt/earth-party.bin
+apps/earth-party-flat/tgt/earth-party-flat.bin
+tests/apps/lighting-shading/tgt/lighting-shading.bin
 ```
 
 The driver:
@@ -230,17 +232,18 @@ The canonical source is the freshly exported
 `src/blender/heavytank.blend/.obj/.mtl`. The historical OBJ was inward-wound;
 the fresh OBJ is outward-wound and is qualified on both renderers.
 
-Two generated paths are retained:
+One authoritative generated model is retained:
 
-1. `src/asm/models/heavytank.inc` feeds the ordinary RGBA2222 app matrix.
-2. `apps/turbovega/src/heavytank.inc` feeds the strict RGBA8888 fixture.
+1. `src/asm/models/heavytank.inc` feeds ordinary apps and both RGBA2222 and
+   RGBA8888 benchmark profiles.
 
 The OBJ conversion scripts lazy-load image dependencies, allowing
 geometry-only conversion without requiring Pillow/NumPy.
 
 ## Deployment
 
-For either emulator, `build/scripts/deploy.py` creates or repairs:
+For the project-local PingoWolf emulator, `build/scripts/deploy.py` creates or
+repairs:
 
 ```text
 sdcard/mystuff/pingoasm/apps -> ~/Agon/mystuff/pingoasm/apps
@@ -253,7 +256,6 @@ Targets:
 
 ```bash
 .venv/bin/python build/scripts/deploy.py emulator
-.venv/bin/python build/scripts/deploy.py baseline-emulator
 .venv/bin/python build/scripts/deploy.py hardware <app>
 ```
 
@@ -292,7 +294,8 @@ The current pipeline is accepted when:
 4. `tgt/` contains only permitted binaries/textures;
 5. generated banners name their source and generator;
 6. strict command-scope and native renderer smoke tests pass; and
-7. cube and HeavyTank pass visual review on hardware and the isolated emulator;
+7. cube and HeavyTank pass visual review on hardware and the project-local
+   PingoWolf emulator;
 8. both render-spin profiles assemble; and
 9. a mixed synthetic log yields only the bitmap-tagged benchmark signature;
    and

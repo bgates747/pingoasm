@@ -28,7 +28,7 @@ class LocalTransformSourceTests(unittest.TestCase):
         for app_name, control_filename in LOCAL_APPS.items():
             with self.subTest(app=app_name):
                 source = (
-                    build_samples.APPS_ROOT / app_name / "src" / "jet.asm"
+                    build_samples.TEST_APPS_ROOT / app_name / "src" / "jet.asm"
                 ).read_text(encoding="utf-8")
                 code = executable_source(source)
 
@@ -100,7 +100,7 @@ class LocalTransformSourceTests(unittest.TestCase):
     def test_vdu_helper_contains_only_current_pingo_commands(self) -> None:
         for app_name, control_filename in LOCAL_APPS.items():
             with self.subTest(app=app_name):
-                source_dir = build_samples.APPS_ROOT / app_name / "src"
+                source_dir = build_samples.TEST_APPS_ROOT / app_name / "src"
                 sources = "\n".join(
                     (source_dir / filename).read_text(encoding="utf-8")
                     for filename in (
@@ -134,7 +134,7 @@ class LocalTransformSourceTests(unittest.TestCase):
         for app_name in LOCAL_APPS:
             with self.subTest(app=app_name):
                 source = (
-                    build_samples.APPS_ROOT
+                    build_samples.TEST_APPS_ROOT
                     / app_name
                     / "src"
                     / "render-async.inc"
@@ -183,7 +183,7 @@ class LocalTransformSourceTests(unittest.TestCase):
         for app_name, control_filename in LOCAL_APPS.items():
             with self.subTest(app=app_name):
                 source = (
-                    build_samples.APPS_ROOT
+                    build_samples.TEST_APPS_ROOT
                     / app_name
                     / "src"
                     / control_filename
@@ -200,13 +200,13 @@ class LocalTransformSourceTests(unittest.TestCase):
 
     def test_render_async_layer_is_identical_between_local_apps(self) -> None:
         moveobj = (
-            build_samples.APPS_ROOT
+            build_samples.TEST_APPS_ROOT
             / "moveobj-local"
             / "src"
             / "render-async.inc"
         ).read_bytes()
         moveair = (
-            build_samples.APPS_ROOT
+            build_samples.TEST_APPS_ROOT
             / "moveair-local"
             / "src"
             / "render-async.inc"
@@ -215,13 +215,13 @@ class LocalTransformSourceTests(unittest.TestCase):
 
     def test_moveair_preserves_z_velocity_and_steps_while_coasting(self) -> None:
         source = (
-            build_samples.APPS_ROOT
+            build_samples.TEST_APPS_ROOT
             / "moveair-local"
             / "src"
             / "inputair-local.inc"
         ).read_text(encoding="utf-8")
         jet_source = (
-            build_samples.APPS_ROOT
+            build_samples.TEST_APPS_ROOT
             / "moveair-local"
             / "src"
             / "jet.asm"
@@ -251,7 +251,7 @@ class LocalTransformSourceTests(unittest.TestCase):
         self.assertIn("inc.s hl", simulation)
 
     def test_moveair_tracks_object_with_ez80_camera_state(self) -> None:
-        source_dir = build_samples.APPS_ROOT / "moveair-local" / "src"
+        source_dir = build_samples.TEST_APPS_ROOT / "moveair-local" / "src"
         jet = executable_source(
             (source_dir / "jet.asm").read_text(encoding="utf-8")
         )
@@ -360,7 +360,7 @@ class StaticApplicationBuildTests(unittest.TestCase):
             )
 
     def test_lighting_shading_uses_non_regenerating_default_build(self) -> None:
-        expected = Path("apps/lighting-shading/tgt/lighting-shading.bin")
+        expected = Path("tests/apps/lighting-shading/tgt/lighting-shading.bin")
         module = types.ModuleType("build_lighting_shading")
         module.build = mock.Mock(return_value=expected)
 
@@ -374,13 +374,13 @@ class StaticApplicationBuildTests(unittest.TestCase):
         module.build.assert_called_once_with()
 
     def test_flat_earth_party_uses_its_dedicated_builder(self) -> None:
-        expected = Path("apps/earth-party-flat-local/tgt/earth-party-flat.bin")
-        module = types.ModuleType("build_earth_party_flat_local")
+        expected = Path("apps/earth-party-flat/tgt/earth-party-flat.bin")
+        module = types.ModuleType("build_earth_party_flat")
         module.build = mock.Mock(return_value=expected)
 
         with mock.patch.dict(
             "sys.modules",
-            {"build_earth_party_flat_local": module},
+            {"build_earth_party_flat": module},
         ):
             output = build_samples.build_earth_party_flat_app()
 
@@ -389,13 +389,13 @@ class StaticApplicationBuildTests(unittest.TestCase):
 
     def test_master_build_includes_lighting_shading_fixture(self) -> None:
         earth_output = build_samples.PROJECT_ROOT / Path(
-            "apps/earth-party-local/tgt/earth-party.bin"
+            "apps/earth-party-tex/tgt/earth-party.bin"
         )
         flat_earth_output = build_samples.PROJECT_ROOT / Path(
-            "apps/earth-party-flat-local/tgt/earth-party-flat.bin"
+            "apps/earth-party-flat/tgt/earth-party-flat.bin"
         )
         lighting_output = build_samples.PROJECT_ROOT / Path(
-            "apps/lighting-shading/tgt/lighting-shading.bin"
+            "tests/apps/lighting-shading/tgt/lighting-shading.bin"
         )
         with (
             mock.patch.object(build_samples, "GENERATED_APPS", {}),
@@ -452,7 +452,7 @@ class StaticApplicationBuildTests(unittest.TestCase):
                 output.write_bytes(b"binary")
 
             with (
-                mock.patch.object(build_samples, "APPS_ROOT", apps_root),
+                mock.patch.object(build_samples, "TEST_APPS_ROOT", apps_root),
                 mock.patch.object(build_samples, "MODELS_ROOT", models_root),
                 mock.patch.object(build_samples, "assemble", fake_assemble),
             ):

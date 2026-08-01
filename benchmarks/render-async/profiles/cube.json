@@ -1,7 +1,7 @@
 {
   "name": "cube",
   "description": "Asynchronous Pingo render-completion cube fixture",
-  "model_source": "apps/turbovega/src/cube.inc",
+  "model_source": "src/asm/models/cube.inc",
   "texture_source": "src/blender/blenderaxes.rgba2",
   "texture_filename": "blenderaxes.rgba2",
   "texture_width": 34,

@@ -40,7 +40,7 @@ start:
     ld hl,0
     ret
 
-    include "vdu_tv.inc"
+    include "vdu_pingo.inc"
     include "model.inc"
 
 sid: equ 1300
@@ -50,7 +50,7 @@ objbmid: equ 1256
 tgtbmid: equ 1257
 warmupbmid: equ 1258
 obj_scale: equ 1280
-benchmark_series_runs: equ 5
+benchmark_series_runs: equ 1
 
 benchmark_texture_width: equ 34
 benchmark_texture_height: equ 34
@@ -100,110 +100,6 @@ main:
     ld a,benchmark_series_runs
 benchmark_series_loop:
     push af
-    ; warmup frame 00, 000 degrees, translation (0, 0, 1600)
-    ld hl,oid
-    ld bc,0
-    ld de,0
-    ld iy,1600
-    call sodabs
-    ld hl,oid
-    ld bc,0
-    ld de,0
-    ld iy,0
-    call sorabs
-    call render_warmup_frame
-
-    ; warmup frame 01, 010 degrees, translation (417, 616, 1576)
-    ld hl,oid
-    ld bc,417
-    ld de,616
-    ld iy,1576
-    call sodabs
-    ld hl,oid
-    ld bc,0
-    ld de,910
-    ld iy,0
-    call sorabs
-    call render_warmup_frame
-
-    ; warmup frame 02, 020 degrees, translation (821, 1157, 1504)
-    ld hl,oid
-    ld bc,821
-    ld de,1157
-    ld iy,1504
-    call sodabs
-    ld hl,oid
-    ld bc,0
-    ld de,1820
-    ld iy,0
-    call sorabs
-    call render_warmup_frame
-
-    ; warmup frame 03, 030 degrees, translation (1200, 1559, 1386)
-    ld hl,oid
-    ld bc,1200
-    ld de,1559
-    ld iy,1386
-    call sodabs
-    ld hl,oid
-    ld bc,0
-    ld de,2731
-    ld iy,0
-    call sorabs
-    call render_warmup_frame
-
-    ; warmup frame 04, 040 degrees, translation (1543, 1773, 1226)
-    ld hl,oid
-    ld bc,1543
-    ld de,1773
-    ld iy,1226
-    call sodabs
-    ld hl,oid
-    ld bc,0
-    ld de,3641
-    ld iy,0
-    call sorabs
-    call render_warmup_frame
-
-    ; warmup frame 05, 050 degrees, translation (1839, 1773, 1028)
-    ld hl,oid
-    ld bc,1839
-    ld de,1773
-    ld iy,1028
-    call sodabs
-    ld hl,oid
-    ld bc,0
-    ld de,4551
-    ld iy,0
-    call sorabs
-    call render_warmup_frame
-
-    ; warmup frame 06, 060 degrees, translation (2078, 1559, 800)
-    ld hl,oid
-    ld bc,2078
-    ld de,1559
-    ld iy,800
-    call sodabs
-    ld hl,oid
-    ld bc,0
-    ld de,5461
-    ld iy,0
-    call sorabs
-    call render_warmup_frame
-
-    ; warmup frame 07, 070 degrees, translation (2255, 1157, 547)
-    ld hl,oid
-    ld bc,2255
-    ld de,1157
-    ld iy,547
-    call sodabs
-    ld hl,oid
-    ld bc,0
-    ld de,6371
-    ld iy,0
-    call sorabs
-    call render_warmup_frame
-
     ; measured frame 00, 000 degrees, translation (0, 0, 1600)
     ld hl,oid
     ld bc,0

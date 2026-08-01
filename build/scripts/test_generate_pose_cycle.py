@@ -171,7 +171,7 @@ class PoseCycleGeneratorTests(unittest.TestCase):
                 source,
                 snapshot,
                 generator="build/scripts/example.py",
-                source_label="apps/_common/common.inc",
+                source_label="tests/apps/_common/common.inc",
             )
             snapshot_text = snapshot.read_text(encoding="utf-8")
             self.assertIn("AUTO-GENERATED FILE - DO NOT EDIT", snapshot_text)

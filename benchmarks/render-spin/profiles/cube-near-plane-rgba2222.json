@@ -1,7 +1,7 @@
 {
   "name": "cube-near-plane-rgba2222",
   "description": "Cube rotating twice while the camera makes one far-to-center-to-far pass",
-  "model_source": "apps/turbovega/src/cube.inc",
+  "model_source": "src/asm/models/cube.inc",
   "texture_source": "src/blender/blenderaxes.rgba2",
   "texture_filename": "blenderaxes.rgba2",
   "texture_format": "rgba2222",

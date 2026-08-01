@@ -12,7 +12,8 @@ from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 APPS_ROOT = PROJECT_ROOT / "apps"
-COMMON_ROOT = APPS_ROOT / "_common"
+TEST_APPS_ROOT = PROJECT_ROOT / "tests" / "apps"
+COMMON_ROOT = TEST_APPS_ROOT / "_common"
 MODELS_ROOT = PROJECT_ROOT / "src/asm/models"
 GENERATOR = "build/scripts/build_samples.py"
 
@@ -106,7 +107,7 @@ def assemble(source_dir: Path, asm_filename: str, output: Path) -> None:
 
 
 def generate_app(app_name: str, input_type: str) -> list[Path]:
-    app_root = APPS_ROOT / app_name
+    app_root = TEST_APPS_ROOT / app_name
     source_dir = app_root / "src"
     target_dir = app_root / "tgt"
 
@@ -171,8 +172,8 @@ def generate_app(app_name: str, input_type: str) -> list[Path]:
 
 
 def build_specialized_app(app_name: str, asm_filename: str) -> Path:
-    source_dir = APPS_ROOT / app_name / "src"
-    target_dir = APPS_ROOT / app_name / "tgt"
+    source_dir = TEST_APPS_ROOT / app_name / "src"
+    target_dir = TEST_APPS_ROOT / app_name / "tgt"
     if not source_dir.is_dir():
         raise RuntimeError(f"Missing application source directory: {source_dir}")
     binary_path = target_dir / f"{Path(asm_filename).stem}.bin"
@@ -186,7 +187,7 @@ def build_static_app(
     runtime_assets: tuple[str, ...],
 ) -> Path:
     """Rebuild a hand-developed app's target without modifying its source."""
-    app_root = APPS_ROOT / app_name
+    app_root = TEST_APPS_ROOT / app_name
     source_dir = app_root / "src"
     target_dir = app_root / "tgt"
     if not source_dir.is_dir():
@@ -209,14 +210,14 @@ def build_static_app(
 
 def build_earth_party_app() -> Path:
     """Run the source-preserving generated-asset Earth Party build."""
-    from build_earth_party_local import build
+    from build_earth_party_tex import build
 
     return build()
 
 
 def build_earth_party_flat_app() -> Path:
     """Build the isolated flat-vehicle, emissive-star Earth Party sibling."""
-    from build_earth_party_flat_local import build
+    from build_earth_party_flat import build
 
     return build()
 

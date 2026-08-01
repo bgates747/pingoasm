@@ -20,6 +20,7 @@ autoexec*.txt
 
 # Generated application runtime packages
 /apps/*/tgt/
+/tests/apps/*/tgt/
 
 # Generated benchmark runtime packages
 /benchmarks/*/fixtures/*/tgt/

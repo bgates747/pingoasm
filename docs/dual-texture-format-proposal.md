@@ -37,7 +37,7 @@ It therefore offers:
 
 RGBA8888 must remain supported because:
 
-1. TurboVega and other legacy applications use it.
+1. Legacy Pingo applications use it.
 2. Existing applications must not break.
 3. Some textures may genuinely benefit from greater color or alpha precision.
 4. Compatibility fixtures must continue to exercise the historical path.
@@ -245,7 +245,7 @@ Hardware acceptance requires:
 
 After hardware passes:
 
-1. Refresh the isolated Pingo emulator module.
+1. Refresh the project-local PingoWolf emulator module.
 2. Run the same canonical binaries through the live `apps` mapping.
 3. Obtain explicit human validation before committing emulator-related state.
 

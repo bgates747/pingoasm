@@ -13,7 +13,7 @@ from typing import Any, Iterable
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
-APP_ROOT = PROJECT_ROOT / "apps" / "earth-party-local"
+APP_ROOT = PROJECT_ROOT / "apps" / "earth-party-tex"
 DEFAULT_CATALOG = APP_ROOT / "assets" / "stars.tsv"
 DEFAULT_INCLUDE = APP_ROOT / "src" / "starfield.inc"
 DEFAULT_TEXTURE = APP_ROOT / "tgt" / "stars.rgba2"

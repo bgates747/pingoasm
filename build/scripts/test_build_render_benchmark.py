@@ -104,7 +104,7 @@ class MotionProfileValidationTests(unittest.TestCase):
     def setUp(self) -> None:
         self.profile = {
             "name": "test",
-            "model_source": "apps/turbovega/src/cube.inc",
+            "model_source": "src/asm/models/cube.inc",
             "texture_source": "src/blender/blenderaxes.rgba2",
             "texture_format": "rgba2222",
             "target_format": "rgba2222",
