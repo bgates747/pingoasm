@@ -118,7 +118,9 @@ Use only the dependencies required by the selected external utility.
 
 ## Deferred structural work
 
-The temporary central model library remains until the numbered
-`model-asset-reorganization-todo.md` is completed. That migration will make
-model/texture provenance explicit, introduce shared source assets, compare
-regenerated hashes, and preserve the accepted 13-binary build throughout.
+The temporary central model library remains until the authoritative `A` items
+in `docs/todo.md` are promoted and completed. The historical
+`model-asset-reorganization-todo.md` retains the detailed planning record but
+is not a second work queue. The eventual migration will make model/texture
+provenance explicit, introduce shared source assets, compare regenerated
+hashes, and preserve the accepted 18-binary build throughout.

@@ -1,6 +1,9 @@
 # TurboVega Pingo versus modern upstream
 
-Status: reviewed 2026-07-27.
+Status: historical comparison, reconciled with the accepted selective-port
+lineage through 2026-07-31. Its optimization dispositions remain in
+`pingo-renderer-optimization-todo.md`; current work is authorized only through
+`docs/todo.md`.
 
 This comparison uses:
 
@@ -91,8 +94,9 @@ aa3033b451bd8fe6168a998073dd445738ec9ce1bd91b4a6dd515244b13fb859
 On the five-object polar ellipse, exact final source averaged 713.496
 microseconds versus a pooled 785.110-microsecond pre-sweep control, a 9.12%
 same-host reduction. This is emulator screening evidence, not an ESP32
-performance claim. Human review of the five-object polar ellipse passed in the
-current emulator; hardware visual and timing qualification remain required.
+performance claim. Human review passed in the emulator, and the later complete
+1,447-frame physical run passed visually and improved all fifteen fixtures,
+from 0.42% on HeavyTank to 8.41% on the multi-object camera-dolly scene.
 
 ## Decided coordinate contract
 
@@ -115,7 +119,7 @@ current emulator; hardware visual and timing qualification remain required.
 > The Author's margin note: “Whoever invented such a stupid convention needs
 > to be dragged out back and shot.”
 
-## Completed on `pingo-codex`
+## Completed on the Pingo development lineage
 
 1. **Camera semantics:** the bridge inverts camera pose exactly once.
 2. **Viewport orientation:** Y is reflected once; rasterizer edge signs remain
@@ -138,46 +142,64 @@ This qualified state is branded:
 Agon Pingo VDP Version 2.15.0 Alpha 1 SEP Field
 ```
 
-## Remaining action plan
+## Action-plan disposition
+
+This section originally described the work required after Alpha 1. It is kept
+as a compact disposition rather than a second live TODO list; remaining work
+is maintained only in `docs/todo.md`.
 
 ### Phase 1 — objective regression evidence
 
-1. Capture fixed cube and HeavyTank views and transforms as golden images.
-2. Add host tests for known points through model, view, projection,
+1. Completed — Capture exact render-target hashes and preserve Cube/HeavyTank visual
+controls. The broader emulator oracle now compares complete color and depth
+targets across 1,447 frames.
+2. Completed — Add host tests for known points through model, view, projection,
    perspective division, and viewport conversion.
-3. Add a numerical unequal-W triangle test for UV reconstruction.
-4. Record 320×240 frame time and submitted/rejected/shaded counts.
+3. Completed — Add numerical unequal-W and perspective-span tests for UV
+reconstruction.
+4. Completed — Record 320×240 frame time and submitted/rejected/shaded counts through
+versioned renderer diagnostics and deterministic hardware fixtures.
 
 ### Phase 2 — safety and geometry correctness
 
-1. Validate mesh and UV index counts and ranges before rendering.
-2. Handle allocation failures, null textures, invalid dimensions, and zero
+1. Completed — Validate mesh and UV index counts and ranges before rendering.
+2. Completed — Handle allocation failures, null textures, invalid dimensions, and zero
    divisors without corrupting VDP state.
-3. Make backface culling switchable during diagnosis, then retain the accepted
+3. Completed — Make backface culling switchable during diagnosis, then retain the accepted
    outward-winding convention by default.
-4. Implement clip-space polygon clipping for triangles crossing the near
+4. Completed — Implement homogeneous clip-space polygon clipping for triangles crossing
+   all production view planes, including the near
    plane.
-5. Add full-frustum rejection only after clipping boundary cases pass.
+5. Completed — Retain triangle common-plane rejection and add conservative cached
+object-AABB rejection with fail-open invalidation and hardware evidence.
 
 ### Phase 3 — measured performance
 
-1. Establish the corrected spinning-globe baseline at 320×240.
-2. Target at least 15 FPS versus the historical roughly 3 FPS.
-3. Benchmark backface, frustum, early-Z, math, fixed-point, tiled, and
-   multicore changes separately.
-4. Keep only changes with measured benefit and identical accepted images.
+1. Completed — Establish corrected Cube, EarthIco, EarthUV, complex-model, near-plane,
+and multi-object baselines at 320×240.
+2. Deferred — Reach the aspirational 15 FPS threshold on representative demanding
+workloads. Several simpler models exceed it, but the full-screen Earth and
+multi-object stress scenes remain below it on hardware.
+3. Completed — Benchmark backface, frustum, early-Z, math, fixed-point, span,
+interpolation, and object-culling changes separately.
+4. Completed — Keep only changes with measured benefit and accepted image behavior;
+preserve important rejected patches and numerical differences explicitly.
 
 ### Phase 4 — architecture only if justified
 
-1. Defer upstream `Entity` and callback-scene adoption until a concrete
+1. Completed — Defer upstream `Entity` and callback-scene adoption until a concrete
    hierarchical application requires it.
-2. If a newer `Backend` becomes necessary, hide it behind a stable Agon
+2. Deferred — If a newer `Backend` becomes necessary, hide it behind a stable Agon
    adapter that preserves borrowed bitmap lifetime and command `40`.
-3. Do not extend the VDU surface merely to mirror upstream internal APIs.
+3. Completed — Do not extend the VDU surface merely to mirror upstream internal APIs.
 
 ## Branch policy
 
 `tv-port` remains the immutable VDP 2.15 plus TurboVega-final historical
-control. `pingo-codex` owns the attributable Alpha 1 repairs and subsequent
-test-driven work. Modern upstream changes are references to evaluate one at a
-time, not a branch to merge wholesale.
+control. `pingo-codex` is the historical Alpha 1 integration line; accepted
+renderer, safety, lighting, and bridge work currently continues on
+`experiment/hecker-rasterizer`. Modern upstream changes remain references to
+evaluate one at a time, not a branch to merge wholesale. The future combined
+Wolf/Pingo branch is governed separately through
+`agon-dev-env/cross-agent/wolf_pingo_vdp` and does not alter these rollback
+boundaries.

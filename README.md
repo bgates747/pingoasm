@@ -15,7 +15,7 @@ benchmarks/          profile-driven timing and asynchronous render fixtures
 src/asm/models/     temporary central model/texture library
 src/blender/        editable Blender scenes and source assets
 build/scripts/      build, conversion, deployment, and diagnostic tools
-docs/               specifications, comparisons, TODOs, and devlogs
+docs/               authoritative TODO, specifications, comparisons, devlogs
 archive/            historical material
 ```
 
@@ -23,8 +23,11 @@ Generated `.asm` and `.inc` files live in the consuming application's `src/`
 for portability. They carry a banner naming their generator and authoritative
 input. Rerunning the generator replaces them.
 
-The central model library is temporary; see
-[Model and asset reorganization TODO](docs/model-asset-reorganization-todo.md).
+Current work belongs only in the [authoritative TODO](docs/todo.md). The
+central model library is temporary; its detailed historical scope is retained
+in the [model and asset reorganization planning
+record](docs/model-asset-reorganization-todo.md), while promoted actions use
+the `A` IDs in the authoritative TODO.
 
 ## Build
 
@@ -149,8 +152,11 @@ only TurboVega commands `0`–`40` and RGBA8888 textures. Cube is the primary
 orientation/UV regression. HeavyTank is the chiral winding and compounded
 perspective regression.
 
-Pingo 2.15.0 Alpha 1 passed cube and the fresh outward-wound HeavyTank on
-hardware and the isolated emulator.
+Pingo 2.15.0 Alpha 1 passed Cube and the fresh outward-wound HeavyTank on
+hardware and the isolated emulator. The current combined PingoWolf 2.16-based
+firmware subsequently passed the Earth Party and Wolf3DOrig applications in
+the bespoke emulator and on physical hardware; the stock Jukebox application
+also ran afterward without an intervening reset.
 
 ## Deployment
 
