@@ -4,12 +4,14 @@
 ; Simulation advances in fixed 4/120-second quanta, independently of Pingo's
 ; renderer. One asynchronous render may be in flight; changes made meanwhile
 ; remain dirty and are coalesced into the next absolute-state submission.
-; The camera follows the user-controlled Jet. Earth spins about a tilted local
-; axis, while four background objects retain constant forward and yaw
-; velocities that make closed, unscripted integer orbits. A real 128-star sky
-; is split across six static spatial sectors for object-level frustum culling.
+; The Earth-relative movable camera always aims at the user-controlled Jet.
+; Earth spins about a tilted local axis, while four background objects retain
+; constant forward and yaw velocities that make closed, unscripted integer
+; orbits. A real 128-star sky is split across six static spatial sectors for
+; object-level frustum culling.
 ; =============================================================================
 
+mos_getkey:         equ 00h
 mos_load:           equ 01h
 mos_sysvars:        equ 08h
 mos_getkbmap:       equ 1Eh
@@ -50,6 +52,19 @@ exit:
 vdp_version:
     db "Pingo flat-shaded eZ80 local-transform Earth Party",0
 
+startup_controls:
+    db "Jet: W/S throttle  arrows pitch/roll  A/D yaw",13,10
+    db "Camera: PgUp/PgDn height  Home/End distance",13,10
+    db "        Insert/Delete sweep  Escape exits",13,10
+    db "Loading scene assets...",13,10,0
+
+start_prompt:
+    db 13,10,"Ready. Press any key to begin.",13,10,0
+
+waitKeypress:
+    MOSCALL mos_getkey
+    ret
+
 ; Application support.
     include "input.inc"
     include "timer.inc"
@@ -73,6 +88,8 @@ main:
     ld hl,vdp_version
     call printString
     call printNewLine
+    ld hl,startup_controls
+    call printString
 
 ; Load all RGBA2222 textures sequentially through the common filedata staging
 ; area. Pingo retains each completed bitmap, so eZ80 RAM holds only one source
@@ -237,6 +254,12 @@ main:
     ld a,32
     call pingo_set_ambient_light
 
+; Keep the control card visible after the complete scene payload has been
+; submitted. The graphics mode and simulation begin only on explicit input.
+    ld hl,start_prompt
+    call printString
+    call waitKeypress
+
 ; 320x240x64 double-buffered display; the Pingo viewport may be tuned
 ; independently by changing the constants at the end of this file.
     ld a,8+128
@@ -247,8 +270,8 @@ main:
     jr @display_setup_end
 @display_setup:
     db 23,0,0C0h,0
-    db 17,20+128
-    db 18,0,20+128
+    db 17,16+128             ; background: Navy, RGB (0,0,85)
+    db 18,0,16+128
 @display_setup_end:
 
     call app_special_init
@@ -588,6 +611,7 @@ run_simulation_batch:
     ret c
     call simulate_object_step
     call simulate_party_step
+    call simulate_camera_step
     call update_camera_tracking
 
 ; A latched tap is consumed exactly once. Re-sampling immediately makes held
@@ -688,14 +712,28 @@ orbiter_scale: equ 896
 orbit_forward_step: equ -46
 orbit_yaw_step: equ 96
 
-; A fixed world-space observer tracks the Jet. Upright roll matches an R/C
-; pilot standing in the world; change this equate to
+; An Earth-relative observer tracks the Jet. Upright roll matches an R/C pilot
+; standing in the world; change this equate to
 ; p3d_camera_roll_continuous to carry the view smoothly over a pole and emerge
 ; with the horizon inverted.
 camera_tracking_roll_policy: equ p3d_camera_roll_upright
 
+; Camera controls retain cylindrical state around Earth's center. Home/End
+; scale horizontal radius and world Y together by approximately 1/256 per
+; fixed step; Page Up/Down alter world Y directly; Insert/Delete alter sweep.
+; Bounded Cartesian regeneration keeps every Pingo translation representable.
+camera_initial_radius_extension: equ 1250 ; half the 2500-unit party orbit
+camera_initial_horizontal_radius: equ -earth_z+camera_initial_radius_extension
+camera_initial_world_y: equ 0
+camera_initial_sweep: equ 0
+camera_horizontal_radius_min: equ 256
+camera_horizontal_radius_max: equ 28000
+camera_world_y_limit: equ 28000
+camera_world_y_step: equ 32
+camera_sweep_step: equ 128
+
 camera_initial_position:
-    dw 0,0,0
+    dw 0,camera_initial_world_y,earth_z+camera_initial_horizontal_radius
 
 simulation_step_ticks: equ 4
 simulation_rate_basis_ticks: equ 128
@@ -831,6 +869,21 @@ object_packet:
 
 camera_state:
     ds p3d_camera_size
+
+camera_horizontal_radius:
+    dw 0
+camera_world_y:
+    dw 0
+camera_sweep:
+    dw 0
+camera_sweep_sine:
+    dw 0
+camera_sweep_cosine:
+    dw 0
+camera_position_work:
+    ds p3d_vec3_size
+camera_step_changed:
+    db 0
 
 simulation_accumulator:
     dl 0

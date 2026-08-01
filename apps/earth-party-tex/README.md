@@ -15,8 +15,12 @@ firmware-local transform.
 
 ## Persistent motion
 
-The Jet retains the moveair controls and persistent local `-Z` throttle.
-The fixed camera remains at world origin and continuously aims at the Jet.
+The Jet retains the moveair controls and persistent local `-Z` throttle. The
+camera begins 5,450 world units from Earth's center—half an orbital radius
+farther away than the original world-origin viewpoint—retains its position
+relative to Earth, and continuously aims at the Jet. Camera translation never
+changes that aim target. See the concise
+[control card](../earth-party-controls.md).
 
 Each orbiter is initialized once with:
 
@@ -76,8 +80,9 @@ use the same directional vector `(-16384,0,28377)` in the world X-Z plane.
 
 Celestial north is rotated onto Earth's immutable tilted north-pole axis.
 The initial right-ascension phase places the Orion/Sirius region near the
-forward view. The camera remains at the world origin, so all six inward-facing
-sectors are created once and never enter the simulation dirty-state path.
+forward view. The bounded movable camera remains inside the firmament, so all
+six inward-facing sectors are created once and never enter the simulation
+dirty-state path.
 
 ## Simulation and rendering
 
@@ -91,7 +96,8 @@ The viewport remains 320×240 for the first hardware stress test. It is the
 primary performance control and can be reduced independently of simulation
 frequency.
 
-Controls are unchanged from `moveair-local`:
+Jet controls remain those of `moveair-local`; six additional keys move the
+camera relative to Earth while its look-at target remains the Jet:
 
 | Keys | Effect |
 |---|---|
@@ -99,7 +105,15 @@ Controls are unchanged from `moveair-local`:
 | Up / Down | pitch `-X` / `+X` |
 | Left / Right | roll `+Z` / `-Z` |
 | A / D | yaw `+Y` / `-Y` |
+| Page Up / Page Down | move camera along world `+Y` / `-Y` |
+| Home / End | move camera toward / away from Earth's center |
+| Insert / Delete | increase / decrease Earth-relative camera sweep |
 | Escape | restore the normal display and return to MOS |
+
+Sweep is a rotation about world `+Y`; it preserves the camera's radius and
+angle above the world X-Z plane. Home/End scale the complete Earth-relative
+radial direction, including its world-Y component. The display background is
+Agon palette index 16, Navy (`0,0,85`), the darkest non-black blue.
 
 Space remains unbound because current Pingo command 41 is the render
 completion registration command.

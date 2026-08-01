@@ -202,6 +202,14 @@ Hardware is the only copy deployment:
 .venv/bin/python build/scripts/deploy.py hardware earth-party-flat
 ```
 
+Deploy the complete combined application payload as flat sibling directories
+at `/PingoWolf/Pingo` and `/PingoWolf/Wolf` (clearing both destinations first)
+and leave MOS at `/PingoWolf` on boot:
+
+```bash
+.venv/bin/python build/scripts/deploy_pingowolf_sd.py
+```
+
 It replaces the selected `apps/<app>/tgt` or `tests/apps/<fixture>/tgt` at the
 matching mounted SD path, normally beneath `/media/smith/AGON`. Deployment
 never edits `autoexec.txt`.
