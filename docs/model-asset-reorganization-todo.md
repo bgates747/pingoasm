@@ -2,8 +2,8 @@
 
 Status: historical planning detail. The filename is retained to avoid breaking
 references. Current actionable asset work has moved to `docs/todo.md`; entries
-below are dispositions and scope evidence, not authorization. The accepted
-sample build now contains 18 binaries.
+below are dispositions and scope evidence, not authorization. The ordinary
+sample build now contains 19 binaries, including the rigid Lara animation app.
 
 ## Phase 1 — authoritative layout
 
@@ -42,7 +42,7 @@ sample build now contains 18 binaries.
 
 ## Phase 4 — migration safety
 
-1. Deferred — Preserve the accepted 18-binary build before moving assets.
+1. Deferred — Preserve the pre-animation 18-binary baseline before moving assets.
 2. Deferred — Hash current model includes and textures.
 3. Deferred — Regenerate into a disposable directory first.
 4. Deferred — Compare applications and runtime assets with accepted versions.

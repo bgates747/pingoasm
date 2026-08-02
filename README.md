@@ -10,6 +10,7 @@ in `agon-vdp`; emulator implementation belongs in the owned
 ```text
 apps/earth-party-tex/   showcased fully textured application
 apps/earth-party-flat/  showcased mixed flat/textured application
+apps/anim/              rigid Lara motion-capture playback application
 tests/apps/             preserved application-level regression fixtures
 benchmarks/             profile-driven performance and torture fixtures
 src/asm/models/         temporary central model/texture library
@@ -41,9 +42,9 @@ earthuv, triangle, and HeavyTank—then builds `moveair`, `movefsim`, `wolf`, an
 the source-preserved asynchronous `moveobj-local` and `moveair-local` Jet
 clients. It also regenerates the six prefixed models, real-star sky, and seven
 textures for the interactive `earth-party-tex` application, then validates
-and builds its `earth-party-flat` rendering-policy sibling and the
-`lighting-shading` qualification fixture. The complete build produces 18
-binaries and exits on the first assembly failure.
+and builds its `earth-party-flat` rendering-policy sibling, the standalone
+rigid Lara animation, and the `lighting-shading` qualification fixture. The
+complete build produces 19 binaries and exits on the first assembly failure.
 
 See [Assembly build pipeline](docs/assembly-build-pipeline.md).
 
@@ -64,6 +65,7 @@ Build either application directly:
 ```bash
 .venv/bin/python build/scripts/build_earth_party_tex.py
 .venv/bin/python build/scripts/build_earth_party_flat.py
+.venv/bin/python build/scripts/build_anim.py
 ```
 
 ## Preserved application fixtures
@@ -200,6 +202,7 @@ Hardware is the only copy deployment:
 ```bash
 .venv/bin/python build/scripts/deploy.py hardware earth-party-tex
 .venv/bin/python build/scripts/deploy.py hardware earth-party-flat
+.venv/bin/python build/scripts/deploy.py hardware anim
 ```
 
 Deploy the complete combined application payload as flat sibling directories

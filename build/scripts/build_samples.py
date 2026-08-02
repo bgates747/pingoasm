@@ -222,6 +222,13 @@ def build_earth_party_flat_app() -> Path:
     return build()
 
 
+def build_anim_app() -> Path:
+    """Export and build the standalone rigid Lara animation app."""
+    from build_anim import build
+
+    return build()
+
+
 def build_lighting_shading_app() -> Path:
     """Run the source-validating lighting/shading fixture build."""
     from build_lighting_shading import build
@@ -249,6 +256,7 @@ def main() -> None:
 
     outputs.append(build_earth_party_app())
     outputs.append(build_earth_party_flat_app())
+    outputs.append(build_anim_app())
     outputs.append(build_lighting_shading_app())
 
     print(f"Built {len(outputs)} binaries:")

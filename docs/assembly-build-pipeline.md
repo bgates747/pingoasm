@@ -114,6 +114,15 @@ and a 32/127 ambient floor for every scene-lit mesh. It uses the same generated
 sampled-pose machinery as the ordinary Earth Party and assembles
 `tgt/earth-party-flat.bin` under the same staging-window guard.
 
+`apps/anim` is the standalone rigid Lara motion-capture client. Its dedicated
+builder invokes Blender on the validated first-stride `.blend`, exports 15
+compact meshes and a 4,140-byte frame-major table of 23 unique poses, converts
+the shared Lara texture to RGBA2222, snapshots the current Earth Party
+transport/runtime support, and assembles `tgt/anim.bin`. Source frame 24 is a
+non-stored periodic witness used to qualify the loop endpoint and wrap-motion
+step. Hand-written playback and root-view policy remain isolated in
+`src/lara-animation.inc`; the normal build never rewrites that file.
+
 `tests/apps/lighting-shading` is a standalone visual qualification application for
 scene-wide light direction, intensity, ambient floor, illumination bypass,
 and mesh-local textured/flat-palette selection. Its profile identifies the
@@ -143,7 +152,7 @@ Run from anywhere:
   ~/Agon/mystuff/pingoasm/build/scripts/build_samples.py
 ```
 
-The successful build produces 18 binaries:
+The successful build produces 19 binaries:
 
 ```text
 tests/apps/movecam/tgt/{jet,cube,earthuv,tri,heavytank}.bin
@@ -155,6 +164,7 @@ tests/apps/moveobj-local/tgt/jet.bin
 tests/apps/moveair-local/tgt/jet.bin
 apps/earth-party-tex/tgt/earth-party.bin
 apps/earth-party-flat/tgt/earth-party-flat.bin
+apps/anim/tgt/anim.bin
 tests/apps/lighting-shading/tgt/lighting-shading.bin
 ```
 
@@ -173,10 +183,11 @@ The driver:
    bound;
 9. independently builds the flat-vehicle, emissive-star Earth Party sibling
    through the same sampled-pose contract;
-10. validates and assembles the tracked lighting/shading fixture without
+10. exports and builds the 15-object rigid Lara animation through Blender;
+11. validates and assembles the tracked lighting/shading fixture without
    implicit source regeneration;
-11. exits nonzero on the first failure; and
-12. prints every output.
+12. exits nonzero on the first failure; and
+13. prints every output.
 
 Macro parameters use explicit names such as `VERTEX_DATA`, `VERTEX_COUNT`,
 `MESH_ID`, and `BITMAP_ID` to avoid ez80asm 2.1 replacing short parameter names
@@ -289,7 +300,7 @@ unattended rerun workflow.
 The current pipeline is accepted when:
 
 1. Python entry points compile;
-2. all 18 binaries assemble;
+2. all 19 binaries assemble;
 3. generated `src/` contains only `.asm`/`.inc`;
 4. `tgt/` contains only permitted binaries/textures;
 5. generated banners name their source and generator;

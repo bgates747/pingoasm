@@ -112,3 +112,13 @@ and runtime asset before removing the old model library.
 A10 [ ] Design a tracked release/export area producing portable application
 ZIPs with matching `src/`, `tgt/`, generator versions, provenance, and
 checksums.
+
+A11 [ ] Flush pre-correction asset-pipeline artifacts after a dependency audit.
+Remove obsolete scripts that compensate for renderer-era UV or coordinate bugs,
+non-compliant OBJ/MTL exports, numbered/inverted experimental variants, and
+stale derived data. Judge replacements against the current Pingo contract:
+Blender/OBJ bottom-origin V, one sampler-side image-row conversion, outward
+winding, the qualified coordinate basis, explicit provenance, and deterministic
+regeneration. Replace active dependencies and pass the complete build before
+removing their old inputs; retain historical evidence in Git rather than in the
+live asset tree.

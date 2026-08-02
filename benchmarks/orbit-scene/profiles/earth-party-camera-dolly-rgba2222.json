@@ -48,8 +48,8 @@
     },
     {
       "name": "lara",
-      "model_obj_source": "src/blender/LaraCroft/LaraCroft.obj",
-      "texture_png_source": "src/blender/LaraCroft/Lara.png",
+      "model_obj_source": "blender/anim/bandai_namco/run_normal_001/source/LaraCroft.obj",
+      "texture_png_source": "blender/anim/bandai_namco/run_normal_001/source/Lara.png",
       "texture_filename": "Lara.rgba2",
       "texture_size": [256, 184],
       "mesh_id": 3,

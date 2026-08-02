@@ -4,7 +4,7 @@ import math
 from pathlib import Path
 
 import bpy
-from mathutils import Matrix, Vector
+from mathutils import Matrix, Quaternion, Vector
 
 
 EXPERIMENT_DIR = Path(__file__).resolve().parent.parent
@@ -12,6 +12,19 @@ SOURCE_DIR = EXPERIMENT_DIR / "source"
 RUN_OUTPUT = EXPERIMENT_DIR / "output" / "lara_running_normal_001.blend"
 REST_OUTPUT = EXPERIMENT_DIR / "output" / "lara_rest.blend"
 LARA_SCALE = 0.16
+
+# The capture opens during a left-foot contact and returns to the same gait
+# phase at frame 24.  A cyclic table therefore stores the 23 unique samples
+# 1..23; frame 24 is retained only as a non-exported seam witness.  The local
+# pose correction below begins after the portion the user selected as the
+# preferred opening and reaches exact pose/first-difference constraints at
+# frames 23 and 24.
+LOOP_FRAME_START = 1
+LOOP_FRAME_END = 23
+LOOP_SUCCESSOR_FRAME = 24
+LOOP_CLOSURE_START = 15
+ROOT_FORWARD_LOCATION_AXIS = 2
+LOOP_EPSILON = 1.0e-5
 
 MOTION_MAP = {
     "pelvis": "Hips",
@@ -81,12 +94,16 @@ REST_PART_ROTATIONS = {
     "hand.l": (-math.pi / 2, 0, 0),
 }
 
-# Evaluated BVH matrices preserve the motion cleanly, but Chest and Head use a
-# different roll convention around their longitudinal (local Y) axes. Convert
-# those two frames to Lara's bone convention before posing the target rig.
+# Evaluated BVH matrices preserve the motion cleanly, but several source bones
+# use the opposite local-Y basis from Lara's corresponding rigid part. Without
+# these explicit conversions, the pelvis faces backward and foot.r presents
+# its lace faces downward at ground contact. Chest and Head use a quarter-turn
+# roll convention around that same longitudinal axis.
 MOTION_BASIS_ROTATIONS = {
+    "pelvis": Matrix.Rotation(math.pi, 4, "Y"),
     "torso": Matrix.Rotation(math.pi / 2, 4, "Y"),
     "head": Matrix.Rotation(math.pi / 2, 4, "Y"),
+    "foot.r": Matrix.Rotation(math.pi, 4, "Y"),
 }
 
 
@@ -312,7 +329,7 @@ def retarget(source, target, frame_start, frame_end):
     scene = bpy.context.scene
     scene.frame_set(frame_start)
     source_origin = source.pose.bones["Hips"].head.copy()
-    action = bpy.data.actions.new("Lara_Run_Normal_001")
+    action = bpy.data.actions.new("Lara_Run_Normal_001_First_Stride_Loop")
     target.animation_data_create()
     target.animation_data.action = action
     for pose_bone in target.pose.bones:
@@ -354,6 +371,202 @@ def retarget(source, target, frame_start, frame_end):
             bpy.context.view_layer.update()
     scene.frame_set(frame_start)
     return action
+
+
+def normalized_quaternion(value):
+    result = value.copy()
+    result.normalize()
+    return result
+
+
+def shortest_exponential_map(value):
+    """Return the shortest signed rotation vector for a unit quaternion."""
+
+    result = normalized_quaternion(value)
+    if result.w < 0.0:
+        result.negate()
+    return result.to_exponential_map()
+
+
+def quaternion_from_exponential_map(value):
+    angle = value.length
+    if angle < 1.0e-12:
+        return Quaternion((1.0, 0.0, 0.0, 0.0))
+    return Quaternion(value / angle, angle)
+
+
+def loop_correction_weights(frame):
+    """Cubic local-pose correction weights for frames 16..24.
+
+    With x = frame - 15, A and B have zero value and derivative at x=0,
+    A(8)=1/B(8)=0, and A(9)=0/B(9)=1.  The resulting channel sequence is
+    untouched through frame 15 and exactly meets the periodic predecessor and
+    successor constraints at frames 23 and 24.
+    """
+
+    x = float(frame - LOOP_CLOSURE_START)
+    previous_weight = x * x * (9.0 - x) / 64.0
+    successor_weight = x * x * (x - 8.0) / 81.0
+    return previous_weight, successor_weight
+
+
+def sample_local_pose_channels(target, frames):
+    scene = bpy.context.scene
+    samples = {}
+    for frame in frames:
+        scene.frame_set(frame)
+        bpy.context.view_layer.update()
+        samples[frame] = {
+            pose_bone.name: {
+                "location": pose_bone.location.copy(),
+                "rotation": normalized_quaternion(pose_bone.rotation_quaternion),
+                "scale": pose_bone.scale.copy(),
+            }
+            for pose_bone in target.pose.bones
+        }
+    return samples
+
+
+def rotation_difference_angle(left, right):
+    delta = normalized_quaternion(left).conjugated() @ normalized_quaternion(right)
+    return shortest_exponential_map(delta).length
+
+
+def condition_first_stride_loop(target):
+    """Make frames 1..23 a discrete-C1 cycle in local bone channels.
+
+    Frame 24 is made cycle-equivalent to frame 1 while retaining only the
+    pelvis's captured forward stride distance.  Frame 23 is made the periodic
+    predecessor of frame 1, so its local location/rotation/scale increment to
+    the virtual frame 24 equals the unmodified frame 1 -> 2 increment.  A
+    cubic correction in local pose space distributes those endpoint changes
+    across the eight-frame tail without touching frames 1..15.
+    """
+
+    frames = range(LOOP_FRAME_START, LOOP_SUCCESSOR_FRAME + 1)
+    raw = sample_local_pose_channels(target, frames)
+    corrections = {}
+
+    for name in BONES:
+        first = raw[LOOP_FRAME_START][name]
+        second = raw[LOOP_FRAME_START + 1][name]
+        raw_previous = raw[LOOP_FRAME_END][name]
+        raw_successor = raw[LOOP_SUCCESSOR_FRAME][name]
+
+        successor_location = first["location"].copy()
+        if name == "pelvis":
+            forward_delta = (
+                raw_successor["location"][ROOT_FORWARD_LOCATION_AXIS]
+                - first["location"][ROOT_FORWARD_LOCATION_AXIS]
+            )
+            successor_location[ROOT_FORWARD_LOCATION_AXIS] += forward_delta
+        previous_location = successor_location - (
+            second["location"] - first["location"]
+        )
+
+        first_rotation = first["rotation"]
+        second_rotation = second["rotation"].copy()
+        if first_rotation.dot(second_rotation) < 0.0:
+            second_rotation.negate()
+        initial_rotation_step = (
+            first_rotation.conjugated() @ second_rotation
+        ).normalized()
+        if initial_rotation_step.w < 0.0:
+            initial_rotation_step.negate()
+        successor_rotation = first_rotation.copy()
+        previous_rotation = normalized_quaternion(
+            successor_rotation @ initial_rotation_step.conjugated()
+        )
+
+        successor_scale = first["scale"].copy()
+        previous_scale = successor_scale - (second["scale"] - first["scale"])
+        previous_rotation_correction = (
+            raw_previous["rotation"].conjugated() @ previous_rotation
+        ).normalized()
+        successor_rotation_correction = (
+            raw_successor["rotation"].conjugated() @ successor_rotation
+        ).normalized()
+        corrections[name] = {
+            "previous_location": previous_location - raw_previous["location"],
+            "successor_location": successor_location - raw_successor["location"],
+            "previous_rotation": shortest_exponential_map(
+                previous_rotation_correction
+            ),
+            "successor_rotation": shortest_exponential_map(
+                successor_rotation_correction
+            ),
+            "previous_scale": previous_scale - raw_previous["scale"],
+            "successor_scale": successor_scale - raw_successor["scale"],
+        }
+
+    prior_rotations = {
+        name: raw[LOOP_CLOSURE_START][name]["rotation"].copy() for name in BONES
+    }
+    scene = bpy.context.scene
+    for frame in range(LOOP_CLOSURE_START + 1, LOOP_SUCCESSOR_FRAME + 1):
+        previous_weight, successor_weight = loop_correction_weights(frame)
+        scene.frame_set(frame)
+        for name in BONES:
+            pose_bone = target.pose.bones[name]
+            sample = raw[frame][name]
+            correction = corrections[name]
+            pose_bone.location = (
+                sample["location"]
+                + correction["previous_location"] * previous_weight
+                + correction["successor_location"] * successor_weight
+            )
+            rotation_vector = (
+                correction["previous_rotation"] * previous_weight
+                + correction["successor_rotation"] * successor_weight
+            )
+            rotation = normalized_quaternion(
+                sample["rotation"] @ quaternion_from_exponential_map(rotation_vector)
+            )
+            if prior_rotations[name].dot(rotation) < 0.0:
+                rotation.negate()
+            pose_bone.rotation_quaternion = rotation
+            pose_bone.scale = (
+                sample["scale"]
+                + correction["previous_scale"] * previous_weight
+                + correction["successor_scale"] * successor_weight
+            )
+            pose_bone.keyframe_insert("location", frame=frame, group=name)
+            pose_bone.keyframe_insert("rotation_quaternion", frame=frame, group=name)
+            pose_bone.keyframe_insert("scale", frame=frame, group=name)
+            prior_rotations[name] = rotation.copy()
+        bpy.context.view_layer.update()
+
+    conditioned = sample_local_pose_channels(
+        target,
+        (LOOP_FRAME_START, LOOP_FRAME_START + 1, LOOP_FRAME_END, LOOP_SUCCESSOR_FRAME),
+    )
+    for name in BONES:
+        first = conditioned[LOOP_FRAME_START][name]
+        second = conditioned[LOOP_FRAME_START + 1][name]
+        previous = conditioned[LOOP_FRAME_END][name]
+        successor = conditioned[LOOP_SUCCESSOR_FRAME][name]
+        if (
+            (successor["location"] - previous["location"])
+            - (second["location"] - first["location"])
+        ).length > LOOP_EPSILON:
+            raise RuntimeError(f"Loop location velocity did not close for {name}")
+        first_step = first["rotation"].conjugated() @ second["rotation"]
+        seam_step = previous["rotation"].conjugated() @ successor["rotation"]
+        if rotation_difference_angle(first_step, seam_step) > LOOP_EPSILON:
+            raise RuntimeError(f"Loop rotation velocity did not close for {name}")
+        if (
+            (successor["scale"] - previous["scale"])
+            - (second["scale"] - first["scale"])
+        ).length > LOOP_EPSILON:
+            raise RuntimeError(f"Loop scale velocity did not close for {name}")
+
+    scene["loop_frame_start"] = LOOP_FRAME_START
+    scene["loop_frame_end"] = LOOP_FRAME_END
+    scene["loop_successor_frame"] = LOOP_SUCCESSOR_FRAME
+    scene["loop_closure_start"] = LOOP_CLOSURE_START
+    scene["loop_closure_space"] = "pose-bone local quaternion/location/scale"
+    scene["loop_closure_order"] = "discrete C1"
+    scene.frame_set(LOOP_FRAME_START)
 
 
 def make_stage(target, frame_start, frame_end):
@@ -400,7 +613,10 @@ def configure_scene(frame_start, frame_end):
     scene.world.color = (0.006, 0.01, 0.02)
     scene["motion_source"] = "source/dataset-2_run_normal_001.bvh"
     scene["character_source"] = "source/LaraCroft.obj"
-    scene["retarget_method"] = "evaluated source pose frames; rigid absolute transforms"
+    scene["retarget_method"] = (
+        "evaluated source pose frames; local-bone loop closure; "
+        "rigid absolute transforms"
+    )
 
 
 def main():
@@ -410,23 +626,41 @@ def main():
     rest_matrices = parent_parts(parts, target)
     source = import_motion()
     source_action = source.animation_data.action
-    frame_start = max(1, math.floor(source_action.frame_range[0]))
-    frame_end = math.ceil(source_action.frame_range[1])
-    configure_scene(frame_start, frame_end)
-    retarget(source, target, frame_start, frame_end)
-    bake_rigid_parts(parts, rest_matrices, target, frame_start, frame_end)
+    source_frame_start = max(1, math.floor(source_action.frame_range[0]))
+    source_frame_end = math.ceil(source_action.frame_range[1])
+    if source_frame_start != LOOP_FRAME_START or source_frame_end < LOOP_SUCCESSOR_FRAME:
+        raise RuntimeError(
+            f"Motion source range {source_frame_start}..{source_frame_end} does not "
+            f"contain loop frames {LOOP_FRAME_START}..{LOOP_SUCCESSOR_FRAME}"
+        )
+    configure_scene(LOOP_FRAME_START, LOOP_FRAME_END)
+    bpy.context.scene["motion_source_frame_start"] = source_frame_start
+    bpy.context.scene["motion_source_frame_end"] = source_frame_end
+    retarget(source, target, LOOP_FRAME_START, LOOP_SUCCESSOR_FRAME)
+    condition_first_stride_loop(target)
+    # Frame 24 is deliberately baked for export-time seam validation but is
+    # outside the playable 1..23 scene range and is never stored in the app.
+    bake_rigid_parts(
+        parts,
+        rest_matrices,
+        target,
+        LOOP_FRAME_START,
+        LOOP_SUCCESSOR_FRAME,
+    )
     source.hide_render = True
     source.hide_viewport = True
-    make_stage(target, frame_start, frame_end)
-    bpy.context.scene.frame_set(frame_start)
+    make_stage(target, LOOP_FRAME_START, LOOP_FRAME_END)
+    bpy.context.scene.frame_set(LOOP_FRAME_START)
     bpy.context.scene.name = "RUNNING_NORMAL_001"
     RUN_OUTPUT.parent.mkdir(parents=True, exist_ok=True)
     bpy.ops.wm.save_as_mainfile(filepath=str(RUN_OUTPUT))
     part_count = build_rest_file()
     print(
         f"Built {RUN_OUTPUT} with {len(parts)} rigid parts and "
-        f"{frame_end - frame_start + 1} frames; built {REST_OUTPUT} with "
-        f"{part_count} rest parts"
+        f"{LOOP_FRAME_END - LOOP_FRAME_START + 1} unique loop frames plus "
+        f"successor frame {LOOP_SUCCESSOR_FRAME} from the "
+        f"{source_frame_end - source_frame_start + 1}-frame capture; built "
+        f"{REST_OUTPUT} with {part_count} rest parts"
     )
 
 

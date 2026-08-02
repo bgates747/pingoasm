@@ -1,0 +1,606 @@
+{
+  "build": {
+    "assembler": {
+      "name": "ez80asm",
+      "sha256": "0a323563278dc80b3a9a46d9cc8edb5a6d2632f1860e475410e7324d7c88ee4a",
+      "version": "ez80asm version 2.1, (C)2025 - Jeroen Venema"
+    },
+    "assembly_inputs": {
+      "agon/3d.inc": {
+        "bytes": 98402,
+        "sha256": "82f39258cbc5479c9e9c3ca1f082f4c9c1b00e2218686ee680ee1c871d2b9395"
+      },
+      "agon/3d_sincos_table.inc": {
+        "bytes": 11374,
+        "sha256": "bd1dc0bba1fb4f5f5a62c23d524ed79523fe330550cce841bd782916b407ed9c"
+      },
+      "anim.asm": {
+        "bytes": 6299,
+        "sha256": "72a60246afa556c2983011ab8390e0db4e7c6544fc7eeefa66d27c602204f809"
+      },
+      "input.inc": {
+        "bytes": 1344,
+        "sha256": "bfbfa6e5e23f40f2bd70badf0893088dfc34bdd77f263c331bd908f66d306730"
+      },
+      "lara-animation.inc": {
+        "bytes": 22768,
+        "sha256": "9ec1cdc292cd538e51c3d27ec1b98a3e63272d06922ad1e93aa70a2cc944168c"
+      },
+      "lara-meshes.inc": {
+        "bytes": 35630,
+        "sha256": "1a8549b8d780ecb9b8aa7b73151e345a1b35dd3144038b3312c6b97a2010839e"
+      },
+      "lara-poses.inc": {
+        "bytes": 18203,
+        "sha256": "c3c1e10e8c4dffa7027c0f348e519726a9b520327bedec7ad6cf8733d23d0399"
+      },
+      "render-async.inc": {
+        "bytes": 5710,
+        "sha256": "42c2720a646114adc33f92c102032422c16feaa56216ba308b15cb32c05fbc32"
+      },
+      "timer.inc": {
+        "bytes": 1123,
+        "sha256": "4b0e932c025e66f433bdd9e60a5b60fc42123537a0a7cec3f22eff042f5b40a9"
+      },
+      "vdu_pingo.inc": {
+        "bytes": 13879,
+        "sha256": "a82103fdbd2d7b0606695f348f48ab923040bc045657b8986f0a5a32b8498245"
+      }
+    },
+    "builder": "build/scripts/build_anim.py",
+    "builder_sha256": "58d93712024b162bc9e12ee0936610e39f5c9e1e6cf47031f518cf76d0e65daa",
+    "outputs": {
+      "Lara.rgba2": {
+        "bytes": 47104,
+        "sha256": "839f6331f8d4c53078542c3a6a6a99518d6ac4f0515e874b74ae9e1d91b37700"
+      },
+      "anim.bin": {
+        "bytes": 29591,
+        "sha256": "268e5824c3c9cde4bb7b2471c8a47559f03e6a384b43579c71be7eead2bfba69"
+      }
+    }
+  },
+  "contract": {
+    "basis": {
+      "pingo_xyz": [
+        "blender_x",
+        "blender_z",
+        "-blender_y"
+      ]
+    },
+    "cycle_forward_command_units": 2131,
+    "frame_count": 23,
+    "frame_end": 23,
+    "frame_start": 1,
+    "loop_closure_order": "discrete C1",
+    "loop_closure_space": "pose-bone local quaternion/location/scale",
+    "loop_closure_start": 15,
+    "loop_forward_step_command_units": 77,
+    "loop_successor_frame": 24,
+    "loopable": true,
+    "nominal_forward_step_command_units": 93,
+    "normalization_max_abs": 0.7247999906539917,
+    "object_scale": 5.0,
+    "object_scale_word": 1280,
+    "pose_record_bytes": 12,
+    "pose_table_bytes": 4140,
+    "preserves_root_motion": true,
+    "record_fields": [
+      "tx",
+      "ty",
+      "tz",
+      "rx",
+      "ry",
+      "rz"
+    ],
+    "source_rate_hz": 30,
+    "track_count": 15
+  },
+  "generator": "blender/anim/bandai_namco/run_normal_001/scripts/export_pingo_rigid_animation.py",
+  "geometry": {
+    "positions": 300,
+    "runtime_meshes": 15,
+    "semantic_parts": 17,
+    "tracks": [
+      {
+        "driver": "pelvis",
+        "index": 0,
+        "mesh_id": 1,
+        "name": "pelvis_bundle",
+        "object_id": 1,
+        "positions": 36,
+        "source_counts": [
+          {
+            "driver": "pelvis",
+            "name": "pelvis",
+            "positions": 20,
+            "rest_geometry_sha256": "0a75ff603cc7405624eca321e953d41fb152c9108e13e95c2daa55f2e25e36b3",
+            "run_geometry_sha256": "0a75ff603cc7405624eca321e953d41fb152c9108e13e95c2daa55f2e25e36b3",
+            "triangles": 36
+          },
+          {
+            "driver": "pelvis",
+            "name": "holster.l",
+            "positions": 8,
+            "rest_geometry_sha256": "35d0254529884535d25be8953ea92fd1e971e6ba2f4feb4bf5e261be8d2177d8",
+            "run_geometry_sha256": "35d0254529884535d25be8953ea92fd1e971e6ba2f4feb4bf5e261be8d2177d8",
+            "triangles": 12
+          },
+          {
+            "driver": "pelvis",
+            "name": "holster.r",
+            "positions": 8,
+            "rest_geometry_sha256": "7f2fa9b0095a536e98efaa412a86bc02d86cf74e99220fcc3c8182291ab436fc",
+            "run_geometry_sha256": "7f2fa9b0095a536e98efaa412a86bc02d86cf74e99220fcc3c8182291ab436fc",
+            "triangles": 12
+          }
+        ],
+        "sources": [
+          "pelvis",
+          "holster.l",
+          "holster.r"
+        ],
+        "triangles": 60,
+        "uvs": 42
+      },
+      {
+        "driver": "torso",
+        "index": 1,
+        "mesh_id": 2,
+        "name": "torso",
+        "object_id": 2,
+        "positions": 30,
+        "source_counts": [
+          {
+            "driver": "torso",
+            "name": "torso",
+            "positions": 30,
+            "rest_geometry_sha256": "35ef5aef4ed19150ac97c0b5e19064d90945e7e55c353db3d6aebbf65b48d6df",
+            "run_geometry_sha256": "35ef5aef4ed19150ac97c0b5e19064d90945e7e55c353db3d6aebbf65b48d6df",
+            "triangles": 50
+          }
+        ],
+        "sources": [
+          "torso"
+        ],
+        "triangles": 50,
+        "uvs": 39
+      },
+      {
+        "driver": "head",
+        "index": 2,
+        "mesh_id": 3,
+        "name": "head",
+        "object_id": 3,
+        "positions": 46,
+        "source_counts": [
+          {
+            "driver": "head",
+            "name": "head",
+            "positions": 46,
+            "rest_geometry_sha256": "1c7e9c1f83c2843e3ea0d60c19f551e25eef03f92edc82cb859e068774c6b2dc",
+            "run_geometry_sha256": "1c7e9c1f83c2843e3ea0d60c19f551e25eef03f92edc82cb859e068774c6b2dc",
+            "triangles": 88
+          }
+        ],
+        "sources": [
+          "head"
+        ],
+        "triangles": 88,
+        "uvs": 55
+      },
+      {
+        "driver": "arm.l",
+        "index": 3,
+        "mesh_id": 4,
+        "name": "arm_l",
+        "object_id": 4,
+        "positions": 16,
+        "source_counts": [
+          {
+            "driver": "arm.l",
+            "name": "arm.l",
+            "positions": 16,
+            "rest_geometry_sha256": "057d71e9ac2c08914f1c61b2931bd45e2ad6f9fdb76448c4b233366e13984560",
+            "run_geometry_sha256": "057d71e9ac2c08914f1c61b2931bd45e2ad6f9fdb76448c4b233366e13984560",
+            "triangles": 28
+          }
+        ],
+        "sources": [
+          "arm.l"
+        ],
+        "triangles": 28,
+        "uvs": 1
+      },
+      {
+        "driver": "forearm.l",
+        "index": 4,
+        "mesh_id": 5,
+        "name": "forearm_l",
+        "object_id": 5,
+        "positions": 13,
+        "source_counts": [
+          {
+            "driver": "forearm.l",
+            "name": "forearm.l",
+            "positions": 13,
+            "rest_geometry_sha256": "b58c01d2d424277c45f5ebcf5716582a5797788327d316db9fc9bf1f72731e4c",
+            "run_geometry_sha256": "b58c01d2d424277c45f5ebcf5716582a5797788327d316db9fc9bf1f72731e4c",
+            "triangles": 22
+          }
+        ],
+        "sources": [
+          "forearm.l"
+        ],
+        "triangles": 22,
+        "uvs": 1
+      },
+      {
+        "driver": "hand.l",
+        "index": 5,
+        "mesh_id": 6,
+        "name": "hand_l",
+        "object_id": 6,
+        "positions": 8,
+        "source_counts": [
+          {
+            "driver": "hand.l",
+            "name": "hand.l",
+            "positions": 8,
+            "rest_geometry_sha256": "82a0554996c3cc4395bc18a554f0ba3d3c2c998fcbfce2a37c96675898653c00",
+            "run_geometry_sha256": "82a0554996c3cc4395bc18a554f0ba3d3c2c998fcbfce2a37c96675898653c00",
+            "triangles": 12
+          }
+        ],
+        "sources": [
+          "hand.l"
+        ],
+        "triangles": 12,
+        "uvs": 21
+      },
+      {
+        "driver": "arm.r",
+        "index": 6,
+        "mesh_id": 7,
+        "name": "arm_r",
+        "object_id": 7,
+        "positions": 16,
+        "source_counts": [
+          {
+            "driver": "arm.r",
+            "name": "arm.r",
+            "positions": 16,
+            "rest_geometry_sha256": "a1c025c52654ae2e92cb301099cf6ea646196639b8dc93869d4ba6c88cfdbd42",
+            "run_geometry_sha256": "a1c025c52654ae2e92cb301099cf6ea646196639b8dc93869d4ba6c88cfdbd42",
+            "triangles": 28
+          }
+        ],
+        "sources": [
+          "arm.r"
+        ],
+        "triangles": 28,
+        "uvs": 1
+      },
+      {
+        "driver": "forearm.r",
+        "index": 7,
+        "mesh_id": 8,
+        "name": "forearm_r",
+        "object_id": 8,
+        "positions": 13,
+        "source_counts": [
+          {
+            "driver": "forearm.r",
+            "name": "forearm.r",
+            "positions": 13,
+            "rest_geometry_sha256": "2db8671aae1a2fa9997a2a3f8683befdcc90593a768b0be7e6d616369f79c4c9",
+            "run_geometry_sha256": "2db8671aae1a2fa9997a2a3f8683befdcc90593a768b0be7e6d616369f79c4c9",
+            "triangles": 22
+          }
+        ],
+        "sources": [
+          "forearm.r"
+        ],
+        "triangles": 22,
+        "uvs": 1
+      },
+      {
+        "driver": "hand.r",
+        "index": 8,
+        "mesh_id": 9,
+        "name": "hand_r",
+        "object_id": 9,
+        "positions": 8,
+        "source_counts": [
+          {
+            "driver": "hand.r",
+            "name": "hand.r",
+            "positions": 8,
+            "rest_geometry_sha256": "4d16af7e27615bcd43a2ec88b5200b28e5e5c6c02398c9c58a47355312b5f72d",
+            "run_geometry_sha256": "4d16af7e27615bcd43a2ec88b5200b28e5e5c6c02398c9c58a47355312b5f72d",
+            "triangles": 12
+          }
+        ],
+        "sources": [
+          "hand.r"
+        ],
+        "triangles": 12,
+        "uvs": 21
+      },
+      {
+        "driver": "thigh.l",
+        "index": 9,
+        "mesh_id": 10,
+        "name": "thigh_l",
+        "object_id": 10,
+        "positions": 18,
+        "source_counts": [
+          {
+            "driver": "thigh.l",
+            "name": "thigh.l",
+            "positions": 18,
+            "rest_geometry_sha256": "7da3368bc942b2f7550d95b6a6b41586e0b6a0baee2a6bc3d44c6ea89ca27285",
+            "run_geometry_sha256": "7da3368bc942b2f7550d95b6a6b41586e0b6a0baee2a6bc3d44c6ea89ca27285",
+            "triangles": 32
+          }
+        ],
+        "sources": [
+          "thigh.l"
+        ],
+        "triangles": 32,
+        "uvs": 14
+      },
+      {
+        "driver": "leg.l",
+        "index": 10,
+        "mesh_id": 11,
+        "name": "leg_l",
+        "object_id": 11,
+        "positions": 23,
+        "source_counts": [
+          {
+            "driver": "leg.l",
+            "name": "leg.l",
+            "positions": 23,
+            "rest_geometry_sha256": "7799e525dc227bacf93073a9bc74211f52be823962928d63a99e7f15d843da82",
+            "run_geometry_sha256": "7799e525dc227bacf93073a9bc74211f52be823962928d63a99e7f15d843da82",
+            "triangles": 42
+          }
+        ],
+        "sources": [
+          "leg.l"
+        ],
+        "triangles": 42,
+        "uvs": 10
+      },
+      {
+        "driver": "foot.l",
+        "index": 11,
+        "mesh_id": 12,
+        "name": "foot_l",
+        "object_id": 12,
+        "positions": 16,
+        "source_counts": [
+          {
+            "driver": "foot.l",
+            "name": "foot.l",
+            "positions": 16,
+            "rest_geometry_sha256": "3bb96dc55140e7d9e957332f712d8ef7c8c859001621b6748decc42c933fdb15",
+            "run_geometry_sha256": "3bb96dc55140e7d9e957332f712d8ef7c8c859001621b6748decc42c933fdb15",
+            "triangles": 28
+          }
+        ],
+        "sources": [
+          "foot.l"
+        ],
+        "triangles": 28,
+        "uvs": 10
+      },
+      {
+        "driver": "thigh.r",
+        "index": 12,
+        "mesh_id": 13,
+        "name": "thigh_r",
+        "object_id": 13,
+        "positions": 18,
+        "source_counts": [
+          {
+            "driver": "thigh.r",
+            "name": "thigh.r",
+            "positions": 18,
+            "rest_geometry_sha256": "512ee932520421a924386eb1a988a515483bcd97c2e494018da91cf418bb4f92",
+            "run_geometry_sha256": "512ee932520421a924386eb1a988a515483bcd97c2e494018da91cf418bb4f92",
+            "triangles": 32
+          }
+        ],
+        "sources": [
+          "thigh.r"
+        ],
+        "triangles": 32,
+        "uvs": 14
+      },
+      {
+        "driver": "leg.r",
+        "index": 13,
+        "mesh_id": 14,
+        "name": "leg_r",
+        "object_id": 14,
+        "positions": 23,
+        "source_counts": [
+          {
+            "driver": "leg.r",
+            "name": "leg.r",
+            "positions": 23,
+            "rest_geometry_sha256": "5823504320b0852c10aaca24be8e8e8d379f0aa089a285d91bf03255ebebf577",
+            "run_geometry_sha256": "5823504320b0852c10aaca24be8e8e8d379f0aa089a285d91bf03255ebebf577",
+            "triangles": 42
+          }
+        ],
+        "sources": [
+          "leg.r"
+        ],
+        "triangles": 42,
+        "uvs": 10
+      },
+      {
+        "driver": "foot.r",
+        "index": 14,
+        "mesh_id": 15,
+        "name": "foot_r",
+        "object_id": 15,
+        "positions": 16,
+        "source_counts": [
+          {
+            "driver": "foot.r",
+            "name": "foot.r",
+            "positions": 16,
+            "rest_geometry_sha256": "f6e5dd735056c8ff8f926f956c788ea3d1b6733299015131a71a057e62c16f64",
+            "run_geometry_sha256": "f6e5dd735056c8ff8f926f956c788ea3d1b6733299015131a71a057e62c16f64",
+            "triangles": 28
+          }
+        ],
+        "sources": [
+          "foot.r"
+        ],
+        "triangles": 28,
+        "uvs": 10
+      }
+    ],
+    "triangles": 526
+  },
+  "outputs": {
+    "lara-meshes.inc": "1a8549b8d780ecb9b8aa7b73151e345a1b35dd3144038b3312c6b97a2010839e",
+    "lara-poses.inc": "c3c1e10e8c4dffa7027c0f348e519726a9b520327bedec7ad6cf8733d23d0399"
+  },
+  "schema_version": 2,
+  "source": {
+    "blender_version": "4.0.2",
+    "exporter_sha256": "1d461a1d313c11a39da0eec8ebbb6daf4ebfae4681dbf550254f92fdef2cc926",
+    "inputs": {
+      "asset_notice": {
+        "path": "blender/anim/bandai_namco/run_normal_001/NOTICE.md",
+        "sha256": "f2df750829be3fa7bf0bdd6ec45aaafeb640f48845e8fe4bcf6f9ee4f1759d14"
+      },
+      "model_mtl": {
+        "path": "blender/anim/bandai_namco/run_normal_001/source/LaraCroft.mtl",
+        "sha256": "d568db48a93101bc9bec95dfd35e540c7e1ddb4ff89e7ce978261597d3e08473"
+      },
+      "model_obj": {
+        "path": "blender/anim/bandai_namco/run_normal_001/source/LaraCroft.obj",
+        "sha256": "c9190a4f0d8752ff16e30dc92147cee3f1832cf2a5f3f7fcf6edd7f03531ca02"
+      },
+      "model_provenance": {
+        "path": "blender/anim/bandai_namco/run_normal_001/source/LaraCroft.provenance.json",
+        "sha256": "8efa100771cd5d7ce64442b37fb7902e58a6d690b14f8c1198133c6cf3f78d88"
+      },
+      "motion_annotation": {
+        "path": "blender/anim/bandai_namco/run_normal_001/source/dataset-2_run_normal_001.json",
+        "sha256": "d94c7d33c9715cf6f4b397fbe038dbcc2b21ad0c4562a541aa6c13fa5709da9a"
+      },
+      "motion_license": {
+        "path": "blender/anim/bandai_namco/run_normal_001/source/LICENSE-CC-BY-NC-4.0.txt",
+        "sha256": "3711f963c05d0be80d53e5923308a6dee31b203da23435c9cfb7c7b6e4dd5e19"
+      },
+      "rest_blend": {
+        "path": "blender/anim/bandai_namco/run_normal_001/output/lara_rest.blend",
+        "sha256": "9bea7c315fc8a38343d560eb259e47def37ba5911ea41dfa06a448fd3ab0c071"
+      },
+      "scene_builder": {
+        "path": "blender/anim/bandai_namco/run_normal_001/scripts/build_lara_running_scene.py",
+        "sha256": "8ec5be1310a84d7ff5d2c04d4cbe8f43376a23ec582a12a5304a100bd080fe35"
+      },
+      "source_blend": {
+        "path": "blender/anim/bandai_namco/run_normal_001/output/lara_running_normal_001.blend",
+        "sha256": "2c13b9d675ddf710ef16fb9e34e436c68e5da8b4f5aeda971ba7519b4d7119f4"
+      },
+      "source_motion": {
+        "path": "blender/anim/bandai_namco/run_normal_001/source/dataset-2_run_normal_001.bvh",
+        "sha256": "3efb502ebf6245f3a644072fe24f24ccef6f7e35dad7efb5475b57f87801f423"
+      },
+      "source_texture": {
+        "path": "blender/anim/bandai_namco/run_normal_001/source/Lara.png",
+        "sha256": "0271bf2268d0a420e543d1535af704fd89f00616551154ebe66023f9d016888a"
+      },
+      "texture_converter": {
+        "path": "build/scripts/agonImages.py",
+        "sha256": "57a1d114bd182935d080dbb9516a29383387786fa85ce144d613f89c394250ee"
+      }
+    },
+    "profile": {
+      "path": "apps/anim/profile.json",
+      "sha256": "f3118c44e7e94efca05d6d7d74d5e417b8f284d1444e1c608fbfd0fd64968ffb"
+    }
+  },
+  "validation": {
+    "adjacent_euler_step_degrees_max": [
+      42.58934404129103,
+      14.202676577104297,
+      18.512708650942642
+    ],
+    "continuous_euler_degrees_max": [
+      184.8801615105521,
+      182.48857077267215,
+      197.8344758753167
+    ],
+    "continuous_euler_degrees_min": [
+      -182.06806334623113,
+      -196.2042190034614,
+      -179.29421424126224
+    ],
+    "decomposition_coefficient_error_max": 1.7344951629638672e-05,
+    "loop_cycle_forward_command_units": 2131,
+    "loop_endpoint_rotation_coefficient_error_max": 0.0,
+    "loop_endpoint_rotation_degrees_max": 0.0,
+    "loop_endpoint_translation_word_error_max": 1.0,
+    "loop_forward_step_command_units": 77,
+    "loop_nominal_forward_step_command_units": 93,
+    "loop_root_forward_steps_command_units": [
+      77,
+      87,
+      86,
+      87,
+      86,
+      85,
+      86,
+      88,
+      80,
+      78,
+      74,
+      84,
+      103,
+      108,
+      107,
+      112,
+      115,
+      118,
+      111,
+      105,
+      96,
+      81,
+      77
+    ],
+    "loop_successor_frame": 24,
+    "loop_velocity_rotation_coefficient_error_max": 0.02867043763399124,
+    "loop_velocity_rotation_degrees_max": 1.800537543288561,
+    "loop_velocity_translation_word_error_max": 20.0,
+    "pelvis_holster_matrix_error_max": 0.0,
+    "quantized_rotation_coefficient_error_max": 0.00014483928680419922,
+    "quantized_transformed_vertex_error_max": 0.006761739954168485,
+    "root_delta_command_units": [
+      0.0,
+      0.0,
+      16.645692825317383
+    ],
+    "scale_deviation_max": 2.1338462829589844e-05,
+    "translation_word_max": [
+      296,
+      390,
+      2484
+    ],
+    "translation_word_min": [
+      -298,
+      -720,
+      -36
+    ]
+  }
+}
