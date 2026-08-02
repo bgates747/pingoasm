@@ -22,3 +22,12 @@ ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 
 For more information, please refer to <https://unlicense.org>
+
+Third-party material exception
+------------------------------
+
+This dedication applies only to material for which this repository's authors
+hold the necessary rights. It does not apply to third-party assets, or to
+adaptations of those assets, included in this repository. Those materials
+retain their own copyright and license terms. See `THIRD_PARTY_ASSETS.md` and
+any notice or license file stored alongside an asset.

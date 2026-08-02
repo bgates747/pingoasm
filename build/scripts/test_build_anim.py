@@ -99,6 +99,20 @@ class AnimProfileTests(unittest.TestCase):
                 profile["source_sha256"][key],
             )
 
+    def test_motion_license_and_provenance_are_explicit(self) -> None:
+        profile = anim.load_profile()
+        provenance = json.loads(
+            anim.project_path(profile["motion_provenance"]).read_text(
+                encoding="utf-8"
+            )
+        )
+        self.assertEqual(provenance["creator"], "Bandai Namco Research Inc.")
+        self.assertEqual(
+            provenance["license"]["spdx_identifier"], "CC-BY-NC-4.0"
+        )
+        self.assertEqual(provenance["capture"]["sample_rate_hz"], 30)
+        self.assertTrue(all(not item["modified"] for item in provenance["source_files"]))
+
     def test_profile_has_stable_tracks_and_distinct_global_ids(self) -> None:
         profile = anim.load_profile()
         tracks = profile["tracks"]
@@ -215,6 +229,15 @@ class GeneratedAssetTests(unittest.TestCase):
                 self.assertIn(
                     "Generated from: blender/anim/bandai_namco/"
                     "run_normal_001/output/lara_running_normal_001.blend",
+                    source,
+                )
+                self.assertIn(
+                    "Copyright 2022 Bandai Namco Research Inc.; CC BY-NC 4.0",
+                    source,
+                )
+                self.assertIn(
+                    "Attribution/changes: blender/anim/bandai_namco/"
+                    "run_normal_001/NOTICE.md",
                     source,
                 )
                 self.assertEqual(

@@ -15,6 +15,7 @@
   "motion_annotation": "blender/anim/bandai_namco/run_normal_001/source/dataset-2_run_normal_001.json",
   "motion_license": "blender/anim/bandai_namco/run_normal_001/source/LICENSE-CC-BY-NC-4.0.txt",
   "asset_notice": "blender/anim/bandai_namco/run_normal_001/NOTICE.md",
+  "motion_provenance": "blender/anim/bandai_namco/run_normal_001/source/dataset-2_run_normal_001.provenance.json",
   "model_provenance": "blender/anim/bandai_namco/run_normal_001/source/LaraCroft.provenance.json",
   "scene_builder": "blender/anim/bandai_namco/run_normal_001/scripts/build_lara_running_scene.py",
   "texture_converter": "build/scripts/agonImages.py",
@@ -27,14 +28,15 @@
     "source_motion": "3efb502ebf6245f3a644072fe24f24ccef6f7e35dad7efb5475b57f87801f423",
     "motion_annotation": "d94c7d33c9715cf6f4b397fbe038dbcc2b21ad0c4562a541aa6c13fa5709da9a",
     "motion_license": "3711f963c05d0be80d53e5923308a6dee31b203da23435c9cfb7c7b6e4dd5e19",
-    "asset_notice": "f2df750829be3fa7bf0bdd6ec45aaafeb640f48845e8fe4bcf6f9ee4f1759d14",
+    "asset_notice": "88dc906d45a350cae78a454584307f30e3067f6279c1327290a6ce7621739e2c",
+    "motion_provenance": "179a9bd95bfc4b1388dfafb85a4f9ceabd033be025002072fa652ac478609b78",
     "model_provenance": "8efa100771cd5d7ce64442b37fb7902e58a6d690b14f8c1198133c6cf3f78d88",
     "scene_builder": "8ec5be1310a84d7ff5d2c04d4cbe8f43376a23ec582a12a5304a100bd080fe35",
     "texture_converter": "57a1d114bd182935d080dbb9516a29383387786fa85ce144d613f89c394250ee"
   },
   "qualified_output_sha256": {
-    "lara-meshes.inc": "1a8549b8d780ecb9b8aa7b73151e345a1b35dd3144038b3312c6b97a2010839e",
-    "lara-poses.inc": "c3c1e10e8c4dffa7027c0f348e519726a9b520327bedec7ad6cf8733d23d0399",
+    "lara-meshes.inc": "a63cf5080efb59e8a73f50552675d82bea0204d5596a22aa487a3b881a19025d",
+    "lara-poses.inc": "bde7e233287f4582d8171837d68d28ec094b82cf85acc7400ac47826c6d653b2",
     "Lara.rgba2": "839f6331f8d4c53078542c3a6a6a99518d6ac4f0515e874b74ae9e1d91b37700"
   },
   "texture_filename": "Lara.rgba2",

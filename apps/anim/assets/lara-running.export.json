@@ -27,12 +27,12 @@
         "sha256": "9ec1cdc292cd538e51c3d27ec1b98a3e63272d06922ad1e93aa70a2cc944168c"
       },
       "lara-meshes.inc": {
-        "bytes": 35630,
-        "sha256": "1a8549b8d780ecb9b8aa7b73151e345a1b35dd3144038b3312c6b97a2010839e"
+        "bytes": 35770,
+        "sha256": "a63cf5080efb59e8a73f50552675d82bea0204d5596a22aa487a3b881a19025d"
       },
       "lara-poses.inc": {
-        "bytes": 18203,
-        "sha256": "c3c1e10e8c4dffa7027c0f348e519726a9b520327bedec7ad6cf8733d23d0399"
+        "bytes": 18343,
+        "sha256": "bde7e233287f4582d8171837d68d28ec094b82cf85acc7400ac47826c6d653b2"
       },
       "render-async.inc": {
         "bytes": 5710,
@@ -48,7 +48,7 @@
       }
     },
     "builder": "build/scripts/build_anim.py",
-    "builder_sha256": "58d93712024b162bc9e12ee0936610e39f5c9e1e6cf47031f518cf76d0e65daa",
+    "builder_sha256": "62c1fc017f0ccd6b21a4c14d15774352ec0872029e66f208467103b5171124b5",
     "outputs": {
       "Lara.rgba2": {
         "bytes": 47104,
@@ -469,17 +469,17 @@
     "triangles": 526
   },
   "outputs": {
-    "lara-meshes.inc": "1a8549b8d780ecb9b8aa7b73151e345a1b35dd3144038b3312c6b97a2010839e",
-    "lara-poses.inc": "c3c1e10e8c4dffa7027c0f348e519726a9b520327bedec7ad6cf8733d23d0399"
+    "lara-meshes.inc": "a63cf5080efb59e8a73f50552675d82bea0204d5596a22aa487a3b881a19025d",
+    "lara-poses.inc": "bde7e233287f4582d8171837d68d28ec094b82cf85acc7400ac47826c6d653b2"
   },
   "schema_version": 2,
   "source": {
     "blender_version": "4.0.2",
-    "exporter_sha256": "1d461a1d313c11a39da0eec8ebbb6daf4ebfae4681dbf550254f92fdef2cc926",
+    "exporter_sha256": "21ab845184c031d62b15b610a5876ad14eed2271350a94ae14e01f8bc91e8073",
     "inputs": {
       "asset_notice": {
         "path": "blender/anim/bandai_namco/run_normal_001/NOTICE.md",
-        "sha256": "f2df750829be3fa7bf0bdd6ec45aaafeb640f48845e8fe4bcf6f9ee4f1759d14"
+        "sha256": "88dc906d45a350cae78a454584307f30e3067f6279c1327290a6ce7621739e2c"
       },
       "model_mtl": {
         "path": "blender/anim/bandai_namco/run_normal_001/source/LaraCroft.mtl",
@@ -500,6 +500,10 @@
       "motion_license": {
         "path": "blender/anim/bandai_namco/run_normal_001/source/LICENSE-CC-BY-NC-4.0.txt",
         "sha256": "3711f963c05d0be80d53e5923308a6dee31b203da23435c9cfb7c7b6e4dd5e19"
+      },
+      "motion_provenance": {
+        "path": "blender/anim/bandai_namco/run_normal_001/source/dataset-2_run_normal_001.provenance.json",
+        "sha256": "179a9bd95bfc4b1388dfafb85a4f9ceabd033be025002072fa652ac478609b78"
       },
       "rest_blend": {
         "path": "blender/anim/bandai_namco/run_normal_001/output/lara_rest.blend",
@@ -528,7 +532,7 @@
     },
     "profile": {
       "path": "apps/anim/profile.json",
-      "sha256": "f3118c44e7e94efca05d6d7d74d5e417b8f284d1444e1c608fbfd0fd64968ffb"
+      "sha256": "866353d4cfac6715a71d390c773bb053a1c5c13dbe0a90880f8abf169346cca0"
     }
   },
   "validation": {

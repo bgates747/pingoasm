@@ -281,3 +281,11 @@ RGBA2222 implementation. See the
 
 Historical package and benchmark material remains under `archive/` and
 `docs/benchmarks`. The last pre-layout-migration commit is `9da1c25`.
+
+## Licensing and third-party assets
+
+Original project software and documentation are released under the root
+[`LICENSE`](LICENSE). Third-party assets and their adaptations retain separate
+terms and are excluded from that dedication. See
+[`THIRD_PARTY_ASSETS.md`](THIRD_PARTY_ASSETS.md) before copying or distributing
+asset-bearing Blender experiments, generated data, or application binaries.

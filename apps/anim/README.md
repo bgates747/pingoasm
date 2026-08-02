@@ -121,7 +121,12 @@ identities and bone drivers, shared `tile0`/`Lara.png` wiring, and the qualified
 mesh, pose, and texture hashes. The builder independently verifies that
 contract and records final executable/texture hashes in the export metadata.
 
-The motion and its adaptations are CC BY-NC 4.0. The Lara model's original
+The motion is © 2022 Bandai Namco Research Inc. and the motion and its
+adaptations are [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/).
+This application is non-commercial, changes the original as documented, and
+does not imply Bandai Namco Research endorsement. See the repository-wide
+[`THIRD_PARTY_ASSETS.md`](../../THIRD_PARTY_ASSETS.md), the experiment
+[`NOTICE.md`](../../blender/anim/bandai_namco/run_normal_001/NOTICE.md), and its
+machine-readable provenance. The Lara model's original
 creator, source, and redistribution license remain unresolved. This is an
-experimental, non-commercial qualification app; see the experiment
-[`NOTICE.md`](../../blender/anim/bandai_namco/run_normal_001/NOTICE.md).
+experimental, non-commercial qualification app.

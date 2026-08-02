@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "asset": "dataset-2_run_normal_001",
+  "dataset": "Bandai-Namco-Research-Motiondataset-2",
+  "creator": "Bandai Namco Research Inc.",
+  "copyright": "Copyright 2022 Bandai Namco Research Inc. All Rights Reserved.",
+  "official_source": "https://github.com/BandaiNamcoResearchInc/Bandai-Namco-Research-Motiondataset",
+  "dataset_information": "https://github.com/BandaiNamcoResearchInc/Bandai-Namco-Research-Motiondataset/tree/master/dataset/Bandai-Namco-Research-Motiondataset-2",
+  "license": {
+    "name": "Creative Commons Attribution-NonCommercial 4.0 International",
+    "spdx_identifier": "CC-BY-NC-4.0",
+    "url": "https://creativecommons.org/licenses/by-nc/4.0/",
+    "local_copy": "LICENSE-CC-BY-NC-4.0.txt"
+  },
+  "source_files": [
+    {
+      "path": "dataset-2_run_normal_001.bvh",
+      "sha256": "3efb502ebf6245f3a644072fe24f24ccef6f7e35dad7efb5475b57f87801f423",
+      "modified": false
+    },
+    {
+      "path": "dataset-2_run_normal_001.json",
+      "sha256": "d94c7d33c9715cf6f4b397fbe038dbcc2b21ad0c4562a541aa6c13fa5709da9a",
+      "modified": false
+    }
+  ],
+  "capture": {
+    "sample_rate_hz": 30,
+    "content": "run",
+    "style": "normal",
+    "annotation": {"content": 3, "style": 5}
+  },
+  "adaptations": [
+    "Imported and rescaled in Blender",
+    "Retargeted to a rigid-part Lara model with coordinate and hierarchy corrections",
+    "Selected frames 1 through 23 as one stride; frame 24 retained as a seam witness",
+    "Conditioned local bone channels over frames 16 through 24 for loop closure",
+    "Quantized and converted to Pingo eZ80 pose, mesh, texture, and export data"
+  ],
+  "local_notice": "../NOTICE.md",
+  "derived_locations": [
+    "../output/",
+    "../../../../../apps/anim/"
+  ],
+  "citation": {
+    "authors": [
+      "Makito Kobayashi",
+      "Chen-Chieh Liao",
+      "Keito Inoue",
+      "Sentaro Yojima",
+      "Masafumi Takahashi"
+    ],
+    "title": "Motion Capture Dataset for Practical Use of AI-based Motion Editing and Stylization",
+    "year": 2023,
+    "identifier": "arXiv:2306.08861"
+  }
+}
