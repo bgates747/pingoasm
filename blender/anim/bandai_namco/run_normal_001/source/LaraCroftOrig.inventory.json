@@ -1,0 +1,86 @@
+{
+  "schema_version": 1,
+  "asset": {
+    "blend_file": "LaraCroftOrig.blend",
+    "description": "Original static Lara Croft model candidate for the running-motion experiment"
+  },
+  "summary": {
+    "object_count": 3,
+    "mesh_object_count": 1,
+    "armature_object_count": 0,
+    "camera_object_count": 1,
+    "light_object_count": 1,
+    "has_separate_body_part_objects": false,
+    "has_rig": false
+  },
+  "dependencies": [
+    {
+      "kind": "image_texture",
+      "name": "Lara.png",
+      "path_in_blend": "//Lara.png",
+      "local_path": "Lara.png",
+      "packed": false,
+      "required": true
+    }
+  ],
+  "objects": [
+    {
+      "name": "Combined_Mesh",
+      "type": "MESH",
+      "data_name": "M014",
+      "parent": null,
+      "transform": {
+        "location": [0.0, 0.0, 0.0],
+        "rotation_euler_radians": [1.570796, 0.0, 0.0],
+        "scale": [1.0, 1.0, 1.0]
+      },
+      "geometry": {
+        "vertices": 1578,
+        "edges": 1578,
+        "polygons": 526,
+        "uv_layers": ["UVMap"],
+        "materials": ["tile0"],
+        "vertex_groups": [],
+        "modifiers": [],
+        "local_bounds_min": [-1.05, -4.53, -0.910001],
+        "local_bounds_max": [1.06, 3.36, 0.65]
+      }
+    },
+    {
+      "name": "Camera",
+      "type": "CAMERA",
+      "data_name": "Camera",
+      "parent": null,
+      "transform": {
+        "location": [7.358891, -6.925791, 4.958309],
+        "rotation_euler_radians": [1.109319, 0.0, 0.814928],
+        "scale": [1.0, 1.0, 1.0]
+      }
+    },
+    {
+      "name": "Light",
+      "type": "LIGHT",
+      "data_name": "Light",
+      "parent": null,
+      "transform": {
+        "location": [4.076245, 1.005454, 5.903862],
+        "rotation_euler_radians": [0.650328, 0.055217, 1.866391],
+        "scale": [1.0, 1.0, 1.0]
+      }
+    }
+  ],
+  "script_guidance": {
+    "mesh_object": "Combined_Mesh",
+    "mesh_data": "M014",
+    "material": "tile0",
+    "uv_layer": "UVMap",
+    "texture": "Lara.png",
+    "body_part_mapping_available": false,
+    "notes": [
+      "The source file does not expose body parts as separate Blender objects.",
+      "There are no semantic body-part names, vertex groups, armature modifiers, or bones.",
+      "The mesh uses split triangle topology: 526 triangles with 1578 vertices and 1578 edges.",
+      "A future body-part inventory will require explicit segmentation and naming rather than simple object enumeration."
+    ]
+  }
+}

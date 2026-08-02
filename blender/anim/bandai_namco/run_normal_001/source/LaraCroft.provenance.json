@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "asset_family": "Lara Croft low-poly model",
+  "provenance_status": "unresolved",
+  "files": [
+    {
+      "path": "LaraCroft.obj",
+      "role": "portable geometry export",
+      "sha256": "c9190a4f0d8752ff16e30dc92147cee3f1832cf2a5f3f7fcf6edd7f03531ca02"
+    },
+    {
+      "path": "LaraCroft.mtl",
+      "role": "OBJ material library",
+      "sha256": "d568db48a93101bc9bec95dfd35e540c7e1ddb4ff89e7ce978261597d3e08473"
+    },
+    {
+      "path": "Lara.png",
+      "role": "diffuse texture referenced by LaraCroft.mtl",
+      "sha256": "0271bf2268d0a420e543d1535af704fd89f00616551154ebe66023f9d016888a"
+    },
+    {
+      "path": "LaraCroftOrig.blend",
+      "role": "earlier local Blender variant with fully split triangle vertices"
+    }
+  ],
+  "obj_inventory": {
+    "object_name": "Combined_Mesh",
+    "vertices": 300,
+    "texture_coordinates": 183,
+    "vertex_normals": 300,
+    "faces": 526,
+    "material": "tile0",
+    "material_library": "LaraCroft.mtl",
+    "texture": "Lara.png"
+  },
+  "comparison": {
+    "compared_file": "src/blender/LaraCroft/LaraCroft.blend",
+    "geometry_matches": true,
+    "matching_fields": {
+      "object_name": "Combined_Mesh",
+      "mesh_data_name": "M014",
+      "vertices": 300,
+      "faces": 526,
+      "material": "tile0",
+      "texture": "Lara.png"
+    },
+    "connected_mesh_islands": 18
+  },
+  "provenance_evidence": [
+    "LaraCroft.obj identifies Blender 4.0.2 as its exporter.",
+    "LaraCroft.mtl identifies LaraCroft.blend as the Blender source file.",
+    "The OBJ therefore appears to be an export from the local Blender file, not the original source from which the character model was obtained."
+  ],
+  "rights": {
+    "identified_creator": null,
+    "identified_source_url": null,
+    "identified_license": null,
+    "redistribution_status": "uncleared",
+    "warning": "Do not infer redistribution or commercial-use rights from the presence of these local files."
+  }
+}
