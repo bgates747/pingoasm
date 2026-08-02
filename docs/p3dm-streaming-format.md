@@ -95,20 +95,35 @@ the accepted aesthetic/performance policy:
 | terrain | mode 2 flat-pattern | scene | 4×4 terrain selector |
 | airport pavement | mode 1 solid-flat | self | native solid palette |
 | airport marking | mode 1 solid-flat | self | native solid palette |
+| airport structure | mode 2 flat-pattern | self | fixed sparse gray pattern |
 | landmark | mode 1 solid-flat initially | scene or explicit self | native solid palette |
 
-Runway pavement and markings are thus outside the terrain dither lookup by
-construction. Markings remain distinct geometry, slightly conformed above or
-inset into pavement after the z-fighting comparison.
+Airport property surfaces and markings are thus outside the terrain dither
+lookup by construction. The stitched corpus partitions terrain, airport base,
+pavement, and markings into mutually exclusive faces; it does not use a
+coplanar or slightly raised overlay.
 
 The native solid-palette material set uses an 8x8 raw opaque color cube in
-row-major six-bit color order (`pixel = 0xC0 | selector`). Airport pavement
-selects cell 21/`0xD5`, white markings select cell 63/`0xFF`, and yellow cell
-15/`0xCF` is reserved for later authoritative taxiway geometry. Every group
+row-major six-bit color order (`pixel = 0xC0 | selector`). Runway/taxiway
+pavement selects dark-gray cell 21/`0xD5`; source-identified ramps/aprons select
+light-gray cell 42/`0xEA`; residual airport-property ground selects muted-green
+cell 25/`0xD9`; and all markings select pure-white cell 63/`0xFF`. Every group
 keeps the pavement and markings for a runway together, and startup waits for
-both paired files before activating an airport scene.
+the complete replacement patch before activating an airport scene. Terminal
+structures remain outside this ground material contract. A mapping-derived
+airport structure instead uses a fixed 4×4 pattern containing thirteen
+dark-gray `0xD5` pixels and three nonadjacent light-gray `0xEA` pixels. It has
+one self-illuminated band, deterministic phase, and no illumination-dependent
+density change.
 
 ## Runtime publication contract
+
+This section defines the component and publication mechanisms used by the
+authoritative terrain manager specified in `docs/terrain-scene-design.md`.
+P3DM/AGNB loading is not itself a complete terrain manager. Fixture-local
+coordinators currently demonstrate loose-file, airport-pair, and family-LOD
+cases, but they must converge on that single manager rather than becoming
+parallel public interfaces.
 
 The eZ80 loader has one read request and bounded fixed slot pools. It reads and
 CRC-validates one complete component into RAM while a render may be in flight.
@@ -160,10 +175,12 @@ airport object Y is 9728 counts; camera Y is absolute MSL-like altitude in the
 same 1/16-metre packet domain. The FAA-versus-NAVD88 datum distinction remains
 recorded rather than silently equated.
 
-`src/pingo_terrain/streaming.py` is the executable reference for coordinate
-round trips, rebase continuity, deterministic path generation, one-load-per-
-pass slot publication, abort retention, look-ahead ordering, and the 32-object
-scene budget.
+`src/pingo_terrain/streaming.py` is currently the executable host reference for
+coordinate round trips, rebase continuity, deterministic path generation,
+one-load-per-pass slot publication, abort retention, look-ahead ordering, and
+the 32-object scene budget. Its proven behavior is input to the common eZ80
+manager; it is not authorization for each fixture to translate the reference
+independently.
 
 The initial 25-slot eZ80 implementation may use a direct-mapped toroidal ring
 instead of a general victim search:

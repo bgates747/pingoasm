@@ -141,6 +141,55 @@ source vertical datum, regional origin, exaggeration, quantization error, and
 minimum/maximum physical and Pingo elevations. Ellipsoid height, orthometric
 height, and model-world height are never treated as interchangeable.
 
+## Authoritative terrain manager
+
+There shall be one fixture-independent eZ80 terrain manager. A fixture may
+configure and drive that manager, but it must not implement its own residency
+ring, path builder, slot allocator, floating-origin coordinator, or publication
+loop. The existing regional-camera, KOAK loose-file, and KOAK family-LOD
+coordinators are implementation evidence to be consolidated; none is the
+authoritative reusable interface by itself.
+
+The manager owns the mechanisms that must remain identical across applications:
+
+1. conversion between exact regional coordinates and the current Pingo frame;
+2. desired-set planning, stable slot assignment, residency state, and eviction;
+3. deterministic component lookup and P3DM/AGNB read/validate/CRC handling;
+4. render-idle upload, atomic mesh publication, transform, and activation;
+5. whole-chunk floating-origin rebasing of every managed world layer;
+6. bounded work per service pass, retry/backoff state, and observable errors;
+7. independent terrain, airport, landmark, and other scenery slot pools; and
+8. teardown that leaves no fixture-specific scene or buffer state resident.
+
+Applications supply policy and providers rather than alternate managers. The
+configuration contract must admit:
+
+1. rectangular, hexagonal, or later explicitly qualified grid topology;
+2. corpus bounds and deterministic index/path resolution;
+3. camera, aircraft, or other authoritative position source;
+4. resident-window shape, directional look-ahead, and publication priority;
+5. object/mesh ID ranges and the qualified practical scene-object budget;
+6. fixed-detail or mixed-LOD selection with hysteresis;
+7. optional terrain, airport, landmark, water, and hard-surface providers;
+8. floating-origin thresholds and exact coordinate reconstruction; and
+9. missing, corrupt, or temporarily unreadable component policy.
+
+The minimum lifecycle is initialization from a validated configuration,
+position submission, desired-set update, one bounded render-idle service call,
+state/error query, and shutdown. It must not depend on flight dynamics,
+collision, camera-control semantics, or a particular fixture entry structure.
+Those systems consume manager state or provide position; they do not own terrain
+residency.
+
+New topology work, including hexagonal terrain cells, and any change to the
+qualified practical object budget must integrate through this manager
+contract. Neither is permitted to create another fixture-local streaming
+coordinator. The common
+manager consolidation therefore precedes treating either experiment as the new
+runtime baseline. The candidate geometry, axial-coordinate model, resident
+window counts, object-budget implications, and qualification gates are defined
+in `docs/hexagonal-terrain-cells.md`.
+
 ## Floating local origin
 
 Long-range simulation coordinates belong to the eZ80 application in an exact
@@ -205,11 +254,59 @@ pixel center. The winning semantic class maps to one canonical 8×8 Agon
 palette cell, and all three encoded UV corners select that same cell. Thus the
 rasterizer performs no perspective texture adjustment for baseline terrain.
 
-Water, major roads, and runways are sparse separate meshes conformed to the
-terrain or placed through one documented surface hierarchy. They are not
-aerial-image textures. Runway pavement, markings, and terrain grading remain
-physically consistent with the 8 m/unit world. Coplanar overlays and arbitrary
-offsets that produce z-fighting are not acceptable.
+Water and major roads may be sparse meshes conformed to the terrain or placed
+through one documented surface hierarchy. They are not aerial-image textures.
+
+Airports use a stronger replacement-domain contract. Each airport's pinned
+projected property outline cuts a hole in every intersected terrain component.
+The airport patch supplies the elevation and semantic surface inside that
+outline, with a denser constrained triangulation permitted for grading,
+pavement, and markings. Its perimeter and the retained terrain share canonical,
+byte-identical boundary vertices; boundary subdivisions required by the fine
+patch are propagated into the coarse terrain triangulation so no T-junction is
+left behind. The airport perimeter follows terrain elevation while an interior
+transition solves toward pinned runway and field elevations.
+
+Airport base, pavement, and marking polygons partition the property rather
+than overlap it. Pavement replaces base faces and markings replace pavement
+faces, leaving exactly one visible surface owner at every point. The same
+ownership and grading solution drives runway support and collision queries.
+Runway pavement, markings, and terrain grading remain physically consistent
+with the 8 m/unit world. Coplanar overlays, arbitrary depth offsets, cracks,
+and visual/collision disagreement are not acceptable.
+
+All airport-property faces are Pingo solid-flat, self-illuminated, native
+palette surfaces. They bypass the terrain flat-pattern lookup, and the scene
+illumination multiplier must not convert them into dithered colors. Their crisp
+limited palette is an intentional navigation cue against the otherwise
+dithered landscape at the target low resolution.
+
+The default solid airport palette is pure white `(3,3,3)` for every marking,
+dark gray `(1,1,1)` for runway and taxiway pavement, light gray `(2,2,2)` for
+positively identified ramp/apron areas, and muted green `(1,2,1)` for all
+remaining property ground. In the raw native color cube these are respectively
+selectors/pixels `63/0xFF`, `21/0xD5`, `42/0xEA`, and `25/0xD9`. Ramp coverage
+must be source-supported; unknown residual property is green rather than an
+invented ramp. The exact muted green is provisional pending visual acceptance,
+but its green channel must remain below full value.
+
+Terminal and other airport structures use a separate, deliberately simplified
+provider when mapping data supplies attributable building footprints. Height
+comes from an explicit mapped height, then a documented `building:levels`
+conversion, then one pinned conservative default only for an unambiguous
+terminal/airport-building footprint. No footprint means no invented building.
+Initial meshes have walls and a simplified roof but no coplanar bottom face;
+their bases conform to the graded property surface, which remains the ground
+owner beneath them. Conservative collision boxes are separate metadata.
+
+The default airport-structure material is one fixed self-illuminated 4×4 sparse
+pattern containing thirteen dark-gray `0xD5` pixels and three nonadjacent
+light-gray `0xEA` pixels. It averages RGB2 `1.1875` (about 101/255), between the
+two ground grays, but is intentionally much quieter than terrain dithering.
+Scene illumination does not select another band or increase its density. The
+pattern phase is deterministic and its exact appearance remains subject to
+visual acceptance. Detailed terminal forms, gates, roof furniture, and facade
+textures are not inferred from a footprint.
 
 ## Initial qualification matrix
 

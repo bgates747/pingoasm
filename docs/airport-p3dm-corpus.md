@@ -75,6 +75,15 @@ Files are paired as `APT/<ICAO>/Pnn.AGN` pavement and
 self-illuminated, non-dithered, upward-wound meshes. A group cannot separate a
 runway's pavement from its markings.
 
+These files are the accepted placement, palette, grouping, and startup proof,
+but their independent overlay geometry is not the final terrain-integration
+method. The next airport compiler must add a pinned property polygon and emit a
+constrained replacement patch: clip intersected terrain faces, share canonical
+perimeter vertices, grade the property interior, and partition airport base,
+pavement, and markings into non-overlapping faces. Until that stitched corpus
+is qualified, the present proof may demonstrate airport identity but does not
+close the z-fighting or terrain/airport ownership requirement.
+
 ## Native solid palette
 
 `APT/SOLID64.RG2` is the 8 by 8 raw opaque RGBA2222 color cube. Row-major cell
@@ -84,12 +93,23 @@ times:
 
 | Role | Selector | RGBA2222 |
 | --- | ---: | ---: |
-| pavement gray | 21 (`0x15`) | `0xD5` |
-| marking white | 63 (`0x3f`) | `0xFF` |
-| taxiway yellow, reserved | 15 (`0x0f`) | `0xCF` |
+| runway/taxiway dark gray | 21 (`0x15`) | `0xD5` |
+| ramp/apron light gray | 42 (`0x2a`) | `0xEA` |
+| residual property green | 25 (`0x19`) | `0xD9` |
+| marking pure white | 63 (`0x3f`) | `0xFF` |
 
-Runways currently use pavement and white only. Yellow remains pinned so later
-authoritative taxiway geometry cannot accidentally choose a different cell.
+The current proof emits runway pavement and white only. The stitched successor
+uses light gray only for source-identified ramps/aprons and fills every other
+airport-property ground face with the muted `(1,2,1)` green. All markings are
+white by default.
+
+Mapping-derived terminal and airport-building footprints may later produce
+separate simplified wall-and-roof components. Their fixed self-lit 4×4 pattern
+contains thirteen `0xD5` pixels and three nonadjacent `0xEA` pixels, averaging
+about 101/255 per channel. Explicit mapped height wins, followed by a documented
+levels conversion and then a pinned conservative default for unambiguous
+airport structures. The provider emits nothing without a footprint and does
+not infer detailed architecture.
 
 ## KOAK 28L startup barrier
 

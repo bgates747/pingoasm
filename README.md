@@ -20,6 +20,8 @@ The accepted coordinate, chunk, camera, and cockpit contract is the
 [terrain scene design specification](docs/terrain-scene-design.md).
 The proposed renderer-integrated ordered-dither design is in the
 [flat-pattern dithering proposal](docs/flat-pattern-dithering-proposal.md).
+The proposed six-neighbor streaming topology is in the
+[hexagonal terrain-cell proposal](docs/hexagonal-terrain-cells.md).
 The current direct no-dynamics camera survey is the
 [full-region rolling fixture](fixtures/regional-camera-survey/README.md).
 Its fixed [dithered Berkeley sibling](fixtures/berkeley-flight-triangular-dither/README.md)

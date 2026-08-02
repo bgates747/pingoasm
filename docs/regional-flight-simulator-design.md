@@ -166,11 +166,13 @@ neighborhood, load at most one missing chunk per simulation service pass, and
 evict the farthest undesired slot. No elaborate VDP cache is justified until
 measured file and UART costs show that a simple slot ring is insufficient.
 
-The initial scene budget is also explicit. Pingo accepts at most 32 active
-renderables. A 25-slot terrain neighborhood leaves six active airport
-components and one aircraft. A landmark, unusually partitioned airport, or
-larger aircraft group must reduce the active terrain count; inactive stable
-slots do not consume a renderable.
+The initial fixture budget remains explicit even though the Pingo VDU bridge no
+longer has a fixed active-object ceiling. The existing 25-slot terrain
+neighborhood, six airport components, and one aircraft are a qualified working
+set, not a firmware maximum. Larger terrain rings, landmarks, or unusually
+partitioned airports require measured registry memory, traversal, culling, and
+real-hardware frame time before the manager raises those pools. Inactive stable
+slots do not incur renderer traversal.
 
 ## Airports
 
@@ -187,18 +189,35 @@ wheel contact. An exterior view is still required for the aircraft model.
 
 The first visual layer includes runway pavement polygons plus restrained
 threshold, centerline, and edge cues that survive at 320-pixel-class viewport
-resolution. Taxiways and aprons are optional second-pass geometry. Runway
-surfaces must avoid z-fighting and terrain gaps; qualification should compare a
-terrain-conforming cut/inset with a small-offset overlay before choosing the
-regional method.
+resolution. Taxiways and aprons are optional second-pass geometry. Each pinned
+airport property is a terrain-replacement patch: its projected outline cuts the
+regional terrain, shares a conforming boundary triangulation with it, and owns
+the elevation and semantic surface inside. Airport base, pavement, and marking
+polygons are mutually exclusive face partitions. Small-offset and coplanar
+overlays are rejected because they produce z-fighting and can disagree with
+collision or runway support.
 
 Airport hard surfaces are an explicit exception to patterned terrain. Pavement
 and markings begin in Pingo solid-flat shading mode 1 with self illumination,
-using a very small set of native RGBA2222 grays, white, and any required
-taxiway/edge cue. They do not enter the terrain dither lookup and do not vary
-with the scene sun. This is the accepted baseline because the airports must
-stand out at flight distance. A later lit or dithered airport treatment is an
-optional comparison, not a prerequisite.
+using pure white markings (`0xFF`), dark-gray runway/taxiway pavement (`0xD5`),
+light-gray source-identified ramps/aprons (`0xEA`), and muted-green residual
+airport ground (`0xD9`). They do not enter the terrain dither lookup and do not
+vary with the scene sun. This is the accepted baseline because the airports
+must stand out at flight distance. A later lit or dithered airport treatment is
+an optional comparison, not a prerequisite.
+
+Terminal and other airport structures are a separate simplified provider, not
+another ground color. Mapping-derived footprints may produce wall-and-roof
+meshes when their airport-building classification is attributable; mapped
+height or levels determine height before a pinned conservative default. No
+footprint means no invented building, and a footprint alone does not authorize
+gates, roof furniture, or facade detail.
+
+The first structure material is a fixed self-lit 4×4 pattern of thirteen dark
+gray `0xD5` pixels and three nonadjacent light gray `0xEA` pixels. This sparse
+dither reads as a quiet intermediate gray and does not change with scene
+illumination. Structures omit coplanar bottom faces and conform their bases to
+the airport property surface retained beneath them.
 
 ## Cockpit and flight dynamics
 

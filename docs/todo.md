@@ -23,15 +23,25 @@ this file, and update any affected specification.
   `(23,36)`-to-`(22,36)` westbound flight now pass together in the sibling KOAK
   family fixture. An arbitrary-position 8×4 loose-L0 window now follows the
   regional direct camera across the complete grid and has a qualified
-  cell-crossing trace. Add arbitrary-family/mixed-LOD planning, measure
-  complete SD seek/read/validate/upload latency rather than only VDP
-  publication time, surface persistent load failures, and retain safe
-  object/buffer lifetime. Human seam/pop review and physical-hardware range,
-  depth, and performance qualification remain open.
+  cell-crossing trace. Consolidate the regional-camera, KOAK loose, and KOAK
+  family coordinators into the one fixture-independent terrain manager required
+  by the scene design before adding another topology or expanding the practical
+  object working set. Then add arbitrary-family/mixed-LOD planning, measure
+  complete SD
+  seek/read/validate/upload latency rather than only VDP publication time,
+  surface persistent load failures, and retain safe object/buffer lifetime.
+  Human seam/pop review and physical-hardware range, depth, and performance
+  qualification remain open.
 - [ ] **A1 — Bay Area airports:** pinned and generated SFO, OAK, Hayward
   Executive, San Carlos, and Concord/Buchanan components exist, and KOAK 28L
-  is the qualified canonical start. Add regional activation/publication and
-  visually qualify secondary fields and transitions.
+  is the qualified canonical start. Replace the proof overlays with pinned
+  property-outline patches that conformingly cut the terrain, grade and
+  partition residual ground/pavement/markings without coincident faces, and
+  publish atomically with every superseded terrain component. Apply the
+  accepted solid self-lit airport palette; derive sparse-gray simplified
+  structures only from attributable mapping footprints. Add regional
+  activation/publication and visually qualify seams, colors, structures,
+  secondary fields, and transitions.
 - [ ] **F2 — Cockpit light-flight fixture:** the panel, reduced viewport,
   attitude backdrop, chase view, fixed-point force/inertia model, and silent
   KOAK takeoff proof exist; a natural chase flight also crosses the fixed-west
