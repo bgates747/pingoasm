@@ -1,0 +1,69 @@
+{
+  "schema": "pingo-terrain-vendored-aircraft-v1",
+  "asset": "PingoASM flat-palette Jet",
+  "donor": {
+    "repository": "pingoasm",
+    "local_checkout": "/home/smith/Agon/mystuff/pingoasm",
+    "commit": "1030581011710b30b7e9496fe1c6cdca003865e8",
+    "branch_state": "clean when vendored on 2026-08-02"
+  },
+  "rights": {
+    "status": "unresolved model provenance",
+    "note": "The donor repository records the Jet's introduction in commit 87d598702659ccbca647c84b8b98669c47a41af7 but does not identify its original creator, source URL, or redistribution license. This local experimental copy must not be promoted or redistributed as a cleared asset until that provenance is resolved."
+  },
+  "authoritative_donor_inputs": [
+    {
+      "path": "src/blender/jet.obj",
+      "bytes": 70328,
+      "sha256": "79b5d1698814fb05540d8cfcee0ef0c4c3d140d7ea8b1f93b0caf0e923108587"
+    },
+    {
+      "path": "src/blender/jet.png",
+      "bytes": 138888,
+      "sha256": "a3bc9299d384bc3722e7490cafba3a96e63500135231d5b942aa28ef47b9dc3f"
+    },
+    {
+      "path": "src/blender/colors64.rgba2",
+      "bytes": 64,
+      "sha256": "858b708a30584790b8255450819ffdca148a60150a31ba35be3ff8f70f92f130"
+    }
+  ],
+  "donor_generators": [
+    {
+      "path": "build/scripts/build_earth_party_flat.py",
+      "sha256": "a9c7e379b60b64439e89824334d77e645656f023b6a248acd708a4fcd85ad6a2"
+    },
+    {
+      "path": "build/scripts/flat_palette.py",
+      "sha256": "a3d235c50574253c089b5ffecebb7093eeca9435acfa2d2fa2540ead3688d4dd"
+    },
+    {
+      "path": "build/scripts/blender_obj_to_asm.py",
+      "sha256": "2adab73e75cb30ac9f6a923de278de12c835fbb35b54e17f3e0afabcba906387"
+    }
+  ],
+  "vendored_files": [
+    {
+      "path": "jet-flat.inc",
+      "donor_path": "apps/earth-party-flat/src/jet.inc",
+      "bytes": 61054,
+      "sha256": "4713e15ab315f7ca03017499a6676df30253105313622b035175aff769181140"
+    },
+    {
+      "path": "jet-flat.rgba2",
+      "donor_path": "apps/earth-party-flat/tgt/jet-flat.rgba2",
+      "bytes": 64,
+      "sha256": "858b708a30584790b8255450819ffdca148a60150a31ba35be3ff8f70f92f130"
+    }
+  ],
+  "source_geometry": {
+    "units_assumed": "metres",
+    "vertex_count": 370,
+    "triangle_count": 736,
+    "minimum_xyz": [-6.062263, -0.871043, -7.419411],
+    "maximum_xyz": [6.062263, 2.49826, 6.403551],
+    "normalization_half_extent_m": 7.419411,
+    "forward_axis": "local -Z",
+    "up_axis": "local +Y"
+  }
+}

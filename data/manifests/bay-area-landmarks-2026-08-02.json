@@ -1,0 +1,316 @@
+{
+  "schema": "pingo-terrain-landmark-source-manifest-v1",
+  "created_utc": "2026-08-02T00:00:00Z",
+  "retrieval_date": "2026-08-02",
+  "ordinary_builds_are_offline": true,
+  "download_root": "data/downloads/landmarks/flightgear",
+  "distribution_policy": "Pin source records and hashes here; do not vendor donor geometry until the project's GPL boundary and attribution packaging are explicit.",
+  "flightgear_provider": {
+    "database": "https://scenery.flightgear.org/",
+    "model_license": "GPL-2.0-or-later",
+    "license_evidence": "The scenery database footer states that data are GPL-2.0+ and that each model remains copyright its author.",
+    "author": "Frederic Bouvier",
+    "author_id": 7,
+    "raw_file_url_template": "https://scenery.flightgear.org/api/models/{model_id}/file?name={filename}"
+  },
+  "selected_donor_files": [
+    {
+      "landmark": "Golden Gate Bridge",
+      "model_id": 78,
+      "model_page": "https://scenery.flightgear.org/models/78",
+      "model_record": "https://scenery.flightgear.org/api/models/78",
+      "source_file": {
+        "filename": "ggb-fb.ac",
+        "url": "https://scenery.flightgear.org/api/models/78/file?name=ggb-fb.ac",
+        "byte_size": 177241,
+        "sha256": "c7efcfeffe3c5b4e4892219c5637a63b8630ce74c40007e88cd5373be19ba633"
+      },
+      "placement": {
+        "latitude_deg": 37.81953555,
+        "longitude_deg": -122.4785758,
+        "source_elevation_m": -0.04,
+        "heading_deg": 84.2,
+        "source": "https://scenery.flightgear.org/api/objects?model=78&limit=100",
+        "policy": "Use the horizontal anchor and heading; drape/rebase vertically against the project's terrain datum."
+      },
+      "raw_file_inspection": {
+        "object_count": 181,
+        "material_count": 9,
+        "vertex_count": 2550,
+        "surface_count": 1785,
+        "fan_triangle_count": 3140,
+        "minimum_xyz_m": [-516.592041, -1.0, -1425.0],
+        "maximum_xyz_m": [463.33078, 227.017487, 1830.569702],
+        "object_transforms_present": false,
+        "texture_reference_count": 7
+      },
+      "conversion_seed": {
+        "chosen_flightgear_lod_root": "Bare",
+        "chosen_lod_vertex_count": 308,
+        "chosen_lod_fan_triangle_count": 388,
+        "discard": "Detailed LOD and billboard/light objects",
+        "initial_pingo_component_count": 1,
+        "initial_triangle_budget": 450,
+        "note": "The recentered longest half extent is about 1628 m, inside Pingo's 2047 m object limit. Split into three spatial components only if measured culling benefit outweighs two extra object slots."
+      }
+    },
+    {
+      "landmark": "San Francisco-Oakland Bay Bridge, west span",
+      "model_id": 75,
+      "model_page": "https://scenery.flightgear.org/models/75",
+      "model_record": "https://scenery.flightgear.org/api/models/75",
+      "source_file": {
+        "filename": "baybridge-fb.ac",
+        "url": "https://scenery.flightgear.org/api/models/75/file?name=baybridge-fb.ac",
+        "byte_size": 404926,
+        "sha256": "996ad9753882cd764266e37d7229f49446ce5536a6cac30efe2d42f1ca0bf1ef"
+      },
+      "placement": {
+        "latitude_deg": 37.79833333,
+        "longitude_deg": -122.3770588,
+        "source_elevation_m": -0.12,
+        "heading_deg": 40.0,
+        "source": "https://scenery.flightgear.org/api/objects?model=75&limit=100",
+        "policy": "Use the horizontal anchor and heading; drape/rebase vertically against the project's terrain datum."
+      },
+      "raw_file_inspection": {
+        "object_count": 102,
+        "material_count": 6,
+        "vertex_count": 6042,
+        "surface_count": 4177,
+        "polygon_surface_count": 4070,
+        "line_surface_count": 107,
+        "fan_triangle_count": 7216,
+        "minimum_xyz_m": [-3219.576172, -1.0, -30.000011],
+        "maximum_xyz_m": [1474.088165, 173.833307, 136.373901],
+        "object_transforms_present": false,
+        "texture_reference_count": 4
+      },
+      "conversion_seed": {
+        "chosen_flightgear_lod_root": "Bare",
+        "chosen_lod_vertex_count": 752,
+        "chosen_lod_fan_triangle_count": 842,
+        "chosen_lod_line_surface_count": 15,
+        "discard": "Detailed LOD and billboard/light objects",
+        "initial_pingo_component_count": 3,
+        "initial_total_triangle_budget": 1100,
+        "note": "The recentered raw half extent is about 2347 m, so partitioning is mandatory. Convert only silhouette-critical cable lines to narrow ribbons; omit the rest."
+      }
+    },
+    {
+      "landmark": "Coit Tower",
+      "model_id": 79,
+      "model_page": "https://scenery.flightgear.org/models/79",
+      "model_record": "https://scenery.flightgear.org/api/models/79",
+      "source_file": {
+        "filename": "coit-tower-fb.ac",
+        "url": "https://scenery.flightgear.org/api/models/79/file?name=coit-tower-fb.ac",
+        "byte_size": 52138,
+        "sha256": "6e2ad23ebf21368d8117a67d72e479bcd485feb10a910a4996d3cdd575cea3d6"
+      },
+      "placement": {
+        "latitude_deg": 37.80241406,
+        "longitude_deg": -122.4058707,
+        "source_elevation_m": 82.62,
+        "heading_deg": 90.0,
+        "source": "https://scenery.flightgear.org/api/objects?model=79&limit=100",
+        "policy": "Use the horizontal anchor and heading; obtain ground height from regional terrain."
+      },
+      "raw_file_inspection": {
+        "object_count": 31,
+        "material_count": 4,
+        "vertex_count": 877,
+        "surface_count": 570,
+        "fan_triangle_count": 850,
+        "minimum_xyz_m": [-13.498, 0.0, -13.498],
+        "maximum_xyz_m": [13.498, 80.1, 13.498],
+        "object_transforms_present": false,
+        "texture_reference_count": 1
+      },
+      "conversion_seed": {
+        "chosen_flightgear_lod_root": "Bare",
+        "chosen_lod_vertex_count": 121,
+        "chosen_lod_fan_triangle_count": 192,
+        "discard": "Detailed/day/night duplicates and top-light billboards",
+        "scale_y": 0.6925,
+        "scale_basis": "55.47 m National Register architectural height divided by the donor's 80.1 m height",
+        "initial_pingo_component_count": 1,
+        "initial_triangle_budget": 200
+      }
+    },
+    {
+      "landmark": "Sutro Tower",
+      "model_id": 76,
+      "model_page": "https://scenery.flightgear.org/models/76",
+      "model_record": "https://scenery.flightgear.org/api/models/76",
+      "source_file": {
+        "filename": "sutro-fb.ac",
+        "url": "https://scenery.flightgear.org/api/models/76/file?name=sutro-fb.ac",
+        "byte_size": 36845,
+        "sha256": "7e301a87295aa09bfe51d928dbc9faced9ae043ae2c3c2078707e754f7476b89"
+      },
+      "placement": {
+        "latitude_deg": 37.75640048,
+        "longitude_deg": -122.452998,
+        "source_elevation_m": 225.38,
+        "heading_deg": 0.0,
+        "source": "https://scenery.flightgear.org/api/objects?model=76&limit=100",
+        "authoritative_cross_check": "FCC ASR 1001289 gives 37-45-19.0 N, 122-27-10.0 W NAD83, 254.2 m site elevation, and 297.7 m overall AGL."
+      },
+      "raw_file_inspection": {
+        "object_count": 52,
+        "material_count": 4,
+        "vertex_count": 477,
+        "surface_count": 308,
+        "polygon_surface_count": 230,
+        "line_surface_count": 78,
+        "fan_triangle_count": 380,
+        "minimum_xyz_m": [-31.002251, -1.0, -31.390835],
+        "maximum_xyz_m": [30.997749, 298.0, 23.306646],
+        "object_transforms_present": false,
+        "texture_reference_count": 2
+      },
+      "conversion_seed": {
+        "discard": "Billboard strobe/red-light quads and texture images",
+        "retain": "Three-legged red/white silhouette, principal mast solids, and only silhouette-critical line members converted to narrow ribbons",
+        "initial_pingo_component_count": 1,
+        "initial_triangle_budget": 450,
+        "note": "The donor's 298 m vertical extent already matches the authoritative 297.7 m overall height. Pingo has no line primitive, so raw line surfaces cannot pass through unchanged."
+      }
+    },
+    {
+      "landmark": "Transamerica Pyramid",
+      "model_id": 160,
+      "model_page": "https://scenery.flightgear.org/models/160",
+      "model_record": "https://scenery.flightgear.org/api/models/160",
+      "source_file": {
+        "filename": "transamerica-fb.ac",
+        "url": "https://scenery.flightgear.org/api/models/160/file?name=transamerica-fb.ac",
+        "byte_size": 10770,
+        "sha256": "2037774ebbc1aafa9db4123521f10ac6ebfead72e88215ff9b4aaff287437cdb"
+      },
+      "placement": {
+        "latitude_deg": 37.79521298,
+        "longitude_deg": -122.4027781,
+        "source_elevation_m": 4.64,
+        "heading_deg": 80.0,
+        "source": "https://scenery.flightgear.org/api/objects?model=160&limit=100",
+        "policy": "Use the horizontal anchor and heading; obtain ground height from regional terrain."
+      },
+      "raw_file_inspection": {
+        "object_count": 3,
+        "material_count": 2,
+        "vertex_count": 96,
+        "surface_count": 78,
+        "fan_triangle_count": 156,
+        "minimum_xyz_m": [-30.42166, 0.0, -30.421673],
+        "maximum_xyz_m": [30.42166, 260.0, 30.42166],
+        "object_transforms_present": false,
+        "texture_reference_count": 1
+      },
+      "conversion_seed": {
+        "chosen_flightgear_lod_root": "Bare",
+        "chosen_lod_vertex_count": 48,
+        "chosen_lod_fan_triangle_count": 78,
+        "discard": "Detailed duplicate and texture image",
+        "authoritative_dimensions_m": [53.0352, 260.0, 53.0352],
+        "initial_pingo_component_count": 1,
+        "initial_triangle_budget": 80,
+        "note": "USGS strong-motion documentation gives a 174 ft square plan and 853 ft height. Preserve 260 m height and calibrate the horizontal donor axes to 53.0352 m."
+      }
+    }
+  ],
+  "procedural_landmarks": [
+    {
+      "landmark": "Sather Tower / the Campanile",
+      "placement": {
+        "latitude_deg": 37.872332,
+        "longitude_deg": -122.257964,
+        "source": "https://www.berkeley.edu/map/campanile-sather-tower/"
+      },
+      "authoritative_height_m": 93.5736,
+      "geometry_strategy": "Build a new low-poly square shaft, clock stage, arcaded crown, and pyramidal spire from UC archival drawings and openly licensed reference photographs.",
+      "initial_triangle_budget": 320,
+      "reason_no_donor": "The only exact Sketchfab candidate is unlicensed, non-downloadable, texture-dependent, and 810317 faces. The very small 3D Warehouse model lacks a redistributable open license."
+    },
+    {
+      "landmark": "Salesforce Tower",
+      "placement": {
+        "latitude_deg": 37.78993419,
+        "longitude_deg": -122.397097479,
+        "address": "415 Mission St",
+        "parcel_number": "3720009",
+        "source": "https://data.sfgov.org/Geographic-Locations-and-Boundaries/Addresses-with-parcel-number/5mjj-njit"
+      },
+      "authoritative_dimensions_m": {
+        "maximum_floor_plan": [50.9016, 50.9016],
+        "roof_height": 277.9776,
+        "crown_height": 326.136
+      },
+      "geometry_strategy": "Build a new rounded-square, vertically straight lower mass that tapers above level 27 into a translucent-looking open crown expressed with a few pale flat materials.",
+      "initial_triangle_budget": 160,
+      "reason_no_donor": "No open, downloadable building donor with clean provenance was found. The City building-mass dataset derives from 2010 imagery and predates this 2018 tower."
+    },
+    {
+      "landmark": "Mount Diablo Summit Building and aviation beacon",
+      "placement": {
+        "latitude_deg": 37.881702,
+        "longitude_deg": -121.914268,
+        "source": "USGS GNIS summit coordinate as reproduced by the USGS-derived TopoQuest record"
+      },
+      "summit_elevation_m": 1173.1752,
+      "elevation_source": "California State Parks gives 3849 ft; runtime placement must still drape the building to the acquired terrain surface.",
+      "geometry_strategy": "Build a new small sandstone summit building, rotunda, observation deck, and beacon from California State Parks documentation; terrain recognition matters more than building detail until close range.",
+      "initial_triangle_budget": 180,
+      "reason_no_donor": "No reusable open 3D donor or published measured plan was found in this pass."
+    },
+    {
+      "landmark": "Treasure Island / Yerba Buena Island historic group",
+      "geometry_strategy": "Treat the current Bay Bridge and Yerba Buena tunnel portals as the first landmark. If island architecture is later needed, derive simplified massing from government HABS records for Treasure Island Buildings 1, 2, 3/111 rather than imagery-derived city models.",
+      "initial_triangle_budget": 600,
+      "reason_no_donor": "No suitable open 3D donor was found; HABS supplies reference documentation rather than a ready mesh."
+    },
+    {
+      "landmark": "San Francisco-Oakland Bay Bridge, current east span",
+      "geometry_strategy": "Create a new low-poly self-anchored suspension tower/cable silhouette plus repeatable skyway segments from MTC/Caltrans dimensions and public engineering documentation.",
+      "initial_component_count": 3,
+      "initial_total_triangle_budget": 900,
+      "reason_no_donor": "FlightGear model 77 represents the original east span and predates the current span's September 2013 opening."
+    }
+  ],
+  "rejected_sources": [
+    {
+      "source": "https://scenery.flightgear.org/models/77",
+      "name": "FlightGear San Francisco East Bay Bridge, model 77",
+      "reason": "Historical geometry only: last updated in 2010 and depicts the original east span replaced in 2013. Keep its pinned hash only as a non-importable historical witness.",
+      "filename": "baybridge-e-fb.ac",
+      "byte_size": 495471,
+      "sha256": "ffda3232eaf03d4077cbd5d71a2d44cf1c36accff44285a0698a18f7161147ae"
+    },
+    {
+      "source": "https://sketchfab.com/3d-models/campanile-uc-berkeley-3e8163996296487ba208a8172dfde24d",
+      "name": "Campanile @ UC Berkeley by zuhayeer",
+      "reason": "No license, not downloadable, 405994 vertices / 810317 faces, and one texture."
+    },
+    {
+      "source": "https://embed-3dwarehouse-classic.sketchup.com/model/e86d2c2bac08770486ed0f2c6244a512/Model-of-the-Sather-Tower",
+      "name": "3D Warehouse Model of the Sather Tower",
+      "reason": "Attractive 305-polygon donor, but 3D Warehouse's General Model License is not an open redistribution license for a stand-alone mesh derivative. Do not vendor without explicit author permission."
+    },
+    {
+      "source": "https://sketchfab.com/3d-models/einstein-salesforce-tower-6f2573962d9b4f778ae12c38423dc7e3",
+      "name": "Einstein @Salesforce tower by Emm",
+      "reason": "A nearby photogrammetric sculpture, not the tower; CC BY-NC-SA is also unsuitable for the intended redistributable project baseline."
+    },
+    {
+      "source": "https://www.arcgis.com/home/item.html?id=d3344ba99c3f4efaa909ccfbcc052ed5",
+      "name": "DataSF San Francisco 3D Buildings",
+      "reason": "The portal identifies an Esri Master License and Pictometry-derived source, not an open model-redistribution grant."
+    },
+    {
+      "source": "Google Earth / Google Maps / Apple Maps extracted geometry or screenshot photogrammetry",
+      "name": "Commercial-map-derived models",
+      "reason": "Viewer access does not grant redistribution of extracted geometry or texture-derived derivatives. Reject even when an uploader applies a Creative Commons label downstream."
+    }
+  ]
+}

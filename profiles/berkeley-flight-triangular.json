@@ -1,0 +1,45 @@
+{
+  "name": "berkeley-flight-triangular",
+  "donor_fixture": "pingoasm/apps/earth-party-flat",
+  "coordinate_system": {
+    "source_crs": "EPSG:32610",
+    "pingo_x": "UTM northing",
+    "pingo_y": "NAVD88 elevation",
+    "pingo_z": "negative UTM easting",
+    "metres_per_pingo_unit": 8.0
+  },
+  "start": {
+    "landmark": "Sather Tower (the Campanile)",
+    "longitude": -122.2578,
+    "latitude": 37.8721,
+    "utm10_easting_m": 565276.64,
+    "utm10_northing_m": 4191883.96,
+    "sampled_ground_navd88_m": 98.5234,
+    "height_agl_m": 120.0,
+    "heading_degrees_true": 90.0,
+    "pitch_degrees": 0.0,
+    "roll_degrees": 0.0
+  },
+  "terrain": {
+    "topology": "continuous triangular lattice",
+    "chunk_width_m": 512,
+    "active_columns": 8,
+    "active_rows": 4,
+    "control_grid_spacing_m": 64,
+    "triangular_lattice_spacing_m": 68.773,
+    "vertical_exaggeration": 1.0,
+    "regional_vertical_origin_navd88_m": 290.0,
+    "local_origin_offset_east_of_start_m": 1024.0,
+    "flat_palette_texture": "pingoasm/src/blender/colors64.rgba2"
+  },
+  "lighting": {
+    "terrain_illumination": "self",
+    "sun_azimuth_degrees_true": 90.0,
+    "sun_elevation_degrees": 30.0,
+    "direction_pingo_q15": [0, 16384, -28377],
+    "ambient_encoded": 95,
+    "ambient_unity": 127
+  },
+  "viewport": [320, 240],
+  "simulation_hz": 30
+}

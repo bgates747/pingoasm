@@ -1,0 +1,635 @@
+{
+  "cycle_status_at_retrieval": "current; 2026-08-06 was still preview",
+  "effective_date": "2026-07-09",
+  "geometry_limitations": {
+    "markings": "visibility-optimized threshold, centerline, and edge cues; not a regulatory airport-diagram reproduction",
+    "policy": "do not invent taxiway or apron outlines; add them only from a separately pinned authoritative source",
+    "taxiway_and_apron_source": "not present in NASR APT CSV"
+  },
+  "product": "28 Day NASR Subscription, Airports and Other Landing Facilities (APT) CSV",
+  "product_index": "https://www.faa.gov/air_traffic/flight_info/aeronav/aero_data/NASR_Subscription/",
+  "provider": "Federal Aviation Administration, Aeronautical Information Services",
+  "publication_page": "https://www.faa.gov/air_traffic/flight_info/aeronav/aero_data/NASR_Subscription/2026-07-09/",
+  "render_policy": {
+    "dither": false,
+    "illumination": "self",
+    "layer": "airport hard surfaces and markings, separate from terrain",
+    "merge_with_terrain": false,
+    "native_rgba2222": true,
+    "pingo_shading_mode": 1
+  },
+  "retrieved_at": "2026-08-02T08:00:15-04:00",
+  "schema": "pingo-terrain-faa-airport-source-manifest",
+  "selected_airports": [
+    {
+      "faa_id": "SFO",
+      "icao_id": "KSFO",
+      "name": "SAN FRANCISCO INTL",
+      "reference_lat_lon_elev_ft_msl": [
+        37.61880555,
+        -122.37541666,
+        13.1
+      ],
+      "runways": [
+        {
+          "ends": [
+            {
+              "displaced_threshold_lat_lon_elev_ft_msl": [
+                37.60945288,
+                -122.38189805,
+                10.4
+              ],
+              "displaced_threshold_length_ft": 640,
+              "id": "01L",
+              "physical_end_lat_lon_elev_ft_msl": [
+                37.60789786,
+                -122.3829285,
+                10.7
+              ],
+              "true_alignment_deg": 28
+            },
+            {
+              "displaced_threshold_lat_lon_elev_ft_msl": null,
+              "displaced_threshold_length_ft": null,
+              "id": "19R",
+              "physical_end_lat_lon_elev_ft_msl": [
+                37.62648136,
+                -122.37060941,
+                9.2
+              ],
+              "true_alignment_deg": 208
+            }
+          ],
+          "id": "01L/19R",
+          "length_ft": 7650,
+          "surface_type": "ASPH",
+          "width_ft": 200
+        },
+        {
+          "ends": [
+            {
+              "displaced_threshold_lat_lon_elev_ft_msl": [
+                37.60769047,
+                -122.38013927,
+                11.1
+              ],
+              "displaced_threshold_length_ft": 560,
+              "id": "01R",
+              "physical_end_lat_lon_elev_ft_msl": [
+                37.60632988,
+                -122.38104075,
+                11.4
+              ],
+              "true_alignment_deg": 28
+            },
+            {
+              "displaced_threshold_lat_lon_elev_ft_msl": null,
+              "displaced_threshold_length_ft": null,
+              "id": "19L",
+              "physical_end_lat_lon_elev_ft_msl": [
+                37.62734219,
+                -122.36711083,
+                10.5
+              ],
+              "true_alignment_deg": 208
+            }
+          ],
+          "id": "01R/19L",
+          "length_ft": 8650,
+          "surface_type": "ASPH",
+          "width_ft": 200
+        },
+        {
+          "ends": [
+            {
+              "displaced_threshold_lat_lon_elev_ft_msl": null,
+              "displaced_threshold_length_ft": null,
+              "id": "10L",
+              "physical_end_lat_lon_elev_ft_msl": [
+                37.62873872,
+                -122.39339186,
+                5.5
+              ],
+              "true_alignment_deg": 118
+            },
+            {
+              "displaced_threshold_lat_lon_elev_ft_msl": [
+                37.61391813,
+                -122.35805769,
+                12.9
+              ],
+              "displaced_threshold_length_ft": 300,
+              "id": "28R",
+              "physical_end_lat_lon_elev_ft_msl": [
+                37.61353361,
+                -122.35714111,
+                13.0
+              ],
+              "true_alignment_deg": 298
+            }
+          ],
+          "id": "10L/28R",
+          "length_ft": 11870,
+          "surface_type": "ASPH",
+          "width_ft": 200
+        },
+        {
+          "ends": [
+            {
+              "displaced_threshold_lat_lon_elev_ft_msl": null,
+              "displaced_threshold_length_ft": null,
+              "id": "10R",
+              "physical_end_lat_lon_elev_ft_msl": [
+                37.62629111,
+                -122.39310544,
+                7.1
+              ],
+              "true_alignment_deg": 118
+            },
+            {
+              "displaced_threshold_lat_lon_elev_ft_msl": [
+                37.6120965,
+                -122.35926477,
+                12.6
+              ],
+              "displaced_threshold_length_ft": 300,
+              "id": "28L",
+              "physical_end_lat_lon_elev_ft_msl": [
+                37.61171194,
+                -122.35834916,
+                12.6
+              ],
+              "true_alignment_deg": 298
+            }
+          ],
+          "id": "10R/28L",
+          "length_ft": 11381,
+          "surface_type": "ASPH",
+          "width_ft": 200
+        }
+      ],
+      "site_number": "02187."
+    },
+    {
+      "faa_id": "OAK",
+      "icao_id": "KOAK",
+      "name": "OAKLAND SAN FRANCISCO BAY",
+      "reference_lat_lon_elev_ft_msl": [
+        37.72126138,
+        -122.22115055,
+        9.0
+      ],
+      "runways": [
+        {
+          "ends": [
+            {
+              "displaced_threshold_lat_lon_elev_ft_msl": null,
+              "displaced_threshold_length_ft": null,
+              "id": "10L",
+              "physical_end_lat_lon_elev_ft_msl": [
+                37.73046922,
+                -122.22218005,
+                5.5
+              ],
+              "true_alignment_deg": 112
+            },
+            {
+              "displaced_threshold_lat_lon_elev_ft_msl": null,
+              "displaced_threshold_length_ft": null,
+              "id": "28R",
+              "physical_end_lat_lon_elev_ft_msl": [
+                37.72481455,
+                -122.20470872,
+                5.8
+              ],
+              "true_alignment_deg": 292
+            }
+          ],
+          "id": "10L/28R",
+          "length_ft": 5457,
+          "surface_type": "ASPH",
+          "width_ft": 150
+        },
+        {
+          "ends": [
+            {
+              "displaced_threshold_lat_lon_elev_ft_msl": null,
+              "displaced_threshold_length_ft": null,
+              "id": "10R",
+              "physical_end_lat_lon_elev_ft_msl": [
+                37.72870822,
+                -122.22590241,
+                8.0
+              ],
+              "true_alignment_deg": 112
+            },
+            {
+              "displaced_threshold_lat_lon_elev_ft_msl": null,
+              "displaced_threshold_length_ft": null,
+              "id": "28L",
+              "physical_end_lat_lon_elev_ft_msl": [
+                37.72227386,
+                -122.2060093,
+                8.2
+              ],
+              "true_alignment_deg": 292
+            }
+          ],
+          "id": "10R/28L",
+          "length_ft": 6213,
+          "surface_type": "ASPH",
+          "width_ft": 150
+        },
+        {
+          "ends": [
+            {
+              "displaced_threshold_lat_lon_elev_ft_msl": null,
+              "displaced_threshold_length_ft": null,
+              "id": "12",
+              "physical_end_lat_lon_elev_ft_msl": [
+                37.72006261,
+                -122.24211511,
+                8.3
+              ],
+              "true_alignment_deg": 130
+            },
+            {
+              "displaced_threshold_lat_lon_elev_ft_msl": [
+                37.70169436,
+                -122.21455986,
+                9.0
+              ],
+              "displaced_threshold_length_ft": 114,
+              "id": "30",
+              "physical_end_lat_lon_elev_ft_msl": [
+                37.70149319,
+                -122.21425797,
+                9.0
+              ],
+              "true_alignment_deg": 310
+            }
+          ],
+          "id": "12/30",
+          "length_ft": 10520,
+          "surface_type": "ASPH",
+          "width_ft": 150
+        },
+        {
+          "ends": [
+            {
+              "displaced_threshold_lat_lon_elev_ft_msl": null,
+              "displaced_threshold_length_ft": null,
+              "id": "15",
+              "physical_end_lat_lon_elev_ft_msl": [
+                37.74029261,
+                -122.22280947,
+                1.4
+              ],
+              "true_alignment_deg": 164
+            },
+            {
+              "displaced_threshold_lat_lon_elev_ft_msl": null,
+              "displaced_threshold_length_ft": null,
+              "id": "33",
+              "physical_end_lat_lon_elev_ft_msl": [
+                37.73136275,
+                -122.21967391,
+                3.9
+              ],
+              "true_alignment_deg": 344
+            }
+          ],
+          "id": "15/33",
+          "length_ft": 3376,
+          "surface_type": "ASPH",
+          "width_ft": 75
+        }
+      ],
+      "site_number": "01971."
+    },
+    {
+      "faa_id": "HWD",
+      "icao_id": "KHWD",
+      "name": "HAYWARD EXEC",
+      "reference_lat_lon_elev_ft_msl": [
+        37.65893166,
+        -122.12173888,
+        52.1
+      ],
+      "runways": [
+        {
+          "ends": [
+            {
+              "displaced_threshold_lat_lon_elev_ft_msl": null,
+              "displaced_threshold_length_ft": null,
+              "id": "10L",
+              "physical_end_lat_lon_elev_ft_msl": [
+                37.66247844,
+                -122.12726369,
+                28.1
+              ],
+              "true_alignment_deg": 120
+            },
+            {
+              "displaced_threshold_lat_lon_elev_ft_msl": null,
+              "displaced_threshold_length_ft": null,
+              "id": "28R",
+              "physical_end_lat_lon_elev_ft_msl": [
+                37.65822866,
+                -122.11795213,
+                37.1
+              ],
+              "true_alignment_deg": 300
+            }
+          ],
+          "id": "10L/28R",
+          "length_ft": 3108,
+          "surface_type": "ASPH",
+          "width_ft": 75
+        },
+        {
+          "ends": [
+            {
+              "displaced_threshold_lat_lon_elev_ft_msl": [
+                37.66091861,
+                -122.12731986,
+                29.3
+              ],
+              "displaced_threshold_length_ft": 826,
+              "id": "10R",
+              "physical_end_lat_lon_elev_ft_msl": [
+                37.66204722,
+                -122.1297935,
+                27.7
+              ],
+              "true_alignment_deg": 120
+            },
+            {
+              "displaced_threshold_lat_lon_elev_ft_msl": [
+                37.65518672,
+                -122.1147598,
+                50.0
+              ],
+              "displaced_threshold_length_ft": 676,
+              "id": "28L",
+              "physical_end_lat_lon_elev_ft_msl": [
+                37.654263,
+                -122.11273616,
+                52.1
+              ],
+              "true_alignment_deg": 300
+            }
+          ],
+          "id": "10R/28L",
+          "length_ft": 5694,
+          "surface_type": "ASPH",
+          "width_ft": 150
+        }
+      ],
+      "site_number": "01651."
+    },
+    {
+      "faa_id": "SQL",
+      "icao_id": "KSQL",
+      "name": "SAN CARLOS",
+      "reference_lat_lon_elev_ft_msl": [
+        37.51186111,
+        -122.24953111,
+        5.5
+      ],
+      "runways": [
+        {
+          "ends": [
+            {
+              "displaced_threshold_lat_lon_elev_ft_msl": null,
+              "displaced_threshold_length_ft": null,
+              "id": "12",
+              "physical_end_lat_lon_elev_ft_msl": [
+                37.51453516,
+                -122.25255625,
+                5.0
+              ],
+              "true_alignment_deg": 138
+            },
+            {
+              "displaced_threshold_lat_lon_elev_ft_msl": null,
+              "displaced_threshold_length_ft": null,
+              "id": "30",
+              "physical_end_lat_lon_elev_ft_msl": [
+                37.50918713,
+                -122.24650625,
+                5.1
+              ],
+              "true_alignment_deg": 318
+            }
+          ],
+          "id": "12/30",
+          "length_ft": 2621,
+          "surface_type": "ASPH",
+          "width_ft": 75
+        }
+      ],
+      "site_number": "02160.1"
+    },
+    {
+      "faa_id": "CCR",
+      "icao_id": "KCCR",
+      "name": "BUCHANAN FLD",
+      "reference_lat_lon_elev_ft_msl": [
+        37.98965666,
+        -122.05690222,
+        25.6
+      ],
+      "runways": [
+        {
+          "ends": [
+            {
+              "displaced_threshold_lat_lon_elev_ft_msl": null,
+              "displaced_threshold_length_ft": null,
+              "id": "01L",
+              "physical_end_lat_lon_elev_ft_msl": [
+                37.98195383,
+                -122.06133041,
+                23.6
+              ],
+              "true_alignment_deg": 24
+            },
+            {
+              "displaced_threshold_lat_lon_elev_ft_msl": [
+                37.99303247,
+                -122.05523708,
+                22.3
+              ],
+              "displaced_threshold_length_ft": 601,
+              "id": "19R",
+              "physical_end_lat_lon_elev_ft_msl": [
+                37.994545,
+                -122.05440494,
+                21.0
+              ],
+              "true_alignment_deg": 204
+            }
+          ],
+          "id": "01L/19R",
+          "length_ft": 5001,
+          "surface_type": "ASPH-CONC",
+          "width_ft": 150
+        },
+        {
+          "ends": [
+            {
+              "displaced_threshold_lat_lon_elev_ft_msl": null,
+              "displaced_threshold_length_ft": null,
+              "id": "01R",
+              "physical_end_lat_lon_elev_ft_msl": [
+                37.98388002,
+                -122.05838177,
+                23.5
+              ],
+              "true_alignment_deg": 24
+            },
+            {
+              "displaced_threshold_lat_lon_elev_ft_msl": null,
+              "displaced_threshold_length_ft": null,
+              "id": "19L",
+              "physical_end_lat_lon_elev_ft_msl": [
+                37.990854,
+                -122.05454355,
+                21.7
+              ],
+              "true_alignment_deg": 204
+            }
+          ],
+          "id": "01R/19L",
+          "length_ft": 2770,
+          "surface_type": "ASPH",
+          "width_ft": 75
+        },
+        {
+          "ends": [
+            {
+              "displaced_threshold_lat_lon_elev_ft_msl": [
+                37.99577486,
+                -122.05838991,
+                18.4
+              ],
+              "displaced_threshold_length_ft": 301,
+              "id": "14L",
+              "physical_end_lat_lon_elev_ft_msl": [
+                37.99651475,
+                -122.05885777,
+                18.2
+              ],
+              "true_alignment_deg": 154
+            },
+            {
+              "displaced_threshold_lat_lon_elev_ft_msl": [
+                37.98606216,
+                -122.05228425,
+                25.4
+              ],
+              "displaced_threshold_length_ft": 350,
+              "id": "32R",
+              "physical_end_lat_lon_elev_ft_msl": [
+                37.98520286,
+                -122.05174213,
+                25.6
+              ],
+              "true_alignment_deg": 334
+            }
+          ],
+          "id": "14L/32R",
+          "length_ft": 4602,
+          "surface_type": "ASPH-CONC",
+          "width_ft": 150
+        },
+        {
+          "ends": [
+            {
+              "displaced_threshold_lat_lon_elev_ft_msl": null,
+              "displaced_threshold_length_ft": null,
+              "id": "14R",
+              "physical_end_lat_lon_elev_ft_msl": [
+                37.99590022,
+                -122.06041186,
+                17.1
+              ],
+              "true_alignment_deg": 154
+            },
+            {
+              "displaced_threshold_lat_lon_elev_ft_msl": null,
+              "displaced_threshold_length_ft": null,
+              "id": "32L",
+              "physical_end_lat_lon_elev_ft_msl": [
+                37.98902416,
+                -122.05608283,
+                22.2
+              ],
+              "true_alignment_deg": 334
+            }
+          ],
+          "id": "14R/32L",
+          "length_ft": 2798,
+          "surface_type": "ASPH",
+          "width_ft": 75
+        }
+      ],
+      "site_number": "01437."
+    }
+  ],
+  "selection": {
+    "base_records": 5,
+    "icao_ids": [
+      "KSFO",
+      "KOAK",
+      "KHWD",
+      "KSQL",
+      "KCCR"
+    ],
+    "runway_end_records": 30,
+    "runway_records": 15
+  },
+  "source_artifacts": {
+    "apt_csv_archive": {
+      "bytes": 8031616,
+      "local_path": "data/downloads/airports/faa-nasr-2026-07-09/09_Jul_2026_APT_CSV.zip",
+      "sha256": "8f2ee852d26a87e5298957b9ee3d7737835be701b9b518f2a38c89a65305f898",
+      "url": "https://nfdc.faa.gov/webContent/28DaySub/extra/09_Jul_2026_APT_CSV.zip"
+    },
+    "archive_members_used": {
+      "APT DATA LAYOUT.pdf": {
+        "bytes": 241475,
+        "sha256": "bb9d8698beae04c2834e7fdfb9e1574a09efb867f222d94e2dcf52c9ab7f05c3"
+      },
+      "APT_BASE.csv": {
+        "bytes": 9838954,
+        "sha256": "20015bcadfc0f2472f8b7c69ff249b8ee689d700c177d680f87bc7623b60c7e0"
+      },
+      "APT_RWY.csv": {
+        "bytes": 3010857,
+        "sha256": "e1c6acec6c222264bf202b640e98c18e01cbfa6c3b167f600f5f1235b62d336e"
+      },
+      "APT_RWY_END.csv": {
+        "bytes": 11562192,
+        "sha256": "e864e0bfd4661a57340d06975d2fea45816c460b62afd7747cebb2b3652b8de3"
+      }
+    },
+    "cycle_readme": {
+      "bytes": 24779,
+      "local_path": "data/downloads/airports/faa-nasr-2026-07-09/README.txt",
+      "sha256": "28d45a131f10b040f8e2ee16a83d414b5109c3a096e12b01c8924378b2b63a12",
+      "url": "https://nfdc.faa.gov/webContent/28DaySub/2026-07-09/README.txt"
+    }
+  },
+  "source_semantics": {
+    "airport_elevation": "nearest tenth of a foot MSL at highest point on usable landing-surface centerline",
+    "horizontal_datum": "NAD83 for United States coordinates, per cycle README",
+    "runway_end_elevation": "feet MSL at physical runway end",
+    "runway_end_position": "latitude/longitude of physical runway end",
+    "runway_length": "physical runway length, nearest foot",
+    "runway_width": "physical runway width, nearest foot",
+    "true_alignment": "true runway heading, nearest degree",
+    "vertical_datum_limitation": "FAA APT layout says MSL but does not name a geoid or more specific vertical datum"
+  },
+  "version": 1
+}

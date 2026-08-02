@@ -1,0 +1,17 @@
+{
+  "binary_bytes": 20970,
+  "binary_sha256": "5cb74a1bf1e6a79f6ec034af698f8ee19053d472e64a3c607852bc964a5fe984",
+  "container_bytes": 2212,
+  "container_sha256": "f0339dd9d6eb8217142c012d8807f03f9a3fec2f3e94b22a34038c2d14f40dbb",
+  "data_bytes": 2110,
+  "data_sha256": "c441854a61340f7e0885f433f346108605da7306ac49f5efbbb4693d1d24dfdd",
+  "mesh_id": 1,
+  "object_id": 1,
+  "runtime_path": "TRN/L0/00/0C.AGN",
+  "schema": "pingo-terrain-p3dm-loader-probe-v1",
+  "stage_buffer_id": 29696,
+  "tile_x": 4,
+  "tile_y": 1,
+  "triangles": 128,
+  "vertices": 85
+}

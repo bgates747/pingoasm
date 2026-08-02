@@ -1,0 +1,55 @@
+{
+  "manifest_version": 1,
+  "corpus_id": "bay-area-full-l0",
+  "built": "2026-08-02",
+  "description": "Complete loose-file L0 P3DM terrain corpus for position-driven Bay Area survey streaming.",
+  "build_command": ".venv/bin/python scripts/build_regional_terrain.py --selection full --lods 0 --output build/p3dm/bay-area-full-l0",
+  "output_root": "build/p3dm/bay-area-full-l0",
+  "world_manifest": {
+    "path": "build/p3dm/bay-area-full-l0/WORLD.json",
+    "byte_size": 48576649,
+    "sha256": "cf4e171fbe06bd41f9d2b8a0c1b6998ae1c038e21252e43dd476ad8c3b12c1c8",
+    "build_signature": "1afb3f13131db0455e54d1a618c70db8cccac08f883afe58c5f39df3c22b1b11",
+    "contract": "The WORLD record contains the relative path, byte length, SHA-256, geometry counts, elevation bounds, material histogram, and padding witnesses for every component."
+  },
+  "source_manifest": {
+    "path": "data/manifests/bay-area-2026-08-02.json",
+    "sha256": "a996c9f8af597eefea677a8cb987c78b645598a070d99e30055785ba78b493b5"
+  },
+  "grid": {
+    "crs": "EPSG:32610",
+    "origin_easting_m": 521728,
+    "origin_northing_m": 4100096,
+    "columns": 201,
+    "rows": 252,
+    "chunk_width_m": 512,
+    "tile_id_equation": "tile_y * 201 + tile_x",
+    "path_equation": "TRN/L0/{tile_id >> 8:02X}/{tile_id & 255:02X}.AGN"
+  },
+  "normalization": {
+    "pingo_x": "UTM northing",
+    "pingo_y": "NAVD88 elevation with a 608 m object-origin translation",
+    "pingo_z": "negative UTM easting",
+    "counts_per_metre": 16,
+    "metres_per_pingo_unit": 8,
+    "object_scale_q8_8": 24576,
+    "object_translation_y_count": 9728,
+    "stage_buffer_id": 29696
+  },
+  "statistics": {
+    "records": 50652,
+    "container_bytes": 269883360,
+    "data_bytes": 264784560,
+    "vertices": 10138186,
+    "triangles": 16726143,
+    "edge_padded_records": 932,
+    "maximum_elevation_dm_min": -1000,
+    "maximum_elevation_dm_max": 13357
+  },
+  "validation": {
+    "source_hashes_verified": true,
+    "record_count_on_disk": 50652,
+    "resume_state_count_on_disk": 50652,
+    "builder_round_trip_policy": "Every emitted AGNB/P3DM component is parsed and compared with its in-memory source before publication."
+  }
+}
