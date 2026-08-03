@@ -12,7 +12,8 @@ application repositories. If the work succeeds:
    `~/Agon/mystuff/agon-vdp`; and
 3. research history and rejected experiments remain here.
 
-Start with [today's terrain research](docs/devlog-2026-08-02.md). Active work
+Start with [today's terrain research](docs/devlog-2026-08-03.md); the complete
+[first-day research log](docs/devlog-2026-08-02.md) remains durable. Active work
 must first be recorded in the sole authoritative queue at
 [`docs/todo.md`](docs/todo.md).
 
@@ -25,6 +26,9 @@ The proposed six-neighbor streaming topology is in the
 The deterministic silhouette-error, adaptive simplification, and mixed-LOD
 seam rules are in the
 [mathematical distant-terrain contract](docs/distant-terrain-mathematical-lod.md).
+The accepted experiment that generates natural terrain before cutting it into
+roughly hex-addressed streaming components is in the
+[post-triangulation partition design](docs/natural-terrain-post-partition-experiment.md).
 The reusable eZ80 lifecycle and provider ABI are specified in the
 [universal terrain-manager runtime contract](docs/terrain-manager-runtime.md).
 The current direct no-dynamics camera survey is the

@@ -24,6 +24,11 @@ this file, and update any affected specification.
   compare regular material voting with topology-preserving constrained water
   contours and multiple distance tiers in a dedicated Blender artifact, then
   profile the NumPy-first host implementation before considering native code.
+  A separately accepted experiment now generates a natural adaptive master
+  surface before routing bounded roughly hex-addressed partitions through its
+  existing edges. Build and review its complete-region Blender artifact first;
+  do not replace the accepted straight-sided runtime corpus until partition,
+  containment, LOD, collision, culling, and hardware gates pass.
 - [ ] **J1 — Position-driven terrain streaming:** the multi-record AGNB family,
   bounded host selector, eZ80 `ffs_flseek` selected-record loader, two-bank
   render-idle publication, floating-origin rebase, and a natural

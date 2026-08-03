@@ -194,6 +194,13 @@ complete offline seam detection is
 `docs/distant-terrain-mathematical-lod.md`. Skirts remain permitted as
 fail-soft coverage guards, but do not satisfy that contract by themselves.
 
+The separately named natural-mesh experiment in
+`docs/natural-terrain-post-partition-experiment.md` tests a later inversion:
+generate an authoritative adaptive surface first, then route roughly
+hex-addressed physical partitions through existing mesh edges. It does not
+alter this document's accepted straight-sided N=5 runtime corpus until its
+provider, seam, LOD, collision, culling, and hardware gates are accepted.
+
 Airport property patches are a second kind of seam and must be compiled, not
 hidden by draw order. An airport's projected property polygon cuts a true hole
 from every terrain cell it intersects. The airport compiler and terrain
