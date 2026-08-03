@@ -11,25 +11,31 @@ this file, and update any affected specification.
   complete physical-hardware performance/presentation qualification before
   promotion; leave emulator-coupled changes uncommitted meanwhile.
 - [ ] **R1 — Regional Bay Area terrain corpus:** the 42 pinned 3DEP and nine
-  NLCD inputs, regional manifest, 201×252 grid, and deterministic three-level
-  family prototype exist. A 20-family fixed-west slice now feeds the live KOAK
-  coordinator. The complete 50,652-record loose-L0 corpus is generated, has a
-  tracked WORLD receipt, and is fully size/hash-verified by the survey builder.
-  Retain it reproducibly and qualify mixed-LOD seams and relief at regional
-  landmarks.
+  NLCD inputs, regional manifest, historical 201×252 grid, and deterministic
+  three-level family prototype exist. The superseding equal-area N=5 hex
+  profile now has all 50,183 loose-L0 cells, a checksum-bound WORLD receipt,
+  six exact straight shared boundaries per cell, and a mandatory full-region
+  Blender review artifact accepted by the Author. The fixture build now parses
+  and validates every indexed container, including distant cells. Retain both
+  reproducibly; implement and qualify hex-native mixed LOD using the accepted
+  mathematical silhouette-error and seam contract. Named regional features
+  remain human review witnesses rather than compiler inputs.
 - [ ] **J1 — Position-driven terrain streaming:** the multi-record AGNB family,
   bounded host selector, eZ80 `ffs_flseek` selected-record loader, two-bank
   render-idle publication, floating-origin rebase, and a natural
   `(23,36)`-to-`(22,36)` westbound flight now pass together in the sibling KOAK
   family fixture. An arbitrary-position 8×4 loose-L0 window now follows the
   regional direct camera across the complete grid and has a qualified
-  cell-crossing trace. Consolidate the regional-camera, KOAK loose, and KOAK
-  family coordinators into the one fixture-independent terrain manager required
-  by the scene design before adding another topology or expanding the practical
-  object working set. Then add arbitrary-family/mixed-LOD planning, measure
-  complete SD
-  seek/read/validate/upload latency rather than only VDP publication time,
-  surface persistent load failures, and retain safe object/buffer lifetime.
+  cell-crossing trace.
+  The topology-neutral `runtime/ez80/terrain-manager.inc` now consolidates the
+  authoritative lifecycle, status ABI, stable residency, bounded publication,
+  retries, activation, rebase, and teardown contracts. Its first thin hex
+  provider streams the complete corpus, exposes live radius 0..5 disks, and
+  passes a silent 19-cell cold view plus 2→5→0 expansion/contraction through
+  all 91 exact command-52 transforms. Its fixed 16 m six-side retention band
+  passes edge/corner no-chatter regressions. Next add arbitrary-family/mixed-LOD
+  planning, measure complete SD seek/read/validate/upload latency rather than
+  only VDP publication time, and expose persistent runtime failures in clients.
   Human seam/pop review and physical-hardware range, depth, and performance
   qualification remain open.
 - [ ] **A1 — Bay Area airports:** pinned and generated SFO, OAK, Hayward
@@ -45,8 +51,12 @@ this file, and update any affected specification.
 - [ ] **F2 — Cockpit light-flight fixture:** the panel, reduced viewport,
   attitude backdrop, chase view, fixed-point force/inertia model, and silent
   KOAK takeoff proof exist; a natural chase flight also crosses the fixed-west
-  regional family boundary. Qualify physical control feel and deterministic
-  flight with the generalized position-driven streamer on real hardware.
+  regional family boundary. A provisional backend-neutral reconstruction of
+  the static panel now produces corrected circular gauges, a blank GPS bay,
+  arbitrary exact-size previews, and named future instrument repaint bounds;
+  its presentation is awaiting Author review before it supersedes the bitmap.
+  Qualify physical control feel and deterministic flight with the generalized
+  position-driven streamer on real hardware.
 - [ ] **C1 — Layered terrain collision:** the host broad/narrow reference and
   conservative envelopes exist. Implement the swept aircraft proxy,
   transactional eZ80 candidate step, contact response, and integrated
@@ -72,7 +82,7 @@ this file, and update any affected specification.
   world-Y Page Up/Down, and an edge-triggered bounded minus/equal speed ladder;
   it is retained as a fixed direct-RUN oracle. Its initial-frame and
   clamp/reversal trace passes, and the Author has accepted the corrected
-  interactive controls. FSIM entry 0 is now the regional camera-survey
-  appliance. Preserve Berkeley as the fixed visual oracle; complete
-  direct/manual return and regional presentation qualification before
-  accepting or committing the work.
+  interactive controls. FSIM entry 0 now exercises the universal hex-manager
+  survey. Preserve Berkeley and the rectangular regional viewer as direct
+  historical oracles; complete direct/manual return and regional presentation
+  qualification before accepting or committing the work.

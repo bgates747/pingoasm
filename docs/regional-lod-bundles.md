@@ -131,8 +131,10 @@ component per foreground pass; no simulation tick is required to absorb an
 entire family.
 
 The D2 selector is deliberately sparse. It first favors the forward view and
-then permits host-indexed relief or landmark interest to lift recognizable
-terrain such as Mount Diablo above flat distant cells. A D2 island terminates
+then uses only precomputed numerical relief, horizon-envelope, projected-error,
+and categorical-boundary metadata defined by
+`docs/distant-terrain-mathematical-lod.md`. A named feature such as Mount
+Diablo is a human review witness, never selector input. A D2 island terminates
 in a skirt over the neutral backdrop; it is not allowed to touch L0 directly.
 
 ## Lattice and seam policy

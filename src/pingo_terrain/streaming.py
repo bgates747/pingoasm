@@ -24,11 +24,24 @@ DEFAULT_TERRAIN_SLOTS = 25
 DEFAULT_TERRAIN_RING_SIDE = 5
 PINGO_I16_MIN = -0x8000
 PINGO_I16_MAX = 0x7FFF
-PINGO_MAX_SCENE_RENDERABLES = 32
+PINGO_MAX_OBJECT_ID = 0xFFFF
+PINGO_OBJECT_ID_COUNT = PINGO_MAX_OBJECT_ID + 1
+HEX_RADIUS_FIVE_SLOTS = 91
 
 
 def _sign(value: int) -> int:
     return (value > 0) - (value < 0)
+
+
+def hex_radius_five_slot(q: int, r: int) -> int:
+    """Perfect stable slot color for every radius-five axial disk.
+
+    The kernel basis ``(11,-5),(5,6)`` has determinant 91, equal to the
+    radius-five centered hex number.  A cell keeps its slot across origin and
+    radius changes, and no two cells within distance five collide.
+    """
+
+    return (5 * q + 11 * r) % HEX_RADIUS_FIVE_SLOTS
 
 
 @dataclass(frozen=True)
@@ -429,7 +442,13 @@ def assert_scene_budget(
     aircraft_objects: int = 1,
     landmark_objects: int = 0,
 ) -> None:
-    """Fail before a configuration can overflow Pingo's 32-object scene."""
+    """Fail before a configuration can overflow Pingo's u16 object namespace.
+
+    The Pingo VDU bridge traverses its object registry directly and therefore
+    has no smaller fixed active-object array.  Applications still set and
+    qualify practical performance budgets, but those are policy rather than a
+    protocol limit.
+    """
 
     values: Iterable[int] = (
         terrain_slots,
@@ -440,8 +459,8 @@ def assert_scene_budget(
     if any(value < 0 for value in values):
         raise ValueError("scene object counts cannot be negative")
     total = terrain_slots + airport_objects + aircraft_objects + landmark_objects
-    if total > PINGO_MAX_SCENE_RENDERABLES:
+    if total > PINGO_OBJECT_ID_COUNT:
         raise ValueError(
             f"active scene needs {total} objects; Pingo permits "
-            f"{PINGO_MAX_SCENE_RENDERABLES}"
+            f"{PINGO_OBJECT_ID_COUNT} object IDs"
         )

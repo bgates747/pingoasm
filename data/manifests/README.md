@@ -27,3 +27,8 @@ generated loose-file runtime corpus. Its ignored `WORLD.json` binds all 50,652
 P3DM components individually; the tracked receipt records that manifest's
 length and SHA-256, the exact build command, source-manifest identity, grid and
 normalization contract, and aggregate geometry/byte counts.
+
+`bay-area-hex-full-l0-2026-08-02.json` is the corresponding receipt for the
+superseding 50,183-cell N=5 hexagonal corpus. In addition to the runtime
+`WORLD.json`, it binds the mandatory complete-region Blender review artifact
+and records the six straight-side boundary contract.

@@ -20,11 +20,14 @@ The numbered entries are:
 | 7 | P3DM Loader Probe | Atomic publication of one loose terrain record |
 | 8 | Nested AGNB Probe | Selection of one component from a ten-record family |
 | 9 | Campanile Probe | Streamed solid-flat Sather Tower landmark |
-| 0 | Bay Area Survey | Direct upright camera over the full regional loose-L0 corpus |
+| 0 | Hex Manager Survey | Direct camera over the full axial-hex corpus using the universal manager |
 
 Entry 0 starts at the accepted Campanile position without aircraft, dynamics,
-or collision. Only its rolling 8×4 terrain window is resident at once; motion
-selects further cells from the complete 50,652-record corpus.
+or collision. Top-row keys 0 through 5 change its complete terrain disk at run
+time, selecting 1, 7, 19, 37, 61, or 91 resident cells. Motion selects further
+cells from the complete 50,183-record hex corpus through the same manager API
+available to arbitrary future clients. The prior rectangular regional survey
+remains preserved as a historical direct-streaming oracle.
 
 Press the corresponding single digit to run a fixture. Escape inside an
 interactive fixture returns to this menu; press Escape again at the menu to
@@ -65,13 +68,15 @@ Use the project virtual environment from the repository root:
 
 ```bash
 .venv/bin/python scripts/build_berkeley_camera_survey.py
-.venv/bin/python scripts/build_regional_camera_survey.py
+.venv/bin/python scripts/build_regional_hex_terrain.py --selection full
+.venv/bin/python scripts/build_terrain_manager_survey.py
 .venv/bin/python scripts/build_fsim_launcher.py
 .venv/bin/python scripts/setup_emulator.py
 ```
 
-The first command rebuilds the fixed Berkeley oracle. The second verifies all
-50,652 indexed regional containers and assembles entry 0 as `P3DSURV.BIN`.
+The first command rebuilds the fixed Berkeley oracle. The next two build and
+verify all 50,183 indexed axial-hex containers and assemble entry 0 as
+`P3DHXMG.BIN`.
 The launcher command then assembles `moslets/fsim/src/fsim.asm` into
 `moslets/fsim/tgt/fsim.bin` and emits its listing and symbols. Other fixture
 binaries and runtime assets must already exist in their normal `tgt/` or

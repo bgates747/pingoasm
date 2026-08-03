@@ -1,9 +1,12 @@
 # Regional terrain build contract
 
-Status: **offline compiler and KOAK proof corpus implemented**. The terrain
-containers are suitable for experimental Pingo subcommand 50. Runtime
-position-driven publication and mixed-LOD visual qualification remain J1/R1
-work; this document does not mark either TODO complete.
+Status: **offline compilers, complete L0 corpora, and first universal-manager
+runtime implemented**. The original rectangular corpus remains a reproducible
+control. New regional work uses the accepted 50,183-cell N=5 hex profile in
+`docs/hexagonal-terrain-cells.md`; its complete loose-L0 corpus now streams
+through the manager in `docs/terrain-manager-runtime.md`. Mixed-LOD and physical
+hardware qualification remain J1/R1 work, so this document does not mark either
+TODO complete.
 
 ## Pinned source corpus
 
@@ -20,6 +23,40 @@ default, reads TIFF blocks lazily, and performs no network access. It maintains
 small per-file block caches rather than expanding the 603 MB source corpus in
 memory. One persistent PROJ `cs2cs` process converts sampled UTM points to the
 NLCD grid.
+
+## Mandatory Blender review artifact
+
+Every regional terrain-set design and corpus build must have a matching
+Blender file for human review. The file is a required build artifact, not an
+optional visualization made after the runtime data is accepted. It must cover
+the complete regional cell set and preserve enough embedded metadata to audit
+the topology profile, cell identities, projected coordinates, source
+elevations, material assignments, display scaling, and pinned-input
+provenance. A reduced review LOD is permitted only when it identifies itself
+unambiguously and does not masquerade as the runtime mesh density.
+
+The current equal-area hex candidate is reviewed at
+`build/visualization/bay-area-hex-overview.blend`. The scene contains all
+50,183 canonical cell IDs `0..50182` in one shared-vertex mesh. Each cell is
+represented by one centre and its six N=5 boundary corners, producing 151,446
+vertices and 301,098 flat faces. This one-centre/six-triangle preview is much
+lighter than the runtime N=5 triangular lattice; the distinction is recorded
+both in scene properties and in the generated `.review.json` receipt.
+
+Every face carries `hex_cell_id`, axial `hex_q`/`hex_r`, preview-sector,
+terrain-material, and NLCD-category attributes. Every point carries exact
+whole-metre UTM easting/northing plus its sampled NAVD88 elevation. The
+`hex_cell_boundary` edge attribute distinguishes cell perimeters from the six
+review-only radial edges. Materials use the same restrained 15-color NLCD
+vocabulary as terrain generation, sampled at preview-face centroids and kept
+flat shaded. DEM heights are bilinear vertex samples, never face-centre
+heights.
+
+The ordinary build verifies all 42 DEM and nine NLCD source files against the
+pinned manifest before creating the scene. Its default 1:1000 scale is uniform
+on all axes with no vertical exaggeration. Any intentionally exaggerated
+review must record its multiplier and cannot replace the unexaggerated
+artifact when geometry or seam correctness is being accepted.
 
 ## Regional integer frame
 
@@ -176,7 +213,22 @@ clearance starts at absolute Y `64` counts. Heading uses the airport index's
 .venv/bin/python scripts/build_regional_terrain.py --selection full --budget-only
 .venv/bin/python scripts/build_regional_terrain.py --selection koak-proof
 .venv/bin/python scripts/build_regional_terrain.py --selection corridor --output <directory>
+blender --background --python scripts/build_regional_blender.py -- \
+  --output build/visualization/bay-area-hex-overview.blend
 ```
 
 The default source-hash pass is mandatory for durable output. The explicit
 `--skip-source-hash` switch exists only for local development timing.
+
+Building the universal-manager fixture against a full corpus is also a
+fail-closed corpus gate. It visits every dense cell ID and verifies the WORLD
+path and identity, container length and SHA-256, complete P3DM/CRC/index
+contract, DATA length and SHA-256, geometry and material witnesses, and the
+aggregate statistics before it assembles or installs the executable. Checking
+only the initial runtime neighborhood is not sufficient for a regional set.
+
+Open the generated regional review directly with:
+
+```text
+blender build/visualization/bay-area-hex-overview.blend
+```

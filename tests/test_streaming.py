@@ -13,6 +13,7 @@ from pingo_terrain.streaming import (
     direct_mapped_terrain_slot,
     desired_tile_order,
     locate_absolute_q8,
+    hex_radius_five_slot,
     tile_center_pingo_translation,
 )
 
@@ -174,8 +175,25 @@ class StreamingPolicyTests(unittest.TestCase):
 
     def test_active_scene_budget_is_explicit(self) -> None:
         assert_scene_budget(25, 6, 1)
-        with self.assertRaisesRegex(ValueError, "33 objects"):
-            assert_scene_budget(25, 7, 1)
+        assert_scene_budget(121, 7, 1, 4)
+        assert_scene_budget(65_535, 1, 0)
+        with self.assertRaisesRegex(ValueError, "65537 objects"):
+            assert_scene_budget(65_535, 1, 1)
+
+    def test_hex_radius_five_has_a_perfect_translation_stable_slot_map(self) -> None:
+        offsets = tuple(
+            (q, r)
+            for q in range(-5, 6)
+            for r in range(-5, 6)
+            if max(abs(q), abs(r), abs(-q - r)) <= 5
+        )
+        self.assertEqual(len(offsets), 91)
+        for center in ((0, 0), (90, 121), (213, 127), (-17, 400)):
+            slots = {
+                hex_radius_five_slot(center[0] + q, center[1] + r)
+                for q, r in offsets
+            }
+            self.assertEqual(slots, set(range(91)))
 
     def test_direct_mapped_five_by_five_neighborhood_is_injective(self) -> None:
         for center_x, center_y in ((2, 2), (94, 146), (198, 249)):

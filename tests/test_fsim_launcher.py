@@ -84,9 +84,9 @@ APPLIANCES = (
         "CAMPTEST.BIN",
     ),
     Appliance(
-        "fixtures/regional-camera-survey/src/regional-camera-survey.asm",
-        "build/p3dm/bay-area-full-l0",
-        "P3DSURV.BIN",
+        "fixtures/terrain-manager-survey/src/terrain-manager-survey.asm",
+        "build/p3dm/bay-area-hex-full-l0",
+        "P3DHXMG.BIN",
     ),
 )
 

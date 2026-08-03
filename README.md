@@ -22,15 +22,24 @@ The proposed renderer-integrated ordered-dither design is in the
 [flat-pattern dithering proposal](docs/flat-pattern-dithering-proposal.md).
 The proposed six-neighbor streaming topology is in the
 [hexagonal terrain-cell proposal](docs/hexagonal-terrain-cells.md).
+The deterministic silhouette-error, adaptive simplification, and mixed-LOD
+seam rules are in the
+[mathematical distant-terrain contract](docs/distant-terrain-mathematical-lod.md).
+The reusable eZ80 lifecycle and provider ABI are specified in the
+[universal terrain-manager runtime contract](docs/terrain-manager-runtime.md).
 The current direct no-dynamics camera survey is the
-[full-region rolling fixture](fixtures/regional-camera-survey/README.md).
-Its fixed [dithered Berkeley sibling](fixtures/berkeley-flight-triangular-dither/README.md)
-remains the exact visual and control oracle.
+[universal hex-manager fixture](fixtures/terrain-manager-survey/README.md).
+The prior [rectangular full-region viewer](fixtures/regional-camera-survey/README.md)
+and fixed [dithered Berkeley sibling](fixtures/berkeley-flight-triangular-dither/README.md)
+remain historical visual and control oracles.
 The regional AGNB/P3DM layout and generated FAA hard-surface proof are in the
 [streaming format](docs/p3dm-streaming-format.md) and
 [airport corpus](docs/airport-p3dm-corpus.md) documents.
 The shared deterministic force, trim, runway-support, cockpit, and fallback
 contract is in the [light-flight model](docs/light-flight-model.md).
+The backend-neutral static panel scene, bitmap-font seam, and Pillow review
+renderer are described in the
+[cockpit panel drawing program](docs/cockpit-panel-generator.md).
 The current live nested-family integration witness is the
 [KOAK fixed-west family-LOD fixture](fixtures/koak-flight-family-lod/README.md),
 with the broader packaging and promotion contract in
@@ -101,7 +110,8 @@ ignored, fail-closed profile:
 make -C ~/Agon/mystuff/agon-vdp/userspace \
   FAB_ROOT=~/Agon/mystuff/fab-agon-emulator smoke
 .venv/bin/python scripts/build_berkeley_camera_survey.py
-.venv/bin/python scripts/build_regional_camera_survey.py
+.venv/bin/python scripts/build_regional_hex_terrain.py --selection full
+.venv/bin/python scripts/build_terrain_manager_survey.py
 .venv/bin/python scripts/build_fsim_launcher.py
 .venv/bin/python scripts/setup_emulator.py
 ```
@@ -118,8 +128,9 @@ as `/mos/fsim.bin`, and creates `/mos/fsim.cfg` with the absolute Agon path
 `/mystuff/pingo_terrain`. Invoke `fsim` from any MOS directory for the numbered
 fixture menu; see the [launcher contract](moslets/fsim/README.md).
 
-The full-region survey fixture is entry `0`. Its complete initial window and a
-live eastward cell crossing can be qualified silently with:
+The universal hex-manager survey is entry `0`; keys 0 through 5 select complete
+axial disks of 1 through 91 cells at runtime. The old rectangular survey and
+its capture tools remain available as historical evidence:
 
 ```bash
 .venv/bin/python scripts/capture_regional_camera_survey.py \

@@ -501,7 +501,7 @@ menu_text:
     db "7  P3DM Loader Probe    - publish one loose terrain record",13,10
     db "8  Nested AGNB Probe    - select from a ten-record family",13,10
     db "9  Campanile Probe      - streamed solid-flat Sather Tower",13,10
-    db "0  Bay Area Survey      - direct camera with full-region streaming",13,10,13,10
+    db "0  Hex Manager Survey  - universal terrain engine, live rings 0-5",13,10,13,10
     db "Press 1-9 or 0 to launch; Esc returns to MOS.",13,10,0
 
 exit_text:
@@ -544,8 +544,8 @@ fixture_records:
     db "nested-agnb-loader-probe.bin",0
     db "fixtures/campanile-p3dm-probe/tgt",0
     db "CAMPTEST.BIN",0
-    db "build/p3dm/bay-area-full-l0",0
-    db "P3DSURV.BIN",0
+    db "build/p3dm/bay-area-hex-full-l0",0
+    db "P3DHXMG.BIN",0
 
 selected_index:
     db 0

@@ -42,7 +42,7 @@ FIXTURES = (
         "nested-agnb-loader-probe.bin",
     ),
     ("fixtures/campanile-p3dm-probe/tgt", "CAMPTEST.BIN"),
-    ("build/p3dm/bay-area-full-l0", "P3DSURV.BIN"),
+    ("build/p3dm/bay-area-hex-full-l0", "P3DHXMG.BIN"),
 )
 
 

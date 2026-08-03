@@ -1,10 +1,12 @@
 # Hexagonal terrain-cell proposal
 
-Status: **proposed alternate streaming topology**. The accepted rectangular
-regional loader remains the working control. This proposal does not authorize a
-second fixture-local terrain coordinator: rectangular and hexagonal cells must
-both be policies of the authoritative terrain manager specified in
-`docs/terrain-scene-design.md`. J1 remains the sole actionable work item.
+Status: **accepted design; first corpus and manager binding implemented,
+runtime qualification in progress**. Hexagonal cells supersede rectangular
+cells for new regional terrain work. The rectangular loader remains useful
+historical evidence, but receives no parallel feature development. This design
+does not authorize a fixture-local terrain coordinator: hexagonal cells are a
+provider policy of the authoritative terrain manager specified in
+`docs/terrain-manager-runtime.md`.
 
 ## Scope and terminology
 
@@ -59,7 +61,7 @@ The six neighbors are fixed axial offsets:
 (-1, 0)  (-1,+1)  (0,+1)
 ```
 
-The provisional orientation is **flat-top**, because it provides a direct
+The orientation is **flat-top**, because it provides a direct
 east/west neighbor axis useful to the current UTM-aligned Bay Area world. For
 hex side length `a`, ideal projected centres relative to an origin are:
 
@@ -68,9 +70,25 @@ east  = (3/2 * a) * q
 north = (sqrt(3) * a) * (r + q/2)
 ```
 
-Orientation and side length remain profile values until a controlled visual
-comparison is accepted. A pointy-top provider uses the corresponding rotated
-basis without changing manager semantics.
+The accepted first profile is flat-top and uses the following exact integer
+geometry:
+
+| Field | Accepted value |
+| --- | ---: |
+| side length | 320 m |
+| triangular-lattice side subdivisions | 5 |
+| lattice basis `u` | `(64,0)` m |
+| lattice basis `v` | `(32,55)` m |
+| axial `q` centre basis | `(480,275)` m |
+| axial `r` centre basis | `(0,550)` m |
+| cells | 50,183 |
+| runtime surface vertices / triangles per cell | 91 / 150 |
+| skirt vertices / triangles per cell | 30 / 60 |
+
+This is a rational, integer approximation to an equal-area regular hexagon.
+Its 264,000 m² area is 0.708% larger than a 512×512 m control cell. A later
+profile may use a different orientation or size without changing manager
+semantics, but it must have its own corpus identity and Blender review artifact.
 
 Runtime placement must not accumulate floating-point or repeated-step error.
 The corpus manifest stores two prequantized integer basis vectors in the
@@ -89,8 +107,11 @@ World position converts to fractional axial coordinates through the inverse
 basis. Cell selection uses standard cube rounding: round fractional `q`, `r`,
 and `s`, then correct the component with the largest rounding error so the
 integer result still satisfies `q+r+s=0`. Exact boundary ties use one specified
-lexicographic rule. A small hysteresis band prevents selection chatter while a
-camera follows an edge.
+lexicographic rule. The first runtime provider retains its current owner through
+a fixed 16 m (256 translation-count) outward band on all six sides. This is one
+maximum camera-survey movement quantum and creates a symmetric 32 m round-trip
+deadband after rebasing, preventing selection chatter while a camera follows an
+edge. Exact outer-band ties retain the current owner.
 
 Hex distance is:
 
@@ -138,6 +159,15 @@ share the same canonical corner sample. Per-component normalization is
 forbidden; all cells in a profile use one documented padded extent and object
 scale so independent meshes reproduce exact regional positions.
 
+Each cell has exactly six visually straight plan-view sides. Subdivision for
+terrain sampling may add vertices along a side, but every such vertex must be
+collinear with that side's two corners and every perimeter edge must join
+consecutive collinear samples. A staircase or sawtooth approximation to a hex
+boundary is forbidden, even if neighboring cells could technically share that
+staircase without a crack. The accepted N=5 profile therefore has six straight
+five-edge sides and 30 perimeter edges. Build tests must prove both this
+collinearity and exact shared keys with all six neighbors.
+
 This construction avoids both failure modes seen in earlier experiments:
 
 1. diagonally bisected rectangular quads do not reappear inside the cell; and
@@ -148,6 +178,12 @@ Same-LOD neighbors should join exactly. Mixed-LOD cells initially retain the
 accepted skirt policy, generalized to six edges. A future stitch pattern must
 be indexed by the six edge directions and neighbor LOD delta; it cannot assume
 north, south, east, and west edges.
+
+The superseding mathematical contract for mixed-LOD boundaries, canonical
+rational seam keys, transition triangulation, projected switching error, and
+complete offline seam detection is
+`docs/distant-terrain-mathematical-lod.md`. Skirts remain permitted as
+fail-soft coverage guards, but do not satisfy that contract by themselves.
 
 Airport property patches are a second kind of seam and must be compiled, not
 hidden by draw order. An airport's projected property polygon cuts a true hole
@@ -183,6 +219,7 @@ The first useful sizes are:
 | 2 | 19 | useful conservative baseline |
 | 3 | 37 | first substantially broader complete disk |
 | 4 | 61 | expensive unless LOD and culling measurements justify it |
+| 5 | 91 | explicit stress-test ceiling for the first manager fixture |
 
 The Pingo VDU bridge now traverses the complete `uint16_t` object registry
 directly and has no fixed active-object ceiling. Scene size is consequently a
@@ -206,12 +243,14 @@ regional coverage polygon are explicitly absent rather than inferred through a
 directory scan. P3DM `tile_x` and `tile_y` fields carry signed axial `q` and
 `r` for a hex-topology corpus, with the manifest declaring that interpretation.
 
-The current rectangular modulo mapping is not part of the hex contract. The
-common terrain manager maintains an explicit bounded mapping from resident
-axial cell to stable terrain slot. Desired cells keep their slots; incoming
-cells take inactive or evictable slots only at the render-idle barrier. Slot
-choice is deterministic for a given desired-set order, and a failed load keeps
-the old complete mesh until policy permits retry or deactivation.
+The rectangular modulo mapping is not part of the hex contract. The accepted
+radius-five provider uses the perfect stable map
+`slot = (5*q + 11*r) mod 91`. Its kernel has minimum nonzero hex distance 11,
+so every possible radius-five disk maps bijectively to all 91 slots. A cell
+keeps the same slot as the camera moves or the requested radius changes. The
+common manager still owns residency state and publication: incoming cells are
+loaded only at the render-idle barrier, and a failed load keeps the old complete
+mesh until policy permits retry or deactivation.
 
 Terrain, airport surface components, landmarks, and other layers retain
 separate slot pools. Removing the old firmware ceiling does not authorize
@@ -234,9 +273,11 @@ regional_position = origin + q*basis_q + r*basis_r + local_offset
 ```
 
 Crossing a hex boundary may change one or two axial components, but it is one
-transactional origin change. The manager uses cube rounding and hysteresis to
-avoid oscillation at edges and three-cell corners. Flight dynamics and source
-UTM coordinates remain unchanged by the render-frame rebase.
+transactional origin change. The provider owns cube rounding and the 16 m
+retention band; the manager coordinates the resulting rebase without knowing
+the topology. The provider uses deterministic vertical-before-sloped ordering
+when expanded constraints are crossed together at a corner. Flight dynamics
+and source UTM coordinates remain unchanged by the render-frame rebase.
 
 ## Other world layers
 
@@ -326,37 +367,39 @@ Hex topology is a manager provider, not a new loader. It supplies:
 1. projected-position to axial-cell conversion and deterministic rounding;
 2. axial centre reconstruction from exact basis vectors;
 3. six-neighbor, ring, disk, and distance operations;
-4. bounded corpus identity and path lookup;
-5. desired-set generation and directional priority; and
-6. cell bounds for culling metadata, collision candidates, and layer queries.
+4. bounded corpus identity and deterministic path lookup;
+5. desired-set generation, stable-slot selection, and directional priority;
+6. complete P3DM/AGNB component read, validation, and atomic mesh publication;
+7. exact object placement and position normalization; and
+8. cell bounds for culling metadata, collision candidates, and layer queries.
 
-The common manager continues to own P3DM/AGNB validation, residency, stable
-slots, render-idle publication, origin transactions, error state, and teardown.
-The rectangular provider must first reproduce the accepted regional trace
-through that same interface. Hex work must not begin by copying the current
-regional-camera coordinator.
+The common manager owns the resident and active state stored in those
+provider-selected slots, bounded render-idle scheduling, publication order,
+activation and deactivation, rebase coordination, retry/error state, status,
+and teardown. It invokes the provider's load hook as the geometry transaction
+boundary; it does not know component paths or validate the component format.
+This division is normative and matches `docs/terrain-manager-runtime.md`.
 
-## Proposed evaluation sequence
+A rectangular provider is no longer a prerequisite for hex work. If one is
+retained for historical comparison, it must implement the same provider hooks
+rather than revive a fixture-local coordinator.
 
-J1 owns this sequence; it is not a second actionable checklist.
+## Implementation and qualification status
 
-1. Consolidate the existing rectangular regional behavior into the common
-   manager and reproduce the accepted cold-load and boundary-crossing traces.
-2. Implement host-only axial math, cube rounding, ring enumeration, exact
-   basis reconstruction, corpus identity, and boundary tests.
-3. Generate a separate Berkeley-area equal-area hex corpus from the existing
-   DEM/NLCD sources without overwriting the rectangular control.
-4. Compare rectangular 8×4, hex radius 2, and hex radius 3 using the same
-   camera, shading, relief, source coverage, approximate triangle budget, and
-   explicitly reserved non-terrain pools.
-5. Generate at least KOAK as a constrained airport-property replacement and
-   qualify its boundary against every intersected cell and LOD.
-6. Qualify six-edge seams, all six boundary crossings, corner hysteresis,
-   missing/corrupt component behavior, airport/terrain atomic publication,
-   and sustained arbitrary travel in the emulator and on physical hardware.
-7. Promote hex topology to the runtime baseline only if it improves visual
-   structure and streaming behavior without unacceptable memory, publication,
-   traversal, or frame-time cost.
+The original proposal used a rectangular-first sequence: consolidate the old
+regional trace, build host axial math and a Berkeley comparison corpus, compare
+square and hex windows, add KOAK replacement geometry, then decide whether to
+promote hex. That sequence is retained here as decision history but is
+superseded as an implementation plan.
+
+The implemented path now consists of the exact N=5 host geometry and boundary
+proofs, the full 50,183-cell Bay Area corpus, its required Blender review
+artifact, the reusable manager, and the hex provider/manager survey fixture.
+The fixture exercises complete radius 0 through 5 disks through the public
+manager ABI. The authoritative remaining work is tracked only in
+`docs/todo.md`; it includes runtime and physical-hardware qualification plus
+later mixed-LOD and airport replacement-provider work. No remaining gate
+requires new square-cell logic.
 
 ## Acceptance evidence
 
@@ -369,14 +412,17 @@ An accepted hex topology must retain:
 4. exact regional-coordinate reconstruction through repeated arbitrary
    rebases;
 5. bounded, deterministic residency and failure behavior;
-6. comparable or better triangle/object/frame-time measurements than the
-   equal-area rectangular control;
+6. acceptable triangle/object/frame-time measurements against the project's
+   established performance targets (the equal-area rectangle is an optional
+   historical control, not an implementation dependency);
 7. no overlapping terrain/airport, airport/pavement, or pavement/marking faces;
 8. crack-free, T-junction-free property seams at every intersected cell and
    qualified LOD, with one visual and collision owner for every property point;
 9. solid-flat, self-illuminated, non-dithered airport rendering that remains
    legible against dithered terrain; and
-10. explicit human visual acceptance before replacing the rectangular control.
+10. explicit human emulator and physical-hardware acceptance before promotion
+    from experimental binding to fully qualified runtime baseline.
 
-Until those gates pass, the current rectangular corpus and loader remain the
-known working baseline.
+The rectangular corpus and loader remain historical controls. Failure of a
+qualification gate blocks promotion of the current hex binding; it does not
+reactivate the superseded rectangular-first implementation sequence.

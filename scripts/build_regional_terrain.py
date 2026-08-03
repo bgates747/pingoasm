@@ -267,6 +267,10 @@ class CoordinateTransformer:
             self._process.stdin.close()
         stderr = self._process.stderr.read() if self._process.stderr is not None else ""
         return_code = self._process.wait()
+        if self._process.stdout is not None:
+            self._process.stdout.close()
+        if self._process.stderr is not None:
+            self._process.stderr.close()
         if return_code or stderr.strip():
             raise RuntimeError(
                 f"cs2cs exited {return_code}: {stderr.strip() or 'no diagnostic'}"
@@ -281,6 +285,13 @@ class CoordinateTransformer:
         else:
             self._process.terminate()
             self._process.wait()
+            for stream in (
+                self._process.stdin,
+                self._process.stdout,
+                self._process.stderr,
+            ):
+                if stream is not None and not stream.closed:
+                    stream.close()
 
 
 def verify_sources(manifest: dict) -> None:

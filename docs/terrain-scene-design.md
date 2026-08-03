@@ -93,22 +93,27 @@ the accepted 2D overlay. A future 3D cockpit requires an explicitly qualified
 configurable near plane or separate projection/pass; it must not shrink the
 entire world scale as a workaround.
 
-## Terrain chunk geometry
+## Terrain component geometry
 
-Terrain is a regular projected height grid partitioned into independently
-culled square chunks. Each chunk is one Pingo object bound to one selected LOD
-mesh. Mesh coordinates are local to the chunk and centered around its origin.
-Object translation locates the chunk in the current floating world.
+Terrain is partitioned into independently culled components. Each component is
+one Pingo object bound to one selected LOD mesh. Mesh coordinates are local to
+the component and centered around its origin; the provider supplies its exact
+placement in the current floating world. The current regional topology is the
+flat-top hexagonal profile specified in `docs/hexagonal-terrain-cells.md`.
+Topology, component identity, bounds, and placement belong to the provider,
+not to the generic terrain manager.
 
-Every height sample is a mesh vertex, never a face-center value. Grid cells are
-exported as explicit triangles for Pingo. For each cell, the compiler selects
-the diagonal with the smaller endpoint elevation difference; exact ties use a
-stable checkerboard-parity choice. This relief-aware rule is deterministic
-across builds and chunks, preserves all source samples, and avoids systematic
-diagonal bias on level terrain.
+Every height sample is a mesh vertex, never a face-center value, and all
+runtime surfaces are exported as explicit triangles for Pingo. Neighboring
+components derive shared positions and elevations from canonical regional
+keys. The active hex profile uses one continuous triangular lattice and six
+straight component sides; it does not originate as diagonally bisected quads.
 
-For a mesh whose X and Z coordinates span `-1..+1`, object scale is half the
-chunk's width in internal units. Initial candidate widths are:
+The earlier rectangular experiments used a regular projected height grid and
+relief-aware triangulation. For each square grid cell, the compiler selected
+the diagonal with the smaller endpoint elevation difference; exact ties used a
+stable checkerboard-parity choice. Those experiments considered these widths
+for meshes whose X and Z coordinates span `-1..+1`:
 
 | Role | Physical width | Internal width | Object scale |
 |---|---:|---:|---:|
@@ -116,17 +121,14 @@ chunk's width in internal units. Initial candidate widths are:
 | Standard baseline | 512 m | 64 | 32 (`8192` wire) |
 | Coarse far candidate | 1,024 m | 128 | 64 (`16384` wire) |
 
-The standard first experiment uses **512 m chunks**. Candidate dimensions do
-not authorize mixing different physical chunk footprints merely to implement
-LOD. Prefer several mesh densities over one fixed 512 m footprint so an
-object's bounds and placement remain stable as its mesh is rebound. Larger far
-footprints are a separate horizon/storage experiment.
-
-Each standard chunk should initially generate at least full, half, and quarter
-sample-density meshes from the same filtered elevation source. Exact grid
-dimensions and switching distances are benchmark outputs, not fixed here.
-Neighboring full-detail chunks share exact edge samples. The first mixed-LOD
-experiment uses skirts; more exact edge stitching remains a later option.
+The 512 m square was the standard first control, not a current corpus
+requirement. Square components and the associated full/half/quarter density
+plan are preserved only as historical benchmark facts; they are superseded for
+new regional work by the accepted hex profile. Any future topology or LOD
+profile must preserve a component's bounds and exact placement across mesh
+changes, document its normalization and edge contract, and bind through the
+same provider interface. Mixed-LOD hex cells initially retain the six-edge
+skirt policy defined by the hex design.
 
 ## Elevation
 
@@ -135,7 +137,7 @@ Horizontal distances remain physically correct. Baseline elevation is
 values above **1.5×** require an explicit specification amendment and must not
 apply to runway grading without separate treatment.
 
-Chunks encode Y relative to a documented shared regional elevation origin,
+Components encode Y relative to a documented shared regional elevation origin,
 not as unexamined absolute elevation above sea level. The compiler records the
 source vertical datum, regional origin, exaggeration, quantization error, and
 minimum/maximum physical and Pingo elevations. Ellipsoid height, orthometric
@@ -143,36 +145,43 @@ height, and model-world height are never treated as interchangeable.
 
 ## Authoritative terrain manager
 
+The first reusable implementation and its exact public/provider/status ABI are
+now defined in `docs/terrain-manager-runtime.md` and
+`runtime/ez80/terrain-manager.inc`. Hex-native emulator and hardware
+qualification remain open; the older fixture-local coordinators remain
+historical evidence rather than alternate authoritative interfaces.
+
 There shall be one fixture-independent eZ80 terrain manager. A fixture may
-configure and drive that manager, but it must not implement its own residency
-ring, path builder, slot allocator, floating-origin coordinator, or publication
-loop. The existing regional-camera, KOAK loose-file, and KOAK family-LOD
-coordinators are implementation evidence to be consolidated; none is the
-authoritative reusable interface by itself.
+configure and drive that manager and link a corpus-specific provider, but it
+must not implement its own residency state, service scheduler, floating-origin
+coordinator, or publication loop. Path construction and stable-slot selection
+belong in the provider behind the common hook ABI, not inline in application
+control code. The existing regional-camera, KOAK loose-file, and KOAK
+family-LOD coordinators are historical implementation evidence; none is an
+alternate authoritative interface.
 
 The manager owns the mechanisms that must remain identical across applications:
 
-1. conversion between exact regional coordinates and the current Pingo frame;
-2. desired-set planning, stable slot assignment, residency state, and eviction;
-3. deterministic component lookup and P3DM/AGNB read/validate/CRC handling;
-4. render-idle upload, atomic mesh publication, transform, and activation;
-5. whole-chunk floating-origin rebasing of every managed world layer;
-6. bounded work per service pass, retry/backoff state, and observable errors;
-7. independent terrain, airport, landmark, and other scenery slot pools; and
-8. teardown that leaves no fixture-specific scene or buffer state resident.
+1. lifecycle, resident/active slot state, convergence, and eviction;
+2. bounded render-idle scheduling and provider-hook invocation;
+3. the publication order from validated load through placement, activation,
+   and residency commit;
+4. atomic active-set rebase coordination;
+5. retry/backoff state, status reporting, and observable errors; and
+6. teardown of every object in its configured pool.
 
-Applications supply policy and providers rather than alternate managers. The
-configuration contract must admit:
+The linked provider owns the policy and corpus semantics that vary by terrain
+set: topology and coordinate normalization, desired-set enumeration and stable
+slot selection, corpus bounds and deterministic path lookup, complete
+component read/validation/atomic publication, and exact object placement. The
+manager records and operates on the provider-selected slot; it does not derive
+one from square or hex coordinates and does not parse P3DM or AGNB itself.
 
-1. rectangular, hexagonal, or later explicitly qualified grid topology;
-2. corpus bounds and deterministic index/path resolution;
-3. camera, aircraft, or other authoritative position source;
-4. resident-window shape, directional look-ahead, and publication priority;
-5. object/mesh ID ranges and the qualified practical scene-object budget;
-6. fixed-detail or mixed-LOD selection with hysteresis;
-7. optional terrain, airport, landmark, water, and hard-surface providers;
-8. floating-origin thresholds and exact coordinate reconstruction; and
-9. missing, corrupt, or temporarily unreadable component policy.
+The application owns render synchronization, configured object/mesh ID ranges,
+placeholder object creation, shared material resources, the authoritative
+camera or aircraft position state, and synchronization of non-terrain world
+state. It selects a provider and policy index rather than implementing another
+manager.
 
 The minimum lifecycle is initialization from a validated configuration,
 position submission, desired-set update, one bounded render-idle service call,
@@ -181,14 +190,12 @@ collision, camera-control semantics, or a particular fixture entry structure.
 Those systems consume manager state or provide position; they do not own terrain
 residency.
 
-New topology work, including hexagonal terrain cells, and any change to the
-qualified practical object budget must integrate through this manager
-contract. Neither is permitted to create another fixture-local streaming
-coordinator. The common
-manager consolidation therefore precedes treating either experiment as the new
-runtime baseline. The candidate geometry, axial-coordinate model, resident
-window counts, object-budget implications, and qualification gates are defined
-in `docs/hexagonal-terrain-cells.md`.
+New topology work and any change to the qualified practical object budget must
+integrate through this manager/provider contract. Neither is permitted to
+create another fixture-local streaming coordinator. The first implemented
+binding is the accepted hexagonal Bay Area provider; its geometry,
+axial-coordinate model, resident-window counts, object-budget implications,
+and qualification gates are defined in `docs/hexagonal-terrain-cells.md`.
 
 ## Floating local origin
 
@@ -222,6 +229,13 @@ Whole-object AABB frustum rejection is the reason for chunking. Retained chunks
 use distance-selected discrete LOD with hysteresis; chunks beyond the supported
 terrain horizon are absent rather than submitted at full detail. A coarse
 horizon belt may be generated separately to prevent a visible world edge.
+
+All new distant-terrain simplification, potential-silhouette measurement,
+categorical-boundary retention, mixed-LOD stitching, and seam validation follow
+`docs/distant-terrain-mathematical-lod.md`. The compiler uses pinned rasters,
+declared observer/projection domains, and numerical error bounds only. Named
+geographic features are permitted as human review witnesses but not as mesh or
+residency inputs.
 
 Regional profiles may use command 53 to set the shortest far plane that
 contains their selected horizon. The provisional Bay Area value is `8000`
@@ -308,9 +322,9 @@ pattern phase is deterministic and its exact appearance remains subject to
 visual acceptance. Detailed terminal forms, gates, roof furniture, and facade
 textures are not inferred from a footprint.
 
-## Initial qualification matrix
+## Historical rectangular qualification matrix
 
-The first terrain benchmark compares:
+The original terrain benchmark plan compared:
 
 1. a single-mesh control;
 2. 512 m chunks at one static detail level; and
@@ -318,9 +332,12 @@ The first terrain benchmark compares:
 
 It records objects retained and frustum-rejected, submitted triangles,
 renderer time, mesh and manifest bytes, Pingo-owned allocation/PSRAM use,
-visible cracks, horizon stability, and low-altitude motion cues. Emulator
-images establish deterministic correctness; physical Agon hardware remains
-the performance and presentation ground truth.
+visible cracks, horizon stability, and low-altitude motion cues. This matrix is
+preserved as experiment history, not as a prerequisite for hex development or
+a directive to extend the square-cell implementation. Current qualification is
+defined by the hex design and universal-manager runtime contract. Emulator
+images establish deterministic correctness; physical Agon hardware remains the
+performance and presentation ground truth.
 
 Commands 52 and 53 currently exist only as experimental firmware work. Their
 native userspace bridge, diagnostic, and sanitizer coverage passes, including

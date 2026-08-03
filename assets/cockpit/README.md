@@ -16,3 +16,9 @@ Provenance:
 The PNG is source art. Do not hand-edit a generated `.rgba2` derivative and
 treat it as authoritative. Runtime conversions must be deterministic and
 record their generator and input checksum.
+
+The experimental procedural reconstruction is defined by
+`src/pingo_terrain/cockpit_panel.py`; it reads no pixels from this PNG.  Its
+Pillow review backend and eventual assembly backend share the same integer
+drawing program.  See `docs/cockpit-panel-generator.md`.  Until that
+reconstruction is visually accepted, this file remains its visual reference.
