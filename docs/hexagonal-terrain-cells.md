@@ -172,7 +172,16 @@ This construction avoids both failure modes seen in earlier experiments:
 
 1. diagonally bisected rectangular quads do not reappear inside the cell; and
 2. independently normalized boundary meshes cannot acquire different physical
-scales and open seams.
+   scales and open seams.
+
+The equilateral lattice is the default elevation-sampling framework and a
+well-conditioned interior triangulation, not an authority that may override
+natural or authored feature geometry. Water outlines, coastlines, airport
+properties, and later categorical constraints may cut and retriangulate a
+cell's interior. They must preserve the cell's canonical six-edge perimeter,
+but their constrained triangles need not be equilateral. This distinction
+prevents regular lattice faces from turning a small rounded lake into one or
+two conspicuous artificial triangles.
 
 Same-LOD neighbors should join exactly. Mixed-LOD cells initially retain the
 accepted skirt policy, generalized to six edges. A future stitch pattern must

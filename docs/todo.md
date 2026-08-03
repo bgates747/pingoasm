@@ -19,7 +19,11 @@ this file, and update any affected specification.
   and validates every indexed container, including distant cells. Retain both
   reproducibly; implement and qualify hex-native mixed LOD using the accepted
   mathematical silhouette-error and seam contract. Named regional features
-  remain human review witnesses rather than compiler inputs.
+  remain human review witnesses rather than compiler inputs. First run the
+  isolated Lake Anza control/candidate experiment specified by that contract:
+  compare regular material voting with topology-preserving constrained water
+  contours and multiple distance tiers in a dedicated Blender artifact, then
+  profile the NumPy-first host implementation before considering native code.
 - [ ] **J1 — Position-driven terrain streaming:** the multi-record AGNB family,
   bounded host selector, eZ80 `ffs_flseek` selected-record loader, two-bank
   render-idle publication, floating-origin rebase, and a natural

@@ -281,6 +281,64 @@ distant vocabulary, but the mapping is a pinned table.  Geometry selection and
 material voting remain separate: a dominant material must not erase a
 protected geometric or categorical boundary.
 
+## Feature-aware near geometry and boundary LOD
+
+The regular triangular lattice remains useful as a source-sampling framework
+and as a high-quality default fill in unconstrained interiors. It is not the
+final topology wherever a categorical boundary carries visible shape. A lake,
+coastline, or airport property must not inherit a triangular outline merely
+because its source classes were previously voted onto regular faces.
+
+For each retained categorical region, the compiler therefore:
+
+1. extracts a deterministic contour from the pinned classification raster;
+2. removes source-pixel staircase noise within a declared source-resolution
+   tolerance while preserving topology;
+3. simplifies the contour to the LOD tier's projected horizontal-error and
+   minimum-feature-size bounds;
+4. installs the resulting vertices and segments as triangulation constraints;
+5. triangulates the feature and surrounding terrain without overlapping or
+   coincident faces; and
+6. refines poor local triangles to satisfy a declared minimum-angle or
+   equivalent quality bound.
+
+External hex seams remain canonical and immutable. Interior constrained faces
+need not be equilateral. A constrained Delaunay-style triangulation is a
+candidate because it favors well-shaped triangles while honoring mandatory
+segments, but the accepted contract is expressed in topology, error, and
+quality bounds rather than the name of one library or algorithm.
+
+Boundary simplification is the horizontal counterpart to height and skyline
+simplification. For focal scale `f` pixels, observer distance `d`, and maximum
+world-space perpendicular contour deviation `delta`, its small-angle screen
+error is approximately
+
+```text
+e_boundary_px = f * delta / d.
+```
+
+Acceptance may instead project and measure the source and candidate contours
+directly; direct measurement is preferred near the camera. Near LOD retains a
+detailed but numerically smoothed outline, middle LOD uses fewer constrained
+segments, far LOD may retain only a compact polygon, and a feature disappears
+only when its projected area and boundary displacement meet declared omission
+bounds. Every tier derives its contour from the authoritative categorical
+source, not recursively from the preceding tier's polygon.
+
+Topology is a hard constraint. Smoothing or simplification must not create a
+self-intersection, invert a ring, merge separate water bodies, close a channel,
+or delete an island unless an explicit tier-level feature-size rule permits
+that complete topological change. Shared feature crossings at component edges
+use the same canonical keys on both sides. Water and surrounding land then
+stitch at one boundary rather than relying on coplanar overlays or material
+votes that expose triangular bites.
+
+Flat shading makes this requirement more important than geometric residuals
+alone suggest. Each face is also a visible color and illumination patch.
+Aligning faces with shorelines and other constraints improves material shape,
+lighting coherence, and dithering even where the height field itself is nearly
+flat.
+
 ## Adaptive constrained triangulation
 
 Each component begins with a mandatory constraint set:
@@ -311,6 +369,63 @@ in the earliest rectangular experiment.
 
 Every LOD is triangulated from authoritative source samples and constraints.
 A far mesh is not made by loading a middle mesh and simplifying it again.
+
+## Host implementation policy
+
+The first implementation remains Python orchestrating NumPy arrays. DEM
+resampling, finite differences, raster masks, contour preparation, observer
+batches, cumulative horizon maxima, projected-error evaluation, material
+voting, coordinate transformation, and P3DM quantization are all suitable for
+vectorized or chunked array processing. Independent components or observer
+batches may be processed in parallel only with deterministic reduction and
+file ordering.
+
+The compiler must keep small scalar reference implementations for important
+equations and compare vectorized results against them in tests. Full-corpus
+profiling, with separate wall-time and peak-memory measurements by phase,
+precedes any native optimization. The preferred response to a slow build is
+first to improve batching, spatial restriction, cumulative algorithms, data
+layout, and reuse of source-space intermediates.
+
+Custom C or C++ extensions are not part of the initial design. They become a
+candidate only when profiling identifies a stable, isolated kernel whose time
+is dominated by Python object or topology-mutation overhead and for which an
+established compiled geometry library is unsuitable. Likely candidates are
+incremental constrained retriangulation, large seam-ledger topology passes, or
+batched horizon evaluation. Provenance, build profiles, diagnostics, Blender
+generation, and orchestration remain in Python even if such a kernel is later
+introduced.
+
+## Controlled Lake Anza experiment
+
+Before changing the accepted regional L0 corpus, the compiler will run a
+controlled experiment centered on Lake Anza in Tilden Regional Park. The lake
+is a deliberately human-chosen review witness—the Author's favorite childhood
+watering hole—but its outline and retained vertices must come only from pinned
+elevation and categorical data plus declared numerical rules.
+
+The experiment preserves the current regular hex mesh as its control and emits
+separate candidate artifacts. It must include enough surrounding relief and
+cell context to exercise shoreline triangulation and any component-edge
+crossing; it must not overwrite the full-corpus Blender file or P3DM records.
+At minimum it compares:
+
+1. existing regular-lattice material voting;
+2. source contour before smoothing;
+3. numerically smoothed, topology-preserving near contour;
+4. constrained near triangulation with elevation and triangle-quality
+   refinement; and
+5. at least two progressively simplified boundary/terrain LOD candidates.
+
+Each candidate records source and profile checksums, boundary vertex count,
+terrain vertex and triangle counts, maximum source-space and projected contour
+error, elevation and horizon errors, minimum triangle angle, topology results,
+seam results, packed P3DM bytes, build time, and peak host memory. A dedicated
+Blender comparison file is mandatory and must expose control, contours,
+constraints, tiers, and error witnesses as independently selectable
+collections. Human review asks whether Lake Anza reads as a small natural lake
+nearby and degrades gracefully with distance; numerical failures cannot be
+waived by that visual result.
 
 ## Tier geometry and selection
 
