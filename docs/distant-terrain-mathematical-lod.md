@@ -427,6 +427,93 @@ collections. Human review asks whether Lake Anza reads as a small natural lake
 nearby and degrades gracefully with distance; numerical failures cannot be
 waived by that visual result.
 
+### Future refinement note: protected edges, then adaptive interiors
+
+A later compiler experiment may split feature-aware construction into two
+passes. The first pass would detect and protect categorical edges—water/land,
+coastlines, airport properties—and mechanically detected geometric edges such
+as large elevation residuals, curvature ridges, or horizon contributors. The
+second pass would triangulate the remaining homogeneous interiors at a coarser
+density governed by the ordinary projected-error bounds. Small features could
+therefore retain smooth contours without forcing their dense sampling rate
+across uniform surrounding terrain.
+
+This is recognizably an edge-finding problem, but it introduces no image-style
+heuristic into the current acceptance contract: every edge detector would need
+a pinned source field, stencil, threshold, topology rule, and deterministic tie
+policy. It should use the same overbuild-then-canonical-clip construction so
+cell cuts do not bias the detected geometry. This paragraph records a future
+refinement only; the Lake Anza comparison remains the bounded single-feature
+experiment specified above.
+
+### Future automatic feature discovery
+
+The production compiler should not maintain a hand-authored list of lakes,
+islands, ridges, or other places that deserve smooth geometry. Lake Anza is a
+human-selected experimental witness, but its 39-pixel water component and
+boundary were discovered mechanically. A general feature pass should apply the
+same operation to every source component that satisfies declared retention
+rules.
+
+Edge sources have a strict order of preference:
+
+1. attributable vector GIS boundaries, when their resolution, date, CRS, and
+   topology are suitable;
+2. transitions between labels in pinned categorical rasters such as NLCD;
+3. numerical structure derived from the pinned DEM; and
+4. generic continuous-image edge detectors only where the input is genuinely
+   continuous and no semantic boundary source exists.
+
+Categorical class numbers have no meaningful numerical distance. Sobel, Canny,
+or similar intensity-gradient operators must not be applied directly to NLCD
+labels. The appropriate categorical operations are four-connected component
+labeling, class-transition extraction, contour construction, polygon union,
+hole detection, topology-preserving smoothing, and bounded simplification.
+Every retained edge also records the class pair on its two sides so a profile
+can distinguish a strong water/land shoreline from a less important transition
+between visually similar vegetation classes.
+
+Water topology is defined without place names. A water body is a connected
+water component; an island is an enclosed non-water component, equivalently a
+hole in a water polygon. Channels, holes, and separate islands remain distinct
+until an explicit LOD rule permits a topology change. Source resolution remains
+a hard limit: smoothing a 30-metre classification contour may remove staircase
+noise but cannot recover an island or channel absent from the raster. A suitable
+vector hydrography layer may supersede the raster outline under a separately
+pinned build profile.
+
+DEM-derived edges use numerical rather than categorical evidence. Candidate
+signals include local height residual from a support plane, gradient magnitude,
+curvature and curvature sign changes, ridge or drainage structure, local
+extrema, surface-normal change, and horizon-envelope contribution. Each signal
+requires a fixed stencil or construction, units, threshold, boundary policy,
+quantization, and deterministic tie ordering.
+
+The future first pass may combine accepted edges into a protected feature graph:
+
+```text
+categorical and vector boundaries
++ water components, holes, islands, and channels
++ airport property boundaries
++ DEM-derived ridges, valleys, and residual extrema
++ protected horizon samples
++ canonical terrain-cell seams
+```
+
+The second pass triangulates the homogeneous regions between graph constraints
+at the coarsest density that satisfies elevation, projected-boundary, horizon,
+material, topology, and triangle-quality bounds. Component retention and LOD
+priority should be computed from world and projected area, perimeter, maximum
+boundary error, contrast across the edge, minimum or bottleneck width,
+topological role, local relief, horizon contribution, and cell crossings.
+Topology may outrank area: a small island or narrow strait can carry more visual
+information than a larger low-contrast vegetation patch.
+
+This is a research direction, not an implemented or accepted compiler stage.
+The first follow-up should remove Lake Anza's identity from the selection logic,
+run water-component discovery across a bounded multi-cell region, and report
+which features survive purely numerical retention rules.
+
 ## Tier geometry and selection
 
 Memory permits a generous hierarchy: the Agon VDP has 4 MiB of PSRAM available

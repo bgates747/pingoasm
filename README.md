@@ -101,6 +101,21 @@ The checker treats unsuffixed wide-register memory transfers as 24-bit under
 ADL and rejects named `dw`/two-byte targets unless a reviewed three-byte
 contract is documented with `ADL24 OK: <reason>`.
 
+## Lake Anza feature-aware comparison
+
+The controlled seven-cell comparison decodes the accepted regular P3DM control
+and builds a feature-constrained candidate from a 19-cell overbuild context:
+
+```bash
+blender --background --python scripts/build_lake_anza_blender.py -- \
+  --render-preview
+blender build/visualization/lake-anza-control-vs-feature-aware.blend
+```
+
+The generated `.blend`, preview, and evidence receipt remain under ignored
+`build/visualization/`; the generator, contour/crossing logic, tests, and
+durable measurements are tracked.
+
 ## Emulator
 
 Build the current combined native VDP, then provision this repository's

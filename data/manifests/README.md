@@ -32,3 +32,9 @@ normalization contract, and aggregate geometry/byte counts.
 superseding 50,183-cell N=5 hexagonal corpus. In addition to the runtime
 `WORLD.json`, it binds the mandatory complete-region Blender review artifact
 and records the six straight-side boundary contract.
+
+`lake-anza-feature-aware-2026-08-02.json` is the tracked experiment receipt for
+the seven-cell regular/control versus feature-aware Blender comparison. It
+binds the pinned regional source manifest, selected cells, canonical geometry,
+constraint and seam evidence, deterministic rebuild, and ignored review-file
+hashes without promoting the candidate into the accepted regional corpus.
