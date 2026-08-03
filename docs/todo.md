@@ -26,9 +26,14 @@ this file, and update any affected specification.
   profile the NumPy-first host implementation before considering native code.
   A separately accepted experiment now generates a natural adaptive master
   surface before routing bounded roughly hex-addressed partitions through its
-  existing edges. Build and review its complete-region Blender artifact first;
-  do not replace the accepted straight-sided runtime corpus until partition,
-  containment, LOD, collision, culling, and hardware gates pass.
+  existing edges. Its checksum-verified complete-region Blender artifact now
+  proves a deterministic 497,767-vertex/992,477-face surface and nonempty,
+  connected, sub-1,024 m physical components. Next decide whether runtime
+  promotion requires exact canonical six-neighbor combinatorics or accepts the
+  artifact's explicit physical graph; repair 0.180-degree constraint slivers
+  and implement nested LOD seams either way. Do not replace the accepted
+  straight-sided runtime corpus until partition, containment, LOD, collision,
+  culling, and hardware gates pass.
 - [ ] **J1 — Position-driven terrain streaming:** the multi-record AGNB family,
   bounded host selector, eZ80 `ffs_flseek` selected-record loader, two-bank
   render-idle publication, floating-origin rebase, and a natural

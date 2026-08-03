@@ -120,6 +120,24 @@ The generated `.blend`, preview, and evidence receipt remain under ignored
 `build/visualization/`; the generator, contour/crossing logic, tests, and
 durable measurements are tracked.
 
+## Natural full-region post-partition experiment
+
+The complete Bay Area experiment builds one adaptive water-constrained master
+surface before assigning its finished faces to connected roughly hex-addressed
+components:
+
+```bash
+blender --background --python scripts/build_natural_region_blender.py -- \
+  --render-preview
+blender build/visualization/bay-area-natural-post-partition.blend
+```
+
+The terrain object exposes source-count/elevation point attributes and
+material/logical-owner face attributes. Hidden diagnostic objects expose all
+50,183 logical seeds and the irregular physical partition edges. This is a
+review artifact, not a promoted runtime corpus; the accepted straight-sided
+N=5 P3DM corpus remains unchanged.
+
 ## Emulator
 
 Build the current combined native VDP, then provision this repository's
