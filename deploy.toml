@@ -1,0 +1,32 @@
+schema = 1
+project = "pingoasm"
+default_profile = "emulator"
+default_sd_mount = "/media/smith/AGON"
+expected_sd_label = "AGON"
+
+[bundles.earth-party-textured]
+collection = "apps"
+source = "apps/earth-party-tex/tgt"
+destination = "mystuff/pingoasm/deploy/apps/earth-party-textured"
+require = ["earth-party.bin"]
+entry = "earth-party.bin"
+
+[bundles.earth-party-flat]
+collection = "apps"
+source = "apps/earth-party-flat/tgt"
+destination = "mystuff/pingoasm/deploy/apps/earth-party-flat"
+require = ["earth-party-flat.bin"]
+entry = "earth-party-flat.bin"
+
+[bundles.fsim]
+collection = "tests"
+source = "tests/apps/movefsim/tgt"
+destination = "mystuff/pingoasm/deploy/tests/fsim"
+require = ["fsim.bin", "fsimpanel.rgba2"]
+entry = "fsim.bin"
+
+[suites.earth-party]
+bundles = ["earth-party-textured", "earth-party-flat"]
+
+[suites.selected-fixtures]
+bundles = ["earth-party-textured", "earth-party-flat", "fsim"]

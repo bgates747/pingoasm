@@ -97,6 +97,25 @@ load anim.bin
 run
 ```
 
+For repeatable Wayland video capture, first save a portal-approved emulator
+window source in OBS:
+
+```bash
+apps/anim/capture-emulator.sh --setup
+```
+
+In OBS, add **Window Capture (PipeWire)**, select the Fab Agon Emulator in the
+desktop portal, and fit it to the canvas. Subsequent captures are automatic:
+
+```bash
+apps/anim/capture-emulator.sh
+```
+
+OBS starts minimized and recording after the emulator window appears. Exiting
+the emulator stops and finalizes OBS. The script deliberately rejects a
+whole-screen source and an already-running OBS instance; Wayland's initial
+window-sharing consent cannot be bypassed headlessly.
+
 For hardware, use the ordinary application deployer:
 
 ```bash
