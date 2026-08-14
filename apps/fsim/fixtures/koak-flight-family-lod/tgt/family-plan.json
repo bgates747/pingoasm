@@ -1,0 +1,1171 @@
+{
+  "current_family": [
+    23,
+    36
+  ],
+  "loads": [
+    {
+      "activate_after_load": true,
+      "center_counts": [
+        761856,
+        1183744
+      ],
+      "component": {
+        "component_key": "N00",
+        "super_x": 23,
+        "super_y": 36,
+        "tier": "near"
+      },
+      "expected": {
+        "illumination": 0,
+        "layer_kind": 0,
+        "lod": 0,
+        "material_set": 0,
+        "shading_mode": 2,
+        "tile_x": 92,
+        "tile_y": 144
+      },
+      "family_id": 1859,
+      "path": "RGN/07/43.AGN",
+      "phase": "BOOT_L0",
+      "record_index": 2,
+      "scale_q8_8": 24576,
+      "slot": 1
+    },
+    {
+      "activate_after_load": true,
+      "center_counts": [
+        778240,
+        1183744
+      ],
+      "component": {
+        "component_key": "N01",
+        "super_x": 23,
+        "super_y": 36,
+        "tier": "near"
+      },
+      "expected": {
+        "illumination": 0,
+        "layer_kind": 0,
+        "lod": 0,
+        "material_set": 0,
+        "shading_mode": 2,
+        "tile_x": 94,
+        "tile_y": 144
+      },
+      "family_id": 1859,
+      "path": "RGN/07/43.AGN",
+      "phase": "BOOT_L0",
+      "record_index": 3,
+      "scale_q8_8": 24576,
+      "slot": 2
+    },
+    {
+      "activate_after_load": true,
+      "center_counts": [
+        761856,
+        1191936
+      ],
+      "component": {
+        "component_key": "N02",
+        "super_x": 23,
+        "super_y": 36,
+        "tier": "near"
+      },
+      "expected": {
+        "illumination": 0,
+        "layer_kind": 0,
+        "lod": 0,
+        "material_set": 0,
+        "shading_mode": 2,
+        "tile_x": 92,
+        "tile_y": 145
+      },
+      "family_id": 1859,
+      "path": "RGN/07/43.AGN",
+      "phase": "BOOT_L0",
+      "record_index": 4,
+      "scale_q8_8": 24576,
+      "slot": 3
+    },
+    {
+      "activate_after_load": true,
+      "center_counts": [
+        778240,
+        1191936
+      ],
+      "component": {
+        "component_key": "N03",
+        "super_x": 23,
+        "super_y": 36,
+        "tier": "near"
+      },
+      "expected": {
+        "illumination": 0,
+        "layer_kind": 0,
+        "lod": 0,
+        "material_set": 0,
+        "shading_mode": 2,
+        "tile_x": 94,
+        "tile_y": 145
+      },
+      "family_id": 1859,
+      "path": "RGN/07/43.AGN",
+      "phase": "BOOT_L0",
+      "record_index": 5,
+      "scale_q8_8": 24576,
+      "slot": 4
+    },
+    {
+      "activate_after_load": true,
+      "center_counts": [
+        761856,
+        1200128
+      ],
+      "component": {
+        "component_key": "N04",
+        "super_x": 23,
+        "super_y": 36,
+        "tier": "near"
+      },
+      "expected": {
+        "illumination": 0,
+        "layer_kind": 0,
+        "lod": 0,
+        "material_set": 0,
+        "shading_mode": 2,
+        "tile_x": 92,
+        "tile_y": 146
+      },
+      "family_id": 1859,
+      "path": "RGN/07/43.AGN",
+      "phase": "BOOT_L0",
+      "record_index": 6,
+      "scale_q8_8": 24576,
+      "slot": 5
+    },
+    {
+      "activate_after_load": true,
+      "center_counts": [
+        778240,
+        1200128
+      ],
+      "component": {
+        "component_key": "N05",
+        "super_x": 23,
+        "super_y": 36,
+        "tier": "near"
+      },
+      "expected": {
+        "illumination": 0,
+        "layer_kind": 0,
+        "lod": 0,
+        "material_set": 0,
+        "shading_mode": 2,
+        "tile_x": 94,
+        "tile_y": 146
+      },
+      "family_id": 1859,
+      "path": "RGN/07/43.AGN",
+      "phase": "BOOT_L0",
+      "record_index": 7,
+      "scale_q8_8": 24576,
+      "slot": 6
+    },
+    {
+      "activate_after_load": true,
+      "center_counts": [
+        761856,
+        1208320
+      ],
+      "component": {
+        "component_key": "N06",
+        "super_x": 23,
+        "super_y": 36,
+        "tier": "near"
+      },
+      "expected": {
+        "illumination": 0,
+        "layer_kind": 0,
+        "lod": 0,
+        "material_set": 0,
+        "shading_mode": 2,
+        "tile_x": 92,
+        "tile_y": 147
+      },
+      "family_id": 1859,
+      "path": "RGN/07/43.AGN",
+      "phase": "BOOT_L0",
+      "record_index": 8,
+      "scale_q8_8": 24576,
+      "slot": 7
+    },
+    {
+      "activate_after_load": true,
+      "center_counts": [
+        778240,
+        1208320
+      ],
+      "component": {
+        "component_key": "N07",
+        "super_x": 23,
+        "super_y": 36,
+        "tier": "near"
+      },
+      "expected": {
+        "illumination": 0,
+        "layer_kind": 0,
+        "lod": 0,
+        "material_set": 0,
+        "shading_mode": 2,
+        "tile_x": 94,
+        "tile_y": 147
+      },
+      "family_id": 1859,
+      "path": "RGN/07/43.AGN",
+      "phase": "BOOT_L0",
+      "record_index": 9,
+      "scale_q8_8": 24576,
+      "slot": 8
+    },
+    {
+      "activate_after_load": true,
+      "center_counts": [
+        737280,
+        1163264
+      ],
+      "component": {
+        "component_key": "D1",
+        "super_x": 22,
+        "super_y": 35,
+        "tier": "transition"
+      },
+      "expected": {
+        "illumination": 0,
+        "layer_kind": 0,
+        "lod": 1,
+        "material_set": 0,
+        "shading_mode": 2,
+        "tile_x": 88,
+        "tile_y": 140
+      },
+      "family_id": 1807,
+      "path": "RGN/07/0F.AGN",
+      "phase": "RECONCILE_D1",
+      "record_index": 1,
+      "scale_q8_8": 32768,
+      "slot": 17
+    },
+    {
+      "activate_after_load": true,
+      "center_counts": [
+        770048,
+        1163264
+      ],
+      "component": {
+        "component_key": "D1",
+        "super_x": 23,
+        "super_y": 35,
+        "tier": "transition"
+      },
+      "expected": {
+        "illumination": 0,
+        "layer_kind": 0,
+        "lod": 1,
+        "material_set": 0,
+        "shading_mode": 2,
+        "tile_x": 92,
+        "tile_y": 140
+      },
+      "family_id": 1808,
+      "path": "RGN/07/10.AGN",
+      "phase": "RECONCILE_D1",
+      "record_index": 1,
+      "scale_q8_8": 32768,
+      "slot": 18
+    },
+    {
+      "activate_after_load": true,
+      "center_counts": [
+        802816,
+        1163264
+      ],
+      "component": {
+        "component_key": "D1",
+        "super_x": 24,
+        "super_y": 35,
+        "tier": "transition"
+      },
+      "expected": {
+        "illumination": 0,
+        "layer_kind": 0,
+        "lod": 1,
+        "material_set": 0,
+        "shading_mode": 2,
+        "tile_x": 96,
+        "tile_y": 140
+      },
+      "family_id": 1809,
+      "path": "RGN/07/11.AGN",
+      "phase": "RECONCILE_D1",
+      "record_index": 1,
+      "scale_q8_8": 32768,
+      "slot": 19
+    },
+    {
+      "activate_after_load": true,
+      "center_counts": [
+        737280,
+        1196032
+      ],
+      "component": {
+        "component_key": "D1",
+        "super_x": 22,
+        "super_y": 36,
+        "tier": "transition"
+      },
+      "expected": {
+        "illumination": 0,
+        "layer_kind": 0,
+        "lod": 1,
+        "material_set": 0,
+        "shading_mode": 2,
+        "tile_x": 88,
+        "tile_y": 144
+      },
+      "family_id": 1858,
+      "path": "RGN/07/42.AGN",
+      "phase": "RECONCILE_D1",
+      "record_index": 1,
+      "scale_q8_8": 32768,
+      "slot": 20
+    },
+    {
+      "activate_after_load": true,
+      "center_counts": [
+        802816,
+        1196032
+      ],
+      "component": {
+        "component_key": "D1",
+        "super_x": 24,
+        "super_y": 36,
+        "tier": "transition"
+      },
+      "expected": {
+        "illumination": 0,
+        "layer_kind": 0,
+        "lod": 1,
+        "material_set": 0,
+        "shading_mode": 2,
+        "tile_x": 96,
+        "tile_y": 144
+      },
+      "family_id": 1860,
+      "path": "RGN/07/44.AGN",
+      "phase": "RECONCILE_D1",
+      "record_index": 1,
+      "scale_q8_8": 32768,
+      "slot": 21
+    },
+    {
+      "activate_after_load": true,
+      "center_counts": [
+        737280,
+        1228800
+      ],
+      "component": {
+        "component_key": "D1",
+        "super_x": 22,
+        "super_y": 37,
+        "tier": "transition"
+      },
+      "expected": {
+        "illumination": 0,
+        "layer_kind": 0,
+        "lod": 1,
+        "material_set": 0,
+        "shading_mode": 2,
+        "tile_x": 88,
+        "tile_y": 148
+      },
+      "family_id": 1909,
+      "path": "RGN/07/75.AGN",
+      "phase": "RECONCILE_D1",
+      "record_index": 1,
+      "scale_q8_8": 32768,
+      "slot": 22
+    },
+    {
+      "activate_after_load": true,
+      "center_counts": [
+        770048,
+        1228800
+      ],
+      "component": {
+        "component_key": "D1",
+        "super_x": 23,
+        "super_y": 37,
+        "tier": "transition"
+      },
+      "expected": {
+        "illumination": 0,
+        "layer_kind": 0,
+        "lod": 1,
+        "material_set": 0,
+        "shading_mode": 2,
+        "tile_x": 92,
+        "tile_y": 148
+      },
+      "family_id": 1910,
+      "path": "RGN/07/76.AGN",
+      "phase": "RECONCILE_D1",
+      "record_index": 1,
+      "scale_q8_8": 32768,
+      "slot": 23
+    },
+    {
+      "activate_after_load": true,
+      "center_counts": [
+        802816,
+        1228800
+      ],
+      "component": {
+        "component_key": "D1",
+        "super_x": 24,
+        "super_y": 37,
+        "tier": "transition"
+      },
+      "expected": {
+        "illumination": 0,
+        "layer_kind": 0,
+        "lod": 1,
+        "material_set": 0,
+        "shading_mode": 2,
+        "tile_x": 96,
+        "tile_y": 148
+      },
+      "family_id": 1911,
+      "path": "RGN/07/77.AGN",
+      "phase": "RECONCILE_D1",
+      "record_index": 1,
+      "scale_q8_8": 32768,
+      "slot": 24
+    },
+    {
+      "activate_after_load": true,
+      "center_counts": [
+        704512,
+        1196032
+      ],
+      "component": {
+        "component_key": "D2",
+        "super_x": 21,
+        "super_y": 36,
+        "tier": "distant"
+      },
+      "expected": {
+        "illumination": 0,
+        "layer_kind": 0,
+        "lod": 2,
+        "material_set": 0,
+        "shading_mode": 2,
+        "tile_x": 84,
+        "tile_y": 144
+      },
+      "family_id": 1857,
+      "path": "RGN/07/41.AGN",
+      "phase": "RECONCILE_D2",
+      "record_index": 0,
+      "scale_q8_8": 32768,
+      "slot": 29
+    },
+    {
+      "activate_after_load": true,
+      "center_counts": [
+        671744,
+        1196032
+      ],
+      "component": {
+        "component_key": "D2",
+        "super_x": 20,
+        "super_y": 36,
+        "tier": "distant"
+      },
+      "expected": {
+        "illumination": 0,
+        "layer_kind": 0,
+        "lod": 2,
+        "material_set": 0,
+        "shading_mode": 2,
+        "tile_x": 80,
+        "tile_y": 144
+      },
+      "family_id": 1856,
+      "path": "RGN/07/40.AGN",
+      "phase": "RECONCILE_D2",
+      "record_index": 0,
+      "scale_q8_8": 32768,
+      "slot": 30
+    },
+    {
+      "activate_after_load": true,
+      "center_counts": [
+        638976,
+        1196032
+      ],
+      "component": {
+        "component_key": "D2",
+        "super_x": 19,
+        "super_y": 36,
+        "tier": "distant"
+      },
+      "expected": {
+        "illumination": 0,
+        "layer_kind": 0,
+        "lod": 2,
+        "material_set": 0,
+        "shading_mode": 2,
+        "tile_x": 76,
+        "tile_y": 144
+      },
+      "family_id": 1855,
+      "path": "RGN/07/3F.AGN",
+      "phase": "RECONCILE_D2",
+      "record_index": 0,
+      "scale_q8_8": 32768,
+      "slot": 31
+    },
+    {
+      "activate_after_load": true,
+      "center_counts": [
+        606208,
+        1196032
+      ],
+      "component": {
+        "component_key": "D2",
+        "super_x": 18,
+        "super_y": 36,
+        "tier": "distant"
+      },
+      "expected": {
+        "illumination": 0,
+        "layer_kind": 0,
+        "lod": 2,
+        "material_set": 0,
+        "shading_mode": 2,
+        "tile_x": 72,
+        "tile_y": 144
+      },
+      "family_id": 1854,
+      "path": "RGN/07/3E.AGN",
+      "phase": "RECONCILE_D2",
+      "record_index": 0,
+      "scale_q8_8": 32768,
+      "slot": 32
+    },
+    {
+      "activate_after_load": true,
+      "center_counts": [
+        573440,
+        1196032
+      ],
+      "component": {
+        "component_key": "D2",
+        "super_x": 17,
+        "super_y": 36,
+        "tier": "distant"
+      },
+      "expected": {
+        "illumination": 0,
+        "layer_kind": 0,
+        "lod": 2,
+        "material_set": 0,
+        "shading_mode": 2,
+        "tile_x": 68,
+        "tile_y": 144
+      },
+      "family_id": 1853,
+      "path": "RGN/07/3D.AGN",
+      "phase": "RECONCILE_D2",
+      "record_index": 0,
+      "scale_q8_8": 32768,
+      "slot": 33
+    },
+    {
+      "activate_after_load": true,
+      "center_counts": [
+        540672,
+        1196032
+      ],
+      "component": {
+        "component_key": "D2",
+        "super_x": 16,
+        "super_y": 36,
+        "tier": "distant"
+      },
+      "expected": {
+        "illumination": 0,
+        "layer_kind": 0,
+        "lod": 2,
+        "material_set": 0,
+        "shading_mode": 2,
+        "tile_x": 64,
+        "tile_y": 144
+      },
+      "family_id": 1852,
+      "path": "RGN/07/3C.AGN",
+      "phase": "RECONCILE_D2",
+      "record_index": 0,
+      "scale_q8_8": 32768,
+      "slot": 34
+    },
+    {
+      "activate_after_load": true,
+      "center_counts": [
+        507904,
+        1196032
+      ],
+      "component": {
+        "component_key": "D2",
+        "super_x": 15,
+        "super_y": 36,
+        "tier": "distant"
+      },
+      "expected": {
+        "illumination": 0,
+        "layer_kind": 0,
+        "lod": 2,
+        "material_set": 0,
+        "shading_mode": 2,
+        "tile_x": 60,
+        "tile_y": 144
+      },
+      "family_id": 1851,
+      "path": "RGN/07/3B.AGN",
+      "phase": "RECONCILE_D2",
+      "record_index": 0,
+      "scale_q8_8": 32768,
+      "slot": 35
+    },
+    {
+      "activate_after_load": true,
+      "center_counts": [
+        475136,
+        1196032
+      ],
+      "component": {
+        "component_key": "D2",
+        "super_x": 14,
+        "super_y": 36,
+        "tier": "distant"
+      },
+      "expected": {
+        "illumination": 0,
+        "layer_kind": 0,
+        "lod": 2,
+        "material_set": 0,
+        "shading_mode": 2,
+        "tile_x": 56,
+        "tile_y": 144
+      },
+      "family_id": 1850,
+      "path": "RGN/07/3A.AGN",
+      "phase": "RECONCILE_D2",
+      "record_index": 0,
+      "scale_q8_8": 32768,
+      "slot": 36
+    },
+    {
+      "activate_after_load": false,
+      "center_counts": [
+        729088,
+        1183744
+      ],
+      "component": {
+        "component_key": "N00",
+        "super_x": 22,
+        "super_y": 36,
+        "tier": "near"
+      },
+      "expected": {
+        "illumination": 0,
+        "layer_kind": 0,
+        "lod": 0,
+        "material_set": 0,
+        "shading_mode": 2,
+        "tile_x": 88,
+        "tile_y": 144
+      },
+      "family_id": 1858,
+      "path": "RGN/07/42.AGN",
+      "phase": "PRELOAD_NEXT_L0",
+      "record_index": 2,
+      "scale_q8_8": 24576,
+      "slot": 9
+    },
+    {
+      "activate_after_load": false,
+      "center_counts": [
+        745472,
+        1183744
+      ],
+      "component": {
+        "component_key": "N01",
+        "super_x": 22,
+        "super_y": 36,
+        "tier": "near"
+      },
+      "expected": {
+        "illumination": 0,
+        "layer_kind": 0,
+        "lod": 0,
+        "material_set": 0,
+        "shading_mode": 2,
+        "tile_x": 90,
+        "tile_y": 144
+      },
+      "family_id": 1858,
+      "path": "RGN/07/42.AGN",
+      "phase": "PRELOAD_NEXT_L0",
+      "record_index": 3,
+      "scale_q8_8": 24576,
+      "slot": 10
+    },
+    {
+      "activate_after_load": false,
+      "center_counts": [
+        729088,
+        1191936
+      ],
+      "component": {
+        "component_key": "N02",
+        "super_x": 22,
+        "super_y": 36,
+        "tier": "near"
+      },
+      "expected": {
+        "illumination": 0,
+        "layer_kind": 0,
+        "lod": 0,
+        "material_set": 0,
+        "shading_mode": 2,
+        "tile_x": 88,
+        "tile_y": 145
+      },
+      "family_id": 1858,
+      "path": "RGN/07/42.AGN",
+      "phase": "PRELOAD_NEXT_L0",
+      "record_index": 4,
+      "scale_q8_8": 24576,
+      "slot": 11
+    },
+    {
+      "activate_after_load": false,
+      "center_counts": [
+        745472,
+        1191936
+      ],
+      "component": {
+        "component_key": "N03",
+        "super_x": 22,
+        "super_y": 36,
+        "tier": "near"
+      },
+      "expected": {
+        "illumination": 0,
+        "layer_kind": 0,
+        "lod": 0,
+        "material_set": 0,
+        "shading_mode": 2,
+        "tile_x": 90,
+        "tile_y": 145
+      },
+      "family_id": 1858,
+      "path": "RGN/07/42.AGN",
+      "phase": "PRELOAD_NEXT_L0",
+      "record_index": 5,
+      "scale_q8_8": 24576,
+      "slot": 12
+    },
+    {
+      "activate_after_load": false,
+      "center_counts": [
+        729088,
+        1200128
+      ],
+      "component": {
+        "component_key": "N04",
+        "super_x": 22,
+        "super_y": 36,
+        "tier": "near"
+      },
+      "expected": {
+        "illumination": 0,
+        "layer_kind": 0,
+        "lod": 0,
+        "material_set": 0,
+        "shading_mode": 2,
+        "tile_x": 88,
+        "tile_y": 146
+      },
+      "family_id": 1858,
+      "path": "RGN/07/42.AGN",
+      "phase": "PRELOAD_NEXT_L0",
+      "record_index": 6,
+      "scale_q8_8": 24576,
+      "slot": 13
+    },
+    {
+      "activate_after_load": false,
+      "center_counts": [
+        745472,
+        1200128
+      ],
+      "component": {
+        "component_key": "N05",
+        "super_x": 22,
+        "super_y": 36,
+        "tier": "near"
+      },
+      "expected": {
+        "illumination": 0,
+        "layer_kind": 0,
+        "lod": 0,
+        "material_set": 0,
+        "shading_mode": 2,
+        "tile_x": 90,
+        "tile_y": 146
+      },
+      "family_id": 1858,
+      "path": "RGN/07/42.AGN",
+      "phase": "PRELOAD_NEXT_L0",
+      "record_index": 7,
+      "scale_q8_8": 24576,
+      "slot": 14
+    },
+    {
+      "activate_after_load": false,
+      "center_counts": [
+        729088,
+        1208320
+      ],
+      "component": {
+        "component_key": "N06",
+        "super_x": 22,
+        "super_y": 36,
+        "tier": "near"
+      },
+      "expected": {
+        "illumination": 0,
+        "layer_kind": 0,
+        "lod": 0,
+        "material_set": 0,
+        "shading_mode": 2,
+        "tile_x": 88,
+        "tile_y": 147
+      },
+      "family_id": 1858,
+      "path": "RGN/07/42.AGN",
+      "phase": "PRELOAD_NEXT_L0",
+      "record_index": 8,
+      "scale_q8_8": 24576,
+      "slot": 15
+    },
+    {
+      "activate_after_load": false,
+      "center_counts": [
+        745472,
+        1208320
+      ],
+      "component": {
+        "component_key": "N07",
+        "super_x": 22,
+        "super_y": 36,
+        "tier": "near"
+      },
+      "expected": {
+        "illumination": 0,
+        "layer_kind": 0,
+        "lod": 0,
+        "material_set": 0,
+        "shading_mode": 2,
+        "tile_x": 90,
+        "tile_y": 147
+      },
+      "family_id": 1858,
+      "path": "RGN/07/42.AGN",
+      "phase": "PRELOAD_NEXT_L0",
+      "record_index": 9,
+      "scale_q8_8": 24576,
+      "slot": 16
+    },
+    {
+      "activate_after_load": false,
+      "center_counts": [
+        704512,
+        1163264
+      ],
+      "component": {
+        "component_key": "D1",
+        "super_x": 21,
+        "super_y": 35,
+        "tier": "transition"
+      },
+      "expected": {
+        "illumination": 0,
+        "layer_kind": 0,
+        "lod": 1,
+        "material_set": 0,
+        "shading_mode": 2,
+        "tile_x": 84,
+        "tile_y": 140
+      },
+      "family_id": 1806,
+      "path": "RGN/07/0E.AGN",
+      "phase": "PRELOAD_PLAN_DELTA",
+      "record_index": 1,
+      "scale_q8_8": 32768,
+      "slot": 25
+    },
+    {
+      "activate_after_load": false,
+      "center_counts": [
+        704512,
+        1196032
+      ],
+      "component": {
+        "component_key": "D1",
+        "super_x": 21,
+        "super_y": 36,
+        "tier": "transition"
+      },
+      "expected": {
+        "illumination": 0,
+        "layer_kind": 0,
+        "lod": 1,
+        "material_set": 0,
+        "shading_mode": 2,
+        "tile_x": 84,
+        "tile_y": 144
+      },
+      "family_id": 1857,
+      "path": "RGN/07/41.AGN",
+      "phase": "PRELOAD_PLAN_DELTA",
+      "record_index": 1,
+      "scale_q8_8": 32768,
+      "slot": 26
+    },
+    {
+      "activate_after_load": false,
+      "center_counts": [
+        770048,
+        1196032
+      ],
+      "component": {
+        "component_key": "D1",
+        "super_x": 23,
+        "super_y": 36,
+        "tier": "transition"
+      },
+      "expected": {
+        "illumination": 0,
+        "layer_kind": 0,
+        "lod": 1,
+        "material_set": 0,
+        "shading_mode": 2,
+        "tile_x": 92,
+        "tile_y": 144
+      },
+      "family_id": 1859,
+      "path": "RGN/07/43.AGN",
+      "phase": "PRELOAD_PLAN_DELTA",
+      "record_index": 1,
+      "scale_q8_8": 32768,
+      "slot": 27
+    },
+    {
+      "activate_after_load": false,
+      "center_counts": [
+        704512,
+        1228800
+      ],
+      "component": {
+        "component_key": "D1",
+        "super_x": 21,
+        "super_y": 37,
+        "tier": "transition"
+      },
+      "expected": {
+        "illumination": 0,
+        "layer_kind": 0,
+        "lod": 1,
+        "material_set": 0,
+        "shading_mode": 2,
+        "tile_x": 84,
+        "tile_y": 148
+      },
+      "family_id": 1908,
+      "path": "RGN/07/74.AGN",
+      "phase": "PRELOAD_PLAN_DELTA",
+      "record_index": 1,
+      "scale_q8_8": 32768,
+      "slot": 28
+    },
+    {
+      "activate_after_load": false,
+      "center_counts": [
+        442368,
+        1196032
+      ],
+      "component": {
+        "component_key": "D2",
+        "super_x": 13,
+        "super_y": 36,
+        "tier": "distant"
+      },
+      "expected": {
+        "illumination": 0,
+        "layer_kind": 0,
+        "lod": 2,
+        "material_set": 0,
+        "shading_mode": 2,
+        "tile_x": 52,
+        "tile_y": 144
+      },
+      "family_id": 1849,
+      "path": "RGN/07/39.AGN",
+      "phase": "PRELOAD_PLAN_DELTA",
+      "record_index": 0,
+      "scale_q8_8": 32768,
+      "slot": 37
+    }
+  ],
+  "next_family": [
+    22,
+    36
+  ],
+  "required_families": [
+    [
+      21,
+      35
+    ],
+    [
+      22,
+      35
+    ],
+    [
+      23,
+      35
+    ],
+    [
+      24,
+      35
+    ],
+    [
+      13,
+      36
+    ],
+    [
+      14,
+      36
+    ],
+    [
+      15,
+      36
+    ],
+    [
+      16,
+      36
+    ],
+    [
+      17,
+      36
+    ],
+    [
+      18,
+      36
+    ],
+    [
+      19,
+      36
+    ],
+    [
+      20,
+      36
+    ],
+    [
+      21,
+      36
+    ],
+    [
+      22,
+      36
+    ],
+    [
+      23,
+      36
+    ],
+    [
+      24,
+      36
+    ],
+    [
+      21,
+      37
+    ],
+    [
+      22,
+      37
+    ],
+    [
+      23,
+      37
+    ],
+    [
+      24,
+      37
+    ]
+  ],
+  "schema": "pingo-terrain-fixed-west-family-transition-v1",
+  "swap": {
+    "activate_distant": [
+      37
+    ],
+    "activate_near": [
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16
+    ],
+    "activate_transition": [
+      25,
+      26,
+      27,
+      28
+    ],
+    "deactivate_distant": [
+      29
+    ],
+    "deactivate_near": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8
+    ],
+    "deactivate_transition": [
+      19,
+      20,
+      21,
+      24
+    ]
+  }
+}

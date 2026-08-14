@@ -1,0 +1,118 @@
+{
+  "assembly": {
+    "adl_audit": "ADL width audit: 6 files, 19 wide memory accesses, 0 definite 16-bit overruns, 0 indirect/unresolved review items\nclassifications: 24-bit-storage=18, indirect=1",
+    "bytes": 30060,
+    "include_closure": [
+      {
+        "path": "fixtures/berkeley-flight-triangular-dither/src/agon/3d.inc",
+        "sha256": "d273f98311410edc66c4d91187f3ff9983bab32e042bf65845650e7b17b358c5"
+      },
+      {
+        "path": "fixtures/berkeley-flight-triangular-dither/src/agon/3d_sincos_table.inc",
+        "sha256": "1924ccfb8d081830030cd9c810a23a10947722a6fb48e795136812e25beeb18d"
+      },
+      {
+        "path": "fixtures/berkeley-flight-triangular-dither/src/vdu_pingo.inc",
+        "sha256": "3485f91006d2a021625f262db2ad0b89c70322c968d6ad52fe1467c68a40c37d"
+      },
+      {
+        "path": "fixtures/campanile-p3dm-probe/src/campanile-p3dm-probe.asm",
+        "sha256": "f59985e2e28920e561da7aee8d04116e43a5b479e88f0e7098ef4c4743553fe7"
+      },
+      {
+        "path": "fixtures/campanile-p3dm-probe/src/generated/campanile-probe.inc",
+        "sha256": "8c5cfa68edbf3ce3d5d9c14aadf98cac0b1ae5d63e8aea17135cec45f4e6b6a4"
+      },
+      {
+        "path": "fixtures/p3dm-loader-probe/src/p3dm-loader.inc",
+        "sha256": "1de2eea715add03f9379548a7db823cfda9e6aef46dab1a00674782d87537d39"
+      }
+    ],
+    "program_runtime_name": "CAMPTEST.BIN",
+    "sha256": "84683e13f8341d1e0a9bfb2f3a423bf93656017646ddf868ebfe9533659856dd"
+  },
+  "camera": {
+    "counts_per_metre": 16,
+    "orientation": "integer p3d upright look-at",
+    "position_translation_counts": [
+      -2304,
+      1152,
+      2304
+    ],
+    "target_translation_counts": [
+      0,
+      720,
+      0
+    ]
+  },
+  "canonical_landmark_index": {
+    "build_signature_sha256": "de3c51e40b2b24f978f3c00493b9f342341b8959a502486daac95f9c61944eed",
+    "path": "build/p3dm/bay-area-koak-proof/LANDMARK.json",
+    "sha256": "822f3e3eb5b1f4be0dfc44805d362a4e9bfa7ced1e153c32228c1283bae43317"
+  },
+  "component": {
+    "bytes": 3288,
+    "data_bytes": 3188,
+    "data_sha256": "44ec7bfc93e2b6a35a82b4cfb7fb96717fd29c1af108db50557bea5aa779895c",
+    "meta": {
+      "center_east_m": 43534,
+      "center_north_m": 91814,
+      "illumination": 0,
+      "layer_kind": 3,
+      "lod": 0,
+      "material_set": 1,
+      "maximum_elevation_dm": 1909,
+      "minimum_elevation_dm": 903,
+      "model_half_extent_m": 518,
+      "shading_mode": 1,
+      "tile_x": 85,
+      "tile_y": 179
+    },
+    "position_indices": 390,
+    "runtime_name": "CAMPANIL.AGN",
+    "sha256": "7c434d711cfe16d62636c307da9c71142fd3538d28fe2c0e2f4ac27e4ce96864",
+    "source_path": "LMK/CAMPANIL.AGN",
+    "triangles": 130,
+    "uv_indices": 390,
+    "uvs": 5,
+    "vertices": 268
+  },
+  "lighting": {
+    "ambient_of_127": 72,
+    "direction": [
+      -16384,
+      16384,
+      -16384
+    ]
+  },
+  "local_placement": {
+    "base_residual_m": 0.019470809045628812,
+    "decoded_top_m": 100.59370708334598,
+    "maximum_encoded_y": -26385,
+    "minimum_encoded_y": -32747,
+    "model_half_extent_m": 518,
+    "preserves_component_scale_and_mesh": true,
+    "scale_q8_8": 16576,
+    "translation_x": 0,
+    "translation_y": 8283,
+    "translation_z": 0
+  },
+  "palette": {
+    "bytes": 64,
+    "dimensions": [
+      8,
+      8
+    ],
+    "policy": "native solid-flat selector palette; no dither or imagery",
+    "runtime_name": "SOLID64.RG2",
+    "selectors": [
+      47,
+      26,
+      5,
+      63,
+      42
+    ],
+    "sha256": "47f7e1441be49b5e4701d19e2af2c31a5ee056914c03bd8d6249bdb085bb374d"
+  },
+  "schema": "pingo-terrain-campanile-p3dm-probe-v1"
+}

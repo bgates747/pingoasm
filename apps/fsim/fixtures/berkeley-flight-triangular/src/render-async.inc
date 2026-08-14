@@ -1,0 +1,265 @@
+; =============================================================================
+; Qualified Pingo render-completion callback support.
+;
+; One render may be in flight. The interrupt callback only recognizes/copies
+; the ten-byte P3DR payload and publishes byte flags; all VDU work remains in
+; the foreground. Non-P3DR records continue through MOS keyboard handling.
+; =============================================================================
+
+render_notify_token: equ 0C35Ah
+setup_barrier_value: equ 0A5h
+
+initialize_render_state:
+    xor a
+    ld (render_in_flight),a
+    ld (completion_ready),a
+    ld (sequence_initialized),a
+    ld (exit_requested),a
+    ld (callback_error),a
+    ld (expected_sequence+0),a
+    ld (expected_sequence+1),a
+    ret
+
+; Scene construction is asynchronous. General poll 0A5h fences those commands
+; before command 41 is enabled and the first render is submitted.
+wait_for_setup_barrier:
+    ld ix,(sysvars_pointer)
+    xor a
+    ld (ix+sysvar_gp),a
+    ld hl,@command
+    ld bc,@end-@command
+    rst.lil 18h
+@wait:
+    ld ix,(sysvars_pointer)
+    ld a,(ix+sysvar_gp)
+    cp setup_barrier_value
+    jr nz,@wait
+    ret
+@command:
+    db 23,0,080h,setup_barrier_value
+@end:
+
+; Publish in-flight state before any render byte reaches the VDP.
+submit_current_render:
+    xor a
+    ld (completion_ready),a
+    ld a,1
+    ld (render_in_flight),a
+    RENDBMP sid,tgtbmid
+    ret
+
+; Atomically snapshot the callback mailbox, then validate version, event,
+; registration token, and monotonically increasing 16-bit sequence.
+consume_render_completion:
+    di
+    ld hl,completion_record
+    ld de,completion_snapshot
+    ld bc,10
+    ldir
+    xor a
+    ld (completion_ready),a
+    ei
+
+    ld a,(completion_snapshot+4)
+    cp 1
+    jr nz,@reject
+    ld a,(completion_snapshot+5)
+    cp 1
+    jr nz,@reject
+    ld a,(completion_snapshot+6)
+    cp render_notify_token & 0FFh
+    jr nz,@reject
+    ld a,(completion_snapshot+7)
+    cp render_notify_token >> 8
+    jr nz,@reject
+
+    ld a,(sequence_initialized)
+    or a
+    jr z,@accept_first_sequence
+    ld hl,completion_snapshot+8
+    ld iy,expected_sequence
+    ld a,(hl)
+    cp (iy+0)
+    jr nz,@reject
+    inc hl
+    ld a,(hl)
+    cp (iy+1)
+    jr nz,@reject
+    jr @sequence_valid
+
+@accept_first_sequence:
+    ld hl,completion_snapshot+8
+    ld iy,expected_sequence
+    ld a,(hl)
+    ld (iy+0),a
+    inc hl
+    ld a,(hl)
+    ld (iy+1),a
+    ld a,1
+    ld (sequence_initialized),a
+
+@sequence_valid:
+    call increment_expected_sequence
+    di
+    xor a
+    ld (render_in_flight),a
+    ei
+
+; Display only a completed target. The following render command, if any, is
+; queued after this display/flip sequence and may safely reuse one bitmap.
+    call vdu_clg
+    DISPBMP tgtbmid,viewport_x,viewport_y
+    call vdu_flip
+    ret
+
+@reject:
+; Keep render_in_flight asserted: returning while a completion producer may
+; still exist is less safe than remaining resident for diagnosis.
+    ld a,1
+    ld (callback_error),a
+    ld (exit_requested),a
+    ret
+
+increment_expected_sequence:
+    ld hl,expected_sequence
+    inc (hl)
+    ret nz
+    inc hl
+    inc (hl)
+    ret
+
+install_render_callback:
+    ld hl,render_packet_callback
+    ld c,0
+    MOSCALL mos_setkbvector
+    ret
+
+remove_render_callback:
+    ld hl,0
+    ld c,0
+    MOSCALL mos_setkbvector
+    ret
+
+enable_render_notifications:
+    ld hl,@command
+    ld bc,@end-@command
+    rst.lil 18h
+    ret
+@command:
+    db 23,0,0A0h
+    dw sid
+    db 49h,41,1
+    dw render_notify_token
+@end:
+
+disable_render_notifications:
+    ld hl,@command
+    ld bc,@end-@command
+    rst.lil 18h
+    ret
+@command:
+    db 23,0,0A0h
+    dw sid
+    db 49h,41,0
+    dw 0
+@end:
+
+; MOS invokes this from its UART interrupt path with DEU pointing at the
+; payload. It must not make MOS/VDU calls or perform foreground work.
+render_packet_callback:
+    push af
+    push ix
+    push iy
+    push de
+    pop ix
+
+    ld a,(ix+0)
+    cp 'P'
+    jr nz,@keyboard
+    ld a,(ix+1)
+    cp '3'
+    jr nz,@keyboard
+    ld a,(ix+2)
+    cp 'D'
+    jr nz,@keyboard
+    ld a,(ix+3)
+    cp 'R'
+    jr nz,@keyboard
+
+    ld iy,completion_record
+    ld a,(ix+0)
+    ld (iy+0),a
+    ld a,(ix+1)
+    ld (iy+1),a
+    ld a,(ix+2)
+    ld (iy+2),a
+    ld a,(ix+3)
+    ld (iy+3),a
+    ld a,(ix+4)
+    ld (iy+4),a
+    ld a,(ix+5)
+    ld (iy+5),a
+    ld a,(ix+6)
+    ld (iy+6),a
+    ld a,(ix+7)
+    ld (iy+7),a
+    ld a,(ix+8)
+    ld (iy+8),a
+    ld a,(ix+9)
+    ld (iy+9),a
+
+; MOS resumes normal keyboard processing after this callback. Turn the P3DR
+; signature into a harmless null key-up record before returning.
+    xor a
+    ld (ix+0),a
+    ld (ix+1),a
+    ld (ix+2),a
+    ld (ix+3),a
+    ld a,1
+    ld (completion_ready),a
+    jr @done
+
+@keyboard:
+; An Escape key-down can request shutdown immediately, even between simulation
+; quanta. The foreground still drains any outstanding render before returning.
+    ld a,(ix+3)
+    cp 1
+    jr nz,@done
+    ld a,(ix+0)
+    cp 27
+    jr nz,@done
+    ld a,1
+    ld (exit_requested),a
+
+@done:
+    pop iy
+    pop ix
+    pop af
+    ret
+
+sysvars_pointer:
+    dl 0
+
+render_in_flight:
+    db 0
+
+completion_ready:
+    db 0
+
+completion_record:
+    ds 10
+
+completion_snapshot:
+    ds 10
+
+expected_sequence:
+    ds 2
+
+sequence_initialized:
+    db 0
+
+exit_requested:
+    db 0
+
+callback_error:
+    db 0

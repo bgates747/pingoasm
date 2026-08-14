@@ -1,0 +1,2580 @@
+{
+  "manifest_version": 2,
+  "region_id": "bay-area",
+  "retrieved": "2026-08-02",
+  "description": "Regional Bay Area terrain sources from Pacific water through Mount Diablo and Suisun Bay through Morgan Hill.",
+  "requested_wgs84_bbox": {
+    "crs": "EPSG:4326",
+    "west": -122.75,
+    "south": 37.05,
+    "east": -121.6,
+    "north": 38.2
+  },
+  "coverage_reference_points_wgs84": [
+    {
+      "name": "Pacific Ocean sample",
+      "longitude": -122.7,
+      "latitude": 37.75
+    },
+    {
+      "name": "Mount Tamalpais",
+      "longitude": -122.5965,
+      "latitude": 37.9235
+    },
+    {
+      "name": "Yerba Buena Island",
+      "longitude": -122.3669,
+      "latitude": 37.8101
+    },
+    {
+      "name": "Treasure Island",
+      "longitude": -122.3701,
+      "latitude": 37.8235
+    },
+    {
+      "name": "Suisun Bay",
+      "longitude": -122.069,
+      "latitude": 38.073
+    },
+    {
+      "name": "Mount Diablo",
+      "longitude": -121.9142,
+      "latitude": 37.8816
+    },
+    {
+      "name": "Morgan Hill",
+      "longitude": -121.6544,
+      "latitude": 37.1305
+    },
+    {
+      "name": "KSFO",
+      "longitude": -122.3754,
+      "latitude": 37.6188
+    },
+    {
+      "name": "KOAK",
+      "longitude": -122.2211,
+      "latitude": 37.7126
+    },
+    {
+      "name": "KHWD",
+      "longitude": -122.1217,
+      "latitude": 37.6589
+    },
+    {
+      "name": "KSQL",
+      "longitude": -122.2495,
+      "latitude": 37.5119
+    },
+    {
+      "name": "KCCR",
+      "longitude": -122.0569,
+      "latitude": 37.9897
+    }
+  ],
+  "projected_envelope_derivation": {
+    "tool": "PROJ cs2cs 9.1.1, dense WGS84 perimeter sampling",
+    "raw_utm10_envelope": [
+      521889.6,
+      4100448.28,
+      624488.31,
+      4228932.08
+    ],
+    "raw_conus_albers_envelope": [
+      -2325720.25,
+      1858305.62,
+      -2193922.75,
+      2009670.4
+    ],
+    "policy": "Expand outward to complete native working-grid cells; never crop the requested WGS84 rectangle."
+  },
+  "tile_policy": {
+    "maximum_width_pixels": 2048,
+    "maximum_height_pixels": 2048,
+    "ordering": "north-to-south rows, west-to-east columns",
+    "reason": "Bound each request and retry independently, remain far below the 3DEP service 8000x8000 limit, and avoid one fragile regional export."
+  },
+  "runtime_note": "This manifest pins acquisition inputs only. It contains no mosaics, normalized derivatives, terrain meshes, or airport meshes.",
+  "service_evidence": [
+    {
+      "local_path": "data/downloads/bay-area/service-evidence/3dep-service.json",
+      "request_url": "https://elevation.nationalmap.gov/arcgis/rest/services/3DEPElevation/ImageServer?f=pjson",
+      "byte_size": 12972,
+      "sha256": "7e478b8c06a5899a615aab1cd43204168ac79659aa1b0bd2eac19f099a126e2f",
+      "validated_details": {
+        "service_version": 11.3,
+        "pixel_type": "F32",
+        "max_image_width": 8000,
+        "max_image_height": 8000,
+        "max_download_image_count": 50,
+        "description": "The USGS 3D Elevation Program (3DEP) Bare Earth DEM Dynamic service is based on multi-resolution USGS DEM sources and provides dynamic functions for visualization. These functions include: Hillshade, Aspect Map, Hillshade Stretched, Multi-directional Hillshade, Slope Map, Elevation Tinted Hillshade, Contour. In addition the OGC Web Map Service (WMS) and Web Coverage Service (WCS) interfaces are enabled. Data available in this map service reflects all 3DEP DEM data published as of July 20, 2026.",
+        "copyright_text": "USGS National Map 3D Elevation Program (3DEP). July 23, 2026."
+      },
+      "id": "3dep-service",
+      "download_retries": 0
+    },
+    {
+      "local_path": "data/downloads/bay-area/service-evidence/3dep-source-records.json",
+      "request_url": "https://elevation.nationalmap.gov/arcgis/rest/services/3DEPElevation/ImageServer/query?where=1%3D1&geometry=521880%2C4100440%2C624490%2C4228940&geometryType=esriGeometryEnvelope&inSR=32610&spatialRel=esriSpatialRelIntersects&outFields=Name%2CProductName%2CVerticalDatum%2CResolution_X%2CResolution_Y%2CSource%2CURL%2Cpubdate&returnGeometry=false&resultRecordCount=1000&f=json",
+      "byte_size": 121284,
+      "sha256": "c77a5cca0d56a2c01287436f4a7c2dd70a24cd33514a1b32fd350f5d40e622dd",
+      "validated_details": {
+        "intersecting_records": 337,
+        "data_records": 325,
+        "overview_records": 12,
+        "vertical_datums": [
+          "North American Vertical Datum of 1988 (NAVD 88)"
+        ],
+        "products": [
+          "USGS_3DEP"
+        ],
+        "exceeded_transfer_limit": false
+      },
+      "id": "3dep-source-records",
+      "download_retries": 0
+    },
+    {
+      "local_path": "data/downloads/bay-area/service-evidence/nlcd-wcs-capabilities.xml",
+      "request_url": "https://dmsdata.cr.usgs.gov/geoserver/mrlc_Land-Cover-Native_conus_year_data/wcs?service=WCS&version=1.0.0&request=GetCapabilities",
+      "byte_size": 3961,
+      "sha256": "30ca84f1d5568421d2823b64134378cfc7fb7c0ee1bd6ec2a130a03295ca2d8c",
+      "validated_details": {
+        "root": "{http://www.opengis.net/wcs}WCS_Capabilities",
+        "coverage": "mrlc_Land-Cover-Native_conus_year_data:Land-Cover-Native_conus_year_data",
+        "operation": "GetCoverage"
+      },
+      "id": "nlcd-wcs-capabilities",
+      "download_retries": 0
+    },
+    {
+      "local_path": "data/downloads/bay-area/service-evidence/nlcd-wcs-description.xml",
+      "request_url": "https://dmsdata.cr.usgs.gov/geoserver/mrlc_Land-Cover-Native_conus_year_data/wcs?service=WCS&version=1.0.0&request=DescribeCoverage&coverage=mrlc_Land-Cover-Native_conus_year_data%3ALand-Cover-Native_conus_year_data",
+      "byte_size": 5471,
+      "sha256": "4dececb0732be0e94e33b4ec850efdb35ff6db2420de5793f8a979fe7e13ac5e",
+      "validated_details": {
+        "root": "{http://www.opengis.net/wcs}CoverageDescription",
+        "coverage": "mrlc_Land-Cover-Native_conus_year_data:Land-Cover-Native_conus_year_data",
+        "crs": "EPSG:5070",
+        "available_through": "2025-01-01T00:00:00.000Z",
+        "native_pixel_size_metres": 30,
+        "native_boundary_origin": [
+          -2415585.0,
+          164805.0
+        ],
+        "default_interpolation": "nearest neighbor"
+      },
+      "id": "nlcd-wcs-description",
+      "download_retries": 0
+    }
+  ],
+  "datasets": [
+    {
+      "id": "usgs-3dep-10m-utm10n",
+      "crs": "EPSG:32610",
+      "bbox": [
+        521880.0,
+        4100440.0,
+        624490.0,
+        4228940.0
+      ],
+      "width": 10261,
+      "height": 12850,
+      "pixel_size_metres": [
+        10.0,
+        10.0
+      ],
+      "tile_edge_limit_pixels": 2048,
+      "tile_count": 42,
+      "format": "GeoTIFF, uncompressed, single-band float32",
+      "nodata": -9999,
+      "total_byte_size": 578145918,
+      "total_cells": 131853850,
+      "valid_cells": 131853850,
+      "nodata_cells": 0,
+      "minimum": -114.77974700927734,
+      "maximum": 1335.91455078125,
+      "download_retries": 0,
+      "tiles": [
+        {
+          "id": "r00-c00",
+          "local_path": "data/downloads/bay-area/usgs-3dep-10m-utm10n/dem-r00-c00.tif",
+          "request_url": "https://elevation.nationalmap.gov/arcgis/rest/services/3DEPElevation/ImageServer/exportImage?bbox=521880%2C4210580%2C538990%2C4228940&bboxSR=32610&size=1711%2C1836&imageSR=32610&format=tiff&pixelType=F32&interpolation=RSP_BilinearInterpolation&noData=-9999&f=image",
+          "bbox": [
+            521880.0,
+            4210580.0,
+            538990.0,
+            4228940.0
+          ],
+          "width": 1711,
+          "height": 1836,
+          "accepted_geotiff_metadata": {
+            "byte_order": "little",
+            "epsg": 32610,
+            "bbox": [
+              521880.0,
+              4210580.0,
+              538990.0,
+              4228940.0
+            ],
+            "pixel_size_metres": [
+              10.0,
+              10.0
+            ],
+            "bits_per_sample": 32,
+            "sample_format": 3,
+            "nodata": -9999,
+            "storage": "tiles",
+            "block_size_pixels": [
+              128,
+              128
+            ]
+          },
+          "byte_size": 13765379,
+          "sha256": "17561d9811e7bfbfbcdff53b1699f7d4dd4fa95a083452c27135e814e12b6b1a",
+          "download_retries": 0,
+          "valid_cells": 3141396,
+          "nodata_cells": 0,
+          "minimum": -3.223996162414551,
+          "maximum": 576.23681640625
+        },
+        {
+          "id": "r00-c01",
+          "local_path": "data/downloads/bay-area/usgs-3dep-10m-utm10n/dem-r00-c01.tif",
+          "request_url": "https://elevation.nationalmap.gov/arcgis/rest/services/3DEPElevation/ImageServer/exportImage?bbox=538990%2C4210580%2C556090%2C4228940&bboxSR=32610&size=1710%2C1836&imageSR=32610&format=tiff&pixelType=F32&interpolation=RSP_BilinearInterpolation&noData=-9999&f=image",
+          "bbox": [
+            538990.0,
+            4210580.0,
+            556090.0,
+            4228940.0
+          ],
+          "width": 1710,
+          "height": 1836,
+          "accepted_geotiff_metadata": {
+            "byte_order": "little",
+            "epsg": 32610,
+            "bbox": [
+              538990.0,
+              4210580.0,
+              556090.0,
+              4228940.0
+            ],
+            "pixel_size_metres": [
+              10.0,
+              10.0
+            ],
+            "bits_per_sample": 32,
+            "sample_format": 3,
+            "nodata": -9999,
+            "storage": "tiles",
+            "block_size_pixels": [
+              128,
+              128
+            ]
+          },
+          "byte_size": 13765379,
+          "sha256": "bcf25d733ccf9136147d6e4c8b845769b1fb7bd6d57af0651ba03b67bd5dbc95",
+          "download_retries": 0,
+          "valid_cells": 3139560,
+          "nodata_cells": 0,
+          "minimum": -9.715141296386719,
+          "maximum": 254.51881408691406
+        },
+        {
+          "id": "r00-c02",
+          "local_path": "data/downloads/bay-area/usgs-3dep-10m-utm10n/dem-r00-c02.tif",
+          "request_url": "https://elevation.nationalmap.gov/arcgis/rest/services/3DEPElevation/ImageServer/exportImage?bbox=556090%2C4210580%2C573190%2C4228940&bboxSR=32610&size=1710%2C1836&imageSR=32610&format=tiff&pixelType=F32&interpolation=RSP_BilinearInterpolation&noData=-9999&f=image",
+          "bbox": [
+            556090.0,
+            4210580.0,
+            573190.0,
+            4228940.0
+          ],
+          "width": 1710,
+          "height": 1836,
+          "accepted_geotiff_metadata": {
+            "byte_order": "little",
+            "epsg": 32610,
+            "bbox": [
+              556090.0,
+              4210580.0,
+              573190.0,
+              4228940.0
+            ],
+            "pixel_size_metres": [
+              10.0,
+              10.0
+            ],
+            "bits_per_sample": 32,
+            "sample_format": 3,
+            "nodata": -9999,
+            "storage": "tiles",
+            "block_size_pixels": [
+              128,
+              128
+            ]
+          },
+          "byte_size": 13765379,
+          "sha256": "9fef4c5216b467555a4db70d332e4d2b05b1fc8101b9bfb47d8a193233404979",
+          "download_retries": 0,
+          "valid_cells": 3139560,
+          "nodata_cells": 0,
+          "minimum": -42.53579330444336,
+          "maximum": 342.7481384277344
+        },
+        {
+          "id": "r00-c03",
+          "local_path": "data/downloads/bay-area/usgs-3dep-10m-utm10n/dem-r00-c03.tif",
+          "request_url": "https://elevation.nationalmap.gov/arcgis/rest/services/3DEPElevation/ImageServer/exportImage?bbox=573190%2C4210580%2C590290%2C4228940&bboxSR=32610&size=1710%2C1836&imageSR=32610&format=tiff&pixelType=F32&interpolation=RSP_BilinearInterpolation&noData=-9999&f=image",
+          "bbox": [
+            573190.0,
+            4210580.0,
+            590290.0,
+            4228940.0
+          ],
+          "width": 1710,
+          "height": 1836,
+          "accepted_geotiff_metadata": {
+            "byte_order": "little",
+            "epsg": 32610,
+            "bbox": [
+              573190.0,
+              4210580.0,
+              590290.0,
+              4228940.0
+            ],
+            "pixel_size_metres": [
+              10.0,
+              10.0
+            ],
+            "bits_per_sample": 32,
+            "sample_format": 3,
+            "nodata": -9999,
+            "storage": "tiles",
+            "block_size_pixels": [
+              128,
+              128
+            ]
+          },
+          "byte_size": 13765379,
+          "sha256": "7d42866b5413fcc558c3b9cbc44349794b5f2b5e6fb8b75ad662a24c4f085d26",
+          "download_retries": 0,
+          "valid_cells": 3139560,
+          "nodata_cells": 0,
+          "minimum": -27.651308059692383,
+          "maximum": 354.3085021972656
+        },
+        {
+          "id": "r00-c04",
+          "local_path": "data/downloads/bay-area/usgs-3dep-10m-utm10n/dem-r00-c04.tif",
+          "request_url": "https://elevation.nationalmap.gov/arcgis/rest/services/3DEPElevation/ImageServer/exportImage?bbox=590290%2C4210580%2C607390%2C4228940&bboxSR=32610&size=1710%2C1836&imageSR=32610&format=tiff&pixelType=F32&interpolation=RSP_BilinearInterpolation&noData=-9999&f=image",
+          "bbox": [
+            590290.0,
+            4210580.0,
+            607390.0,
+            4228940.0
+          ],
+          "width": 1710,
+          "height": 1836,
+          "accepted_geotiff_metadata": {
+            "byte_order": "little",
+            "epsg": 32610,
+            "bbox": [
+              590290.0,
+              4210580.0,
+              607390.0,
+              4228940.0
+            ],
+            "pixel_size_metres": [
+              10.0,
+              10.0
+            ],
+            "bits_per_sample": 32,
+            "sample_format": 3,
+            "nodata": -9999,
+            "storage": "tiles",
+            "block_size_pixels": [
+              128,
+              128
+            ]
+          },
+          "byte_size": 13765379,
+          "sha256": "f19eb28333d8427c5be901611457d5a9b9c03b1b3b3e268d57db3579478eb96b",
+          "download_retries": 0,
+          "valid_cells": 3139560,
+          "nodata_cells": 0,
+          "minimum": -28.148296356201172,
+          "maximum": 126.96234130859375
+        },
+        {
+          "id": "r00-c05",
+          "local_path": "data/downloads/bay-area/usgs-3dep-10m-utm10n/dem-r00-c05.tif",
+          "request_url": "https://elevation.nationalmap.gov/arcgis/rest/services/3DEPElevation/ImageServer/exportImage?bbox=607390%2C4210580%2C624490%2C4228940&bboxSR=32610&size=1710%2C1836&imageSR=32610&format=tiff&pixelType=F32&interpolation=RSP_BilinearInterpolation&noData=-9999&f=image",
+          "bbox": [
+            607390.0,
+            4210580.0,
+            624490.0,
+            4228940.0
+          ],
+          "width": 1710,
+          "height": 1836,
+          "accepted_geotiff_metadata": {
+            "byte_order": "little",
+            "epsg": 32610,
+            "bbox": [
+              607390.0,
+              4210580.0,
+              624490.0,
+              4228940.0
+            ],
+            "pixel_size_metres": [
+              10.0,
+              10.0
+            ],
+            "bits_per_sample": 32,
+            "sample_format": 3,
+            "nodata": -9999,
+            "storage": "tiles",
+            "block_size_pixels": [
+              128,
+              128
+            ]
+          },
+          "byte_size": 13765379,
+          "sha256": "f3006c5c732135efb99419132433bfe71b63278f24eae878a84546537da5f97d",
+          "download_retries": 0,
+          "valid_cells": 3139560,
+          "nodata_cells": 0,
+          "minimum": -7.014805316925049,
+          "maximum": 71.93993377685547
+        },
+        {
+          "id": "r01-c00",
+          "local_path": "data/downloads/bay-area/usgs-3dep-10m-utm10n/dem-r01-c00.tif",
+          "request_url": "https://elevation.nationalmap.gov/arcgis/rest/services/3DEPElevation/ImageServer/exportImage?bbox=521880%2C4192220%2C538990%2C4210580&bboxSR=32610&size=1711%2C1836&imageSR=32610&format=tiff&pixelType=F32&interpolation=RSP_BilinearInterpolation&noData=-9999&f=image",
+          "bbox": [
+            521880.0,
+            4192220.0,
+            538990.0,
+            4210580.0
+          ],
+          "width": 1711,
+          "height": 1836,
+          "accepted_geotiff_metadata": {
+            "byte_order": "little",
+            "epsg": 32610,
+            "bbox": [
+              521880.0,
+              4192220.0,
+              538990.0,
+              4210580.0
+            ],
+            "pixel_size_metres": [
+              10.0,
+              10.0
+            ],
+            "bits_per_sample": 32,
+            "sample_format": 3,
+            "nodata": -9999,
+            "storage": "tiles",
+            "block_size_pixels": [
+              128,
+              128
+            ]
+          },
+          "byte_size": 13765379,
+          "sha256": "9c4e02c116540729e9d891d4afca61493669615ab1ac54f4464a1d10d1ec003c",
+          "download_retries": 0,
+          "valid_cells": 3141396,
+          "nodata_cells": 0,
+          "minimum": -33.387855529785156,
+          "maximum": 785.505615234375
+        },
+        {
+          "id": "r01-c01",
+          "local_path": "data/downloads/bay-area/usgs-3dep-10m-utm10n/dem-r01-c01.tif",
+          "request_url": "https://elevation.nationalmap.gov/arcgis/rest/services/3DEPElevation/ImageServer/exportImage?bbox=538990%2C4192220%2C556090%2C4210580&bboxSR=32610&size=1710%2C1836&imageSR=32610&format=tiff&pixelType=F32&interpolation=RSP_BilinearInterpolation&noData=-9999&f=image",
+          "bbox": [
+            538990.0,
+            4192220.0,
+            556090.0,
+            4210580.0
+          ],
+          "width": 1710,
+          "height": 1836,
+          "accepted_geotiff_metadata": {
+            "byte_order": "little",
+            "epsg": 32610,
+            "bbox": [
+              538990.0,
+              4192220.0,
+              556090.0,
+              4210580.0
+            ],
+            "pixel_size_metres": [
+              10.0,
+              10.0
+            ],
+            "bits_per_sample": 32,
+            "sample_format": 3,
+            "nodata": -9999,
+            "storage": "tiles",
+            "block_size_pixels": [
+              128,
+              128
+            ]
+          },
+          "byte_size": 13765379,
+          "sha256": "744d35518eb457b26ca0a1bd89fe10142852033ad852a854fac49f868ea04b68",
+          "download_retries": 0,
+          "valid_cells": 3139560,
+          "nodata_cells": 0,
+          "minimum": -66.79440307617188,
+          "maximum": 325.1844177246094
+        },
+        {
+          "id": "r01-c02",
+          "local_path": "data/downloads/bay-area/usgs-3dep-10m-utm10n/dem-r01-c02.tif",
+          "request_url": "https://elevation.nationalmap.gov/arcgis/rest/services/3DEPElevation/ImageServer/exportImage?bbox=556090%2C4192220%2C573190%2C4210580&bboxSR=32610&size=1710%2C1836&imageSR=32610&format=tiff&pixelType=F32&interpolation=RSP_BilinearInterpolation&noData=-9999&f=image",
+          "bbox": [
+            556090.0,
+            4192220.0,
+            573190.0,
+            4210580.0
+          ],
+          "width": 1710,
+          "height": 1836,
+          "accepted_geotiff_metadata": {
+            "byte_order": "little",
+            "epsg": 32610,
+            "bbox": [
+              556090.0,
+              4192220.0,
+              573190.0,
+              4210580.0
+            ],
+            "pixel_size_metres": [
+              10.0,
+              10.0
+            ],
+            "bits_per_sample": 32,
+            "sample_format": 3,
+            "nodata": -9999,
+            "storage": "tiles",
+            "block_size_pixels": [
+              128,
+              128
+            ]
+          },
+          "byte_size": 13765379,
+          "sha256": "2642211cb2a6700182c66fba79666e2ecc6a523f4bd4499deaa5b8384bdaf545",
+          "download_retries": 0,
+          "valid_cells": 3139560,
+          "nodata_cells": 0,
+          "minimum": -27.916889190673828,
+          "maximum": 580.8453369140625
+        },
+        {
+          "id": "r01-c03",
+          "local_path": "data/downloads/bay-area/usgs-3dep-10m-utm10n/dem-r01-c03.tif",
+          "request_url": "https://elevation.nationalmap.gov/arcgis/rest/services/3DEPElevation/ImageServer/exportImage?bbox=573190%2C4192220%2C590290%2C4210580&bboxSR=32610&size=1710%2C1836&imageSR=32610&format=tiff&pixelType=F32&interpolation=RSP_BilinearInterpolation&noData=-9999&f=image",
+          "bbox": [
+            573190.0,
+            4192220.0,
+            590290.0,
+            4210580.0
+          ],
+          "width": 1710,
+          "height": 1836,
+          "accepted_geotiff_metadata": {
+            "byte_order": "little",
+            "epsg": 32610,
+            "bbox": [
+              573190.0,
+              4192220.0,
+              590290.0,
+              4210580.0
+            ],
+            "pixel_size_metres": [
+              10.0,
+              10.0
+            ],
+            "bits_per_sample": 32,
+            "sample_format": 3,
+            "nodata": -9999,
+            "storage": "tiles",
+            "block_size_pixels": [
+              128,
+              128
+            ]
+          },
+          "byte_size": 13765379,
+          "sha256": "030a394ff8677b13b851f401d6bda34dfa547c5ef2bf76a9f2039de433b9db1c",
+          "download_retries": 0,
+          "valid_cells": 3139560,
+          "nodata_cells": 0,
+          "minimum": -30.776241302490234,
+          "maximum": 451.3632507324219
+        },
+        {
+          "id": "r01-c04",
+          "local_path": "data/downloads/bay-area/usgs-3dep-10m-utm10n/dem-r01-c04.tif",
+          "request_url": "https://elevation.nationalmap.gov/arcgis/rest/services/3DEPElevation/ImageServer/exportImage?bbox=590290%2C4192220%2C607390%2C4210580&bboxSR=32610&size=1710%2C1836&imageSR=32610&format=tiff&pixelType=F32&interpolation=RSP_BilinearInterpolation&noData=-9999&f=image",
+          "bbox": [
+            590290.0,
+            4192220.0,
+            607390.0,
+            4210580.0
+          ],
+          "width": 1710,
+          "height": 1836,
+          "accepted_geotiff_metadata": {
+            "byte_order": "little",
+            "epsg": 32610,
+            "bbox": [
+              590290.0,
+              4192220.0,
+              607390.0,
+              4210580.0
+            ],
+            "pixel_size_metres": [
+              10.0,
+              10.0
+            ],
+            "bits_per_sample": 32,
+            "sample_format": 3,
+            "nodata": -9999,
+            "storage": "tiles",
+            "block_size_pixels": [
+              128,
+              128
+            ]
+          },
+          "byte_size": 13765379,
+          "sha256": "6dbfc409f9cd616dc20edfd68fd8c5faa03ca186d1ecf3fd76de198008a98445",
+          "download_retries": 0,
+          "valid_cells": 3139560,
+          "nodata_cells": 0,
+          "minimum": -14.826961517333984,
+          "maximum": 1172.0101318359375
+        },
+        {
+          "id": "r01-c05",
+          "local_path": "data/downloads/bay-area/usgs-3dep-10m-utm10n/dem-r01-c05.tif",
+          "request_url": "https://elevation.nationalmap.gov/arcgis/rest/services/3DEPElevation/ImageServer/exportImage?bbox=607390%2C4192220%2C624490%2C4210580&bboxSR=32610&size=1710%2C1836&imageSR=32610&format=tiff&pixelType=F32&interpolation=RSP_BilinearInterpolation&noData=-9999&f=image",
+          "bbox": [
+            607390.0,
+            4192220.0,
+            624490.0,
+            4210580.0
+          ],
+          "width": 1710,
+          "height": 1836,
+          "accepted_geotiff_metadata": {
+            "byte_order": "little",
+            "epsg": 32610,
+            "bbox": [
+              607390.0,
+              4192220.0,
+              624490.0,
+              4210580.0
+            ],
+            "pixel_size_metres": [
+              10.0,
+              10.0
+            ],
+            "bits_per_sample": 32,
+            "sample_format": 3,
+            "nodata": -9999,
+            "storage": "tiles",
+            "block_size_pixels": [
+              128,
+              128
+            ]
+          },
+          "byte_size": 13765379,
+          "sha256": "134ad53e966a98b0301f8d3fd09659d341ec17be5a065d971f292ce86bdcd06e",
+          "download_retries": 0,
+          "valid_cells": 3139560,
+          "nodata_cells": 0,
+          "minimum": -8.467456817626953,
+          "maximum": 334.8915710449219
+        },
+        {
+          "id": "r02-c00",
+          "local_path": "data/downloads/bay-area/usgs-3dep-10m-utm10n/dem-r02-c00.tif",
+          "request_url": "https://elevation.nationalmap.gov/arcgis/rest/services/3DEPElevation/ImageServer/exportImage?bbox=521880%2C4173860%2C538990%2C4192220&bboxSR=32610&size=1711%2C1836&imageSR=32610&format=tiff&pixelType=F32&interpolation=RSP_BilinearInterpolation&noData=-9999&f=image",
+          "bbox": [
+            521880.0,
+            4173860.0,
+            538990.0,
+            4192220.0
+          ],
+          "width": 1711,
+          "height": 1836,
+          "accepted_geotiff_metadata": {
+            "byte_order": "little",
+            "epsg": 32610,
+            "bbox": [
+              521880.0,
+              4173860.0,
+              538990.0,
+              4192220.0
+            ],
+            "pixel_size_metres": [
+              10.0,
+              10.0
+            ],
+            "bits_per_sample": 32,
+            "sample_format": 3,
+            "nodata": -9999,
+            "storage": "tiles",
+            "block_size_pixels": [
+              128,
+              128
+            ]
+          },
+          "byte_size": 13765379,
+          "sha256": "1613674e8a97d6016b86ecb5ed80154f02f8ce3432f7f647b71137896ddaf376",
+          "download_retries": 0,
+          "valid_cells": 3141396,
+          "nodata_cells": 0,
+          "minimum": -43.77885055541992,
+          "maximum": 267.48565673828125
+        },
+        {
+          "id": "r02-c01",
+          "local_path": "data/downloads/bay-area/usgs-3dep-10m-utm10n/dem-r02-c01.tif",
+          "request_url": "https://elevation.nationalmap.gov/arcgis/rest/services/3DEPElevation/ImageServer/exportImage?bbox=538990%2C4173860%2C556090%2C4192220&bboxSR=32610&size=1710%2C1836&imageSR=32610&format=tiff&pixelType=F32&interpolation=RSP_BilinearInterpolation&noData=-9999&f=image",
+          "bbox": [
+            538990.0,
+            4173860.0,
+            556090.0,
+            4192220.0
+          ],
+          "width": 1710,
+          "height": 1836,
+          "accepted_geotiff_metadata": {
+            "byte_order": "little",
+            "epsg": 32610,
+            "bbox": [
+              538990.0,
+              4173860.0,
+              556090.0,
+              4192220.0
+            ],
+            "pixel_size_metres": [
+              10.0,
+              10.0
+            ],
+            "bits_per_sample": 32,
+            "sample_format": 3,
+            "nodata": -9999,
+            "storage": "tiles",
+            "block_size_pixels": [
+              128,
+              128
+            ]
+          },
+          "byte_size": 13765379,
+          "sha256": "0291c6f74917bcf5178409ab7ca3e8105cd8ebf9d137fb8ef81b8d54f03ec8c5",
+          "download_retries": 0,
+          "valid_cells": 3139560,
+          "nodata_cells": 0,
+          "minimum": -114.77974700927734,
+          "maximum": 341.21710205078125
+        },
+        {
+          "id": "r02-c02",
+          "local_path": "data/downloads/bay-area/usgs-3dep-10m-utm10n/dem-r02-c02.tif",
+          "request_url": "https://elevation.nationalmap.gov/arcgis/rest/services/3DEPElevation/ImageServer/exportImage?bbox=556090%2C4173860%2C573190%2C4192220&bboxSR=32610&size=1710%2C1836&imageSR=32610&format=tiff&pixelType=F32&interpolation=RSP_BilinearInterpolation&noData=-9999&f=image",
+          "bbox": [
+            556090.0,
+            4173860.0,
+            573190.0,
+            4192220.0
+          ],
+          "width": 1710,
+          "height": 1836,
+          "accepted_geotiff_metadata": {
+            "byte_order": "little",
+            "epsg": 32610,
+            "bbox": [
+              556090.0,
+              4173860.0,
+              573190.0,
+              4192220.0
+            ],
+            "pixel_size_metres": [
+              10.0,
+              10.0
+            ],
+            "bits_per_sample": 32,
+            "sample_format": 3,
+            "nodata": -9999,
+            "storage": "tiles",
+            "block_size_pixels": [
+              128,
+              128
+            ]
+          },
+          "byte_size": 13765379,
+          "sha256": "446ba274e258b887eff35194da5e9e2d2458c9cc44bc281f7f4867068de38e36",
+          "download_retries": 0,
+          "valid_cells": 3139560,
+          "nodata_cells": 0,
+          "minimum": -29.77706527709961,
+          "maximum": 537.6250610351562
+        },
+        {
+          "id": "r02-c03",
+          "local_path": "data/downloads/bay-area/usgs-3dep-10m-utm10n/dem-r02-c03.tif",
+          "request_url": "https://elevation.nationalmap.gov/arcgis/rest/services/3DEPElevation/ImageServer/exportImage?bbox=573190%2C4173860%2C590290%2C4192220&bboxSR=32610&size=1710%2C1836&imageSR=32610&format=tiff&pixelType=F32&interpolation=RSP_BilinearInterpolation&noData=-9999&f=image",
+          "bbox": [
+            573190.0,
+            4173860.0,
+            590290.0,
+            4192220.0
+          ],
+          "width": 1710,
+          "height": 1836,
+          "accepted_geotiff_metadata": {
+            "byte_order": "little",
+            "epsg": 32610,
+            "bbox": [
+              573190.0,
+              4173860.0,
+              590290.0,
+              4192220.0
+            ],
+            "pixel_size_metres": [
+              10.0,
+              10.0
+            ],
+            "bits_per_sample": 32,
+            "sample_format": 3,
+            "nodata": -9999,
+            "storage": "tiles",
+            "block_size_pixels": [
+              128,
+              128
+            ]
+          },
+          "byte_size": 13765379,
+          "sha256": "bdc0a1600ebac3cd6f388c08a7bdfa0ec9051145d17b7e6fa4b9edea5601bc63",
+          "download_retries": 0,
+          "valid_cells": 3139560,
+          "nodata_cells": 0,
+          "minimum": 6.255346775054932,
+          "maximum": 619.535400390625
+        },
+        {
+          "id": "r02-c04",
+          "local_path": "data/downloads/bay-area/usgs-3dep-10m-utm10n/dem-r02-c04.tif",
+          "request_url": "https://elevation.nationalmap.gov/arcgis/rest/services/3DEPElevation/ImageServer/exportImage?bbox=590290%2C4173860%2C607390%2C4192220&bboxSR=32610&size=1710%2C1836&imageSR=32610&format=tiff&pixelType=F32&interpolation=RSP_BilinearInterpolation&noData=-9999&f=image",
+          "bbox": [
+            590290.0,
+            4173860.0,
+            607390.0,
+            4192220.0
+          ],
+          "width": 1710,
+          "height": 1836,
+          "accepted_geotiff_metadata": {
+            "byte_order": "little",
+            "epsg": 32610,
+            "bbox": [
+              590290.0,
+              4173860.0,
+              607390.0,
+              4192220.0
+            ],
+            "pixel_size_metres": [
+              10.0,
+              10.0
+            ],
+            "bits_per_sample": 32,
+            "sample_format": 3,
+            "nodata": -9999,
+            "storage": "tiles",
+            "block_size_pixels": [
+              128,
+              128
+            ]
+          },
+          "byte_size": 13765379,
+          "sha256": "1f0bd4c95232faaa7fb927f5fa50b43cacb43899137a5437b48619a8a86c6f2a",
+          "download_retries": 0,
+          "valid_cells": 3139560,
+          "nodata_cells": 0,
+          "minimum": 96.20867919921875,
+          "maximum": 880.4246826171875
+        },
+        {
+          "id": "r02-c05",
+          "local_path": "data/downloads/bay-area/usgs-3dep-10m-utm10n/dem-r02-c05.tif",
+          "request_url": "https://elevation.nationalmap.gov/arcgis/rest/services/3DEPElevation/ImageServer/exportImage?bbox=607390%2C4173860%2C624490%2C4192220&bboxSR=32610&size=1710%2C1836&imageSR=32610&format=tiff&pixelType=F32&interpolation=RSP_BilinearInterpolation&noData=-9999&f=image",
+          "bbox": [
+            607390.0,
+            4173860.0,
+            624490.0,
+            4192220.0
+          ],
+          "width": 1710,
+          "height": 1836,
+          "accepted_geotiff_metadata": {
+            "byte_order": "little",
+            "epsg": 32610,
+            "bbox": [
+              607390.0,
+              4173860.0,
+              624490.0,
+              4192220.0
+            ],
+            "pixel_size_metres": [
+              10.0,
+              10.0
+            ],
+            "bits_per_sample": 32,
+            "sample_format": 3,
+            "nodata": -9999,
+            "storage": "tiles",
+            "block_size_pixels": [
+              128,
+              128
+            ]
+          },
+          "byte_size": 13765379,
+          "sha256": "bc1b9b392c220720049d5ffe785cfe7dd1305ca6bf7bb14898b4dad12132bea8",
+          "download_retries": 0,
+          "valid_cells": 3139560,
+          "nodata_cells": 0,
+          "minimum": -4.390995025634766,
+          "maximum": 692.6956176757812
+        },
+        {
+          "id": "r03-c00",
+          "local_path": "data/downloads/bay-area/usgs-3dep-10m-utm10n/dem-r03-c00.tif",
+          "request_url": "https://elevation.nationalmap.gov/arcgis/rest/services/3DEPElevation/ImageServer/exportImage?bbox=521880%2C4155500%2C538990%2C4173860&bboxSR=32610&size=1711%2C1836&imageSR=32610&format=tiff&pixelType=F32&interpolation=RSP_BilinearInterpolation&noData=-9999&f=image",
+          "bbox": [
+            521880.0,
+            4155500.0,
+            538990.0,
+            4173860.0
+          ],
+          "width": 1711,
+          "height": 1836,
+          "accepted_geotiff_metadata": {
+            "byte_order": "little",
+            "epsg": 32610,
+            "bbox": [
+              521880.0,
+              4155500.0,
+              538990.0,
+              4173860.0
+            ],
+            "pixel_size_metres": [
+              10.0,
+              10.0
+            ],
+            "bits_per_sample": 32,
+            "sample_format": 3,
+            "nodata": -9999,
+            "storage": "tiles",
+            "block_size_pixels": [
+              128,
+              128
+            ]
+          },
+          "byte_size": 13765379,
+          "sha256": "380d2df9a1986d4ffec6a1423b9bdcabcb4ab4d8589b0e8734c4c4e2a8b9039a",
+          "download_retries": 0,
+          "valid_cells": 3141396,
+          "nodata_cells": 0,
+          "minimum": -68.15121459960938,
+          "maximum": -17.901771545410156
+        },
+        {
+          "id": "r03-c01",
+          "local_path": "data/downloads/bay-area/usgs-3dep-10m-utm10n/dem-r03-c01.tif",
+          "request_url": "https://elevation.nationalmap.gov/arcgis/rest/services/3DEPElevation/ImageServer/exportImage?bbox=538990%2C4155500%2C556090%2C4173860&bboxSR=32610&size=1710%2C1836&imageSR=32610&format=tiff&pixelType=F32&interpolation=RSP_BilinearInterpolation&noData=-9999&f=image",
+          "bbox": [
+            538990.0,
+            4155500.0,
+            556090.0,
+            4173860.0
+          ],
+          "width": 1710,
+          "height": 1836,
+          "accepted_geotiff_metadata": {
+            "byte_order": "little",
+            "epsg": 32610,
+            "bbox": [
+              538990.0,
+              4155500.0,
+              556090.0,
+              4173860.0
+            ],
+            "pixel_size_metres": [
+              10.0,
+              10.0
+            ],
+            "bits_per_sample": 32,
+            "sample_format": 3,
+            "nodata": -9999,
+            "storage": "tiles",
+            "block_size_pixels": [
+              128,
+              128
+            ]
+          },
+          "byte_size": 13765379,
+          "sha256": "41f05e7746eddd16eada4a51352fdea256b5fbfb9669c0c805bc6002858962e5",
+          "download_retries": 0,
+          "valid_cells": 3139560,
+          "nodata_cells": 0,
+          "minimum": -36.608985900878906,
+          "maximum": 578.0975952148438
+        },
+        {
+          "id": "r03-c02",
+          "local_path": "data/downloads/bay-area/usgs-3dep-10m-utm10n/dem-r03-c02.tif",
+          "request_url": "https://elevation.nationalmap.gov/arcgis/rest/services/3DEPElevation/ImageServer/exportImage?bbox=556090%2C4155500%2C573190%2C4173860&bboxSR=32610&size=1710%2C1836&imageSR=32610&format=tiff&pixelType=F32&interpolation=RSP_BilinearInterpolation&noData=-9999&f=image",
+          "bbox": [
+            556090.0,
+            4155500.0,
+            573190.0,
+            4173860.0
+          ],
+          "width": 1710,
+          "height": 1836,
+          "accepted_geotiff_metadata": {
+            "byte_order": "little",
+            "epsg": 32610,
+            "bbox": [
+              556090.0,
+              4155500.0,
+              573190.0,
+              4173860.0
+            ],
+            "pixel_size_metres": [
+              10.0,
+              10.0
+            ],
+            "bits_per_sample": 32,
+            "sample_format": 3,
+            "nodata": -9999,
+            "storage": "tiles",
+            "block_size_pixels": [
+              128,
+              128
+            ]
+          },
+          "byte_size": 13765379,
+          "sha256": "b245e061afc89d6426cedc1bc461f8ac885508de4c6e250ba75b82a6e57ed5f6",
+          "download_retries": 0,
+          "valid_cells": 3139560,
+          "nodata_cells": 0,
+          "minimum": -16.886558532714844,
+          "maximum": 199.92764282226562
+        },
+        {
+          "id": "r03-c03",
+          "local_path": "data/downloads/bay-area/usgs-3dep-10m-utm10n/dem-r03-c03.tif",
+          "request_url": "https://elevation.nationalmap.gov/arcgis/rest/services/3DEPElevation/ImageServer/exportImage?bbox=573190%2C4155500%2C590290%2C4173860&bboxSR=32610&size=1710%2C1836&imageSR=32610&format=tiff&pixelType=F32&interpolation=RSP_BilinearInterpolation&noData=-9999&f=image",
+          "bbox": [
+            573190.0,
+            4155500.0,
+            590290.0,
+            4173860.0
+          ],
+          "width": 1710,
+          "height": 1836,
+          "accepted_geotiff_metadata": {
+            "byte_order": "little",
+            "epsg": 32610,
+            "bbox": [
+              573190.0,
+              4155500.0,
+              590290.0,
+              4173860.0
+            ],
+            "pixel_size_metres": [
+              10.0,
+              10.0
+            ],
+            "bits_per_sample": 32,
+            "sample_format": 3,
+            "nodata": -9999,
+            "storage": "tiles",
+            "block_size_pixels": [
+              128,
+              128
+            ]
+          },
+          "byte_size": 13765379,
+          "sha256": "fdfd97906769815ca74473a78754fc4d10a60436744b4e0d7464a9648e645bb6",
+          "download_retries": 0,
+          "valid_cells": 3139560,
+          "nodata_cells": 0,
+          "minimum": -3.228459596633911,
+          "maximum": 527.5697021484375
+        },
+        {
+          "id": "r03-c04",
+          "local_path": "data/downloads/bay-area/usgs-3dep-10m-utm10n/dem-r03-c04.tif",
+          "request_url": "https://elevation.nationalmap.gov/arcgis/rest/services/3DEPElevation/ImageServer/exportImage?bbox=590290%2C4155500%2C607390%2C4173860&bboxSR=32610&size=1710%2C1836&imageSR=32610&format=tiff&pixelType=F32&interpolation=RSP_BilinearInterpolation&noData=-9999&f=image",
+          "bbox": [
+            590290.0,
+            4155500.0,
+            607390.0,
+            4173860.0
+          ],
+          "width": 1710,
+          "height": 1836,
+          "accepted_geotiff_metadata": {
+            "byte_order": "little",
+            "epsg": 32610,
+            "bbox": [
+              590290.0,
+              4155500.0,
+              607390.0,
+              4173860.0
+            ],
+            "pixel_size_metres": [
+              10.0,
+              10.0
+            ],
+            "bits_per_sample": 32,
+            "sample_format": 3,
+            "nodata": -9999,
+            "storage": "tiles",
+            "block_size_pixels": [
+              128,
+              128
+            ]
+          },
+          "byte_size": 13765379,
+          "sha256": "d9bbea262af9c831a3333165eefb35bd2b1a48118f2d70c005aff4084c547279",
+          "download_retries": 0,
+          "valid_cells": 3139560,
+          "nodata_cells": 0,
+          "minimum": 13.819602012634277,
+          "maximum": 701.0053100585938
+        },
+        {
+          "id": "r03-c05",
+          "local_path": "data/downloads/bay-area/usgs-3dep-10m-utm10n/dem-r03-c05.tif",
+          "request_url": "https://elevation.nationalmap.gov/arcgis/rest/services/3DEPElevation/ImageServer/exportImage?bbox=607390%2C4155500%2C624490%2C4173860&bboxSR=32610&size=1710%2C1836&imageSR=32610&format=tiff&pixelType=F32&interpolation=RSP_BilinearInterpolation&noData=-9999&f=image",
+          "bbox": [
+            607390.0,
+            4155500.0,
+            624490.0,
+            4173860.0
+          ],
+          "width": 1710,
+          "height": 1836,
+          "accepted_geotiff_metadata": {
+            "byte_order": "little",
+            "epsg": 32610,
+            "bbox": [
+              607390.0,
+              4155500.0,
+              624490.0,
+              4173860.0
+            ],
+            "pixel_size_metres": [
+              10.0,
+              10.0
+            ],
+            "bits_per_sample": 32,
+            "sample_format": 3,
+            "nodata": -9999,
+            "storage": "tiles",
+            "block_size_pixels": [
+              128,
+              128
+            ]
+          },
+          "byte_size": 13765379,
+          "sha256": "e7384386a8f16215befa2b33270c8059492c7ff6cf3babad7c71dd639276da6b",
+          "download_retries": 0,
+          "valid_cells": 3139560,
+          "nodata_cells": 0,
+          "minimum": 130.95608520507812,
+          "maximum": 1124.0843505859375
+        },
+        {
+          "id": "r04-c00",
+          "local_path": "data/downloads/bay-area/usgs-3dep-10m-utm10n/dem-r04-c00.tif",
+          "request_url": "https://elevation.nationalmap.gov/arcgis/rest/services/3DEPElevation/ImageServer/exportImage?bbox=521880%2C4137140%2C538990%2C4155500&bboxSR=32610&size=1711%2C1836&imageSR=32610&format=tiff&pixelType=F32&interpolation=RSP_BilinearInterpolation&noData=-9999&f=image",
+          "bbox": [
+            521880.0,
+            4137140.0,
+            538990.0,
+            4155500.0
+          ],
+          "width": 1711,
+          "height": 1836,
+          "accepted_geotiff_metadata": {
+            "byte_order": "little",
+            "epsg": 32610,
+            "bbox": [
+              521880.0,
+              4137140.0,
+              538990.0,
+              4155500.0
+            ],
+            "pixel_size_metres": [
+              10.0,
+              10.0
+            ],
+            "bits_per_sample": 32,
+            "sample_format": 3,
+            "nodata": -9999,
+            "storage": "tiles",
+            "block_size_pixels": [
+              128,
+              128
+            ]
+          },
+          "byte_size": 13765379,
+          "sha256": "fe8767963716ed9457984ddb766600ca870bdda765253c48394f247c753d4a44",
+          "download_retries": 0,
+          "valid_cells": 3141396,
+          "nodata_cells": 0,
+          "minimum": -91.23413848876953,
+          "maximum": -36.65742111206055
+        },
+        {
+          "id": "r04-c01",
+          "local_path": "data/downloads/bay-area/usgs-3dep-10m-utm10n/dem-r04-c01.tif",
+          "request_url": "https://elevation.nationalmap.gov/arcgis/rest/services/3DEPElevation/ImageServer/exportImage?bbox=538990%2C4137140%2C556090%2C4155500&bboxSR=32610&size=1710%2C1836&imageSR=32610&format=tiff&pixelType=F32&interpolation=RSP_BilinearInterpolation&noData=-9999&f=image",
+          "bbox": [
+            538990.0,
+            4137140.0,
+            556090.0,
+            4155500.0
+          ],
+          "width": 1710,
+          "height": 1836,
+          "accepted_geotiff_metadata": {
+            "byte_order": "little",
+            "epsg": 32610,
+            "bbox": [
+              538990.0,
+              4137140.0,
+              556090.0,
+              4155500.0
+            ],
+            "pixel_size_metres": [
+              10.0,
+              10.0
+            ],
+            "bits_per_sample": 32,
+            "sample_format": 3,
+            "nodata": -9999,
+            "storage": "tiles",
+            "block_size_pixels": [
+              128,
+              128
+            ]
+          },
+          "byte_size": 13765379,
+          "sha256": "db3a782a401ebd6e5b74b2c7660a93d8789d7a421f32bee49312a8133060880d",
+          "download_retries": 0,
+          "valid_cells": 3139560,
+          "nodata_cells": 0,
+          "minimum": -65.75341796875,
+          "maximum": 589.0187377929688
+        },
+        {
+          "id": "r04-c02",
+          "local_path": "data/downloads/bay-area/usgs-3dep-10m-utm10n/dem-r04-c02.tif",
+          "request_url": "https://elevation.nationalmap.gov/arcgis/rest/services/3DEPElevation/ImageServer/exportImage?bbox=556090%2C4137140%2C573190%2C4155500&bboxSR=32610&size=1710%2C1836&imageSR=32610&format=tiff&pixelType=F32&interpolation=RSP_BilinearInterpolation&noData=-9999&f=image",
+          "bbox": [
+            556090.0,
+            4137140.0,
+            573190.0,
+            4155500.0
+          ],
+          "width": 1710,
+          "height": 1836,
+          "accepted_geotiff_metadata": {
+            "byte_order": "little",
+            "epsg": 32610,
+            "bbox": [
+              556090.0,
+              4137140.0,
+              573190.0,
+              4155500.0
+            ],
+            "pixel_size_metres": [
+              10.0,
+              10.0
+            ],
+            "bits_per_sample": 32,
+            "sample_format": 3,
+            "nodata": -9999,
+            "storage": "tiles",
+            "block_size_pixels": [
+              128,
+              128
+            ]
+          },
+          "byte_size": 13765379,
+          "sha256": "073dd3dcb374510ba63490c44cc29236f82e4f889bcb2b2525f93e22e0737201",
+          "download_retries": 0,
+          "valid_cells": 3139560,
+          "nodata_cells": 0,
+          "minimum": -13.406513214111328,
+          "maximum": 746.014892578125
+        },
+        {
+          "id": "r04-c03",
+          "local_path": "data/downloads/bay-area/usgs-3dep-10m-utm10n/dem-r04-c03.tif",
+          "request_url": "https://elevation.nationalmap.gov/arcgis/rest/services/3DEPElevation/ImageServer/exportImage?bbox=573190%2C4137140%2C590290%2C4155500&bboxSR=32610&size=1710%2C1836&imageSR=32610&format=tiff&pixelType=F32&interpolation=RSP_BilinearInterpolation&noData=-9999&f=image",
+          "bbox": [
+            573190.0,
+            4137140.0,
+            590290.0,
+            4155500.0
+          ],
+          "width": 1710,
+          "height": 1836,
+          "accepted_geotiff_metadata": {
+            "byte_order": "little",
+            "epsg": 32610,
+            "bbox": [
+              573190.0,
+              4137140.0,
+              590290.0,
+              4155500.0
+            ],
+            "pixel_size_metres": [
+              10.0,
+              10.0
+            ],
+            "bits_per_sample": 32,
+            "sample_format": 3,
+            "nodata": -9999,
+            "storage": "tiles",
+            "block_size_pixels": [
+              128,
+              128
+            ]
+          },
+          "byte_size": 13765379,
+          "sha256": "a55977cdc24c1a9887557b140035f042494c0d97db0d7f0f6066296877150f69",
+          "download_retries": 0,
+          "valid_cells": 3139560,
+          "nodata_cells": 0,
+          "minimum": -19.190975189208984,
+          "maximum": 165.7655792236328
+        },
+        {
+          "id": "r04-c04",
+          "local_path": "data/downloads/bay-area/usgs-3dep-10m-utm10n/dem-r04-c04.tif",
+          "request_url": "https://elevation.nationalmap.gov/arcgis/rest/services/3DEPElevation/ImageServer/exportImage?bbox=590290%2C4137140%2C607390%2C4155500&bboxSR=32610&size=1710%2C1836&imageSR=32610&format=tiff&pixelType=F32&interpolation=RSP_BilinearInterpolation&noData=-9999&f=image",
+          "bbox": [
+            590290.0,
+            4137140.0,
+            607390.0,
+            4155500.0
+          ],
+          "width": 1710,
+          "height": 1836,
+          "accepted_geotiff_metadata": {
+            "byte_order": "little",
+            "epsg": 32610,
+            "bbox": [
+              590290.0,
+              4137140.0,
+              607390.0,
+              4155500.0
+            ],
+            "pixel_size_metres": [
+              10.0,
+              10.0
+            ],
+            "bits_per_sample": 32,
+            "sample_format": 3,
+            "nodata": -9999,
+            "storage": "tiles",
+            "block_size_pixels": [
+              128,
+              128
+            ]
+          },
+          "byte_size": 13765379,
+          "sha256": "35b498b2cfaf0da5664e2c752314a7b7344c6dc1305aa9b69c68167f814667f8",
+          "download_retries": 0,
+          "valid_cells": 3139560,
+          "nodata_cells": 0,
+          "minimum": 1.1754943508222875e-38,
+          "maximum": 810.4918823242188
+        },
+        {
+          "id": "r04-c05",
+          "local_path": "data/downloads/bay-area/usgs-3dep-10m-utm10n/dem-r04-c05.tif",
+          "request_url": "https://elevation.nationalmap.gov/arcgis/rest/services/3DEPElevation/ImageServer/exportImage?bbox=607390%2C4137140%2C624490%2C4155500&bboxSR=32610&size=1710%2C1836&imageSR=32610&format=tiff&pixelType=F32&interpolation=RSP_BilinearInterpolation&noData=-9999&f=image",
+          "bbox": [
+            607390.0,
+            4137140.0,
+            624490.0,
+            4155500.0
+          ],
+          "width": 1710,
+          "height": 1836,
+          "accepted_geotiff_metadata": {
+            "byte_order": "little",
+            "epsg": 32610,
+            "bbox": [
+              607390.0,
+              4137140.0,
+              624490.0,
+              4155500.0
+            ],
+            "pixel_size_metres": [
+              10.0,
+              10.0
+            ],
+            "bits_per_sample": 32,
+            "sample_format": 3,
+            "nodata": -9999,
+            "storage": "tiles",
+            "block_size_pixels": [
+              128,
+              128
+            ]
+          },
+          "byte_size": 13765379,
+          "sha256": "afd454b83df760a2c07af8567cd69191d5683411c8db4c6a744b5fc78a5287d7",
+          "download_retries": 0,
+          "valid_cells": 3139560,
+          "nodata_cells": 0,
+          "minimum": 223.6521453857422,
+          "maximum": 1202.7772216796875
+        },
+        {
+          "id": "r05-c00",
+          "local_path": "data/downloads/bay-area/usgs-3dep-10m-utm10n/dem-r05-c00.tif",
+          "request_url": "https://elevation.nationalmap.gov/arcgis/rest/services/3DEPElevation/ImageServer/exportImage?bbox=521880%2C4118790%2C538990%2C4137140&bboxSR=32610&size=1711%2C1835&imageSR=32610&format=tiff&pixelType=F32&interpolation=RSP_BilinearInterpolation&noData=-9999&f=image",
+          "bbox": [
+            521880.0,
+            4118790.0,
+            538990.0,
+            4137140.0
+          ],
+          "width": 1711,
+          "height": 1835,
+          "accepted_geotiff_metadata": {
+            "byte_order": "little",
+            "epsg": 32610,
+            "bbox": [
+              521880.0,
+              4118790.0,
+              538990.0,
+              4137140.0
+            ],
+            "pixel_size_metres": [
+              10.0,
+              10.0
+            ],
+            "bits_per_sample": 32,
+            "sample_format": 3,
+            "nodata": -9999,
+            "storage": "tiles",
+            "block_size_pixels": [
+              128,
+              128
+            ]
+          },
+          "byte_size": 13765379,
+          "sha256": "43704c5c56d4101f6e2aaaef37c39abd76cdddf2d40e8819ecb4d3b5ddb429cd",
+          "download_retries": 0,
+          "valid_cells": 3139685,
+          "nodata_cells": 0,
+          "minimum": -103.735107421875,
+          "maximum": 0.0
+        },
+        {
+          "id": "r05-c01",
+          "local_path": "data/downloads/bay-area/usgs-3dep-10m-utm10n/dem-r05-c01.tif",
+          "request_url": "https://elevation.nationalmap.gov/arcgis/rest/services/3DEPElevation/ImageServer/exportImage?bbox=538990%2C4118790%2C556090%2C4137140&bboxSR=32610&size=1710%2C1835&imageSR=32610&format=tiff&pixelType=F32&interpolation=RSP_BilinearInterpolation&noData=-9999&f=image",
+          "bbox": [
+            538990.0,
+            4118790.0,
+            556090.0,
+            4137140.0
+          ],
+          "width": 1710,
+          "height": 1835,
+          "accepted_geotiff_metadata": {
+            "byte_order": "little",
+            "epsg": 32610,
+            "bbox": [
+              538990.0,
+              4118790.0,
+              556090.0,
+              4137140.0
+            ],
+            "pixel_size_metres": [
+              10.0,
+              10.0
+            ],
+            "bits_per_sample": 32,
+            "sample_format": 3,
+            "nodata": -9999,
+            "storage": "tiles",
+            "block_size_pixels": [
+              128,
+              128
+            ]
+          },
+          "byte_size": 13765379,
+          "sha256": "525b7fed91bed4439abc6cdb8eee04dd429a217aaf2484470e144e8f6541b637",
+          "download_retries": 0,
+          "valid_cells": 3137850,
+          "nodata_cells": 0,
+          "minimum": -74.16422271728516,
+          "maximum": 269.5970153808594
+        },
+        {
+          "id": "r05-c02",
+          "local_path": "data/downloads/bay-area/usgs-3dep-10m-utm10n/dem-r05-c02.tif",
+          "request_url": "https://elevation.nationalmap.gov/arcgis/rest/services/3DEPElevation/ImageServer/exportImage?bbox=556090%2C4118790%2C573190%2C4137140&bboxSR=32610&size=1710%2C1835&imageSR=32610&format=tiff&pixelType=F32&interpolation=RSP_BilinearInterpolation&noData=-9999&f=image",
+          "bbox": [
+            556090.0,
+            4118790.0,
+            573190.0,
+            4137140.0
+          ],
+          "width": 1710,
+          "height": 1835,
+          "accepted_geotiff_metadata": {
+            "byte_order": "little",
+            "epsg": 32610,
+            "bbox": [
+              556090.0,
+              4118790.0,
+              573190.0,
+              4137140.0
+            ],
+            "pixel_size_metres": [
+              10.0,
+              10.0
+            ],
+            "bits_per_sample": 32,
+            "sample_format": 3,
+            "nodata": -9999,
+            "storage": "tiles",
+            "block_size_pixels": [
+              128,
+              128
+            ]
+          },
+          "byte_size": 13765379,
+          "sha256": "6a533b49c14a9e75db3e3b2e0573844c79c9cd57049c8983be065e6c1412db77",
+          "download_retries": 0,
+          "valid_cells": 3137850,
+          "nodata_cells": 0,
+          "minimum": 9.798844337463379,
+          "maximum": 784.2775268554688
+        },
+        {
+          "id": "r05-c03",
+          "local_path": "data/downloads/bay-area/usgs-3dep-10m-utm10n/dem-r05-c03.tif",
+          "request_url": "https://elevation.nationalmap.gov/arcgis/rest/services/3DEPElevation/ImageServer/exportImage?bbox=573190%2C4118790%2C590290%2C4137140&bboxSR=32610&size=1710%2C1835&imageSR=32610&format=tiff&pixelType=F32&interpolation=RSP_BilinearInterpolation&noData=-9999&f=image",
+          "bbox": [
+            573190.0,
+            4118790.0,
+            590290.0,
+            4137140.0
+          ],
+          "width": 1710,
+          "height": 1835,
+          "accepted_geotiff_metadata": {
+            "byte_order": "little",
+            "epsg": 32610,
+            "bbox": [
+              573190.0,
+              4118790.0,
+              590290.0,
+              4137140.0
+            ],
+            "pixel_size_metres": [
+              10.0,
+              10.0
+            ],
+            "bits_per_sample": 32,
+            "sample_format": 3,
+            "nodata": -9999,
+            "storage": "tiles",
+            "block_size_pixels": [
+              128,
+              128
+            ]
+          },
+          "byte_size": 13765379,
+          "sha256": "ad04d946bdf9bbaa19b7d049869a634416d0a07b3d161d8508349440314f26eb",
+          "download_retries": 0,
+          "valid_cells": 3137850,
+          "nodata_cells": 0,
+          "minimum": 10.751051902770996,
+          "maximum": 985.7362060546875
+        },
+        {
+          "id": "r05-c04",
+          "local_path": "data/downloads/bay-area/usgs-3dep-10m-utm10n/dem-r05-c04.tif",
+          "request_url": "https://elevation.nationalmap.gov/arcgis/rest/services/3DEPElevation/ImageServer/exportImage?bbox=590290%2C4118790%2C607390%2C4137140&bboxSR=32610&size=1710%2C1835&imageSR=32610&format=tiff&pixelType=F32&interpolation=RSP_BilinearInterpolation&noData=-9999&f=image",
+          "bbox": [
+            590290.0,
+            4118790.0,
+            607390.0,
+            4137140.0
+          ],
+          "width": 1710,
+          "height": 1835,
+          "accepted_geotiff_metadata": {
+            "byte_order": "little",
+            "epsg": 32610,
+            "bbox": [
+              590290.0,
+              4118790.0,
+              607390.0,
+              4137140.0
+            ],
+            "pixel_size_metres": [
+              10.0,
+              10.0
+            ],
+            "bits_per_sample": 32,
+            "sample_format": 3,
+            "nodata": -9999,
+            "storage": "tiles",
+            "block_size_pixels": [
+              128,
+              128
+            ]
+          },
+          "byte_size": 13765379,
+          "sha256": "fa6056dc41dd8d25351dc768fbb931a453456f2d5a4ce34b70b6f33b28e7d83e",
+          "download_retries": 0,
+          "valid_cells": 3137850,
+          "nodata_cells": 0,
+          "minimum": 5.880202770233154,
+          "maximum": 497.7533874511719
+        },
+        {
+          "id": "r05-c05",
+          "local_path": "data/downloads/bay-area/usgs-3dep-10m-utm10n/dem-r05-c05.tif",
+          "request_url": "https://elevation.nationalmap.gov/arcgis/rest/services/3DEPElevation/ImageServer/exportImage?bbox=607390%2C4118790%2C624490%2C4137140&bboxSR=32610&size=1710%2C1835&imageSR=32610&format=tiff&pixelType=F32&interpolation=RSP_BilinearInterpolation&noData=-9999&f=image",
+          "bbox": [
+            607390.0,
+            4118790.0,
+            624490.0,
+            4137140.0
+          ],
+          "width": 1710,
+          "height": 1835,
+          "accepted_geotiff_metadata": {
+            "byte_order": "little",
+            "epsg": 32610,
+            "bbox": [
+              607390.0,
+              4118790.0,
+              624490.0,
+              4137140.0
+            ],
+            "pixel_size_metres": [
+              10.0,
+              10.0
+            ],
+            "bits_per_sample": 32,
+            "sample_format": 3,
+            "nodata": -9999,
+            "storage": "tiles",
+            "block_size_pixels": [
+              128,
+              128
+            ]
+          },
+          "byte_size": 13765379,
+          "sha256": "4ab4aaf7cbfb14d6f1dbe471f24dd3095c33736c61b213bf5528e1c8085e7d6b",
+          "download_retries": 0,
+          "valid_cells": 3137850,
+          "nodata_cells": 0,
+          "minimum": 56.065982818603516,
+          "maximum": 1335.91455078125
+        },
+        {
+          "id": "r06-c00",
+          "local_path": "data/downloads/bay-area/usgs-3dep-10m-utm10n/dem-r06-c00.tif",
+          "request_url": "https://elevation.nationalmap.gov/arcgis/rest/services/3DEPElevation/ImageServer/exportImage?bbox=521880%2C4100440%2C538990%2C4118790&bboxSR=32610&size=1711%2C1835&imageSR=32610&format=tiff&pixelType=F32&interpolation=RSP_BilinearInterpolation&noData=-9999&f=image",
+          "bbox": [
+            521880.0,
+            4100440.0,
+            538990.0,
+            4118790.0
+          ],
+          "width": 1711,
+          "height": 1835,
+          "accepted_geotiff_metadata": {
+            "byte_order": "little",
+            "epsg": 32610,
+            "bbox": [
+              521880.0,
+              4100440.0,
+              538990.0,
+              4118790.0
+            ],
+            "pixel_size_metres": [
+              10.0,
+              10.0
+            ],
+            "bits_per_sample": 32,
+            "sample_format": 3,
+            "nodata": -9999,
+            "storage": "tiles",
+            "block_size_pixels": [
+              128,
+              128
+            ]
+          },
+          "byte_size": 13765379,
+          "sha256": "d0fadf73d1dae8d09de7a006a04dea1f2e6b4b524315511c98199c776bb08f29",
+          "download_retries": 0,
+          "valid_cells": 3139685,
+          "nodata_cells": 0,
+          "minimum": 0.0,
+          "maximum": 0.0
+        },
+        {
+          "id": "r06-c01",
+          "local_path": "data/downloads/bay-area/usgs-3dep-10m-utm10n/dem-r06-c01.tif",
+          "request_url": "https://elevation.nationalmap.gov/arcgis/rest/services/3DEPElevation/ImageServer/exportImage?bbox=538990%2C4100440%2C556090%2C4118790&bboxSR=32610&size=1710%2C1835&imageSR=32610&format=tiff&pixelType=F32&interpolation=RSP_BilinearInterpolation&noData=-9999&f=image",
+          "bbox": [
+            538990.0,
+            4100440.0,
+            556090.0,
+            4118790.0
+          ],
+          "width": 1710,
+          "height": 1835,
+          "accepted_geotiff_metadata": {
+            "byte_order": "little",
+            "epsg": 32610,
+            "bbox": [
+              538990.0,
+              4100440.0,
+              556090.0,
+              4118790.0
+            ],
+            "pixel_size_metres": [
+              10.0,
+              10.0
+            ],
+            "bits_per_sample": 32,
+            "sample_format": 3,
+            "nodata": -9999,
+            "storage": "tiles",
+            "block_size_pixels": [
+              128,
+              128
+            ]
+          },
+          "byte_size": 13765379,
+          "sha256": "c437caa4db6a9eb820dc80080e86833699cd8285c8f52b09210077c43f52c352",
+          "download_retries": 0,
+          "valid_cells": 3137850,
+          "nodata_cells": 0,
+          "minimum": -0.699999988079071,
+          "maximum": 153.28993225097656
+        },
+        {
+          "id": "r06-c02",
+          "local_path": "data/downloads/bay-area/usgs-3dep-10m-utm10n/dem-r06-c02.tif",
+          "request_url": "https://elevation.nationalmap.gov/arcgis/rest/services/3DEPElevation/ImageServer/exportImage?bbox=556090%2C4100440%2C573190%2C4118790&bboxSR=32610&size=1710%2C1835&imageSR=32610&format=tiff&pixelType=F32&interpolation=RSP_BilinearInterpolation&noData=-9999&f=image",
+          "bbox": [
+            556090.0,
+            4100440.0,
+            573190.0,
+            4118790.0
+          ],
+          "width": 1710,
+          "height": 1835,
+          "accepted_geotiff_metadata": {
+            "byte_order": "little",
+            "epsg": 32610,
+            "bbox": [
+              556090.0,
+              4100440.0,
+              573190.0,
+              4118790.0
+            ],
+            "pixel_size_metres": [
+              10.0,
+              10.0
+            ],
+            "bits_per_sample": 32,
+            "sample_format": 3,
+            "nodata": -9999,
+            "storage": "tiles",
+            "block_size_pixels": [
+              128,
+              128
+            ]
+          },
+          "byte_size": 13765379,
+          "sha256": "f197f2bac1de52ac81903b10d59599c968af319907edbab1e9fb453c717c8b75",
+          "download_retries": 0,
+          "valid_cells": 3137850,
+          "nodata_cells": 0,
+          "minimum": -0.699999988079071,
+          "maximum": 789.0459594726562
+        },
+        {
+          "id": "r06-c03",
+          "local_path": "data/downloads/bay-area/usgs-3dep-10m-utm10n/dem-r06-c03.tif",
+          "request_url": "https://elevation.nationalmap.gov/arcgis/rest/services/3DEPElevation/ImageServer/exportImage?bbox=573190%2C4100440%2C590290%2C4118790&bboxSR=32610&size=1710%2C1835&imageSR=32610&format=tiff&pixelType=F32&interpolation=RSP_BilinearInterpolation&noData=-9999&f=image",
+          "bbox": [
+            573190.0,
+            4100440.0,
+            590290.0,
+            4118790.0
+          ],
+          "width": 1710,
+          "height": 1835,
+          "accepted_geotiff_metadata": {
+            "byte_order": "little",
+            "epsg": 32610,
+            "bbox": [
+              573190.0,
+              4100440.0,
+              590290.0,
+              4118790.0
+            ],
+            "pixel_size_metres": [
+              10.0,
+              10.0
+            ],
+            "bits_per_sample": 32,
+            "sample_format": 3,
+            "nodata": -9999,
+            "storage": "tiles",
+            "block_size_pixels": [
+              128,
+              128
+            ]
+          },
+          "byte_size": 13765379,
+          "sha256": "0f8620fa7c378154bbe750182ce8db63752a80ce209fe2c72b3b1cf4ed067ef8",
+          "download_retries": 0,
+          "valid_cells": 3137850,
+          "nodata_cells": 0,
+          "minimum": 72.36598205566406,
+          "maximum": 869.2382202148438
+        },
+        {
+          "id": "r06-c04",
+          "local_path": "data/downloads/bay-area/usgs-3dep-10m-utm10n/dem-r06-c04.tif",
+          "request_url": "https://elevation.nationalmap.gov/arcgis/rest/services/3DEPElevation/ImageServer/exportImage?bbox=590290%2C4100440%2C607390%2C4118790&bboxSR=32610&size=1710%2C1835&imageSR=32610&format=tiff&pixelType=F32&interpolation=RSP_BilinearInterpolation&noData=-9999&f=image",
+          "bbox": [
+            590290.0,
+            4100440.0,
+            607390.0,
+            4118790.0
+          ],
+          "width": 1710,
+          "height": 1835,
+          "accepted_geotiff_metadata": {
+            "byte_order": "little",
+            "epsg": 32610,
+            "bbox": [
+              590290.0,
+              4100440.0,
+              607390.0,
+              4118790.0
+            ],
+            "pixel_size_metres": [
+              10.0,
+              10.0
+            ],
+            "bits_per_sample": 32,
+            "sample_format": 3,
+            "nodata": -9999,
+            "storage": "tiles",
+            "block_size_pixels": [
+              128,
+              128
+            ]
+          },
+          "byte_size": 13765379,
+          "sha256": "657f233465818d8edd99a0cfb146c5c69d3daaff4462fb38dd9978d1e3bdf044",
+          "download_retries": 0,
+          "valid_cells": 3137850,
+          "nodata_cells": 0,
+          "minimum": 57.865386962890625,
+          "maximum": 1156.1446533203125
+        },
+        {
+          "id": "r06-c05",
+          "local_path": "data/downloads/bay-area/usgs-3dep-10m-utm10n/dem-r06-c05.tif",
+          "request_url": "https://elevation.nationalmap.gov/arcgis/rest/services/3DEPElevation/ImageServer/exportImage?bbox=607390%2C4100440%2C624490%2C4118790&bboxSR=32610&size=1710%2C1835&imageSR=32610&format=tiff&pixelType=F32&interpolation=RSP_BilinearInterpolation&noData=-9999&f=image",
+          "bbox": [
+            607390.0,
+            4100440.0,
+            624490.0,
+            4118790.0
+          ],
+          "width": 1710,
+          "height": 1835,
+          "accepted_geotiff_metadata": {
+            "byte_order": "little",
+            "epsg": 32610,
+            "bbox": [
+              607390.0,
+              4100440.0,
+              624490.0,
+              4118790.0
+            ],
+            "pixel_size_metres": [
+              10.0,
+              10.0
+            ],
+            "bits_per_sample": 32,
+            "sample_format": 3,
+            "nodata": -9999,
+            "storage": "tiles",
+            "block_size_pixels": [
+              128,
+              128
+            ]
+          },
+          "byte_size": 13765379,
+          "sha256": "3c31ee8f810b85af822efde7b7447d7ef5ccf06f9e10a9c0f3a70bed669f4460",
+          "download_retries": 0,
+          "valid_cells": 3137850,
+          "nodata_cells": 0,
+          "minimum": 70.4672622680664,
+          "maximum": 828.8807983398438
+        }
+      ],
+      "role": "bare-earth elevation",
+      "provider": "U.S. Geological Survey, The National Map, 3D Elevation Program",
+      "product": "3DEP Bare Earth DEM Dynamic service resampled to a 10 metre working grid",
+      "service": "ArcGIS ImageServer exportImage",
+      "service_url": "https://elevation.nationalmap.gov/arcgis/rest/services/3DEPElevation/ImageServer",
+      "interpolation": "bilinear",
+      "vertical_datum": "North American Vertical Datum of 1988 (NAVD 88), as reported by all intersecting non-overview source records",
+      "license_status": "USGS public-domain data; no use restrictions stated by 3DEP"
+    },
+    {
+      "id": "usgs-annual-nlcd-2025-epsg5070",
+      "crs": "EPSG:5070",
+      "bbox": [
+        -2325735.0,
+        1858305.0,
+        -2193915.0,
+        2009685.0
+      ],
+      "width": 4394,
+      "height": 5046,
+      "pixel_size_metres": [
+        30.0,
+        30.0
+      ],
+      "tile_edge_limit_pixels": 2048,
+      "tile_count": 9,
+      "format": "GeoTIFF, uncompressed, single-band uint8 categorical",
+      "nodata": 250,
+      "total_byte_size": 25173234,
+      "total_cells": 22172124,
+      "valid_cells": 17548803,
+      "nodata_cells": 4623321,
+      "minimum": 11,
+      "maximum": 95,
+      "download_retries": 0,
+      "tiles": [
+        {
+          "id": "r00-c00",
+          "local_path": "data/downloads/bay-area/usgs-annual-nlcd-2025-epsg5070/nlcd-r00-c00.tif",
+          "request_url": "https://dmsdata.cr.usgs.gov/geoserver/mrlc_Land-Cover-Native_conus_year_data/wcs?service=WCS&version=1.0.0&request=GetCoverage&coverage=mrlc_Land-Cover-Native_conus_year_data%3ALand-Cover-Native_conus_year_data&bbox=-2325735%2C1959225%2C-2281785%2C2009685&crs=EPSG%3A5070&response_crs=EPSG%3A5070&width=1465&height=1682&format=GeoTIFF&time=2025-01-01T00%3A00%3A00.000Z",
+          "bbox": [
+            -2325735.0,
+            1959225.0,
+            -2281785.0,
+            2009685.0
+          ],
+          "width": 1465,
+          "height": 1682,
+          "accepted_geotiff_metadata": {
+            "byte_order": "big",
+            "epsg": 5070,
+            "bbox": [
+              -2325734.997621094,
+              1959225.008151914,
+              -2281784.997614706,
+              2009685.0082785056
+            ],
+            "pixel_size_metres": [
+              30.00000000436037,
+              30.000000075262573
+            ],
+            "bits_per_sample": 8,
+            "sample_format": 1,
+            "nodata": 250,
+            "storage": "tiles",
+            "block_size_pixels": [
+              288,
+              848
+            ]
+          },
+          "byte_size": 2932722,
+          "sha256": "7c4360c6fa4ae6f17e442cf93bc0bde4e471f89a39416432ccefb6fa9ab39981",
+          "download_retries": 0,
+          "valid_cells": 1540910,
+          "nodata_cells": 923220,
+          "minimum": 11,
+          "maximum": 95,
+          "observed_classes": [
+            11,
+            21,
+            22,
+            23,
+            24,
+            31,
+            41,
+            42,
+            43,
+            52,
+            71,
+            81,
+            82,
+            90,
+            95
+          ]
+        },
+        {
+          "id": "r00-c01",
+          "local_path": "data/downloads/bay-area/usgs-annual-nlcd-2025-epsg5070/nlcd-r00-c01.tif",
+          "request_url": "https://dmsdata.cr.usgs.gov/geoserver/mrlc_Land-Cover-Native_conus_year_data/wcs?service=WCS&version=1.0.0&request=GetCoverage&coverage=mrlc_Land-Cover-Native_conus_year_data%3ALand-Cover-Native_conus_year_data&bbox=-2281785%2C1959225%2C-2237835%2C2009685&crs=EPSG%3A5070&response_crs=EPSG%3A5070&width=1465&height=1682&format=GeoTIFF&time=2025-01-01T00%3A00%3A00.000Z",
+          "bbox": [
+            -2281785.0,
+            1959225.0,
+            -2237835.0,
+            2009685.0
+          ],
+          "width": 1465,
+          "height": 1682,
+          "accepted_geotiff_metadata": {
+            "byte_order": "big",
+            "epsg": 5070,
+            "bbox": [
+              -2281784.997655596,
+              1959225.0081884302,
+              -2237834.9976508394,
+              2009685.0083132104
+            ],
+            "pixel_size_metres": [
+              30.000000003246914,
+              30.00000007418563
+            ],
+            "bits_per_sample": 8,
+            "sample_format": 1,
+            "nodata": 250,
+            "storage": "tiles",
+            "block_size_pixels": [
+              288,
+              848
+            ]
+          },
+          "byte_size": 2932722,
+          "sha256": "33c24759f27c6ac9f6fd467632a07d4e5917a27b51582e468f7d3fc6608992c7",
+          "download_retries": 0,
+          "valid_cells": 2464130,
+          "nodata_cells": 0,
+          "minimum": 11,
+          "maximum": 95,
+          "observed_classes": [
+            11,
+            21,
+            22,
+            23,
+            24,
+            31,
+            41,
+            42,
+            43,
+            52,
+            71,
+            81,
+            82,
+            90,
+            95
+          ]
+        },
+        {
+          "id": "r00-c02",
+          "local_path": "data/downloads/bay-area/usgs-annual-nlcd-2025-epsg5070/nlcd-r00-c02.tif",
+          "request_url": "https://dmsdata.cr.usgs.gov/geoserver/mrlc_Land-Cover-Native_conus_year_data/wcs?service=WCS&version=1.0.0&request=GetCoverage&coverage=mrlc_Land-Cover-Native_conus_year_data%3ALand-Cover-Native_conus_year_data&bbox=-2237835%2C1959225%2C-2193915%2C2009685&crs=EPSG%3A5070&response_crs=EPSG%3A5070&width=1464&height=1682&format=GeoTIFF&time=2025-01-01T00%3A00%3A00.000Z",
+          "bbox": [
+            -2237835.0,
+            1959225.0,
+            -2193915.0,
+            2009685.0
+          ],
+          "width": 1464,
+          "height": 1682,
+          "accepted_geotiff_metadata": {
+            "byte_order": "big",
+            "epsg": 5070,
+            "bbox": [
+              -2237834.99769074,
+              1959225.0082240782,
+              -2193914.9976875717,
+              2009685.0083470454
+            ],
+            "pixel_size_metres": [
+              30.000000002164178,
+              30.000000073107714
+            ],
+            "bits_per_sample": 8,
+            "sample_format": 1,
+            "nodata": 250,
+            "storage": "tiles",
+            "block_size_pixels": [
+              496,
+              848
+            ]
+          },
+          "byte_size": 2525634,
+          "sha256": "e03342b1d78e279ec75b1182405cc70a61490381704b70d9363e29c6e0e94d84",
+          "download_retries": 0,
+          "valid_cells": 2462448,
+          "nodata_cells": 0,
+          "minimum": 11,
+          "maximum": 95,
+          "observed_classes": [
+            11,
+            21,
+            22,
+            23,
+            24,
+            31,
+            41,
+            42,
+            43,
+            52,
+            71,
+            81,
+            82,
+            90,
+            95
+          ]
+        },
+        {
+          "id": "r01-c00",
+          "local_path": "data/downloads/bay-area/usgs-annual-nlcd-2025-epsg5070/nlcd-r01-c00.tif",
+          "request_url": "https://dmsdata.cr.usgs.gov/geoserver/mrlc_Land-Cover-Native_conus_year_data/wcs?service=WCS&version=1.0.0&request=GetCoverage&coverage=mrlc_Land-Cover-Native_conus_year_data%3ALand-Cover-Native_conus_year_data&bbox=-2325735%2C1908765%2C-2281785%2C1959225&crs=EPSG%3A5070&response_crs=EPSG%3A5070&width=1465&height=1682&format=GeoTIFF&time=2025-01-01T00%3A00%3A00.000Z",
+          "bbox": [
+            -2325735.0,
+            1908765.0,
+            -2281785.0,
+            1959225.0
+          ],
+          "width": 1465,
+          "height": 1682,
+          "accepted_geotiff_metadata": {
+            "byte_order": "big",
+            "epsg": 5070,
+            "bbox": [
+              -2325734.997664037,
+              1908765.0080554402,
+              -2281784.997655596,
+              1959225.0081884302
+            ],
+            "pixel_size_metres": [
+              30.000000005761805,
+              30.00000007906663
+            ],
+            "bits_per_sample": 8,
+            "sample_format": 1,
+            "nodata": 250,
+            "storage": "tiles",
+            "block_size_pixels": [
+              288,
+              848
+            ]
+          },
+          "byte_size": 2932722,
+          "sha256": "812e731203b1d34292080d965abbbe94aa7065837b2cf30631e712f11b32530a",
+          "download_retries": 0,
+          "valid_cells": 670725,
+          "nodata_cells": 1793405,
+          "minimum": 11,
+          "maximum": 95,
+          "observed_classes": [
+            11,
+            21,
+            22,
+            23,
+            24,
+            31,
+            41,
+            42,
+            43,
+            52,
+            71,
+            81,
+            82,
+            90,
+            95
+          ]
+        },
+        {
+          "id": "r01-c01",
+          "local_path": "data/downloads/bay-area/usgs-annual-nlcd-2025-epsg5070/nlcd-r01-c01.tif",
+          "request_url": "https://dmsdata.cr.usgs.gov/geoserver/mrlc_Land-Cover-Native_conus_year_data/wcs?service=WCS&version=1.0.0&request=GetCoverage&coverage=mrlc_Land-Cover-Native_conus_year_data%3ALand-Cover-Native_conus_year_data&bbox=-2281785%2C1908765%2C-2237835%2C1959225&crs=EPSG%3A5070&response_crs=EPSG%3A5070&width=1465&height=1682&format=GeoTIFF&time=2025-01-01T00%3A00%3A00.000Z",
+          "bbox": [
+            -2281785.0,
+            1908765.0,
+            -2237835.0,
+            1959225.0
+          ],
+          "width": 1465,
+          "height": 1682,
+          "accepted_geotiff_metadata": {
+            "byte_order": "big",
+            "epsg": 5070,
+            "bbox": [
+              -2281784.9976975364,
+              1908765.0080928528,
+              -2237834.99769074,
+              1959225.0082240782
+            ],
+            "pixel_size_metres": [
+              30.00000000463913,
+              30.000000078017507
+            ],
+            "bits_per_sample": 8,
+            "sample_format": 1,
+            "nodata": 250,
+            "storage": "tiles",
+            "block_size_pixels": [
+              288,
+              848
+            ]
+          },
+          "byte_size": 2932722,
+          "sha256": "1a92cf73c8050e606562a7fae262be05c82785967fa8b15672c93953f763cb84",
+          "download_retries": 0,
+          "valid_cells": 2464130,
+          "nodata_cells": 0,
+          "minimum": 11,
+          "maximum": 95,
+          "observed_classes": [
+            11,
+            21,
+            22,
+            23,
+            24,
+            31,
+            41,
+            42,
+            43,
+            52,
+            71,
+            81,
+            82,
+            90,
+            95
+          ]
+        },
+        {
+          "id": "r01-c02",
+          "local_path": "data/downloads/bay-area/usgs-annual-nlcd-2025-epsg5070/nlcd-r01-c02.tif",
+          "request_url": "https://dmsdata.cr.usgs.gov/geoserver/mrlc_Land-Cover-Native_conus_year_data/wcs?service=WCS&version=1.0.0&request=GetCoverage&coverage=mrlc_Land-Cover-Native_conus_year_data%3ALand-Cover-Native_conus_year_data&bbox=-2237835%2C1908765%2C-2193915%2C1959225&crs=EPSG%3A5070&response_crs=EPSG%3A5070&width=1464&height=1682&format=GeoTIFF&time=2025-01-01T00%3A00%3A00.000Z",
+          "bbox": [
+            -2237835.0,
+            1908765.0,
+            -2193915.0,
+            1959225.0
+          ],
+          "width": 1464,
+          "height": 1682,
+          "accepted_geotiff_metadata": {
+            "byte_order": "big",
+            "epsg": 5070,
+            "bbox": [
+              -2237834.997731691,
+              1908765.0081293844,
+              -2193914.9977264926,
+              1959225.0082588452
+            ],
+            "pixel_size_metres": [
+              30.000000003550987,
+              30.000000076968384
+            ],
+            "bits_per_sample": 8,
+            "sample_format": 1,
+            "nodata": 250,
+            "storage": "tiles",
+            "block_size_pixels": [
+              496,
+              848
+            ]
+          },
+          "byte_size": 2525634,
+          "sha256": "c57f7e1eb636658e76a0e4b4a8968f11e1f86e181aea8243c6998a3a24e939ba",
+          "download_retries": 0,
+          "valid_cells": 2462448,
+          "nodata_cells": 0,
+          "minimum": 11,
+          "maximum": 95,
+          "observed_classes": [
+            11,
+            21,
+            22,
+            23,
+            24,
+            31,
+            41,
+            42,
+            43,
+            52,
+            71,
+            81,
+            82,
+            90,
+            95
+          ]
+        },
+        {
+          "id": "r02-c00",
+          "local_path": "data/downloads/bay-area/usgs-annual-nlcd-2025-epsg5070/nlcd-r02-c00.tif",
+          "request_url": "https://dmsdata.cr.usgs.gov/geoserver/mrlc_Land-Cover-Native_conus_year_data/wcs?service=WCS&version=1.0.0&request=GetCoverage&coverage=mrlc_Land-Cover-Native_conus_year_data%3ALand-Cover-Native_conus_year_data&bbox=-2325735%2C1858305%2C-2281785%2C1908765&crs=EPSG%3A5070&response_crs=EPSG%3A5070&width=1465&height=1682&format=GeoTIFF&time=2025-01-01T00%3A00%3A00.000Z",
+          "bbox": [
+            -2325735.0,
+            1858305.0,
+            -2281785.0,
+            1908765.0
+          ],
+          "width": 1465,
+          "height": 1682,
+          "accepted_geotiff_metadata": {
+            "byte_order": "big",
+            "epsg": 5070,
+            "bbox": [
+              -2325734.9977079676,
+              1858305.0079536822,
+              -2281784.9976975364,
+              1908765.0080928528
+            ],
+            "pixel_size_metres": [
+              30.000000007120327,
+              30.000000082741117
+            ],
+            "bits_per_sample": 8,
+            "sample_format": 1,
+            "nodata": 250,
+            "storage": "tiles",
+            "block_size_pixels": [
+              288,
+              848
+            ]
+          },
+          "byte_size": 2932722,
+          "sha256": "c919698423cf2685480835a87d01967395af39ad55962e94cd6ae7f59422d5e4",
+          "download_retries": 0,
+          "valid_cells": 565489,
+          "nodata_cells": 1898641,
+          "minimum": 11,
+          "maximum": 95,
+          "observed_classes": [
+            11,
+            21,
+            22,
+            23,
+            24,
+            31,
+            41,
+            42,
+            43,
+            52,
+            71,
+            81,
+            82,
+            90,
+            95
+          ]
+        },
+        {
+          "id": "r02-c01",
+          "local_path": "data/downloads/bay-area/usgs-annual-nlcd-2025-epsg5070/nlcd-r02-c01.tif",
+          "request_url": "https://dmsdata.cr.usgs.gov/geoserver/mrlc_Land-Cover-Native_conus_year_data/wcs?service=WCS&version=1.0.0&request=GetCoverage&coverage=mrlc_Land-Cover-Native_conus_year_data%3ALand-Cover-Native_conus_year_data&bbox=-2281785%2C1858305%2C-2237835%2C1908765&crs=EPSG%3A5070&response_crs=EPSG%3A5070&width=1465&height=1682&format=GeoTIFF&time=2025-01-01T00%3A00%3A00.000Z",
+          "bbox": [
+            -2281785.0,
+            1858305.0,
+            -2237835.0,
+            1908765.0
+          ],
+          "width": 1465,
+          "height": 1682,
+          "accepted_geotiff_metadata": {
+            "byte_order": "big",
+            "epsg": 5070,
+            "bbox": [
+              -2281784.9977404685,
+              1858305.0079919163,
+              -2237834.997731691,
+              1908765.0081293844
+            ],
+            "pixel_size_metres": [
+              30.000000005991296,
+              30.000000081728956
+            ],
+            "bits_per_sample": 8,
+            "sample_format": 1,
+            "nodata": 250,
+            "storage": "tiles",
+            "block_size_pixels": [
+              288,
+              848
+            ]
+          },
+          "byte_size": 2932722,
+          "sha256": "15bf5475a7710d1e7fe3c02bc0d17d8421aec84cd183b416b327491c77942ab9",
+          "download_retries": 0,
+          "valid_cells": 2456075,
+          "nodata_cells": 8055,
+          "minimum": 11,
+          "maximum": 95,
+          "observed_classes": [
+            11,
+            21,
+            22,
+            23,
+            24,
+            31,
+            41,
+            42,
+            43,
+            52,
+            71,
+            81,
+            82,
+            90,
+            95
+          ]
+        },
+        {
+          "id": "r02-c02",
+          "local_path": "data/downloads/bay-area/usgs-annual-nlcd-2025-epsg5070/nlcd-r02-c02.tif",
+          "request_url": "https://dmsdata.cr.usgs.gov/geoserver/mrlc_Land-Cover-Native_conus_year_data/wcs?service=WCS&version=1.0.0&request=GetCoverage&coverage=mrlc_Land-Cover-Native_conus_year_data%3ALand-Cover-Native_conus_year_data&bbox=-2237835%2C1858305%2C-2193915%2C1908765&crs=EPSG%3A5070&response_crs=EPSG%3A5070&width=1464&height=1682&format=GeoTIFF&time=2025-01-01T00%3A00%3A00.000Z",
+          "bbox": [
+            -2237835.0,
+            1858305.0,
+            -2193915.0,
+            1908765.0
+          ],
+          "width": 1464,
+          "height": 1682,
+          "accepted_geotiff_metadata": {
+            "byte_order": "big",
+            "epsg": 5070,
+            "bbox": [
+              -2237834.99777363,
+              1858305.008029295,
+              -2193914.9977664603,
+              1908765.0081650338
+            ],
+            "pixel_size_metres": [
+              30.000000004897394,
+              30.00000008070087
+            ],
+            "bits_per_sample": 8,
+            "sample_format": 1,
+            "nodata": 250,
+            "storage": "tiles",
+            "block_size_pixels": [
+              496,
+              848
+            ]
+          },
+          "byte_size": 2525634,
+          "sha256": "ffd44c5be265f8095b359a4eeb9cd1c36b3813bce86601e7948343104cffc724",
+          "download_retries": 0,
+          "valid_cells": 2462448,
+          "nodata_cells": 0,
+          "minimum": 11,
+          "maximum": 95,
+          "observed_classes": [
+            11,
+            21,
+            22,
+            23,
+            24,
+            31,
+            41,
+            42,
+            43,
+            52,
+            71,
+            81,
+            82,
+            90,
+            95
+          ]
+        }
+      ],
+      "role": "categorical land cover",
+      "provider": "U.S. Geological Survey EROS / Multi-Resolution Land Characteristics Consortium",
+      "product": "Annual NLCD CONUS Collection 1.2 Land Cover, 2025",
+      "product_url": "https://www.usgs.gov/centers/eros/science/usgs-eros-archive-land-cover-annual-nlcd-collection-1-land-cover",
+      "service": "GeoServer WCS 1.0.0",
+      "service_url": "https://dmsdata.cr.usgs.gov/geoserver/mrlc_Land-Cover-Native_conus_year_data/wcs",
+      "coverage": "mrlc_Land-Cover-Native_conus_year_data:Land-Cover-Native_conus_year_data",
+      "time": "2025-01-01T00:00:00.000Z",
+      "grid_alignment": "Bounds are exact 30 metre multiples from native boundary origin (-2415585, 164805).",
+      "interpolation": "nearest neighbor (categorical)",
+      "observed_classes": [
+        11,
+        21,
+        22,
+        23,
+        24,
+        31,
+        41,
+        42,
+        43,
+        52,
+        71,
+        81,
+        82,
+        90,
+        95
+      ],
+      "license_status": "USGS public-domain data"
+    }
+  ],
+  "acquisition_outcome": {
+    "accepted_tile_count": 51,
+    "total_byte_size": 603319152,
+    "download_retries": 0,
+    "failed_attempts": []
+  },
+  "future_airport_layer_source": {
+    "scope": "Cross-reference only; airport data is not ingested as terrain and no airport mesh is generated by this acquisition.",
+    "authoritative_manifest": "data/manifests/faa-nasr-airports-2026-07-09.json",
+    "airport_priority": [
+      "KSFO",
+      "KOAK",
+      "KHWD",
+      "KSQL",
+      "KCCR"
+    ],
+    "canonical_start": "KOAK runway end 28L; use the physical/displaced-threshold and surveyed-source semantics pinned by the authoritative airport manifest.",
+    "rendering_policy": "Airport hard surfaces and markings are a separate streamable container/layer in ordinary solid-flat mode 1, initially self illuminated; they never use terrain dithering mode 2."
+  }
+}

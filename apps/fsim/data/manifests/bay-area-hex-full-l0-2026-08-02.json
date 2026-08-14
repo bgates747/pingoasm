@@ -1,0 +1,73 @@
+{
+  "manifest_version": 1,
+  "corpus_id": "bay-area-hex-full-l0",
+  "built": "2026-08-02",
+  "description": "Complete N=5 flat-top hexagonal L0 P3DM terrain corpus for the reusable regional terrain manager.",
+  "build_command": ".venv/bin/python scripts/build_regional_hex_terrain.py --selection full --output build/p3dm/bay-area-hex-full-l0",
+  "output_root": "build/p3dm/bay-area-hex-full-l0",
+  "world_manifest": {
+    "path": "build/p3dm/bay-area-hex-full-l0/WORLD.json",
+    "byte_size": 46764348,
+    "sha256": "43a41bced05f35eaf104e48c906b59e28f4b0ac254ec60fa2b35166b0e707a26",
+    "build_signature": "c20f6939998b5ff2eac79b328641400681f99b82e2b8f1a6ce40a02b61815e10",
+    "contract": "WORLD binds every dense cell ID to its axial identity, relative path, length, SHA-256, geometry counts, elevation bounds, materials, and padding witnesses."
+  },
+  "source_manifest": {
+    "path": "data/manifests/bay-area-2026-08-02.json",
+    "sha256": "a996c9f8af597eefea677a8cb987c78b645598a070d99e30055785ba78b493b5"
+  },
+  "hex_profile": {
+    "crs": "EPSG:32610",
+    "topology": "flat-top hexagonal cells on one exact triangular lattice",
+    "origin_center_m": [521984, 4100352],
+    "q_range": [0, 213],
+    "side_m": 320,
+    "side_steps": 5,
+    "basis_q_m": [480, 275],
+    "basis_r_m": [0, 550],
+    "area_m2": 264000,
+    "boundary_contract": "Six straight sides; each side has six collinear samples and five consecutive perimeter edges; all neighbor seam keys are exact.",
+    "cell_id_equation": "floor(q/2)*469 + (235 if q odd else 0) + r + floor(q/2)",
+    "path_equation": "TRH/L0/{cell_id >> 8:02X}/{cell_id & 255:02X}.AGN"
+  },
+  "normalization": {
+    "pingo_x": "UTM northing",
+    "pingo_y": "NAVD88 elevation with a 608 m object-origin translation",
+    "pingo_z": "negative UTM easting",
+    "counts_per_metre": 16,
+    "metres_per_pingo_unit": 8,
+    "model_half_extent_m": 1024,
+    "object_scale_q8_8": 32768,
+    "object_translation_y_count": 9728,
+    "stage_buffer_id": 29696
+  },
+  "statistics": {
+    "records": 50183,
+    "container_bytes": 171224396,
+    "data_bytes": 166105730,
+    "vertices": 6072143,
+    "triangles": 10538430,
+    "surface_vertices_per_cell": 91,
+    "surface_triangles_per_cell": 150,
+    "skirt_triangles_per_cell": 60,
+    "edge_padded_records": 917,
+    "maximum_elevation_dm_min": -1004,
+    "maximum_elevation_dm_max": 13237
+  },
+  "blender_review": {
+    "path": "build/visualization/bay-area-hex-overview.blend",
+    "byte_size": 8017259,
+    "sha256": "3cc3d95e1b41655594eb1002ad6de61a3bac7d102a964f6f3e1c9983150f12ea",
+    "receipt_path": "build/visualization/bay-area-hex-overview.review.json",
+    "receipt_sha256": "b3619d6317c38ddc5145330798b1ef576ee5240bb90f28208c1429e5111ad8da",
+    "preview_lod": "one centre and six triangles per cell across all 50,183 cells",
+    "human_review": "accepted by project owner on 2026-08-02"
+  },
+  "validation": {
+    "source_hashes_verified": true,
+    "record_count_on_disk": 50183,
+    "resume_state_count_on_disk": 50183,
+    "builder_round_trip_policy": "Every emitted P3DM component is parsed and compared with its in-memory source before publication.",
+    "boundary_regression": "All six sides are collinear subdivisions rather than sawtooth approximations."
+  }
+}

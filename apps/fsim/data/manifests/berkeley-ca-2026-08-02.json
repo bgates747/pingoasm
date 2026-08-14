@@ -1,0 +1,59 @@
+{
+  "manifest_version": 1,
+  "region_id": "berkeley-ca",
+  "retrieved": "2026-08-02",
+  "description": "Berkeley Marina and Caesar Chavez Park east through UC Berkeley, Lawrence Hall of Science, the East Bay ridge, and terrain beyond the ridge",
+  "requested_wgs84_bbox": {
+    "crs": "EPSG:4326",
+    "west": -122.3265,
+    "south": 37.85,
+    "east": -122.215,
+    "north": 37.905
+  },
+  "runtime_note": "This acquisition is intentionally larger than Pingo's approximately 4.096 km local coordinate window. No runtime subset, mesh, palette, or visualization has been generated.",
+  "datasets": [
+    {
+      "id": "usgs-3dep-10m-utm10n",
+      "role": "bare-earth elevation",
+      "provider": "U.S. Geological Survey, The National Map, 3D Elevation Program",
+      "service": "3DEPElevation ArcGIS ImageServer exportImage",
+      "service_url": "https://elevation.nationalmap.gov/arcgis/rest/services/3DEPElevation/ImageServer",
+      "request_url": "https://elevation.nationalmap.gov/arcgis/rest/services/3DEPElevation/ImageServer/exportImage?bbox=559200%2C4189380%2C569070%2C4195570&bboxSR=32610&size=987%2C619&imageSR=32610&format=tiff&pixelType=F32&interpolation=RSP_BilinearInterpolation&noData=-9999&f=image",
+      "source_query": "https://elevation.nationalmap.gov/arcgis/rest/services/3DEPElevation/ImageServer/query?where=1%3D1&geometry=559200%2C4189380%2C569070%2C4195570&geometryType=esriGeometryEnvelope&inSR=32610&spatialRel=esriSpatialRelIntersects&outFields=Name%2CProductName%2CVerticalDatum%2CResolution_X%2CResolution_Y%2CSource%2CURL%2Cpubdate&returnGeometry=false&resultRecordCount=50&f=json",
+      "source_query_result": "35 intersecting records: 23 data records and 12 service overview rasters. Every data record reported North American Vertical Datum of 1988 (NAVD 88); overview records carried no vertical-datum field.",
+      "service_state": "Service page reported data published through 2026-07-20 and USGS copyright text dated 2026-07-23 when queried on 2026-08-02.",
+      "license_status": "USGS public-domain data; no use restrictions stated by 3DEP",
+      "local_path": "data/downloads/berkeley-ca/usgs-3dep-10m-utm10n.tif",
+      "format": "GeoTIFF, little-endian, uncompressed, one 32-bit floating-point band",
+      "crs": "EPSG:32610 (WGS 84 / UTM zone 10N)",
+      "vertical_datum": "North American Vertical Datum of 1988 (NAVD 88), consistently reported by all 23 intersecting non-overview 3DEP source records.",
+      "bbox": [559200.0, 4189380.0, 569070.0, 4195570.0],
+      "width": 987,
+      "height": 619,
+      "nominal_pixel_size_metres": [10.0, 10.0],
+      "byte_size": 2622899,
+      "sha256": "e8905b9c9db5bb27955d4c0e2fe85d00b09926eb6028ecc3bd8d90fc9699099b"
+    },
+    {
+      "id": "usgs-annual-nlcd-2025-epsg5070",
+      "role": "categorical land cover",
+      "provider": "U.S. Geological Survey Earth Resources Observation and Science Center / Multi-Resolution Land Characteristics Consortium",
+      "product": "Annual NLCD CONUS Collection 1.2 Land Cover, 2025",
+      "service": "GeoServer WCS 1.0.0",
+      "service_url": "https://dmsdata.cr.usgs.gov/geoserver/mrlc_Land-Cover-Native_conus_year_data/wcs",
+      "request_url": "https://dmsdata.cr.usgs.gov/geoserver/mrlc_Land-Cover-Native_conus_year_data/wcs?service=WCS&version=1.0.0&request=GetCoverage&coverage=mrlc_Land-Cover-Native_conus_year_data%3ALand-Cover-Native_conus_year_data&bbox=-2265345%2C1959135%2C-2254275%2C1967775&crs=EPSG%3A5070&response_crs=EPSG%3A5070&width=369&height=288&format=GeoTIFF&time=2025-01-01T00%3A00%3A00.000Z",
+      "license_status": "USGS public-domain data",
+      "local_path": "data/downloads/berkeley-ca/usgs-annual-nlcd-2025-epsg5070.tif",
+      "format": "GeoTIFF, big-endian, uncompressed, 8-bit palette-indexed categorical raster",
+      "crs": "EPSG:5070 (NAD83 / Conus Albers)",
+      "bbox": [-2265345.0, 1959135.0, -2254275.0, 1967775.0],
+      "grid_alignment": "Bounds align to the service-native origin (-2415585, 164805) at exact 30 metre intervals.",
+      "width": 369,
+      "height": 288,
+      "pixel_size_metres": [30.0, 30.0],
+      "time": "2025-01-01T00:00:00.000Z",
+      "byte_size": 213922,
+      "sha256": "1cbf6101371084f35bf50f23d4fac2e49b7fbad34f7cd628520e846bbeb59763"
+    }
+  ]
+}

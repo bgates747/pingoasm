@@ -1,0 +1,51 @@
+{
+  "name": "berkeley-flight-fdm",
+  "terrain_fixture": "berkeley-flight-triangular-dither",
+  "coordinate_system": {
+    "source_crs": "EPSG:32610",
+    "pingo_x": "UTM northing",
+    "pingo_y": "NAVD88 elevation",
+    "pingo_z": "negative UTM easting",
+    "metres_per_pingo_unit": 8.0,
+    "translation_count_metres": 0.0625
+  },
+  "start": {
+    "landmark": "Sather Tower (the Campanile)",
+    "height_agl_m": 120.0,
+    "heading_degrees_true": 90.0,
+    "airspeed_mps": 33.75,
+    "throttle": 255,
+    "on_ground": false
+  },
+  "flight_model": {
+    "rate_hz": 30,
+    "position_format": "signed 16.8 Pingo translation counts",
+    "velocity_format": "signed Q8 Pingo translation counts per tick",
+    "gravity_step_q8": -45,
+    "velocity_limit_q8": 8192,
+    "takeoff_speed_q8": 3200,
+    "initial_speed_q8": 4608,
+    "normalized_mass": 1,
+    "max_thrust_step_q8": 18,
+    "lift_rule": "forward_speed/128 + forward_speed/512",
+    "drag_rule": "component-wise -(world_velocity >> 8)",
+    "high_aoa_rule": "halve above |body_y| >= forward/2; quarter above forward",
+    "terrain_collision": false
+  },
+  "composition": {
+    "viewport": [320, 148],
+    "panel": {
+      "source": "assets/cockpit/fsimpanel.png",
+      "position": [0, 148],
+      "dimensions": [320, 92]
+    },
+    "fallback": {
+      "primitive": "four VDP filled triangles",
+      "sky_logical": 47,
+      "sky_agon64_physical": 43,
+      "ground_logical": 8,
+      "ground_agon64_physical": 21,
+      "attitude_axes": ["pitch", "roll"]
+    }
+  }
+}

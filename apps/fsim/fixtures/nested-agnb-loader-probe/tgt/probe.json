@@ -1,0 +1,86 @@
+{
+  "binary_bytes": 22225,
+  "binary_sha256": "af2c9ef6de7c6f333899d911422196b55f55da14e1f59a109ff561e90da55004",
+  "bounded_bytes_read": 2992,
+  "family_bytes": 21904,
+  "family_sha256": "6d0b8535e2b547491957f9b68392591a568784b9a485a8b420c274e357ac075c",
+  "record_spans": [
+    {
+      "data_bytes": 2110,
+      "data_offset": 100,
+      "index": 0,
+      "list_bytes": 2188,
+      "list_offset": 24
+    },
+    {
+      "data_bytes": 2110,
+      "data_offset": 2288,
+      "index": 1,
+      "list_bytes": 2188,
+      "list_offset": 2212
+    },
+    {
+      "data_bytes": 2110,
+      "data_offset": 4476,
+      "index": 2,
+      "list_bytes": 2188,
+      "list_offset": 4400
+    },
+    {
+      "data_bytes": 2110,
+      "data_offset": 6664,
+      "index": 3,
+      "list_bytes": 2188,
+      "list_offset": 6588
+    },
+    {
+      "data_bytes": 2110,
+      "data_offset": 8852,
+      "index": 4,
+      "list_bytes": 2188,
+      "list_offset": 8776
+    },
+    {
+      "data_bytes": 2110,
+      "data_offset": 11040,
+      "index": 5,
+      "list_bytes": 2188,
+      "list_offset": 10964
+    },
+    {
+      "data_bytes": 2110,
+      "data_offset": 13228,
+      "index": 6,
+      "list_bytes": 2188,
+      "list_offset": 13152
+    },
+    {
+      "data_bytes": 2110,
+      "data_offset": 15416,
+      "index": 7,
+      "list_bytes": 2188,
+      "list_offset": 15340
+    },
+    {
+      "data_bytes": 2110,
+      "data_offset": 17604,
+      "index": 8,
+      "list_bytes": 2188,
+      "list_offset": 17528
+    },
+    {
+      "data_bytes": 2110,
+      "data_offset": 19792,
+      "index": 9,
+      "list_bytes": 2188,
+      "list_offset": 19716
+    }
+  ],
+  "records": 10,
+  "runtime_path": "RGN/00/00.AGN",
+  "schema": "pingo-terrain-nested-agnb-loader-probe-v1",
+  "selected_data_bytes": 2110,
+  "selected_data_offset": 13228,
+  "selected_index": 6,
+  "selected_list_offset": 13152
+}

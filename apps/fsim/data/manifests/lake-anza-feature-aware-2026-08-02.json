@@ -1,0 +1,74 @@
+{
+  "artifact_schema": "pingo-terrain-lake-anza-comparison-receipt-v1",
+  "date": "2026-08-02",
+  "status": "generated and opened for human review; not promoted to regional corpus",
+  "source_manifest": "data/manifests/bay-area-2026-08-02.json",
+  "source_manifest_sha256": "a996c9f8af597eefea677a8cb987c78b645598a070d99e30055785ba78b493b5",
+  "center_cell": {"q": 92, "r": 125, "id": 21745},
+  "target_cells": [
+    {"q": 92, "r": 125, "id": 21745},
+    {"q": 91, "r": 126, "id": 21511},
+    {"q": 92, "r": 126, "id": 21746},
+    {"q": 93, "r": 125, "id": 21980},
+    {"q": 93, "r": 124, "id": 21979},
+    {"q": 92, "r": 124, "id": 21744},
+    {"q": 91, "r": 125, "id": 21510}
+  ],
+  "method": "radius-two overbuild; canonical radius-one clip and partition",
+  "control": {
+    "vertices": 637,
+    "faces": 1050,
+    "water_faces": 21,
+    "canonical_geometry_sha256": "bff7d9d152185ea308427c836953d0a9de505a2dc81551f640ee2e7da5aa311e"
+  },
+  "candidate": {
+    "vertices": 670,
+    "faces": 1112,
+    "water_faces": 50,
+    "canonical_geometry_sha256": "0e2dc9be667bc8b110cef2221c7b86214c5416fa4583c6ee63833576c5c973a2"
+  },
+  "feature": {
+    "name": "Lake Anza",
+    "source_water_cells": 39,
+    "source_water_area_m2": 35100.0,
+    "raw_boundary_vertices": 34,
+    "smoothed_boundary_vertices": 34,
+    "reconciled_boundary_vertices": 36,
+    "smoothing": "closed cyclic 1-2-1 corner filter, 1 iteration",
+    "water_surface_elevation_navd88_m": 239.76434326171875,
+    "hex_crossing_counts": [
+      [9053920, 67111697],
+      [9055200, 67113897]
+    ]
+  },
+  "overbuild": {
+    "context_cells": 19,
+    "cdt_vertices": 1532,
+    "cdt_faces": 3020,
+    "discarded_context_faces": 1908,
+    "retained_target_faces": 1112,
+    "mandatory_constraint_segments": 188,
+    "prefiltered_lattice_points": 5,
+    "minimum_triangle_angle_degrees": 5.684805828603893
+  },
+  "seams": {
+    "adjacent_pairs": 12,
+    "maximum_encoded_delta": 0,
+    "passed": true
+  },
+  "rebuild": {
+    "canonical_geometry_reproduced": true,
+    "build_script_sha256": "11b337dd8ced5c17c19dfd5f38d0b8fd7fbf5b0ad0e454e8da3783dc3bfd26f4",
+    "feature_module_sha256": "41e3ce4ffe463bf26c0bb126fbb10f6a1f5996c9946af3192b71773ccacfd8cd"
+  },
+  "generated_review": {
+    "blend_path": "build/visualization/lake-anza-control-vs-feature-aware.blend",
+    "blend_bytes": 150174,
+    "blend_sha256": "4780c8a403fd177e74f4ee3d0ddfaf636bfd9bfdb97b91fa6b4ed6fd72a58e4a",
+    "preview_path": "build/visualization/lake-anza-control-vs-feature-aware.png",
+    "preview_bytes": 1316689,
+    "preview_sha256": "c22e07d052b42faf9d4591823f61a3d3cd6eb6051e2f962fb0173136a84ee2b4",
+    "ignored_by_repository_policy": true
+  },
+  "tests": {"runner": "python -m unittest discover -s tests", "passed": 362}
+}
