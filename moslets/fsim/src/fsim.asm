@@ -21,7 +21,7 @@ fixture_header:       equ fixture_entry+040h
 fixture_load_capacity: equ 070000h
 config_root_max:      equ 176
 path_buffer_bytes:    equ 256
-fixture_count:        equ 11
+fixture_count:        equ 13
 
     MACRO MOSCALL function
         ld a,function
@@ -71,8 +71,24 @@ launcher_menu_wait:
     cp 27
     jr z,main_exit
     cp '0'
-    jr nz,@natural_fixture
+    jr nz,@regular_fixture
     ld a,9
+    jr @fixture_selected
+@regular_fixture:
+    cp 'R'
+    jr z,@select_regular
+    cp 'r'
+    jr nz,@distance_fixture
+@select_regular:
+    ld a,12
+    jr @fixture_selected
+@distance_fixture:
+    cp 'D'
+    jr z,@select_distance
+    cp 'd'
+    jr nz,@natural_fixture
+@select_distance:
+    ld a,11
     jr @fixture_selected
 @natural_fixture:
     cp 'N'
@@ -261,7 +277,7 @@ run_selected_fixture:
     jr nz,@entry_failed
 
     ; Mirror the normal MOS ADL entry registers for fixtures that later choose
-    ; to consume arguments.  The current eleven fixtures ignore them.
+    ; to consume arguments.  The current thirteen fixtures ignore them.
     xor a
     ld de,fixture_entry
     ld hl,empty_arguments
@@ -510,8 +526,10 @@ menu_text:
     db "8  Nested AGNB Probe    - select from a ten-record family",13,10
     db "9  Campanile Probe      - streamed solid-flat Sather Tower",13,10
     db "0  Hex Manager Survey  - regular N=5 terrain, live rings 0-5",13,10
-    db "N  Natural Survey      - full-region post-partition terrain, rings 0-5",13,10,13,10
-    db "Press 1-9, 0, or N to launch; Esc returns to MOS.",13,10,0
+    db "N  Natural Survey      - full-region post-partition terrain, rings 0-5",13,10
+    db "D  Distance LOD        - natural ring 5 plus regular terrain to ring 30",13,10
+    db "R  Regular LOD         - position-driven N5 near and regular terrain to ring 30",13,10,13,10
+    db "Press 1-9, 0, N, D, or R to launch; Esc returns to MOS.",13,10,0
 
 exit_text:
     db "FSIM returned to MOS.",13,10,0
@@ -557,6 +575,10 @@ fixture_records:
     db "P3DHXMG.BIN",0
     db "build/p3dm/bay-area-natural-full-l0",0
     db "P3DNAT.BIN",0
+    db "build/p3dm/bay-area-distance-lod-control",0
+    db "P3DDST.BIN",0
+    db "build/p3dm/bay-area-regular-n1-hierarchy",0
+    db "P3DRGL.BIN",0
 
 selected_index:
     db 0

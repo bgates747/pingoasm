@@ -93,6 +93,16 @@ APPLIANCES = (
         "build/p3dm/bay-area-natural-full-l0",
         "P3DNAT.BIN",
     ),
+    Appliance(
+        "fixtures/terrain-manager-survey/src/terrain-manager-distance-survey.asm",
+        "build/p3dm/bay-area-distance-lod-control",
+        "P3DDST.BIN",
+    ),
+    Appliance(
+        "fixtures/terrain-manager-survey/src/terrain-manager-regular-lod-survey.asm",
+        "build/p3dm/bay-area-regular-n1-hierarchy",
+        "P3DRGL.BIN",
+    ),
 )
 
 
@@ -110,8 +120,8 @@ def load_setup_module():
 
 
 class FixtureEntryContractTests(unittest.TestCase):
-    def test_eleven_appliances_have_one_common_mos_entry(self) -> None:
-        self.assertEqual(len(APPLIANCES), 11)
+    def test_thirteen_appliances_have_one_common_mos_entry(self) -> None:
+        self.assertEqual(len(APPLIANCES), 13)
         for appliance in APPLIANCES:
             with self.subTest(source=appliance.source):
                 source = normalized_assembly(appliance.source_path)
@@ -193,17 +203,33 @@ class FsimLauncherSourceTests(unittest.TestCase):
         assert save_call is not None and config_call is not None
         self.assertLess(save_call.start(), config_call.start())
 
-    def test_menu_preserves_number_keys_and_adds_natural_shortcut(self) -> None:
+    def test_menu_preserves_number_keys_and_named_shortcuts(self) -> None:
         for number in range(1, 10):
             self.assertRegex(self.source, rf'(?m)^\s*db\s+"{number}(?:[.)]|\s) ')
         self.assertRegex(self.source, r'(?m)^\s*db\s+"0(?:[.)]|\s) ')
         self.assertRegex(self.source, r'(?m)^\s*db\s+"N(?:[.)]|\s) ')
+        self.assertRegex(self.source, r'(?m)^\s*db\s+"D(?:[.)]|\s) ')
+        self.assertRegex(self.source, r'(?m)^\s*db\s+"R(?:[.)]|\s) ')
         self.assertRegex(self.normalized, r"\bcp\s+(?:1bh|27)\b")
         self.assertRegex(self.normalized, r"\bsub\s+['\"]1['\"]")
         self.assertRegex(
             self.normalized,
-            r"\bcp\s+['\"]0['\"]\s+jr\s+nz\s*,\s*@natural_fixture\s+"
+            r"\bcp\s+['\"]0['\"]\s+jr\s+nz\s*,\s*@regular_fixture\s+"
             r"ld\s+a\s*,\s*9",
+        )
+        self.assertRegex(
+            self.normalized,
+            r"@regular_fixture\s*:\s*cp\s+['\"]r['\"]\s+"
+            r"jr\s+z\s*,\s*@select_regular\s+cp\s+['\"]r['\"]\s+"
+            r"jr\s+nz\s*,\s*@distance_fixture\s+"
+            r"@select_regular\s*:\s*ld\s+a\s*,\s*12",
+        )
+        self.assertRegex(
+            self.normalized,
+            r"@distance_fixture\s*:\s*cp\s+['\"]d['\"]\s+"
+            r"jr\s+z\s*,\s*@select_distance\s+cp\s+['\"]d['\"]\s+"
+            r"jr\s+nz\s*,\s*@natural_fixture\s+"
+            r"@select_distance\s*:\s*ld\s+a\s*,\s*11",
         )
         self.assertRegex(
             self.normalized,

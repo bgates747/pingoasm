@@ -22,7 +22,7 @@ PC     Output      Line
 040000             0021   fixture_load_capacity: equ 070000h
 040000             0022   config_root_max:      equ 176
 040000             0023   path_buffer_bytes:    equ 256
-040000             0024   fixture_count:        equ 11
+040000             0024   fixture_count:        equ 13
 040000             0025   
 040000             0026       MACRO MOSCALL function
 040000             0027           ld a,function
@@ -74,482 +74,498 @@ PC     Output      Line
 0B0060 C9          0057       ret
 0B0061             0058   
 0B0061             0059   main:
-0B0061 CD 21 01 0B 0060       call save_current_directory
-0B0065 C2 EE 00 0B 0061       jp nz,main_cwd_failed
-0B0069 CD 39 01 0B 0062       call read_config_root
-0B006D C2 FF 00 0B 0063       jp nz,main_config_failed
+0B0061 CD 39 01 0B 0060       call save_current_directory
+0B0065 C2 06 01 0B 0061       jp nz,main_cwd_failed
+0B0069 CD 51 01 0B 0062       call read_config_root
+0B006D C2 17 01 0B 0063       jp nz,main_config_failed
 0B0071             0064   
 0B0071             0065   main_menu:
-0B0071 CD 2F 01 0B 0066       call restore_current_directory
-0B0075 C2 10 01 0B 0067       jp nz,main_restore_failed
-0B0079 CD B6 01 0B 0068       call show_menu
+0B0071 CD 47 01 0B 0066       call restore_current_directory
+0B0075 C2 28 01 0B 0067       jp nz,main_restore_failed
+0B0079 CD CE 01 0B 0068       call show_menu
 0B007D             0069   launcher_menu_wait:
 0B007D             0070       MOSCALL mos_getkey
                        M1 Args: function=mos_getkey 
 0B007D 3E 00       0001M1         ld a,function
 0B007F 5B CF       0002M1         rst.lil 08h
 0B0081 FE 1B       0071       cp 27
-0B0083 28 4C       0072       jr z,main_exit
+0B0083 28 64       0072       jr z,main_exit
 0B0085 FE 30       0073       cp '0'
-0B0087 20 04       0074       jr nz,@natural_fixture
+0B0087 20 04       0074       jr nz,@regular_fixture
 0B0089 3E 09       0075       ld a,9
-0B008B 18 16       0076       jr @fixture_selected
-0B008D             0077   @natural_fixture:
-0B008D FE 4E       0078       cp 'N'
-0B008F 28 04       0079       jr z,@select_natural
-0B0091 FE 6E       0080       cp 'n'
-0B0093 20 04       0081       jr nz,@numbered_fixture
-0B0095             0082   @select_natural:
-0B0095 3E 0A       0083       ld a,10
-0B0097 18 0A       0084       jr @fixture_selected
-0B0099             0085   @numbered_fixture:
-0B0099 FE 31       0086       cp '1'
-0B009B 38 E0       0087       jr c,launcher_menu_wait
-0B009D FE 3A       0088       cp '9'+1
-0B009F 30 DC       0089       jr nc,launcher_menu_wait
-0B00A1 D6 31       0090       sub '1'
-0B00A3             0091   @fixture_selected:
-0B00A3 32 7B 0A 0B 0092       ld (selected_index),a
-0B00A7 CD 8A 02 0B 0093       call wait_for_keys_released
-0B00AB CD C3 01 0B 0094       call run_selected_fixture
-0B00AF             0095   launcher_after_fixture:
-0B00AF 32 7C 0A 0B 0096       ld (last_error),a
-0B00B3 B7          0097       or a
-0B00B4 CC A0 02 0B 0098       call z,release_fixture_scene
-0B00B8 CD 2F 01 0B 0099       call restore_current_directory
-0B00BC C2 10 01 0B 0100       jp nz,main_restore_failed
-0B00C0 CD 8A 02 0B 0101       call wait_for_keys_released
-0B00C4 3A 7C 0A 0B 0102       ld a,(last_error)
-0B00C8 B7          0103       or a
-0B00C9 28 A6       0104       jr z,main_menu
-0B00CB CD CC 02 0B 0105       call show_launch_error
-0B00CF 18 A0       0106       jr main_menu
-0B00D1             0107   
-0B00D1             0108   main_exit:
-0B00D1 CD 8A 02 0B 0109       call wait_for_keys_released
-0B00D5 CD 2F 01 0B 0110       call restore_current_directory
-0B00D9 C2 10 01 0B 0111       jp nz,main_restore_failed
-0B00DD CD 21 03 0B 0112       call reset_text_screen
-0B00E1 21 A0 06 0B 0113       ld hl,exit_text
-0B00E5 CD 39 03 0B 0114       call print_string
-0B00E9             0115   launcher_return_to_mos:
-0B00E9 21 00 00 00 0116       ld hl,0
-0B00ED C9          0117       ret
-0B00EE             0118   
-0B00EE             0119   main_cwd_failed:
-0B00EE CD 21 03 0B 0120       call reset_text_screen
-0B00F2 21 B8 06 0B 0121       ld hl,cwd_error_text
-0B00F6 CD 39 03 0B 0122       call print_string
-0B00FA 21 01 00 00 0123       ld hl,1
-0B00FE C9          0124       ret
-0B00FF             0125   
-0B00FF             0126   main_config_failed:
-0B00FF CD 21 03 0B 0127       call reset_text_screen
-0B0103 21 E6 06 0B 0128       ld hl,config_error_text
-0B0107 CD 39 03 0B 0129       call print_string
-0B010B 21 02 00 00 0130       ld hl,2
-0B010F C9          0131       ret
-0B0110             0132   
-0B0110             0133   main_restore_failed:
-0B0110 CD 21 03 0B 0134       call reset_text_screen
-0B0114 21 24 07 0B 0135       ld hl,restore_error_text
-0B0118 CD 39 03 0B 0136       call print_string
-0B011C 21 03 00 00 0137       ld hl,3
-0B0120 C9          0138       ret
-0B0121             0139   
-0B0121             0140   ; Save the caller's actual FatFS working directory once.  All later changes,
-0B0121             0141   ; including restoration, deliberately go through the high-level mos_cd path.
-0B0121             0142   ; The old profile MOS leaves its printable _cwd cache stale across API 3, so
-0B0121             0143   ; qualification proves the real FatFS directory with relative loads instead.
-0B0121             0144   save_current_directory:
-0B0121 21 30 0B 0B 0145       ld hl,saved_current_directory
-0B0125 01 00 01 00 0146       ld bc,path_buffer_bytes
-0B0129             0147       MOSCALL ffs_getcwd
+0B008B 18 2E       0076       jr @fixture_selected
+0B008D             0077   @regular_fixture:
+0B008D FE 52       0078       cp 'R'
+0B008F 28 04       0079       jr z,@select_regular
+0B0091 FE 72       0080       cp 'r'
+0B0093 20 04       0081       jr nz,@distance_fixture
+0B0095             0082   @select_regular:
+0B0095 3E 0C       0083       ld a,12
+0B0097 18 22       0084       jr @fixture_selected
+0B0099             0085   @distance_fixture:
+0B0099 FE 44       0086       cp 'D'
+0B009B 28 04       0087       jr z,@select_distance
+0B009D FE 64       0088       cp 'd'
+0B009F 20 04       0089       jr nz,@natural_fixture
+0B00A1             0090   @select_distance:
+0B00A1 3E 0B       0091       ld a,11
+0B00A3 18 16       0092       jr @fixture_selected
+0B00A5             0093   @natural_fixture:
+0B00A5 FE 4E       0094       cp 'N'
+0B00A7 28 04       0095       jr z,@select_natural
+0B00A9 FE 6E       0096       cp 'n'
+0B00AB 20 04       0097       jr nz,@numbered_fixture
+0B00AD             0098   @select_natural:
+0B00AD 3E 0A       0099       ld a,10
+0B00AF 18 0A       0100       jr @fixture_selected
+0B00B1             0101   @numbered_fixture:
+0B00B1 FE 31       0102       cp '1'
+0B00B3 38 C8       0103       jr c,launcher_menu_wait
+0B00B5 FE 3A       0104       cp '9'+1
+0B00B7 30 C4       0105       jr nc,launcher_menu_wait
+0B00B9 D6 31       0106       sub '1'
+0B00BB             0107   @fixture_selected:
+0B00BB 32 9B 0B 0B 0108       ld (selected_index),a
+0B00BF CD A2 02 0B 0109       call wait_for_keys_released
+0B00C3 CD DB 01 0B 0110       call run_selected_fixture
+0B00C7             0111   launcher_after_fixture:
+0B00C7 32 9C 0B 0B 0112       ld (last_error),a
+0B00CB B7          0113       or a
+0B00CC CC B8 02 0B 0114       call z,release_fixture_scene
+0B00D0 CD 47 01 0B 0115       call restore_current_directory
+0B00D4 C2 28 01 0B 0116       jp nz,main_restore_failed
+0B00D8 CD A2 02 0B 0117       call wait_for_keys_released
+0B00DC 3A 9C 0B 0B 0118       ld a,(last_error)
+0B00E0 B7          0119       or a
+0B00E1 28 8E       0120       jr z,main_menu
+0B00E3 CD E4 02 0B 0121       call show_launch_error
+0B00E7 18 88       0122       jr main_menu
+0B00E9             0123   
+0B00E9             0124   main_exit:
+0B00E9 CD A2 02 0B 0125       call wait_for_keys_released
+0B00ED CD 47 01 0B 0126       call restore_current_directory
+0B00F1 C2 28 01 0B 0127       jp nz,main_restore_failed
+0B00F5 CD 39 03 0B 0128       call reset_text_screen
+0B00F9 21 58 07 0B 0129       ld hl,exit_text
+0B00FD CD 51 03 0B 0130       call print_string
+0B0101             0131   launcher_return_to_mos:
+0B0101 21 00 00 00 0132       ld hl,0
+0B0105 C9          0133       ret
+0B0106             0134   
+0B0106             0135   main_cwd_failed:
+0B0106 CD 39 03 0B 0136       call reset_text_screen
+0B010A 21 70 07 0B 0137       ld hl,cwd_error_text
+0B010E CD 51 03 0B 0138       call print_string
+0B0112 21 01 00 00 0139       ld hl,1
+0B0116 C9          0140       ret
+0B0117             0141   
+0B0117             0142   main_config_failed:
+0B0117 CD 39 03 0B 0143       call reset_text_screen
+0B011B 21 9E 07 0B 0144       ld hl,config_error_text
+0B011F CD 51 03 0B 0145       call print_string
+0B0123 21 02 00 00 0146       ld hl,2
+0B0127 C9          0147       ret
+0B0128             0148   
+0B0128             0149   main_restore_failed:
+0B0128 CD 39 03 0B 0150       call reset_text_screen
+0B012C 21 DC 07 0B 0151       ld hl,restore_error_text
+0B0130 CD 51 03 0B 0152       call print_string
+0B0134 21 03 00 00 0153       ld hl,3
+0B0138 C9          0154       ret
+0B0139             0155   
+0B0139             0156   ; Save the caller's actual FatFS working directory once.  All later changes,
+0B0139             0157   ; including restoration, deliberately go through the high-level mos_cd path.
+0B0139             0158   ; The old profile MOS leaves its printable _cwd cache stale across API 3, so
+0B0139             0159   ; qualification proves the real FatFS directory with relative loads instead.
+0B0139             0160   save_current_directory:
+0B0139 21 50 0C 0B 0161       ld hl,saved_current_directory
+0B013D 01 00 01 00 0162       ld bc,path_buffer_bytes
+0B0141             0163       MOSCALL ffs_getcwd
                        M1 Args: function=ffs_getcwd 
-0B0129 3E 9E       0001M1         ld a,function
-0B012B 5B CF       0002M1         rst.lil 08h
-0B012D B7          0148       or a
-0B012E C9          0149       ret
-0B012F             0150   
-0B012F             0151   restore_current_directory:
-0B012F 21 30 0B 0B 0152       ld hl,saved_current_directory
-0B0133             0153       MOSCALL mos_cd
+0B0141 3E 9E       0001M1         ld a,function
+0B0143 5B CF       0002M1         rst.lil 08h
+0B0145 B7          0164       or a
+0B0146 C9          0165       ret
+0B0147             0166   
+0B0147             0167   restore_current_directory:
+0B0147 21 50 0C 0B 0168       ld hl,saved_current_directory
+0B014B             0169       MOSCALL mos_cd
                        M1 Args: function=mos_cd 
-0B0133 3E 03       0001M1         ld a,function
-0B0135 5B CF       0002M1         rst.lil 08h
-0B0137 B7          0154       or a
-0B0138 C9          0155       ret
-0B0139             0156   
-0B0139             0157   ; Read one absolute Agon SD path from /mos/fsim.cfg.  The root is intentionally
-0B0139             0158   ; data rather than assembly so the same launcher binary can be installed with
-0B0139             0159   ; fixtures at another location.  The maximum leaves ample space for the
-0B0139             0160   ; longest built-in relative fixture directory in path_buffer.
-0B0139             0161   read_config_root:
-0B0139 AF          0162       xor a
-0B013A 32 7F 0A 0B 0163       ld (config_root),a
-0B013E 21 61 03 0B 0164       ld hl,config_filename
-0B0142 0E 01       0165       ld c,fa_read
-0B0144             0166       MOSCALL mos_fopen
+0B014B 3E 03       0001M1         ld a,function
+0B014D 5B CF       0002M1         rst.lil 08h
+0B014F B7          0170       or a
+0B0150 C9          0171       ret
+0B0151             0172   
+0B0151             0173   ; Read one absolute Agon SD path from /mos/fsim.cfg.  The root is intentionally
+0B0151             0174   ; data rather than assembly so the same launcher binary can be installed with
+0B0151             0175   ; fixtures at another location.  The maximum leaves ample space for the
+0B0151             0176   ; longest built-in relative fixture directory in path_buffer.
+0B0151             0177   read_config_root:
+0B0151 AF          0178       xor a
+0B0152 32 9F 0B 0B 0179       ld (config_root),a
+0B0156 21 79 03 0B 0180       ld hl,config_filename
+0B015A 0E 01       0181       ld c,fa_read
+0B015C             0182       MOSCALL mos_fopen
                        M1 Args: function=mos_fopen 
-0B0144 3E 0A       0001M1         ld a,function
-0B0146 5B CF       0002M1         rst.lil 08h
-0B0148 B7          0167       or a
-0B0149 28 67       0168       jr z,@failed
-0B014B 32 7E 0A 0B 0169       ld (config_handle),a
-0B014F 4F          0170       ld c,a
-0B0150 21 7F 0A 0B 0171       ld hl,config_root
-0B0154 11 B0 00 00 0172       ld de,config_root_max
-0B0158             0173       MOSCALL mos_fread
+0B015C 3E 0A       0001M1         ld a,function
+0B015E 5B CF       0002M1         rst.lil 08h
+0B0160 B7          0183       or a
+0B0161 28 67       0184       jr z,@failed
+0B0163 32 9E 0B 0B 0185       ld (config_handle),a
+0B0167 4F          0186       ld c,a
+0B0168 21 9F 0B 0B 0187       ld hl,config_root
+0B016C 11 B0 00 00 0188       ld de,config_root_max
+0B0170             0189       MOSCALL mos_fread
                        M1 Args: function=mos_fread 
-0B0158 3E 1A       0001M1         ld a,function
-0B015A 5B CF       0002M1         rst.lil 08h
-0B015C 3A 7E 0A 0B 0174       ld a,(config_handle)
-0B0160 4F          0175       ld c,a
-0B0161             0176       MOSCALL mos_fclose
+0B0170 3E 1A       0001M1         ld a,function
+0B0172 5B CF       0002M1         rst.lil 08h
+0B0174 3A 9E 0B 0B 0190       ld a,(config_handle)
+0B0178 4F          0191       ld c,a
+0B0179             0192       MOSCALL mos_fclose
                        M1 Args: function=mos_fclose 
-0B0161 3E 0B       0001M1         ld a,function
-0B0163 5B CF       0002M1         rst.lil 08h
-0B0165             0177   
-0B0165 21 7F 0A 0B 0178       ld hl,config_root
-0B0169 19          0179       add hl,de
-0B016A AF          0180       xor a
-0B016B 77          0181       ld (hl),a
-0B016C 21 B0 00 00 0182       ld hl,config_root_max
-0B0170 B7          0183       or a
-0B0171 ED 52       0184       sbc hl,de
-0B0173 28 3D       0185       jr z,@failed
-0B0175             0186   
-0B0175 21 7F 0A 0B 0187       ld hl,config_root
-0B0179 7E          0188       ld a,(hl)
-0B017A FE 2F       0189       cp '/'
-0B017C 20 34       0190       jr nz,@failed
-0B017E             0191   @scan:
-0B017E 7E          0192       ld a,(hl)
-0B017F B7          0193       or a
-0B0180 28 11       0194       jr z,@trim_slash
-0B0182 FE 0D       0195       cp 13
-0B0184 28 0B       0196       jr z,@terminate
-0B0186 FE 0A       0197       cp 10
-0B0188 28 07       0198       jr z,@terminate
-0B018A FE 20       0199       cp 32
-0B018C 38 24       0200       jr c,@failed
-0B018E 23          0201       inc hl
-0B018F 18 ED       0202       jr @scan
-0B0191             0203   @terminate:
-0B0191 AF          0204       xor a
-0B0192 77          0205       ld (hl),a
-0B0193             0206   @trim_slash:
-0B0193 11 7F 0A 0B 0207       ld de,config_root
-0B0197 B7          0208       or a
-0B0198 ED 52       0209       sbc hl,de
-0B019A 28 16       0210       jr z,@failed
-0B019C 19          0211       add hl,de
-0B019D 2B          0212       dec hl
-0B019E 7E          0213       ld a,(hl)
-0B019F FE 2F       0214       cp '/'
-0B01A1 20 0D       0215       jr nz,@success
-0B01A3 11 7F 0A 0B 0216       ld de,config_root
-0B01A7 E5          0217       push hl
-0B01A8 B7          0218       or a
-0B01A9 ED 52       0219       sbc hl,de
-0B01AB E1          0220       pop hl
-0B01AC 28 02       0221       jr z,@success
-0B01AE AF          0222       xor a
-0B01AF 77          0223       ld (hl),a
-0B01B0             0224   @success:
-0B01B0 AF          0225       xor a
-0B01B1 C9          0226       ret
-0B01B2             0227   @failed:
-0B01B2 3E 01       0228       ld a,1
-0B01B4 B7          0229       or a
-0B01B5 C9          0230       ret
-0B01B6             0231   
-0B01B6             0232   show_menu:
-0B01B6 CD 21 03 0B 0233       call reset_text_screen
-0B01BA 21 79 03 0B 0234       ld hl,menu_text
-0B01BE CD 39 03 0B 0235       call print_string
-0B01C2 C9          0236       ret
-0B01C3             0237   
-0B01C3             0238   ; Return A=0 after a fixture returns normally.  Nonzero launcher-local errors:
-0B01C3             0239   ; 1 = chdir, 2 = load, 3 = invalid common executable entry/header.
-0B01C3             0240   run_selected_fixture:
-0B01C3 CD 45 02 0B 0241       call locate_fixture_record
-0B01C7 CD 61 02 0B 0242       call build_fixture_directory
-0B01CB E5          0243       push hl
-0B01CC 21 30 0C 0B 0244       ld hl,path_buffer
-0B01D0             0245       MOSCALL mos_cd
+0B0179 3E 0B       0001M1         ld a,function
+0B017B 5B CF       0002M1         rst.lil 08h
+0B017D             0193   
+0B017D 21 9F 0B 0B 0194       ld hl,config_root
+0B0181 19          0195       add hl,de
+0B0182 AF          0196       xor a
+0B0183 77          0197       ld (hl),a
+0B0184 21 B0 00 00 0198       ld hl,config_root_max
+0B0188 B7          0199       or a
+0B0189 ED 52       0200       sbc hl,de
+0B018B 28 3D       0201       jr z,@failed
+0B018D             0202   
+0B018D 21 9F 0B 0B 0203       ld hl,config_root
+0B0191 7E          0204       ld a,(hl)
+0B0192 FE 2F       0205       cp '/'
+0B0194 20 34       0206       jr nz,@failed
+0B0196             0207   @scan:
+0B0196 7E          0208       ld a,(hl)
+0B0197 B7          0209       or a
+0B0198 28 11       0210       jr z,@trim_slash
+0B019A FE 0D       0211       cp 13
+0B019C 28 0B       0212       jr z,@terminate
+0B019E FE 0A       0213       cp 10
+0B01A0 28 07       0214       jr z,@terminate
+0B01A2 FE 20       0215       cp 32
+0B01A4 38 24       0216       jr c,@failed
+0B01A6 23          0217       inc hl
+0B01A7 18 ED       0218       jr @scan
+0B01A9             0219   @terminate:
+0B01A9 AF          0220       xor a
+0B01AA 77          0221       ld (hl),a
+0B01AB             0222   @trim_slash:
+0B01AB 11 9F 0B 0B 0223       ld de,config_root
+0B01AF B7          0224       or a
+0B01B0 ED 52       0225       sbc hl,de
+0B01B2 28 16       0226       jr z,@failed
+0B01B4 19          0227       add hl,de
+0B01B5 2B          0228       dec hl
+0B01B6 7E          0229       ld a,(hl)
+0B01B7 FE 2F       0230       cp '/'
+0B01B9 20 0D       0231       jr nz,@success
+0B01BB 11 9F 0B 0B 0232       ld de,config_root
+0B01BF E5          0233       push hl
+0B01C0 B7          0234       or a
+0B01C1 ED 52       0235       sbc hl,de
+0B01C3 E1          0236       pop hl
+0B01C4 28 02       0237       jr z,@success
+0B01C6 AF          0238       xor a
+0B01C7 77          0239       ld (hl),a
+0B01C8             0240   @success:
+0B01C8 AF          0241       xor a
+0B01C9 C9          0242       ret
+0B01CA             0243   @failed:
+0B01CA 3E 01       0244       ld a,1
+0B01CC B7          0245       or a
+0B01CD C9          0246       ret
+0B01CE             0247   
+0B01CE             0248   show_menu:
+0B01CE CD 39 03 0B 0249       call reset_text_screen
+0B01D2 21 91 03 0B 0250       ld hl,menu_text
+0B01D6 CD 51 03 0B 0251       call print_string
+0B01DA C9          0252       ret
+0B01DB             0253   
+0B01DB             0254   ; Return A=0 after a fixture returns normally.  Nonzero launcher-local errors:
+0B01DB             0255   ; 1 = chdir, 2 = load, 3 = invalid common executable entry/header.
+0B01DB             0256   run_selected_fixture:
+0B01DB CD 5D 02 0B 0257       call locate_fixture_record
+0B01DF CD 79 02 0B 0258       call build_fixture_directory
+0B01E3 E5          0259       push hl
+0B01E4 21 50 0D 0B 0260       ld hl,path_buffer
+0B01E8             0261       MOSCALL mos_cd
                        M1 Args: function=mos_cd 
-0B01D0 3E 03       0001M1         ld a,function
-0B01D2 5B CF       0002M1         rst.lil 08h
-0B01D4 32 7D 0A 0B 0246       ld (last_mos_status),a
-0B01D8 E1          0247       pop hl
-0B01D9 B7          0248       or a
-0B01DA 20 31       0249       jr nz,@chdir_failed
-0B01DC             0250   
-0B01DC AF          0251       xor a
-0B01DD 32 00 00 04 0252       ld (fixture_entry),a
-0B01E1 32 40 00 04 0253       ld (fixture_header),a
-0B01E5 11 00 00 04 0254       ld de,fixture_entry
-0B01E9 01 00 00 07 0255       ld bc,fixture_load_capacity
-0B01ED             0256       MOSCALL mos_load
+0B01E8 3E 03       0001M1         ld a,function
+0B01EA 5B CF       0002M1         rst.lil 08h
+0B01EC 32 9D 0B 0B 0262       ld (last_mos_status),a
+0B01F0 E1          0263       pop hl
+0B01F1 B7          0264       or a
+0B01F2 20 31       0265       jr nz,@chdir_failed
+0B01F4             0266   
+0B01F4 AF          0267       xor a
+0B01F5 32 00 00 04 0268       ld (fixture_entry),a
+0B01F9 32 40 00 04 0269       ld (fixture_header),a
+0B01FD 11 00 00 04 0270       ld de,fixture_entry
+0B0201 01 00 00 07 0271       ld bc,fixture_load_capacity
+0B0205             0272       MOSCALL mos_load
                        M1 Args: function=mos_load 
-0B01ED 3E 01       0001M1         ld a,function
-0B01EF 5B CF       0002M1         rst.lil 08h
-0B01F1 32 7D 0A 0B 0257       ld (last_mos_status),a
-0B01F5 B7          0258       or a
-0B01F6 20 19       0259       jr nz,@load_failed
-0B01F8 CD 1E 02 0B 0260       call validate_fixture_entry
-0B01FC 20 17       0261       jr nz,@entry_failed
-0B01FE             0262   
-0B01FE             0263       ; Mirror the normal MOS ADL entry registers for fixtures that later choose
-0B01FE             0264       ; to consume arguments.  The current eleven fixtures ignore them.
-0B01FE AF          0265       xor a
-0B01FF 11 00 00 04 0266       ld de,fixture_entry
-0B0203 21 6F 03 0B 0267       ld hl,empty_arguments
-0B0207 CD 00 00 04 0268       call fixture_entry
-0B020B AF          0269       xor a
-0B020C C9          0270       ret
-0B020D             0271   @chdir_failed:
-0B020D 3E 01       0272       ld a,1
-0B020F B7          0273       or a
-0B0210 C9          0274       ret
-0B0211             0275   @load_failed:
-0B0211 3E 02       0276       ld a,2
-0B0213 B7          0277       or a
-0B0214 C9          0278       ret
-0B0215             0279   @entry_failed:
-0B0215 AF          0280       xor a
-0B0216 32 7D 0A 0B 0281       ld (last_mos_status),a
-0B021A 3E 03       0282       ld a,3
-0B021C B7          0283       or a
-0B021D C9          0284       ret
-0B021E             0285   
-0B021E             0286   validate_fixture_entry:
-0B021E 21 00 00 04 0287       ld hl,fixture_entry
-0B0222 11 70 03 0B 0288       ld de,entry_signature
-0B0226 06 04       0289       ld b,entry_signature_end-entry_signature
-0B0228 CD 3C 02 0B 0290       call compare_bytes
-0B022C C0          0291       ret nz
-0B022D 21 40 00 04 0292       ld hl,fixture_header
-0B0231 11 74 03 0B 0293       ld de,header_signature
-0B0235 06 05       0294       ld b,header_signature_end-header_signature
-0B0237 CD 3C 02 0B 0295       call compare_bytes
-0B023B C9          0296       ret
-0B023C             0297   
-0B023C             0298   compare_bytes:
-0B023C             0299   @loop:
-0B023C 1A          0300       ld a,(de)
-0B023D BE          0301       cp (hl)
-0B023E C0          0302       ret nz
-0B023F 13          0303       inc de
-0B0240 23          0304       inc hl
-0B0241 10 F9       0305       djnz @loop
-0B0243 AF          0306       xor a
-0B0244 C9          0307       ret
-0B0245             0308   
-0B0245             0309   ; Return HL at the selected record's relative directory.  Each record is two
-0B0245             0310   ; adjacent zero-terminated strings: directory, then executable filename.
-0B0245             0311   locate_fixture_record:
-0B0245 21 17 08 0B 0312       ld hl,fixture_records
-0B0249 3A 7B 0A 0B 0313       ld a,(selected_index)
-0B024D 47          0314       ld b,a
-0B024E B7          0315       or a
-0B024F C8          0316       ret z
-0B0250             0317   @skip_record:
-0B0250 CD 5B 02 0B 0318       call skip_string
-0B0254 CD 5B 02 0B 0319       call skip_string
-0B0258 10 F6       0320       djnz @skip_record
-0B025A C9          0321       ret
-0B025B             0322   
-0B025B             0323   skip_string:
-0B025B 7E          0324       ld a,(hl)
-0B025C 23          0325       inc hl
-0B025D B7          0326       or a
-0B025E 20 FB       0327       jr nz,skip_string
-0B0260 C9          0328       ret
-0B0261             0329   
-0B0261             0330   ; Input HL points at the record's directory.  Output HL points at its binary.
-0B0261             0331   build_fixture_directory:
-0B0261 E5          0332       push hl
-0B0262 21 7F 0A 0B 0333       ld hl,config_root
-0B0266 11 30 0C 0B 0334       ld de,path_buffer
-0B026A CD 82 02 0B 0335       call copy_string_without_nul
-0B026E 1B          0336       dec de
-0B026F 1A          0337       ld a,(de)
-0B0270 13          0338       inc de
-0B0271 FE 2F       0339       cp '/'
-0B0273 28 04       0340       jr z,@copy_relative
-0B0275 3E 2F       0341       ld a,'/'
-0B0277 12          0342       ld (de),a
-0B0278 13          0343       inc de
-0B0279             0344   @copy_relative:
-0B0279 E1          0345       pop hl
-0B027A             0346   @copy_loop:
-0B027A 7E          0347       ld a,(hl)
-0B027B 12          0348       ld (de),a
-0B027C 23          0349       inc hl
-0B027D 13          0350       inc de
-0B027E B7          0351       or a
-0B027F 20 F9       0352       jr nz,@copy_loop
-0B0281 C9          0353       ret
-0B0282             0354   
-0B0282             0355   copy_string_without_nul:
-0B0282 7E          0356       ld a,(hl)
-0B0283 B7          0357       or a
-0B0284 C8          0358       ret z
-0B0285 12          0359       ld (de),a
-0B0286 23          0360       inc hl
-0B0287 13          0361       inc de
-0B0288 18 F8       0362       jr copy_string_without_nul
-0B028A             0363   
-0B028A             0364   ; Number-key and Escape presses must be physically released before ownership
-0B028A             0365   ; crosses the launcher/fixture boundary.  This prevents held-key repeat from
-0B028A             0366   ; satisfying an appliance's start gate or acting as the launcher's second Esc.
-0B028A             0367   wait_for_keys_released:
-0B028A             0368       MOSCALL mos_getkbmap
+0B0205 3E 01       0001M1         ld a,function
+0B0207 5B CF       0002M1         rst.lil 08h
+0B0209 32 9D 0B 0B 0273       ld (last_mos_status),a
+0B020D B7          0274       or a
+0B020E 20 19       0275       jr nz,@load_failed
+0B0210 CD 36 02 0B 0276       call validate_fixture_entry
+0B0214 20 17       0277       jr nz,@entry_failed
+0B0216             0278   
+0B0216             0279       ; Mirror the normal MOS ADL entry registers for fixtures that later choose
+0B0216             0280       ; to consume arguments.  The current thirteen fixtures ignore them.
+0B0216 AF          0281       xor a
+0B0217 11 00 00 04 0282       ld de,fixture_entry
+0B021B 21 87 03 0B 0283       ld hl,empty_arguments
+0B021F CD 00 00 04 0284       call fixture_entry
+0B0223 AF          0285       xor a
+0B0224 C9          0286       ret
+0B0225             0287   @chdir_failed:
+0B0225 3E 01       0288       ld a,1
+0B0227 B7          0289       or a
+0B0228 C9          0290       ret
+0B0229             0291   @load_failed:
+0B0229 3E 02       0292       ld a,2
+0B022B B7          0293       or a
+0B022C C9          0294       ret
+0B022D             0295   @entry_failed:
+0B022D AF          0296       xor a
+0B022E 32 9D 0B 0B 0297       ld (last_mos_status),a
+0B0232 3E 03       0298       ld a,3
+0B0234 B7          0299       or a
+0B0235 C9          0300       ret
+0B0236             0301   
+0B0236             0302   validate_fixture_entry:
+0B0236 21 00 00 04 0303       ld hl,fixture_entry
+0B023A 11 88 03 0B 0304       ld de,entry_signature
+0B023E 06 04       0305       ld b,entry_signature_end-entry_signature
+0B0240 CD 54 02 0B 0306       call compare_bytes
+0B0244 C0          0307       ret nz
+0B0245 21 40 00 04 0308       ld hl,fixture_header
+0B0249 11 8C 03 0B 0309       ld de,header_signature
+0B024D 06 05       0310       ld b,header_signature_end-header_signature
+0B024F CD 54 02 0B 0311       call compare_bytes
+0B0253 C9          0312       ret
+0B0254             0313   
+0B0254             0314   compare_bytes:
+0B0254             0315   @loop:
+0B0254 1A          0316       ld a,(de)
+0B0255 BE          0317       cp (hl)
+0B0256 C0          0318       ret nz
+0B0257 13          0319       inc de
+0B0258 23          0320       inc hl
+0B0259 10 F9       0321       djnz @loop
+0B025B AF          0322       xor a
+0B025C C9          0323       ret
+0B025D             0324   
+0B025D             0325   ; Return HL at the selected record's relative directory.  Each record is two
+0B025D             0326   ; adjacent zero-terminated strings: directory, then executable filename.
+0B025D             0327   locate_fixture_record:
+0B025D 21 CF 08 0B 0328       ld hl,fixture_records
+0B0261 3A 9B 0B 0B 0329       ld a,(selected_index)
+0B0265 47          0330       ld b,a
+0B0266 B7          0331       or a
+0B0267 C8          0332       ret z
+0B0268             0333   @skip_record:
+0B0268 CD 73 02 0B 0334       call skip_string
+0B026C CD 73 02 0B 0335       call skip_string
+0B0270 10 F6       0336       djnz @skip_record
+0B0272 C9          0337       ret
+0B0273             0338   
+0B0273             0339   skip_string:
+0B0273 7E          0340       ld a,(hl)
+0B0274 23          0341       inc hl
+0B0275 B7          0342       or a
+0B0276 20 FB       0343       jr nz,skip_string
+0B0278 C9          0344       ret
+0B0279             0345   
+0B0279             0346   ; Input HL points at the record's directory.  Output HL points at its binary.
+0B0279             0347   build_fixture_directory:
+0B0279 E5          0348       push hl
+0B027A 21 9F 0B 0B 0349       ld hl,config_root
+0B027E 11 50 0D 0B 0350       ld de,path_buffer
+0B0282 CD 9A 02 0B 0351       call copy_string_without_nul
+0B0286 1B          0352       dec de
+0B0287 1A          0353       ld a,(de)
+0B0288 13          0354       inc de
+0B0289 FE 2F       0355       cp '/'
+0B028B 28 04       0356       jr z,@copy_relative
+0B028D 3E 2F       0357       ld a,'/'
+0B028F 12          0358       ld (de),a
+0B0290 13          0359       inc de
+0B0291             0360   @copy_relative:
+0B0291 E1          0361       pop hl
+0B0292             0362   @copy_loop:
+0B0292 7E          0363       ld a,(hl)
+0B0293 12          0364       ld (de),a
+0B0294 23          0365       inc hl
+0B0295 13          0366       inc de
+0B0296 B7          0367       or a
+0B0297 20 F9       0368       jr nz,@copy_loop
+0B0299 C9          0369       ret
+0B029A             0370   
+0B029A             0371   copy_string_without_nul:
+0B029A 7E          0372       ld a,(hl)
+0B029B B7          0373       or a
+0B029C C8          0374       ret z
+0B029D 12          0375       ld (de),a
+0B029E 23          0376       inc hl
+0B029F 13          0377       inc de
+0B02A0 18 F8       0378       jr copy_string_without_nul
+0B02A2             0379   
+0B02A2             0380   ; Number-key and Escape presses must be physically released before ownership
+0B02A2             0381   ; crosses the launcher/fixture boundary.  This prevents held-key repeat from
+0B02A2             0382   ; satisfying an appliance's start gate or acting as the launcher's second Esc.
+0B02A2             0383   wait_for_keys_released:
+0B02A2             0384       MOSCALL mos_getkbmap
                        M1 Args: function=mos_getkbmap 
-0B028A 3E 1E       0001M1         ld a,function
-0B028C 5B CF       0002M1         rst.lil 08h
-0B028E 06 10       0369       ld b,16
-0B0290 0E 00       0370       ld c,0
-0B0292             0371   @scan:
-0B0292 DD 7E 00    0372       ld a,(ix)
-0B0295 B1          0373       or c
-0B0296 4F          0374       ld c,a
-0B0297 DD 23       0375       inc ix
-0B0299 10 F7       0376       djnz @scan
-0B029B 79          0377       ld a,c
-0B029C B7          0378       or a
-0B029D 20 EB       0379       jr nz,wait_for_keys_released
-0B029F C9          0380       ret
-0B02A0             0381   
-0B02A0             0382   ; Fixtures currently own one of two scene IDs.  Release the selected fixture's
-0B02A0             0383   ; known-live control after its normal return so cross-family menu sessions do
-0B02A0             0384   ; not retain scene-private allocations.  Load/entry failures created no scene.
-0B02A0             0385   release_fixture_scene:
-0B02A0 3A 7B 0A 0B 0386       ld a,(selected_index)
-0B02A4 FE 05       0387       cp 5
-0B02A6 28 0B       0388       jr z,@family
-0B02A8 21 BE 02 0B 0389       ld hl,@default_command
-0B02AC 01 07 00 00 0390       ld bc,@default_end-@default_command
-0B02B0 5B DF       0391       rst.lil 18h
-0B02B2 C9          0392       ret
-0B02B3             0393   @family:
-0B02B3 21 C5 02 0B 0394       ld hl,@family_command
-0B02B7 01 07 00 00 0395       ld bc,@family_end-@family_command
-0B02BB 5B DF       0396       rst.lil 18h
-0B02BD C9          0397       ret
-0B02BE             0398   @default_command:
-0B02BE 17 00 A0    0399       db 23,0,0A0h
-0B02C1 C3 06       0400       dw 1731
-0B02C3 49 27       0401       db 49h,39
-0B02C5             0402   @default_end:
-0B02C5             0403   @family_command:
-0B02C5 17 00 A0    0404       db 23,0,0A0h
-0B02C8 C4 06       0405       dw 1732
-0B02CA 49 27       0406       db 49h,39
-0B02CC             0407   @family_end:
-0B02CC             0408   
-0B02CC             0409   show_launch_error:
-0B02CC CD 21 03 0B 0410       call reset_text_screen
-0B02D0 21 5E 07 0B 0411       ld hl,launch_error_text
-0B02D4 CD 39 03 0B 0412       call print_string
-0B02D8 3A 7C 0A 0B 0413       ld a,(last_error)
-0B02DC FE 01       0414       cp 1
-0B02DE 28 0A       0415       jr z,@directory
-0B02E0 FE 02       0416       cp 2
-0B02E2 28 0C       0417       jr z,@load
-0B02E4 21 B2 07 0B 0418       ld hl,entry_error_text
-0B02E8 18 0A       0419       jr @detail
-0B02EA             0420   @directory:
-0B02EA 21 83 07 0B 0421       ld hl,directory_error_text
-0B02EE 18 04       0422       jr @detail
-0B02F0             0423   @load:
-0B02F0 21 9B 07 0B 0424       ld hl,load_error_text
-0B02F4             0425   @detail:
-0B02F4 CD 39 03 0B 0426       call print_string
-0B02F8 21 D8 07 0B 0427       ld hl,status_text
-0B02FC CD 39 03 0B 0428       call print_string
-0B0300 3A 7D 0A 0B 0429       ld a,(last_mos_status)
-0B0304 CD 4A 03 0B 0430       call print_hex_byte
-0B0308 3E 29       0431       ld a,')'
-0B030A 5B D7       0432       rst.lil 10h
-0B030C CD 41 03 0B 0433       call print_newline
-0B0310 21 E8 07 0B 0434       ld hl,continue_text
-0B0314 CD 39 03 0B 0435       call print_string
-0B0318             0436       MOSCALL mos_getkey
+0B02A2 3E 1E       0001M1         ld a,function
+0B02A4 5B CF       0002M1         rst.lil 08h
+0B02A6 06 10       0385       ld b,16
+0B02A8 0E 00       0386       ld c,0
+0B02AA             0387   @scan:
+0B02AA DD 7E 00    0388       ld a,(ix)
+0B02AD B1          0389       or c
+0B02AE 4F          0390       ld c,a
+0B02AF DD 23       0391       inc ix
+0B02B1 10 F7       0392       djnz @scan
+0B02B3 79          0393       ld a,c
+0B02B4 B7          0394       or a
+0B02B5 20 EB       0395       jr nz,wait_for_keys_released
+0B02B7 C9          0396       ret
+0B02B8             0397   
+0B02B8             0398   ; Fixtures currently own one of two scene IDs.  Release the selected fixture's
+0B02B8             0399   ; known-live control after its normal return so cross-family menu sessions do
+0B02B8             0400   ; not retain scene-private allocations.  Load/entry failures created no scene.
+0B02B8             0401   release_fixture_scene:
+0B02B8 3A 9B 0B 0B 0402       ld a,(selected_index)
+0B02BC FE 05       0403       cp 5
+0B02BE 28 0B       0404       jr z,@family
+0B02C0 21 D6 02 0B 0405       ld hl,@default_command
+0B02C4 01 07 00 00 0406       ld bc,@default_end-@default_command
+0B02C8 5B DF       0407       rst.lil 18h
+0B02CA C9          0408       ret
+0B02CB             0409   @family:
+0B02CB 21 DD 02 0B 0410       ld hl,@family_command
+0B02CF 01 07 00 00 0411       ld bc,@family_end-@family_command
+0B02D3 5B DF       0412       rst.lil 18h
+0B02D5 C9          0413       ret
+0B02D6             0414   @default_command:
+0B02D6 17 00 A0    0415       db 23,0,0A0h
+0B02D9 C3 06       0416       dw 1731
+0B02DB 49 27       0417       db 49h,39
+0B02DD             0418   @default_end:
+0B02DD             0419   @family_command:
+0B02DD 17 00 A0    0420       db 23,0,0A0h
+0B02E0 C4 06       0421       dw 1732
+0B02E2 49 27       0422       db 49h,39
+0B02E4             0423   @family_end:
+0B02E4             0424   
+0B02E4             0425   show_launch_error:
+0B02E4 CD 39 03 0B 0426       call reset_text_screen
+0B02E8 21 16 08 0B 0427       ld hl,launch_error_text
+0B02EC CD 51 03 0B 0428       call print_string
+0B02F0 3A 9C 0B 0B 0429       ld a,(last_error)
+0B02F4 FE 01       0430       cp 1
+0B02F6 28 0A       0431       jr z,@directory
+0B02F8 FE 02       0432       cp 2
+0B02FA 28 0C       0433       jr z,@load
+0B02FC 21 6A 08 0B 0434       ld hl,entry_error_text
+0B0300 18 0A       0435       jr @detail
+0B0302             0436   @directory:
+0B0302 21 3B 08 0B 0437       ld hl,directory_error_text
+0B0306 18 04       0438       jr @detail
+0B0308             0439   @load:
+0B0308 21 53 08 0B 0440       ld hl,load_error_text
+0B030C             0441   @detail:
+0B030C CD 51 03 0B 0442       call print_string
+0B0310 21 90 08 0B 0443       ld hl,status_text
+0B0314 CD 51 03 0B 0444       call print_string
+0B0318 3A 9D 0B 0B 0445       ld a,(last_mos_status)
+0B031C CD 62 03 0B 0446       call print_hex_byte
+0B0320 3E 29       0447       ld a,')'
+0B0322 5B D7       0448       rst.lil 10h
+0B0324 CD 59 03 0B 0449       call print_newline
+0B0328 21 A0 08 0B 0450       ld hl,continue_text
+0B032C CD 51 03 0B 0451       call print_string
+0B0330             0452       MOSCALL mos_getkey
                        M1 Args: function=mos_getkey 
-0B0318 3E 00       0001M1         ld a,function
-0B031A 5B CF       0002M1         rst.lil 08h
-0B031C CD 8A 02 0B 0437       call wait_for_keys_released
-0B0320 C9          0438       ret
-0B0321             0439   
-0B0321             0440   reset_text_screen:
-0B0321 3E 16       0441       ld a,22
-0B0323 5B D7       0442       rst.lil 10h
-0B0325 AF          0443       xor a
-0B0326 5B D7       0444       rst.lil 10h
-0B0328 3E 17       0445       ld a,23
-0B032A 5B D7       0446       rst.lil 10h
-0B032C 3E 01       0447       ld a,1
-0B032E 5B D7       0448       rst.lil 10h
-0B0330 3E 01       0449       ld a,1
-0B0332 5B D7       0450       rst.lil 10h
-0B0334 3E 0C       0451       ld a,12
-0B0336 5B D7       0452       rst.lil 10h
-0B0338 C9          0453       ret
-0B0339             0454   
-0B0339             0455   print_string:
-0B0339 7E          0456       ld a,(hl)
-0B033A B7          0457       or a
-0B033B C8          0458       ret z
-0B033C 5B D7       0459       rst.lil 10h
-0B033E 23          0460       inc hl
-0B033F 18 F8       0461       jr print_string
-0B0341             0462   
-0B0341             0463   print_newline:
-0B0341 3E 0D       0464       ld a,13
-0B0343 5B D7       0465       rst.lil 10h
-0B0345 3E 0A       0466       ld a,10
-0B0347 5B D7       0467       rst.lil 10h
-0B0349 C9          0468       ret
-0B034A             0469   
-0B034A             0470   print_hex_byte:
-0B034A F5          0471       push af
-0B034B 0F          0472       rrca
-0B034C 0F          0473       rrca
-0B034D 0F          0474       rrca
-0B034E 0F          0475       rrca
-0B034F CD 54 03 0B 0476       call print_hex_nibble
-0B0353 F1          0477       pop af
-0B0354             0478   print_hex_nibble:
-0B0354 E6 0F       0479       and 0Fh
-0B0356 C6 30       0480       add a,'0'
-0B0358 FE 3A       0481       cp '9'+1
-0B035A 38 02       0482       jr c,@emit
-0B035C C6 07       0483       add a,'A'-'9'-1
-0B035E             0484   @emit:
-0B035E 5B D7       0485       rst.lil 10h
-0B0360 C9          0486       ret
-0B0361             0487   
-0B0361             0488   config_filename:
-0B0361 2F 6D 6F 73 0489       db "/mos/fsim.cfg",0
+0B0330 3E 00       0001M1         ld a,function
+0B0332 5B CF       0002M1         rst.lil 08h
+0B0334 CD A2 02 0B 0453       call wait_for_keys_released
+0B0338 C9          0454       ret
+0B0339             0455   
+0B0339             0456   reset_text_screen:
+0B0339 3E 16       0457       ld a,22
+0B033B 5B D7       0458       rst.lil 10h
+0B033D AF          0459       xor a
+0B033E 5B D7       0460       rst.lil 10h
+0B0340 3E 17       0461       ld a,23
+0B0342 5B D7       0462       rst.lil 10h
+0B0344 3E 01       0463       ld a,1
+0B0346 5B D7       0464       rst.lil 10h
+0B0348 3E 01       0465       ld a,1
+0B034A 5B D7       0466       rst.lil 10h
+0B034C 3E 0C       0467       ld a,12
+0B034E 5B D7       0468       rst.lil 10h
+0B0350 C9          0469       ret
+0B0351             0470   
+0B0351             0471   print_string:
+0B0351 7E          0472       ld a,(hl)
+0B0352 B7          0473       or a
+0B0353 C8          0474       ret z
+0B0354 5B D7       0475       rst.lil 10h
+0B0356 23          0476       inc hl
+0B0357 18 F8       0477       jr print_string
+0B0359             0478   
+0B0359             0479   print_newline:
+0B0359 3E 0D       0480       ld a,13
+0B035B 5B D7       0481       rst.lil 10h
+0B035D 3E 0A       0482       ld a,10
+0B035F 5B D7       0483       rst.lil 10h
+0B0361 C9          0484       ret
+0B0362             0485   
+0B0362             0486   print_hex_byte:
+0B0362 F5          0487       push af
+0B0363 0F          0488       rrca
+0B0364 0F          0489       rrca
+0B0365 0F          0490       rrca
+0B0366 0F          0491       rrca
+0B0367 CD 6C 03 0B 0492       call print_hex_nibble
+0B036B F1          0493       pop af
+0B036C             0494   print_hex_nibble:
+0B036C E6 0F       0495       and 0Fh
+0B036E C6 30       0496       add a,'0'
+0B0370 FE 3A       0497       cp '9'+1
+0B0372 38 02       0498       jr c,@emit
+0B0374 C6 07       0499       add a,'A'-'9'-1
+0B0376             0500   @emit:
+0B0376 5B D7       0501       rst.lil 10h
+0B0378 C9          0502       ret
+0B0379             0503   
+0B0379             0504   config_filename:
+0B0379 2F 6D 6F 73 0505       db "/mos/fsim.cfg",0
        2F 66 73 69 
        6D 2E 63 66 
        67 00       
-0B036F             0490   empty_arguments:
-0B036F 00          0491       db 0
-0B0370             0492   
-0B0370             0493   entry_signature:
-0B0370 C3 45 00 04 0494       db 0C3h,045h,000h,004h
-0B0374             0495   entry_signature_end:
-0B0374             0496   header_signature:
-0B0374 4D 4F 53 00 0497       db "MOS",0,1
+0B0387             0506   empty_arguments:
+0B0387 00          0507       db 0
+0B0388             0508   
+0B0388             0509   entry_signature:
+0B0388 C3 45 00 04 0510       db 0C3h,045h,000h,004h
+0B038C             0511   entry_signature_end:
+0B038C             0512   header_signature:
+0B038C 4D 4F 53 00 0513       db "MOS",0,1
        01          
-0B0379             0498   header_signature_end:
-0B0379             0499   
-0B0379             0500   menu_text:
-0B0379 50 69 6E 67 0501       db "Pingo Terrain Flight Simulator",13,10
+0B0391             0514   header_signature_end:
+0B0391             0515   
+0B0391             0516   menu_text:
+0B0391 50 69 6E 67 0517       db "Pingo Terrain Flight Simulator",13,10
        6F 20 54 65 
        72 72 61 69 
        6E 20 46 6C 
@@ -557,7 +573,7 @@ PC     Output      Line
        20 53 69 6D 
        75 6C 61 74 
        6F 72 0D 0A 
-0B0399 3D 3D 3D 3D 0502       db "================================",13,10,13,10
+0B03B1 3D 3D 3D 3D 0518       db "================================",13,10,13,10
        3D 3D 3D 3D 
        3D 3D 3D 3D 
        3D 3D 3D 3D 
@@ -566,7 +582,7 @@ PC     Output      Line
        3D 3D 3D 3D 
        3D 3D 3D 3D 
        0D 0A 0D 0A 
-0B03BD 31 20 20 52 0503       db "1  Rectangular Berkeley - original embedded-grid free flight",13,10
+0B03D5 31 20 20 52 0519       db "1  Rectangular Berkeley - original embedded-grid free flight",13,10
        65 63 74 61 
        6E 67 75 6C 
        61 72 20 42 
@@ -582,7 +598,7 @@ PC     Output      Line
        65 20 66 6C 
        69 67 68 74 
        0D 0A       
-0B03FB 32 20 20 54 0504       db "2  Triangular Berkeley  - self-lit continuous triangular terrain",13,10
+0B0413 32 20 20 54 0520       db "2  Triangular Berkeley  - self-lit continuous triangular terrain",13,10
        72 69 61 6E 
        67 75 6C 61 
        72 20 42 65 
@@ -599,7 +615,7 @@ PC     Output      Line
        20 74 65 72 
        72 61 69 6E 
        0D 0A       
-0B043D 33 20 20 44 0505       db "3  Dithered Berkeley    - scene-lit flat-pattern terrain",13,10
+0B0455 33 20 20 44 0521       db "3  Dithered Berkeley    - scene-lit flat-pattern terrain",13,10
        69 74 68 65 
        72 65 64 20 
        42 65 72 6B 
@@ -614,7 +630,7 @@ PC     Output      Line
        20 74 65 72 
        72 61 69 6E 
        0D 0A       
-0B0477 34 20 20 42 0506       db "4  Berkeley Light Flight - cockpit and deterministic dynamics",13,10
+0B048F 34 20 20 42 0522       db "4  Berkeley Light Flight - cockpit and deterministic dynamics",13,10
        65 72 6B 65 
        6C 65 79 20 
        4C 69 67 68 
@@ -630,7 +646,7 @@ PC     Output      Line
        20 64 79 6E 
        61 6D 69 63 
        73 0D 0A    
-0B04B6 35 20 20 4B 0507       db "5  KOAK Streamed        - runway 28L and loose terrain records",13,10
+0B04CE 35 20 20 4B 0523       db "5  KOAK Streamed        - runway 28L and loose terrain records",13,10
        4F 41 4B 20 
        53 74 72 65 
        61 6D 65 64 
@@ -646,7 +662,7 @@ PC     Output      Line
        69 6E 20 72 
        65 63 6F 72 
        64 73 0D 0A 
-0B04F6 36 20 20 4B 0508       db "6  KOAK Family LOD      - nested-family mixed-LOD handoff",13,10
+0B050E 36 20 20 4B 0524       db "6  KOAK Family LOD      - nested-family mixed-LOD handoff",13,10
        4F 41 4B 20 
        46 61 6D 69 
        6C 79 20 4C 
@@ -661,7 +677,7 @@ PC     Output      Line
        44 20 68 61 
        6E 64 6F 66 
        66 0D 0A    
-0B0531 37 20 20 50 0509       db "7  P3DM Loader Probe    - publish one loose terrain record",13,10
+0B0549 37 20 20 50 0525       db "7  P3DM Loader Probe    - publish one loose terrain record",13,10
        33 44 4D 20 
        4C 6F 61 64 
        65 72 20 50 
@@ -676,7 +692,7 @@ PC     Output      Line
        61 69 6E 20 
        72 65 63 6F 
        72 64 0D 0A 
-0B056D 38 20 20 4E 0510       db "8  Nested AGNB Probe    - select from a ten-record family",13,10
+0B0585 38 20 20 4E 0526       db "8  Nested AGNB Probe    - select from a ten-record family",13,10
        65 73 74 65 
        64 20 41 47 
        4E 42 20 50 
@@ -691,7 +707,7 @@ PC     Output      Line
        72 64 20 66 
        61 6D 69 6C 
        79 0D 0A    
-0B05A8 39 20 20 43 0511       db "9  Campanile Probe      - streamed solid-flat Sather Tower",13,10
+0B05C0 39 20 20 43 0527       db "9  Campanile Probe      - streamed solid-flat Sather Tower",13,10
        61 6D 70 61 
        6E 69 6C 65 
        20 50 72 6F 
@@ -706,7 +722,7 @@ PC     Output      Line
        74 68 65 72 
        20 54 6F 77 
        65 72 0D 0A 
-0B05E4 30 20 20 48 0512       db "0  Hex Manager Survey  - regular N=5 terrain, live rings 0-5",13,10
+0B05FC 30 20 20 48 0528       db "0  Hex Manager Survey  - regular N=5 terrain, live rings 0-5",13,10
        65 78 20 4D 
        61 6E 61 67 
        65 72 20 53 
@@ -722,7 +738,7 @@ PC     Output      Line
        69 6E 67 73 
        20 30 2D 35 
        0D 0A       
-0B0622 4E 20 20 4E 0513       db "N  Natural Survey      - full-region post-partition terrain, rings 0-5",13,10,13,10
+0B063A 4E 20 20 4E 0529       db "N  Natural Survey      - full-region post-partition terrain, rings 0-5",13,10
        61 74 75 72 
        61 6C 20 53 
        75 72 76 65 
@@ -740,30 +756,71 @@ PC     Output      Line
        20 72 69 6E 
        67 73 20 30 
        2D 35 0D 0A 
-       0D 0A       
-0B066C 50 72 65 73 0514       db "Press 1-9, 0, or N to launch; Esc returns to MOS.",13,10,0
+0B0682 44 20 20 44 0530       db "D  Distance LOD        - natural ring 5 plus regular terrain to ring 30",13,10
+       69 73 74 61 
+       6E 63 65 20 
+       4C 4F 44 20 
+       20 20 20 20 
+       20 20 20 2D 
+       20 6E 61 74 
+       75 72 61 6C 
+       20 72 69 6E 
+       67 20 35 20 
+       70 6C 75 73 
+       20 72 65 67 
+       75 6C 61 72 
+       20 74 65 72 
+       72 61 69 6E 
+       20 74 6F 20 
+       72 69 6E 67 
+       20 33 30 0D 
+       0A          
+0B06CB 52 20 20 52 0531       db "R  Regular LOD         - position-driven N5 near and regular terrain to ring 30",13,10,13,10
+       65 67 75 6C 
+       61 72 20 4C 
+       4F 44 20 20 
+       20 20 20 20 
+       20 20 20 2D 
+       20 70 6F 73 
+       69 74 69 6F 
+       6E 2D 64 72 
+       69 76 65 6E 
+       20 4E 35 20 
+       6E 65 61 72 
+       20 61 6E 64 
+       20 72 65 67 
+       75 6C 61 72 
+       20 74 65 72 
+       72 61 69 6E 
+       20 74 6F 20 
+       72 69 6E 67 
+       20 33 30 0D 
+       0A 0D 0A    
+0B071E 50 72 65 73 0532       db "Press 1-9, 0, N, D, or R to launch; Esc returns to MOS.",13,10,0
        73 20 31 2D 
        39 2C 20 30 
-       2C 20 6F 72 
-       20 4E 20 74 
-       6F 20 6C 61 
-       75 6E 63 68 
-       3B 20 45 73 
-       63 20 72 65 
-       74 75 72 6E 
-       73 20 74 6F 
-       20 4D 4F 53 
-       2E 0D 0A 00 
-0B06A0             0515   
-0B06A0             0516   exit_text:
-0B06A0 46 53 49 4D 0517       db "FSIM returned to MOS.",13,10,0
+       2C 20 4E 2C 
+       20 44 2C 20 
+       6F 72 20 52 
+       20 74 6F 20 
+       6C 61 75 6E 
+       63 68 3B 20 
+       45 73 63 20 
+       72 65 74 75 
+       72 6E 73 20 
+       74 6F 20 4D 
+       4F 53 2E 0D 
+       0A 00       
+0B0758             0533   
+0B0758             0534   exit_text:
+0B0758 46 53 49 4D 0535       db "FSIM returned to MOS.",13,10,0
        20 72 65 74 
        75 72 6E 65 
        64 20 74 6F 
        20 4D 4F 53 
        2E 0D 0A 00 
-0B06B8             0518   cwd_error_text:
-0B06B8 46 53 49 4D 0519       db "FSIM: unable to read the current directory.",13,10,0
+0B0770             0536   cwd_error_text:
+0B0770 46 53 49 4D 0537       db "FSIM: unable to read the current directory.",13,10,0
        3A 20 75 6E 
        61 62 6C 65 
        20 74 6F 20 
@@ -775,8 +832,8 @@ PC     Output      Line
        65 63 74 6F 
        72 79 2E 0D 
        0A 00       
-0B06E6             0520   config_error_text:
-0B06E6 46 53 49 4D 0521       db "FSIM: /mos/fsim.cfg must contain one absolute fixture root.",13,10,0
+0B079E             0538   config_error_text:
+0B079E 46 53 49 4D 0539       db "FSIM: /mos/fsim.cfg must contain one absolute fixture root.",13,10,0
        3A 20 2F 6D 
        6F 73 2F 66 
        73 69 6D 2E 
@@ -792,8 +849,8 @@ PC     Output      Line
        65 20 72 6F 
        6F 74 2E 0D 
        0A 00       
-0B0724             0522   restore_error_text:
-0B0724 46 53 49 4D 0523       db "FSIM: unable to restore the original working directory.",13,10,0
+0B07DC             0540   restore_error_text:
+0B07DC 46 53 49 4D 0541       db "FSIM: unable to restore the original working directory.",13,10,0
        3A 20 75 6E 
        61 62 6C 65 
        20 74 6F 20 
@@ -808,8 +865,8 @@ PC     Output      Line
        65 63 74 6F 
        72 79 2E 0D 
        0A 00       
-0B075E             0524   launch_error_text:
-0B075E 46 53 49 4D 0525       db "FSIM could not launch that fixture: ",0
+0B0816             0542   launch_error_text:
+0B0816 46 53 49 4D 0543       db "FSIM could not launch that fixture: ",0
        20 63 6F 75 
        6C 64 20 6E 
        6F 74 20 6C 
@@ -819,22 +876,22 @@ PC     Output      Line
        69 78 74 75 
        72 65 3A 20 
        00          
-0B0783             0526   directory_error_text:
-0B0783 64 69 72 65 0527       db "directory change failed",0
+0B083B             0544   directory_error_text:
+0B083B 64 69 72 65 0545       db "directory change failed",0
        63 74 6F 72 
        79 20 63 68 
        61 6E 67 65 
        20 66 61 69 
        6C 65 64 00 
-0B079B             0528   load_error_text:
-0B079B 65 78 65 63 0529       db "executable load failed",0
+0B0853             0546   load_error_text:
+0B0853 65 78 65 63 0547       db "executable load failed",0
        75 74 61 62 
        6C 65 20 6C 
        6F 61 64 20 
        66 61 69 6C 
        65 64 00    
-0B07B2             0530   entry_error_text:
-0B07B2 63 6F 6D 6D 0531       db "common entry/header validation failed",0
+0B086A             0548   entry_error_text:
+0B086A 63 6F 6D 6D 0549       db "common entry/header validation failed",0
        6F 6E 20 65 
        6E 74 72 79 
        2F 68 65 61 
@@ -844,13 +901,13 @@ PC     Output      Line
        6F 6E 20 66 
        61 69 6C 65 
        64 00       
-0B07D8             0532   status_text:
-0B07D8 20 28 4D 4F 0533       db " (MOS status 0x",0
+0B0890             0550   status_text:
+0B0890 20 28 4D 4F 0551       db " (MOS status 0x",0
        53 20 73 74 
        61 74 75 73 
        20 30 78 00 
-0B07E8             0534   continue_text:
-0B07E8 50 72 65 73 0535       db "Press any key to return to the fixture menu.",13,10,0
+0B08A0             0552   continue_text:
+0B08A0 50 72 65 73 0553       db "Press any key to return to the fixture menu.",13,10,0
        73 20 61 6E 
        79 20 6B 65 
        79 20 74 6F 
@@ -862,9 +919,9 @@ PC     Output      Line
        72 65 20 6D 
        65 6E 75 2E 
        0D 0A 00    
-0B0817             0536   
-0B0817             0537   fixture_records:
-0B0817 66 69 78 74 0538       db "fixtures/berkeley-flight/tgt",0
+0B08CF             0554   
+0B08CF             0555   fixture_records:
+0B08CF 66 69 78 74 0556       db "fixtures/berkeley-flight/tgt",0
        75 72 65 73 
        2F 62 65 72 
        6B 65 6C 65 
@@ -872,12 +929,12 @@ PC     Output      Line
        69 67 68 74 
        2F 74 67 74 
        00          
-0B0834 62 65 72 6B 0539       db "berkeley-flight.bin",0
+0B08EC 62 65 72 6B 0557       db "berkeley-flight.bin",0
        65 6C 65 79 
        2D 66 6C 69 
        67 68 74 2E 
        62 69 6E 00 
-0B0848 66 69 78 74 0540       db "fixtures/berkeley-flight-triangular/tgt",0
+0B0900 66 69 78 74 0558       db "fixtures/berkeley-flight-triangular/tgt",0
        75 72 65 73 
        2F 62 65 72 
        6B 65 6C 65 
@@ -887,7 +944,7 @@ PC     Output      Line
        61 6E 67 75 
        6C 61 72 2F 
        74 67 74 00 
-0B0870 62 65 72 6B 0541       db "berkeley-flight-triangular.bin",0
+0B0928 62 65 72 6B 0559       db "berkeley-flight-triangular.bin",0
        65 6C 65 79 
        2D 66 6C 69 
        67 68 74 2D 
@@ -895,7 +952,7 @@ PC     Output      Line
        6E 67 75 6C 
        61 72 2E 62 
        69 6E 00    
-0B088F 66 69 78 74 0542       db "fixtures/berkeley-flight-triangular-dither/tgt",0
+0B0947 66 69 78 74 0560       db "fixtures/berkeley-flight-triangular-dither/tgt",0
        75 72 65 73 
        2F 62 65 72 
        6B 65 6C 65 
@@ -907,7 +964,7 @@ PC     Output      Line
        64 69 74 68 
        65 72 2F 74 
        67 74 00    
-0B08BE 62 65 72 6B 0543       db "berkeley-flight-triangular-dither.bin",0
+0B0976 62 65 72 6B 0561       db "berkeley-flight-triangular-dither.bin",0
        65 6C 65 79 
        2D 66 6C 69 
        67 68 74 2D 
@@ -917,7 +974,7 @@ PC     Output      Line
        69 74 68 65 
        72 2E 62 69 
        6E 00       
-0B08E4 66 69 78 74 0544       db "fixtures/berkeley-flight-fdm/tgt",0
+0B099C 66 69 78 74 0562       db "fixtures/berkeley-flight-fdm/tgt",0
        75 72 65 73 
        2F 62 65 72 
        6B 65 6C 65 
@@ -926,13 +983,13 @@ PC     Output      Line
        2D 66 64 6D 
        2F 74 67 74 
        00          
-0B0905 62 65 72 6B 0545       db "berkeley-flight-fdm.bin",0
+0B09BD 62 65 72 6B 0563       db "berkeley-flight-fdm.bin",0
        65 6C 65 79 
        2D 66 6C 69 
        67 68 74 2D 
        66 64 6D 2E 
        62 69 6E 00 
-0B091D 62 75 69 6C 0546       db "build/p3dm/bay-area-koak-proof",0
+0B09D5 62 75 69 6C 0564       db "build/p3dm/bay-area-koak-proof",0
        64 2F 70 33 
        64 6D 2F 62 
        61 79 2D 61 
@@ -940,10 +997,10 @@ PC     Output      Line
        6B 6F 61 6B 
        2D 70 72 6F 
        6F 66 00    
-0B093C 50 33 44 46 0547       db "P3DFSIM.BIN",0
+0B09F4 50 33 44 46 0565       db "P3DFSIM.BIN",0
        53 49 4D 2E 
        42 49 4E 00 
-0B0948 62 75 69 6C 0548       db "build/p3dm/bay-area-koak-family-proof",0
+0B0A00 62 75 69 6C 0566       db "build/p3dm/bay-area-koak-family-proof",0
        64 2F 70 33 
        64 6D 2F 62 
        61 79 2D 61 
@@ -953,10 +1010,10 @@ PC     Output      Line
        69 6C 79 2D 
        70 72 6F 6F 
        66 00       
-0B096E 50 33 44 4C 0549       db "P3DLOD.BIN",0
+0B0A26 50 33 44 4C 0567       db "P3DLOD.BIN",0
        4F 44 2E 42 
        49 4E 00    
-0B0979 66 69 78 74 0550       db "fixtures/p3dm-loader-probe/tgt",0
+0B0A31 66 69 78 74 0568       db "fixtures/p3dm-loader-probe/tgt",0
        75 72 65 73 
        2F 70 33 64 
        6D 2D 6C 6F 
@@ -964,13 +1021,13 @@ PC     Output      Line
        2D 70 72 6F 
        62 65 2F 74 
        67 74 00    
-0B0998 70 33 64 6D 0551       db "p3dm-loader-probe.bin",0
+0B0A50 70 33 64 6D 0569       db "p3dm-loader-probe.bin",0
        2D 6C 6F 61 
        64 65 72 2D 
        70 72 6F 62 
        65 2E 62 69 
        6E 00       
-0B09AE 66 69 78 74 0552       db "fixtures/nested-agnb-loader-probe/tgt",0
+0B0A66 66 69 78 74 0570       db "fixtures/nested-agnb-loader-probe/tgt",0
        75 72 65 73 
        2F 6E 65 73 
        74 65 64 2D 
@@ -980,7 +1037,7 @@ PC     Output      Line
        70 72 6F 62 
        65 2F 74 67 
        74 00       
-0B09D4 6E 65 73 74 0553       db "nested-agnb-loader-probe.bin",0
+0B0A8C 6E 65 73 74 0571       db "nested-agnb-loader-probe.bin",0
        65 64 2D 61 
        67 6E 62 2D 
        6C 6F 61 64 
@@ -988,7 +1045,7 @@ PC     Output      Line
        72 6F 62 65 
        2E 62 69 6E 
        00          
-0B09F1 66 69 78 74 0554       db "fixtures/campanile-p3dm-probe/tgt",0
+0B0AA9 66 69 78 74 0572       db "fixtures/campanile-p3dm-probe/tgt",0
        75 72 65 73 
        2F 63 61 6D 
        70 61 6E 69 
@@ -997,11 +1054,11 @@ PC     Output      Line
        70 72 6F 62 
        65 2F 74 67 
        74 00       
-0B0A13 43 41 4D 50 0555       db "CAMPTEST.BIN",0
+0B0ACB 43 41 4D 50 0573       db "CAMPTEST.BIN",0
        54 45 53 54 
        2E 42 49 4E 
        00          
-0B0A20 62 75 69 6C 0556       db "build/p3dm/bay-area-hex-full-l0",0
+0B0AD8 62 75 69 6C 0574       db "build/p3dm/bay-area-hex-full-l0",0
        64 2F 70 33 
        64 6D 2F 62 
        61 79 2D 61 
@@ -1009,10 +1066,10 @@ PC     Output      Line
        68 65 78 2D 
        66 75 6C 6C 
        2D 6C 30 00 
-0B0A40 50 33 44 48 0557       db "P3DHXMG.BIN",0
+0B0AF8 50 33 44 48 0575       db "P3DHXMG.BIN",0
        58 4D 47 2E 
        42 49 4E 00 
-0B0A4C 62 75 69 6C 0558       db "build/p3dm/bay-area-natural-full-l0",0
+0B0B04 62 75 69 6C 0576       db "build/p3dm/bay-area-natural-full-l0",0
        64 2F 70 33 
        64 6D 2F 62 
        61 79 2D 61 
@@ -1021,20 +1078,48 @@ PC     Output      Line
        72 61 6C 2D 
        66 75 6C 6C 
        2D 6C 30 00 
-0B0A70 50 33 44 4E 0559       db "P3DNAT.BIN",0
+0B0B28 50 33 44 4E 0577       db "P3DNAT.BIN",0
        41 54 2E 42 
        49 4E 00    
-0B0A7B             0560   
-0B0A7B             0561   selected_index:
-0B0A7B 00          0562       db 0
-0B0A7C             0563   last_error:
-0B0A7C 00          0564       db 0
-0B0A7D             0565   last_mos_status:
-0B0A7D 00          0566       db 0
-0B0A7E             0567   config_handle:
-0B0A7E 00          0568       db 0
-0B0A7F             0569   config_root:
-0B0A7F 00 00 00 00 0570       blkb config_root_max+1,0
+0B0B33 62 75 69 6C 0578       db "build/p3dm/bay-area-distance-lod-control",0
+       64 2F 70 33 
+       64 6D 2F 62 
+       61 79 2D 61 
+       72 65 61 2D 
+       64 69 73 74 
+       61 6E 63 65 
+       2D 6C 6F 64 
+       2D 63 6F 6E 
+       74 72 6F 6C 
+       00          
+0B0B5C 50 33 44 44 0579       db "P3DDST.BIN",0
+       53 54 2E 42 
+       49 4E 00    
+0B0B67 62 75 69 6C 0580       db "build/p3dm/bay-area-regular-n1-hierarchy",0
+       64 2F 70 33 
+       64 6D 2F 62 
+       61 79 2D 61 
+       72 65 61 2D 
+       72 65 67 75 
+       6C 61 72 2D 
+       6E 31 2D 68 
+       69 65 72 61 
+       72 63 68 79 
+       00          
+0B0B90 50 33 44 52 0581       db "P3DRGL.BIN",0
+       47 4C 2E 42 
+       49 4E 00    
+0B0B9B             0582   
+0B0B9B             0583   selected_index:
+0B0B9B 00          0584       db 0
+0B0B9C             0585   last_error:
+0B0B9C 00          0586       db 0
+0B0B9D             0587   last_mos_status:
+0B0B9D 00          0588       db 0
+0B0B9E             0589   config_handle:
+0B0B9E 00          0590       db 0
+0B0B9F             0591   config_root:
+0B0B9F 00 00 00 00 0592       blkb config_root_max+1,0
        00 00 00 00 
        00 00 00 00 
        00 00 00 00 
@@ -1079,8 +1164,8 @@ PC     Output      Line
        00 00 00 00 
        00 00 00 00 
        00          
-0B0B30             0571   saved_current_directory:
-0B0B30 00 00 00 00 0572       blkb path_buffer_bytes,0
+0B0C50             0593   saved_current_directory:
+0B0C50 00 00 00 00 0594       blkb path_buffer_bytes,0
        00 00 00 00 
        00 00 00 00 
        00 00 00 00 
@@ -1144,8 +1229,8 @@ PC     Output      Line
        00 00 00 00 
        00 00 00 00 
        00 00 00 00 
-0B0C30             0573   path_buffer:
-0B0C30 00 00 00 00 0574       blkb path_buffer_bytes,0
+0B0D50             0595   path_buffer:
+0B0D50 00 00 00 00 0596       blkb path_buffer_bytes,0
        00 00 00 00 
        00 00 00 00 
        00 00 00 00 

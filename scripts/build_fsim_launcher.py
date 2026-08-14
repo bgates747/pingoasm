@@ -47,6 +47,14 @@ FIXTURES = (
         "build/p3dm/bay-area-natural-full-l0",
         "P3DNAT.BIN",
     ),
+    (
+        "build/p3dm/bay-area-distance-lod-control",
+        "P3DDST.BIN",
+    ),
+    (
+        "build/p3dm/bay-area-regular-n1-hierarchy",
+        "P3DRGL.BIN",
+    ),
 )
 
 

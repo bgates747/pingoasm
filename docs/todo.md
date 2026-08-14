@@ -36,6 +36,18 @@ this file, and update any affected specification.
   scene illumination. A derived full-region Blender review artifact is
   mandatory and present. Human near-field seam/presentation review remains
   open.
+  The visually rejected natural-near/regular-far control remains negative
+  evidence. Its replacement is now a complete, algorithmic regular-only
+  hierarchy: N=5 rings 0--5 plus N=1 `8x4 -> 4x2 -> 2x1 -> 1x1` nodes through
+  ring 30, with no coarse ownership inside the near disk. The whole-region
+  build has 83,293 validated records / 57,521,020 logical bytes, generated
+  phase plans, protected dynamic slots, transforms, skirts, receipts, and the
+  mandatory Blender review. The proven bound remains 91 detailed plus at most
+  159 coarse objects. A 227-object Marina cold run passes, but plan transitions
+  are not group-atomic and only cold residency is qualified. Next capture
+  moving-origin parent/child transitions, radius 0--5 changes, regional-edge
+  clipping, convergence holes/pops, SD seek/read/upload cost, and full-region
+  travel before promoting a more sophisticated reducer.
   Next decide whether full runtime promotion requires exact canonical
   six-neighbor combinatorics or accepts the artifact's explicit physical
   graph; repair 0.180-degree constraint slivers and implement nested LOD seams
@@ -58,11 +70,15 @@ this file, and update any affected specification.
   same manager and planning rules across the complete 50,183-record natural
   corpus, starts at the 91-cell radius-five maximum over the Berkeley Marina,
   and passes a silent cold publication with all 91 objects traversed and the
-  command-53 far plane at 65,535. Next add
-  arbitrary-family/mixed-LOD planning, measure complete SD
-  seek/read/validate/upload latency rather than only VDP publication time, and
-  expose persistent runtime failures in clients. Human seam/pop review and
-  physical-hardware range, depth, and performance qualification remain open.
+  command-53 far plane at 65,535. The rejected mixed-topology ring-30 control
+  proved that the manager can own 183 multi-LOD objects, but it remains only
+  historical evidence. The position-driven regular-only hierarchy provider
+  and its 227-object Marina cold run now exist. Next run a deterministic
+  moving-origin/radius transition because parent/child replacement is not
+  group-atomic; measure complete SD seek/read/validate/upload latency rather
+  than only VDP publication time; and expose persistent runtime failures in
+  clients. Human seam/pop review and physical-hardware range, depth, and
+  performance qualification remain open.
 - [ ] **A1 — Bay Area airports:** pinned and generated SFO, OAK, Hayward
   Executive, San Carlos, and Concord/Buchanan components exist, and KOAK 28L
   is the qualified canonical start. Replace the proof overlays with pinned
@@ -92,7 +108,7 @@ this file, and update any affected specification.
   Add position-driven activation, scene-budget integration, render-idle
   publication, and human silhouette/range qualification.
 - [ ] **M1 — FSIM fixture launcher:** the resident MOSlet, bounded absolute-root
-  config, eleven-entry menu, common `0x040000` call, key-release boundaries,
+  config, thirteen-entry menu, common `0x040000` call, key-release boundaries,
   caller-CWD restoration, scene teardown, build audit, profile installation,
   host regressions, and a private headless menu-fixture-menu-MOS lifecycle
   witness exist. Human-qualify number selection, fixture Escape-to-menu,

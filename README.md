@@ -12,8 +12,9 @@ application repositories. If the work succeeds:
    `~/Agon/mystuff/agon-vdp`; and
 3. research history and rejected experiments remain here.
 
-Start with [today's terrain research](docs/devlog-2026-08-03.md); the complete
-[first-day research log](docs/devlog-2026-08-02.md) remains durable. Active work
+Start with the [current regular-hierarchy results](docs/devlog-2026-08-14.md);
+the [prior natural and distance-LOD work](docs/devlog-2026-08-13.md) and
+[first-day research log](docs/devlog-2026-08-02.md) remain durable. Active work
 must first be recorded in the sole authoritative queue at
 [`docs/todo.md`](docs/todo.md).
 
@@ -33,6 +34,8 @@ The reusable eZ80 lifecycle and provider ABI are specified in the
 [universal terrain-manager runtime contract](docs/terrain-manager-runtime.md).
 The current direct no-dynamics camera survey is the
 [universal hex-manager fixture](fixtures/terrain-manager-survey/README.md).
+The whole-region regular-only distance experiment is the
+[regular hierarchy manager fixture](fixtures/terrain-manager-regular-lod-survey/README.md).
 The prior [rectangular full-region viewer](fixtures/regional-camera-survey/README.md)
 and fixed [dithered Berkeley sibling](fixtures/berkeley-flight-triangular-dither/README.md)
 remain historical visual and control oracles.
@@ -205,8 +208,11 @@ as `/mos/fsim.bin`, and creates `/mos/fsim.cfg` with the absolute Agon path
 fixture menu; see the [launcher contract](moslets/fsim/README.md).
 
 The regular universal hex-manager survey is entry `0`; the natural
-post-partition survey is entry `N`. In either fixture, keys 0 through 5 select
-complete axial planning disks of 1 through 91 components at runtime. The old
+post-partition survey is entry `N`; the rejected mixed-topology control is
+entry `D`; and the whole-region regular-only hierarchy is entry `R`. In the
+manager fixtures, keys 0 through 5 select the near-field disk. Entry `D` keeps
+its 92 static regular distance chunks through ring 30, while entry `R`
+replans the generated regular hierarchy around the live position. The old
 rectangular survey and its capture tools remain available as historical
 evidence:
 
