@@ -43,6 +43,10 @@ FIXTURES = (
     ),
     ("fixtures/campanile-p3dm-probe/tgt", "CAMPTEST.BIN"),
     ("build/p3dm/bay-area-hex-full-l0", "P3DHXMG.BIN"),
+    (
+        "build/p3dm/bay-area-natural-full-l0",
+        "P3DNAT.BIN",
+    ),
 )
 
 

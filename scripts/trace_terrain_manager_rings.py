@@ -23,6 +23,9 @@ RADIUS_ZERO_SCANCODE = 0x0045
 KEY_HOLD_VBLANKS = 4
 SEQUENCES = (18, 110, 220)
 RENDER_RE = re.compile(r"PINGO_RENDER seq=(\d+)[^\r\n]*")
+TRACE_SCHEMA = "pingo-terrain-manager-ring-trace-v1"
+TRACE_REPORT_NAME = "terrain-manager-ring-trace.json"
+TRACE_LABEL = "terrain-manager ring trace"
 
 
 def parse_arguments() -> argparse.Namespace:
@@ -51,7 +54,7 @@ def wait_for(
             set(capture.find_log_failures(contents) + input_trace.find_failures(contents))
         )
         if failures:
-            raise SystemExit(f"Terrain-manager ring trace failure: {failures}")
+            raise SystemExit(f"{TRACE_LABEL} failure: {failures}")
         if predicate(contents):
             return contents
         if process.poll() is not None:
@@ -70,7 +73,7 @@ def main() -> int:
     mos = capture.require_file(capture.MOS_BINARY, "MOS image")
     vdp = capture.require_file(arguments.vdp_module, "diagnostic VDP module")
     survey.require_diagnostic_vdp(vdp)
-    program = capture.require_file(survey.PROGRAM, "hex manager camera survey")
+    program = capture.require_file(survey.PROGRAM, survey.CAPTURE_LABEL)
     proxy_source = capture.require_file(
         input_trace.PROXY_SOURCE, "input proxy source"
     )
@@ -90,9 +93,9 @@ def main() -> int:
     }
     autoexec = (
         b"SET KEYBOARD 1\r\n"
-        b"cd /survey\r\n"
-        b"load P3DHXMG.BIN\r\n"
-        b"run\r\n"
+        + b"cd /survey\r\n"
+        + f"load {survey.PROGRAM_NAME}\r\n".encode("ascii")
+        + b"run\r\n"
     )
     (output / "autoexec.txt").write_bytes(autoexec)
     log_path = output / "emulator.log"
@@ -257,7 +260,7 @@ def main() -> int:
         raise SystemExit("Radius-five frame did not expand visible terrain coverage")
 
     report = {
-        "schema": "pingo-terrain-manager-ring-trace-v1",
+        "schema": TRACE_SCHEMA,
         "program": {"path": str(program), "sha256": survey.sha256(program)},
         "vdp": {"path": str(vdp), "sha256": survey.sha256(vdp)},
         "proxy": {"sha256": survey.sha256(proxy), "exports": sorted(exports)},
@@ -274,11 +277,11 @@ def main() -> int:
         "log_sha256": survey.sha256(log_path),
         "qualified": True,
     }
-    report_path = output / "terrain-manager-ring-trace.json"
+    report_path = output / TRACE_REPORT_NAME
     report_path.write_text(
         json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8"
     )
-    print(f"Headless terrain-manager ring trace passed: {report_path}")
+    print(f"Headless {TRACE_LABEL} passed: {report_path}")
     print(
         f"published={len(replacements)} radius5={len(translations)} "
         f"radius0_active={sorted(final_active)} shutdown={shutdown}"

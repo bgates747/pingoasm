@@ -21,7 +21,7 @@ fixture_header:       equ fixture_entry+040h
 fixture_load_capacity: equ 070000h
 config_root_max:      equ 176
 path_buffer_bytes:    equ 256
-fixture_count:        equ 10
+fixture_count:        equ 11
 
     MACRO MOSCALL function
         ld a,function
@@ -71,8 +71,16 @@ launcher_menu_wait:
     cp 27
     jr z,main_exit
     cp '0'
+    jr nz,@natural_fixture
+    ld a,9
+    jr @fixture_selected
+@natural_fixture:
+    cp 'N'
+    jr z,@select_natural
+    cp 'n'
     jr nz,@numbered_fixture
-    ld a,fixture_count-1
+@select_natural:
+    ld a,10
     jr @fixture_selected
 @numbered_fixture:
     cp '1'
@@ -253,7 +261,7 @@ run_selected_fixture:
     jr nz,@entry_failed
 
     ; Mirror the normal MOS ADL entry registers for fixtures that later choose
-    ; to consume arguments.  The current ten fixtures ignore them.
+    ; to consume arguments.  The current eleven fixtures ignore them.
     xor a
     ld de,fixture_entry
     ld hl,empty_arguments
@@ -501,8 +509,9 @@ menu_text:
     db "7  P3DM Loader Probe    - publish one loose terrain record",13,10
     db "8  Nested AGNB Probe    - select from a ten-record family",13,10
     db "9  Campanile Probe      - streamed solid-flat Sather Tower",13,10
-    db "0  Hex Manager Survey  - universal terrain engine, live rings 0-5",13,10,13,10
-    db "Press 1-9 or 0 to launch; Esc returns to MOS.",13,10,0
+    db "0  Hex Manager Survey  - regular N=5 terrain, live rings 0-5",13,10
+    db "N  Natural Survey      - full-region post-partition terrain, rings 0-5",13,10,13,10
+    db "Press 1-9, 0, or N to launch; Esc returns to MOS.",13,10,0
 
 exit_text:
     db "FSIM returned to MOS.",13,10,0
@@ -546,6 +555,8 @@ fixture_records:
     db "CAMPTEST.BIN",0
     db "build/p3dm/bay-area-hex-full-l0",0
     db "P3DHXMG.BIN",0
+    db "build/p3dm/bay-area-natural-full-l0",0
+    db "P3DNAT.BIN",0
 
 selected_index:
     db 0

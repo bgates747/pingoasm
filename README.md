@@ -134,9 +134,45 @@ blender build/visualization/bay-area-natural-post-partition.blend
 
 The terrain object exposes source-count/elevation point attributes and
 material/logical-owner face attributes. Hidden diagnostic objects expose all
-50,183 logical seeds and the irregular physical partition edges. This is a
-review artifact, not a promoted runtime corpus; the accepted straight-sided
-N=5 P3DM corpus remains unchanged.
+50,183 logical seeds and the irregular physical partition edges. The accepted
+straight-sided N=5 P3DM corpus remains the rollback control; the experimental
+natural surface now also has the complete runtime build described below.
+
+## Complete natural runtime manager experiment
+
+The complete runtime build extracts all 50,183 finished face owners from the
+accepted master and emits one independently loadable `NAT` P3DM component per
+logical cell. It preserves the completed master faces, adds no skirts, and
+proves one exact ideal-world integer coordinate across every same-LOD seam
+after final Pingo quantization. The universal manager streams a bounded live
+neighborhood while the loose corpus covers the entire Bay Area region.
+Top-row keys 0 through 5 select 1 through 91 resident components; the viewer
+starts at ring five over the Berkeley Marina.
+
+The fifteen source material IDs collapse to three exact opaque Agon base
+colors: palette 20 lighter azure for water, palette 7 light gray for developed
+land, and palette 21 spring green for every other land class. Each base is a
+solid repeated 4x4 pattern. Scene illumination remains active, so any visible
+dithering comes from the illumination value band rather than the base color.
+
+```bash
+blender --background --python scripts/export_natural_runtime_corpus_blender.py
+.venv/bin/python scripts/build_natural_terrain_corpus.py
+blender --background --python scripts/build_natural_runtime_review_blender.py
+.venv/bin/python scripts/build_fsim_launcher.py
+.venv/bin/python scripts/capture_natural_terrain_manager_survey.py \
+  --output /tmp/pingo-natural-manager-full
+```
+
+The compact, checksum-bound 25.2 MB Blender bridge is written under
+`build/source/bay-area-natural-post-partition-v2/`; the 50,183 loose records and
+receipts are written to `build/p3dm/bay-area-natural-full-l0/`. The mandatory
+derived review file is
+`build/visualization/bay-area-natural-three-class-runtime-review.blend`.
+The full container payload is 25,251,544 bytes, although 50,183 tiny host files
+consume more filesystem allocation. This is still a uniform-L0 visual
+experiment: explicit physical-adjacency containment, mixed LOD, hardware SD
+bundling, collision, airports, and physical-hardware qualification remain open.
 
 ## Emulator
 
@@ -149,6 +185,9 @@ make -C ~/Agon/mystuff/agon-vdp/userspace \
 .venv/bin/python scripts/build_berkeley_camera_survey.py
 .venv/bin/python scripts/build_regional_hex_terrain.py --selection full
 .venv/bin/python scripts/build_terrain_manager_survey.py
+blender --background --python scripts/export_natural_runtime_corpus_blender.py
+.venv/bin/python scripts/build_natural_terrain_corpus.py
+blender --background --python scripts/build_natural_runtime_review_blender.py
 .venv/bin/python scripts/build_fsim_launcher.py
 .venv/bin/python scripts/setup_emulator.py
 ```
@@ -165,9 +204,11 @@ as `/mos/fsim.bin`, and creates `/mos/fsim.cfg` with the absolute Agon path
 `/mystuff/pingo_terrain`. Invoke `fsim` from any MOS directory for the numbered
 fixture menu; see the [launcher contract](moslets/fsim/README.md).
 
-The universal hex-manager survey is entry `0`; keys 0 through 5 select complete
-axial disks of 1 through 91 cells at runtime. The old rectangular survey and
-its capture tools remain available as historical evidence:
+The regular universal hex-manager survey is entry `0`; the natural
+post-partition survey is entry `N`. In either fixture, keys 0 through 5 select
+complete axial planning disks of 1 through 91 components at runtime. The old
+rectangular survey and its capture tools remain available as historical
+evidence:
 
 ```bash
 .venv/bin/python scripts/capture_regional_camera_survey.py \

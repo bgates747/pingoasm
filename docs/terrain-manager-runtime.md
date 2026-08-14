@@ -162,3 +162,40 @@ slot injectivity, basis signs, straight boundaries, the expanded half-planes,
 six-side and corner no-chatter behavior, ADL memory widths, and deterministic
 assembly. Visual emulator and physical-hardware acceptance remain separate
 gates.
+
+## Experimental natural-surface binding
+
+`fixtures/terrain-manager-natural-survey` demonstrates that the same manager
+can drive irregular physical components cut only after one natural master
+surface is complete. Its logical provider still uses the canonical axial
+coordinates, ring order, stable 91-slot map, transforms, and hysteresis of the
+straight-hex control. Its geometry does not: each `NAT` record owns whole
+triangles routed along existing master-mesh edges, and neighboring components
+duplicate those irregular boundary vertices exactly.
+
+The original proof corpus was a radius-five disk around Campanile cell
+`(90,121)`. It remains preserved as historical evidence. The current regional
+profile exposes all 50,183 `NAT` records and applies only the true alternating
+235/234-row Bay Area bounds. It starts over the Berkeley Marina in containing
+cell `(80,125)` at its maximum accepted radius five. The same 91-slot manager
+therefore bounds live VDP residency while aircraft/camera motion may select any
+regional record.
+
+The complete records contain 842,903 component-local vertices and 992,477
+triangles in 25,251,544 container bytes. They have no skirts. Post-container
+validation proves 294,948 selected-to-selected seam edges, 3,105 corpus edges,
+128,259 physical component pairs, 78,271 boundary vertices shared by at least
+three components, at most seven owners at one vertex, and zero ideal-world
+integer reconstruction mismatches. A compact 25,237,845-byte fixed-record
+source bridge keeps the full Blender extraction deterministic without a
+hundreds-of-megabytes JSON intermediate.
+
+Pingo command 53 sets the control's far plane to the maximum unsigned value
+65,535 after control creation; this does not enlarge the resident ring or
+generate distant LOD. A silent emulator trace publishes all 91 initial meshes,
+observes every exact command-52 transform, reports `far=65535`, traverses all
+91 objects, rasterizes the complete frame, and shuts down cleanly. The logical
+provider still uses ideal axial containment even though the artifact records a
+noncanonical physical adjacency graph. Explicit physical containment, mixed
+LOD, indexed hardware bundles, human regional movement/presentation, and
+physical-hardware behavior remain acceptance gates.

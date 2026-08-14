@@ -7,10 +7,10 @@ terrain appliances. It may be invoked from any MOS working directory:
 fsim
 ```
 
-The numbered entries are:
+The numbered controls and the additional natural-terrain shortcut are:
 
 | Key | Appliance | Purpose |
-|---:|---|---|
+|---|---|---|
 | 1 | Rectangular Berkeley | Original embedded-grid free-flight control |
 | 2 | Triangular Berkeley | Continuous, self-lit triangular-lattice terrain |
 | 3 | Dithered Berkeley | Scene-lit terrain using flat-pattern shading |
@@ -21,6 +21,7 @@ The numbered entries are:
 | 8 | Nested AGNB Probe | Selection of one component from a ten-record family |
 | 9 | Campanile Probe | Streamed solid-flat Sather Tower landmark |
 | 0 | Hex Manager Survey | Direct camera over the full axial-hex corpus using the universal manager |
+| N | Natural Survey | Direct camera over the full post-partition natural corpus using the same manager |
 
 Entry 0 starts at the accepted Campanile position without aircraft, dynamics,
 or collision. Top-row keys 0 through 5 change its complete terrain disk at run
@@ -29,7 +30,13 @@ cells from the complete 50,183-record hex corpus through the same manager API
 available to arbitrary future clients. The prior rectangular regional survey
 remains preserved as a historical direct-streaming oracle.
 
-Press the corresponding single digit to run a fixture. Escape inside an
+Entry N starts over the Berkeley Marina with the reviewed south-facing pose and
+loads from the complete 50,183-component natural corpus. It starts at the
+maximum accepted ring five and retains the 0-through-5 live controls. The
+provider clips only at the true regional boundary. Entry 0 remains the regular
+straight-sided N=5 control instead of being silently replaced.
+
+Press the corresponding digit, or N/n, to run a fixture. Escape inside an
 interactive fixture returns to this menu; press Escape again at the menu to
 leave `fsim` and return to the ordinary MOS prompt. The launcher waits for
 keys to be physically released at both boundaries, so the Escape consumed by
@@ -70,13 +77,18 @@ Use the project virtual environment from the repository root:
 .venv/bin/python scripts/build_berkeley_camera_survey.py
 .venv/bin/python scripts/build_regional_hex_terrain.py --selection full
 .venv/bin/python scripts/build_terrain_manager_survey.py
+blender --background --python scripts/export_natural_runtime_corpus_blender.py
+.venv/bin/python scripts/build_natural_terrain_corpus.py
+blender --background --python scripts/build_natural_runtime_review_blender.py
 .venv/bin/python scripts/build_fsim_launcher.py
 .venv/bin/python scripts/setup_emulator.py
 ```
 
 The first command rebuilds the fixed Berkeley oracle. The next two build and
 verify all 50,183 indexed axial-hex containers and assemble entry 0 as
-`P3DHXMG.BIN`.
+`P3DHXMG.BIN`. The following three commands extract the compact complete
+natural source, build entry N as `P3DNAT.BIN`, and save its required
+full-region Blender review artifact.
 The launcher command then assembles `moslets/fsim/src/fsim.asm` into
 `moslets/fsim/tgt/fsim.bin` and emits its listing and symbols. Other fixture
 binaries and runtime assets must already exist in their normal `tgt/` or

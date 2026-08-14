@@ -51,6 +51,16 @@ camera_initial_x: equ 3711
 camera_initial_y: equ 3496
 camera_initial_z: equ -1482
 
+; Provider build profile.  The accepted straight-hex control spans the full
+; regional corpus and retains its byte-identical TRH path setup.  A sibling
+; natural-surface fixture assembles this same client/provider with a bounded
+; Campanile disk and NAT namespace.
+hex_provider_fixture_bounds_enabled: equ 0
+hex_provider_fixture_center_q: equ manager_survey_start_q
+hex_provider_fixture_center_r: equ manager_survey_start_r
+hex_provider_fixture_radius: equ 5
+hex_provider_natural_namespace: equ 0
+
     .assume adl=1
     .org 040000h
     jp start

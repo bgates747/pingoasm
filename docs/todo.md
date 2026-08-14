@@ -28,12 +28,19 @@ this file, and update any affected specification.
   surface before routing bounded roughly hex-addressed partitions through its
   existing edges. Its checksum-verified complete-region Blender artifact now
   proves a deterministic 497,767-vertex/992,477-face surface and nonempty,
-  connected, sub-1,024 m physical components. Next decide whether runtime
-  promotion requires exact canonical six-neighbor combinatorics or accepts the
-  artifact's explicit physical graph; repair 0.180-degree constraint slivers
-  and implement nested LOD seams either way. Do not replace the accepted
-  straight-sided runtime corpus until partition, containment, LOD, collision,
-  culling, and hardware gates pass.
+  connected, sub-1,024 m physical components. The former bounded Campanile
+  proof is now joined by a compact checksum-bound complete-master source and
+  all 50,183 surface-only natural P3DM records. The full build proves 294,948
+  exact internal seams after quantization and maps the retained semantics onto
+  the accepted three-class native palette (water/developed/other land) plus
+  scene illumination. A derived full-region Blender review artifact is
+  mandatory and present. Human near-field seam/presentation review remains
+  open.
+  Next decide whether full runtime promotion requires exact canonical
+  six-neighbor combinatorics or accepts the artifact's explicit physical
+  graph; repair 0.180-degree constraint slivers and implement nested LOD seams
+  either way. Do not replace the accepted straight-sided runtime corpus until
+  partition, containment, LOD, collision, culling, and hardware gates pass.
 - [ ] **J1 — Position-driven terrain streaming:** the multi-record AGNB family,
   bounded host selector, eZ80 `ffs_flseek` selected-record loader, two-bank
   render-idle publication, floating-origin rebase, and a natural
@@ -47,11 +54,15 @@ this file, and update any affected specification.
   provider streams the complete corpus, exposes live radius 0..5 disks, and
   passes a silent 19-cell cold view plus 2→5→0 expansion/contraction through
   all 91 exact command-52 transforms. Its fixed 16 m six-side retention band
-  passes edge/corner no-chatter regressions. Next add arbitrary-family/mixed-LOD
-  planning, measure complete SD seek/read/validate/upload latency rather than
-  only VDP publication time, and expose persistent runtime failures in clients.
-  Human seam/pop review and physical-hardware range, depth, and performance
-  qualification remain open.
+  passes edge/corner no-chatter regressions. The `NAT` provider now reuses the
+  same manager and planning rules across the complete 50,183-record natural
+  corpus, starts at the 91-cell radius-five maximum over the Berkeley Marina,
+  and passes a silent cold publication with all 91 objects traversed and the
+  command-53 far plane at 65,535. Next add
+  arbitrary-family/mixed-LOD planning, measure complete SD
+  seek/read/validate/upload latency rather than only VDP publication time, and
+  expose persistent runtime failures in clients. Human seam/pop review and
+  physical-hardware range, depth, and performance qualification remain open.
 - [ ] **A1 — Bay Area airports:** pinned and generated SFO, OAK, Hayward
   Executive, San Carlos, and Concord/Buchanan components exist, and KOAK 28L
   is the qualified canonical start. Replace the proof overlays with pinned
@@ -81,7 +92,7 @@ this file, and update any affected specification.
   Add position-driven activation, scene-budget integration, render-idle
   publication, and human silhouette/range qualification.
 - [ ] **M1 — FSIM fixture launcher:** the resident MOSlet, bounded absolute-root
-  config, ten-entry menu, common `0x040000` call, key-release boundaries,
+  config, eleven-entry menu, common `0x040000` call, key-release boundaries,
   caller-CWD restoration, scene teardown, build audit, profile installation,
   host regressions, and a private headless menu-fixture-menu-MOS lifecycle
   witness exist. Human-qualify number selection, fixture Escape-to-menu,

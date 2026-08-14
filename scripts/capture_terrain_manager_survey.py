@@ -49,6 +49,10 @@ EXPECTED_P3DM_SHAPE = {
     "texture_coordinates": 16,
     "texture_indices": 630,
 }
+MANIFEST_SCHEMA = "pingo-terrain-manager-survey-v1"
+CAPTURE_SCHEMA = "pingo-terrain-manager-survey-capture-v1"
+CAPTURE_REPORT_NAME = "terrain-manager-survey-capture.json"
+CAPTURE_LABEL = "hex manager survey"
 REQUIRED_POSE_MARKER = b"PINGO_WIDE object_translation=ok oid=%u"
 REQUIRED_DIAGNOSTIC_MARKERS = (
     b"PINGO_DUMP seq=%u bmid=%u status=%s",
@@ -100,11 +104,15 @@ def require_diagnostic_vdp(path: Path) -> None:
 
 
 def expected_cells(
-    radius: int = DEFAULT_RADIUS,
-    origin: tuple[int, int] = START_CELL,
+    radius: int | None = None,
+    origin: tuple[int, int] | None = None,
 ) -> dict[int, tuple[int, int, int]]:
     """Return stable object IDs and exact command-52 translations in load order."""
 
+    if radius is None:
+        radius = DEFAULT_RADIUS
+    if origin is None:
+        origin = START_CELL
     result: dict[int, tuple[int, int, int]] = {}
     q0, r0 = origin
     for dq, dr in disk_offsets(radius):
@@ -124,11 +132,15 @@ def expected_cells(
 
 
 def terrain_record_paths(
-    radius: int = DEFAULT_RADIUS,
-    origin: tuple[int, int] = START_CELL,
+    radius: int | None = None,
+    origin: tuple[int, int] | None = None,
 ) -> tuple[Path, ...]:
     """Return the runtime paths needed by one stationary axial disk."""
 
+    if radius is None:
+        radius = DEFAULT_RADIUS
+    if origin is None:
+        origin = START_CELL
     q0, r0 = origin
     result = []
     for dq, dr in disk_offsets(radius):
@@ -203,12 +215,24 @@ def parse_runtime_evidence(contents: str) -> dict[str, object]:
     }
 
 
+def expected_publication_shapes() -> dict[int, dict[str, int]]:
+    """Return the exact P3DM publication shape for each default-disk mesh."""
+
+    return {
+        mesh_id: dict(EXPECTED_P3DM_SHAPE)
+        for mesh_id in expected_cells()
+    }
+
+
 def validate_runtime_evidence(contents: str) -> dict[str, object]:
     """Require one uninterrupted center-to-radius-two publication lifecycle."""
 
     expected = expected_cells()
     expected_ids = set(expected)
     expected_order = list(expected)
+    expected_shapes = expected_publication_shapes()
+    if set(expected_shapes) != expected_ids:
+        raise ValueError("publication-shape identities differ from the desired disk")
     parsed = parse_runtime_evidence(contents)
     errors: list[str] = []
 
@@ -230,10 +254,11 @@ def validate_runtime_evidence(contents: str) -> dict[str, object]:
                 f"mesh {item['mesh_id']} used stage {item['stage_buffer_id']}, "
                 f"expected {STAGE_BUFFER_ID}"
             )
-        if actual_shape != EXPECTED_P3DM_SHAPE:
+        expected_shape = expected_shapes.get(item["mesh_id"])
+        if actual_shape != expected_shape:
             errors.append(
                 f"mesh {item['mesh_id']} publication shape changed: "
-                f"{actual_shape}"
+                f"{actual_shape} != {expected_shape}"
             )
 
     translations = parsed["translations"]
@@ -366,7 +391,7 @@ def validate_fixture_contract(
     """Validate the build manifest before presenting its files to MOS."""
 
     document = json.loads(manifest.read_text(encoding="utf-8"))
-    if document.get("schema") != "pingo-terrain-manager-survey-v1":
+    if document.get("schema") != MANIFEST_SCHEMA:
         raise SystemExit(f"Unexpected manager manifest schema: {manifest}")
     manager = document.get("manager", {})
     expected_manager = {
@@ -410,10 +435,44 @@ def validate_fixture_contract(
         raise SystemExit(f"Missing hex terrain record tree: {record_root}")
     if document.get("corpus", {}).get("world_sha256") != sha256(world):
         raise SystemExit(f"Manager manifest WORLD checksum mismatch: {world}")
+    world_document = json.loads(world.read_text(encoding="utf-8"))
+    raw_records = world_document.get("records")
+    if not isinstance(raw_records, list):
+        raise SystemExit(f"Manager WORLD record index is malformed: {world}")
+    indexed_records = {
+        record.get("path"): record
+        for record in raw_records
+        if isinstance(record, dict) and isinstance(record.get("path"), str)
+    }
+    expected_paths = terrain_record_paths()
+    validated_records: dict[str, dict[str, object]] = {}
+    for relative in expected_paths:
+        relative_name = relative.as_posix()
+        metadata = indexed_records.get(relative_name)
+        if metadata is None:
+            raise SystemExit(
+                f"Manager WORLD omits default-disk record: {relative_name}"
+            )
+        path = capture.require_file(
+            fixture / relative,
+            f"manager terrain record {relative_name}",
+        )
+        actual = {"bytes": path.stat().st_size, "sha256": sha256(path)}
+        expected = {
+            "bytes": metadata.get("bytes"),
+            "sha256": metadata.get("sha256"),
+        }
+        if actual != expected:
+            raise SystemExit(
+                f"Manager terrain metadata mismatch for {relative_name}: "
+                f"{actual} != {expected}"
+            )
+        validated_records[relative_name] = actual
     return {
         "program": {"bytes": program.stat().st_size, "sha256": sha256(program)},
         "resources": validated_resources,
         "terrain_record_root": str(record_root.resolve()),
+        "terrain_records": validated_records,
     }
 
 
@@ -480,9 +539,9 @@ def main() -> int:
     mos = capture.require_file(capture.MOS_BINARY, "MOS image")
     vdp = capture.require_file(arguments.vdp_module, "diagnostic VDP module")
     require_diagnostic_vdp(vdp)
-    program = capture.require_file(PROGRAM, "hex manager camera survey")
-    manifest = capture.require_file(MANIFEST, "hex manager survey manifest")
-    world = capture.require_file(WORLD, "hex WORLD manifest")
+    program = capture.require_file(PROGRAM, f"{CAPTURE_LABEL} camera survey")
+    manifest = capture.require_file(MANIFEST, f"{CAPTURE_LABEL} manifest")
+    world = capture.require_file(WORLD, f"{CAPTURE_LABEL} WORLD manifest")
     fixture_contract = validate_fixture_contract(
         FIXTURE, program, manifest, world
     )
@@ -500,8 +559,8 @@ def main() -> int:
     autoexec = (
         b"SET KEYBOARD 1\r\n"
         b"cd /survey\r\n"
-        b"load P3DHXMG.BIN\r\n"
-        b"run\r\n"
+        + f"load {PROGRAM_NAME}\r\n".encode("ascii")
+        + b"run\r\n"
     )
     (output / "autoexec.txt").write_bytes(autoexec)
     shutdown = "not-started"
@@ -592,7 +651,7 @@ def main() -> int:
                     failures = capture.find_log_failures(contents)
                     if failures:
                         raise SystemExit(
-                            f"Hex manager survey diagnostic failure: {failures}"
+                            f"{CAPTURE_LABEL} diagnostic failure: {failures}"
                         )
                     if all(marker in contents for marker in markers):
                         break
@@ -603,7 +662,7 @@ def main() -> int:
                     time.sleep(0.05)
                 else:
                     raise SystemExit(
-                        f"Timed out waiting for hex-manager frames: {log_path}"
+                        f"Timed out waiting for {CAPTURE_LABEL} frames: {log_path}"
                     )
             finally:
                 shutdown = capture.stop_process_group(process)
@@ -611,11 +670,11 @@ def main() -> int:
     contents = log_path.read_text(encoding="utf-8", errors="replace")
     failures = capture.find_log_failures(contents)
     if failures:
-        raise SystemExit(f"Hex manager survey diagnostic failures: {failures}")
+        raise SystemExit(f"{CAPTURE_LABEL} diagnostic failures: {failures}")
     try:
         stream = validate_runtime_evidence(contents)
     except ValueError as error:
-        raise SystemExit(f"Hex manager runtime evidence failed: {error}") from error
+        raise SystemExit(f"{CAPTURE_LABEL} runtime evidence failed: {error}") from error
     if shutdown != "sigint" or process.returncode != 0:
         raise SystemExit(
             "Emulator did not terminate cleanly after qualification: "
@@ -654,7 +713,7 @@ def main() -> int:
         raise SystemExit("Complete default hex disk rendered no geometry")
 
     report = {
-        "schema": "pingo-terrain-manager-survey-capture-v1",
+        "schema": CAPTURE_SCHEMA,
         "program": {"path": str(program), "sha256": sha256(program)},
         "manager_manifest": {"path": str(manifest), "sha256": sha256(manifest)},
         "world_manifest": {"path": str(world), "sha256": sha256(world)},
@@ -671,11 +730,11 @@ def main() -> int:
         "log_sha256": sha256(log_path),
         "qualified": True,
     }
-    report_path = output / "terrain-manager-survey-capture.json"
+    report_path = output / CAPTURE_REPORT_NAME
     report_path.write_text(
         json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8"
     )
-    print(f"Headless hex manager survey passed: {report_path}")
+    print(f"Headless {CAPTURE_LABEL} passed: {report_path}")
     print(
         f"published={stream['mesh_replace_count']} "
         f"active={len(stream['final_active_object_ids'])} "

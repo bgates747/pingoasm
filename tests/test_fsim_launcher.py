@@ -88,6 +88,11 @@ APPLIANCES = (
         "build/p3dm/bay-area-hex-full-l0",
         "P3DHXMG.BIN",
     ),
+    Appliance(
+        "fixtures/terrain-manager-survey/src/terrain-manager-natural-survey.asm",
+        "build/p3dm/bay-area-natural-full-l0",
+        "P3DNAT.BIN",
+    ),
 )
 
 
@@ -105,8 +110,8 @@ def load_setup_module():
 
 
 class FixtureEntryContractTests(unittest.TestCase):
-    def test_exactly_ten_appliances_have_one_common_mos_entry(self) -> None:
-        self.assertEqual(len(APPLIANCES), 10)
+    def test_eleven_appliances_have_one_common_mos_entry(self) -> None:
+        self.assertEqual(len(APPLIANCES), 11)
         for appliance in APPLIANCES:
             with self.subTest(source=appliance.source):
                 source = normalized_assembly(appliance.source_path)
@@ -127,7 +132,7 @@ class FixtureEntryContractTests(unittest.TestCase):
                     "manual RUN and launcher CALL must share a returning entry",
                 )
 
-    def test_all_ten_binaries_encode_an_adl_mos_program_at_040000(self) -> None:
+    def test_all_binaries_encode_an_adl_mos_program_at_040000(self) -> None:
         for appliance in APPLIANCES:
             with self.subTest(binary=str(appliance.binary_path.relative_to(ROOT))):
                 payload = appliance.binary_path.read_bytes()
@@ -188,16 +193,24 @@ class FsimLauncherSourceTests(unittest.TestCase):
         assert save_call is not None and config_call is not None
         self.assertLess(save_call.start(), config_call.start())
 
-    def test_menu_has_ten_single_key_descriptions_and_escape_exit(self) -> None:
+    def test_menu_preserves_number_keys_and_adds_natural_shortcut(self) -> None:
         for number in range(1, 10):
             self.assertRegex(self.source, rf'(?m)^\s*db\s+"{number}(?:[.)]|\s) ')
         self.assertRegex(self.source, r'(?m)^\s*db\s+"0(?:[.)]|\s) ')
+        self.assertRegex(self.source, r'(?m)^\s*db\s+"N(?:[.)]|\s) ')
         self.assertRegex(self.normalized, r"\bcp\s+(?:1bh|27)\b")
         self.assertRegex(self.normalized, r"\bsub\s+['\"]1['\"]")
         self.assertRegex(
             self.normalized,
-            r"\bcp\s+['\"]0['\"]\s+jr\s+nz\s*,\s*@numbered_fixture\s+"
-            r"ld\s+a\s*,\s*fixture_count\s*-\s*1",
+            r"\bcp\s+['\"]0['\"]\s+jr\s+nz\s*,\s*@natural_fixture\s+"
+            r"ld\s+a\s*,\s*9",
+        )
+        self.assertRegex(
+            self.normalized,
+            r"@natural_fixture\s*:\s*cp\s+['\"]n['\"]\s+"
+            r"jr\s+z\s*,\s*@select_natural\s+cp\s+['\"]n['\"]\s+"
+            r"jr\s+nz\s*,\s*@numbered_fixture\s+"
+            r"@select_natural\s*:\s*ld\s+a\s*,\s*10",
         )
         self.assertRegex(self.normalized, r"\bcp\s+['\"]9['\"]\s*\+\s*1\b")
         self.assertNotRegex(

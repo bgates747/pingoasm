@@ -11,11 +11,16 @@ from pingo_terrain.flat_patterns import (
     PATTERN_PIXELS,
     compile_patterns,
     pack_opaque_rgba2222,
+    select_pattern,
     target_for_band,
     unpack_opaque_rgba2222,
     write_compiled_patterns,
 )
-from pingo_terrain.materials import BERKELEY_TERRAIN_MATERIALS, NLCD_MATERIALS
+from pingo_terrain.materials import (
+    AGON_SOLID_TERRAIN_MATERIALS,
+    BERKELEY_TERRAIN_MATERIALS,
+    NLCD_MATERIALS,
+)
 
 
 class FlatPatternTests(unittest.TestCase):
@@ -66,6 +71,31 @@ class FlatPatternTests(unittest.TestCase):
         self.assertEqual(pack_opaque_rgba2222((0, 0, 3)), 0xF0)
         self.assertEqual(pack_opaque_rgba2222((3, 3, 3)), 0xFF)
         self.assertEqual(unpack_opaque_rgba2222(0xD9), (85, 170, 85))
+
+    def test_diagnostic_material_sources_are_exact_native_colors(self) -> None:
+        self.assertEqual(len(AGON_SOLID_TERRAIN_MATERIALS), 15)
+        for source, diagnostic in zip(
+            BERKELEY_TERRAIN_MATERIALS,
+            AGON_SOLID_TERRAIN_MATERIALS,
+            strict=True,
+        ):
+            self.assertEqual(diagnostic.material_id, source.material_id)
+            self.assertEqual(diagnostic.nlcd_category, source.nlcd_category)
+            self.assertEqual(diagnostic.name, source.name)
+            self.assertTrue(all(channel in (0, 85, 170, 255) for channel in diagnostic.rgb))
+        self.assertEqual(
+            [material.rgb for material in AGON_SOLID_TERRAIN_MATERIALS],
+            [(0, 85, 255)]
+            + [(170, 170, 170)] * 4
+            + [(0, 170, 85)] * 10,
+        )
+
+    def test_diagnostic_base_patterns_are_solid_native_pixels(self) -> None:
+        for material in AGON_SOLID_TERRAIN_MATERIALS:
+            selected = select_pattern(material, ILLUMINATION_BANDS - 1)
+            pattern = selected.pattern
+            self.assertEqual(len(set(pattern)), 1)
+            self.assertEqual(unpack_opaque_rgba2222(pattern[0]), material.rgb)
 
     def test_bayer_matrix_contains_each_rank_once(self) -> None:
         self.assertEqual(

@@ -140,11 +140,58 @@ hex_provider_validate_candidate:
     cp hex_provider_odd_rows
 @result:
     jr nc,@outside
+.if hex_provider_fixture_bounds_enabled
+    call hex_provider_validate_fixture_bounds
+    ret
+.else
+    or a
+    ret
+.endif
+@outside:
+    scf
+    ret
+
+.if hex_provider_fixture_bounds_enabled
+; Restrict a bounded experimental corpus to one complete axial disk.  The
+; manager treats clipped non-centre desired ordinals as ordinary corpus edges,
+; while apply_origin_step uses the same hook to prevent rebasing outside the
+; files that actually exist.
+hex_provider_validate_fixture_bounds:
+    HEX_PROVIDER_LOAD_U16_HL terrain_manager_candidate_q
+    ld de,hex_provider_fixture_center_q
+    or a
+    sbc.s hl,de
+    HEX_PROVIDER_STORE_U16_HL hex_provider_delta_q
+    call hex_provider_abs_hl
+    HEX_PROVIDER_STORE_U16_HL hex_provider_max_distance
+
+    HEX_PROVIDER_LOAD_U16_HL terrain_manager_candidate_r
+    ld de,hex_provider_fixture_center_r
+    or a
+    sbc.s hl,de
+    HEX_PROVIDER_STORE_U16_HL hex_provider_delta_r
+    call hex_provider_abs_hl
+    call hex_provider_max_with_hl
+
+    HEX_PROVIDER_LOAD_U16_HL hex_provider_delta_q
+    HEX_PROVIDER_LOAD_U16_DE hex_provider_delta_r
+    add.s hl,de
+    call hex_provider_abs_hl
+    call hex_provider_max_with_hl
+
+    HEX_PROVIDER_LOAD_U16_HL hex_provider_max_distance
+    ld a,h
+    or a
+    jr nz,@outside
+    ld a,l
+    cp hex_provider_fixture_radius+1
+    jr nc,@outside
     or a
     ret
 @outside:
     scf
     ret
+.endif
 
 ; The validated-corpus intermediate range is -106..2574, safely inside s16.
 hex_provider_compute_candidate_slot:
@@ -210,8 +257,17 @@ terrain_provider_load_candidate:
 ; Produce TRH/L0/HH/LL.AGN.  The dense ID is
 ; floor(q/2)*470 + r + (235 when q is odd).
 hex_provider_build_path:
+.if hex_provider_natural_namespace
+    ld a,'N'
+    ld (p3dm_filename_buffer+0),a
+    ld a,'A'
+    ld (p3dm_filename_buffer+1),a
+    ld a,'T'
+    ld (p3dm_filename_buffer+2),a
+.else
     ld a,'H'
     ld (p3dm_filename_buffer+2),a
+.endif
     ld a,(terrain_manager_candidate_q)
     ld c,a
     srl a

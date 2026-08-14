@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 import colorsys
 import hashlib
 import heapq
@@ -142,6 +142,9 @@ OPAQUE_RGBA2222_PALETTE: tuple[NativeColor, ...] = tuple(
     )
     for packed in range(0xC0, 0x100)
 )
+OPAQUE_RGBA2222_BY_RGB: dict[RGB8, NativeColor] = {
+    color.rgb: color for color in OPAQUE_RGBA2222_PALETTE
+}
 
 
 def target_for_band(
@@ -347,6 +350,32 @@ def select_pattern(
     """Select the deterministic best 1/2-color mix, conditionally testing 3."""
 
     target = target_for_band(material, band, band_count)
+    # A fixture may deliberately author an exact Agon base pixel.  Preserve
+    # that diagnostic contract directly: at full illumination no alternative
+    # mixture can improve on its zero-error solid 4x4, and bypassing the broad
+    # candidate search makes the intent explicit as well as inexpensive.
+    native_source = OPAQUE_RGBA2222_BY_RGB.get(material.rgb)
+    if native_source is not None and band == band_count - 1:
+        selected = _make_mix(((native_source, PATTERN_PIXELS),))
+        selected_score = score_mix(target, selected)
+        # RGB -> HSV -> RGB can leave round-off at roughly 1e-16 per channel
+        # for thirds such as palette-20 azure.  That is still the exact same
+        # RGB8 source pixel, so accept only machine-noise squared error and
+        # canonicalize its metadata score to zero.
+        if selected_score > 1e-24:
+            raise AssertionError("an exact native base color did not score zero")
+        selected_score = 0.0
+        return SelectedPattern(
+            material_id=material.material_id,
+            illumination_band=band,
+            illumination=1.0,
+            target=target,
+            mix=selected,
+            score=selected_score,
+            best_one_or_two_color_score=selected_score,
+            pattern=pattern_bytes(selected),
+            used_three_colors=False,
+        )
     ranked = heapq.nsmallest(
         32,
         ONE_AND_TWO_COLOR_MIXES,
@@ -407,11 +436,19 @@ def compile_patterns(
     ):
         raise ValueError("material IDs must be contiguous and ordered from zero")
 
-    selected = [
-        select_pattern(material, band, band_count)
-        for material in materials
-        for band in range(band_count)
-    ]
+    # Several semantic classes may deliberately share one native base color.
+    # Pattern choice depends on RGB and band, not on the material's identity;
+    # reuse that expensive search while retaining material-major metadata.
+    selection_cache: dict[tuple[RGB8, int], SelectedPattern] = {}
+    selected: list[SelectedPattern] = []
+    for material in materials:
+        for band in range(band_count):
+            key = material.rgb, band
+            cached = selection_cache.get(key)
+            if cached is None:
+                cached = select_pattern(material, band, band_count)
+                selection_cache[key] = cached
+            selected.append(replace(cached, material_id=material.material_id))
     unique: list[bytes] = []
     pattern_ids: dict[bytes, int] = {}
     lookup = bytearray()
