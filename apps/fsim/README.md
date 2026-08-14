@@ -3,14 +3,16 @@
 Experimental terrain research, source-data acquisition, offline generation,
 Pingo scene fixtures, and performance evidence for reusable Agon terrain.
 
-This repository keeps exploratory work out of the maintained firmware and
-application repositories. If the work succeeds:
+This application subtree keeps exploratory work out of maintained firmware
+and unrelated applications. It was promoted with its complete standalone Git
+history into `pingoasm/apps/fsim` on 2026-08-14. As the work succeeds:
 
 1. reusable client asset tooling and application code may be promoted into
-   `~/Agon/mystuff/pingoasm`;
+   shared `pingoasm` facilities;
 2. proven renderer or protocol changes may be proposed separately to
    `~/Agon/mystuff/agon-vdp`; and
-3. research history and rejected experiments remain here.
+3. research history and rejected experiments remain in this subtree's merged
+   history.
 
 Start with the [current regular-hierarchy results](docs/devlog-2026-08-14.md);
 the [prior natural and distance-LOD work](docs/devlog-2026-08-13.md) and
@@ -199,12 +201,12 @@ Launch from anywhere with:
 
 ```bash
 ~/Agon/mystuff/agon-dev-env/scripts/run_emulator.sh \
-  ~/Agon/mystuff/pingo_terrain/emulator
+  ~/Agon/mystuff/pingoasm/apps/fsim/emulator
 ```
 
 The profile maps both `fixtures/` and ignored `build/`, installs the launcher
 as `/mos/fsim.bin`, and creates `/mos/fsim.cfg` with the absolute Agon path
-`/mystuff/pingo_terrain`. Invoke `fsim` from any MOS directory for the numbered
+`/mystuff/pingoasm/apps/fsim`. Invoke `fsim` from any MOS directory for the numbered
 fixture menu; see the [launcher contract](moslets/fsim/README.md).
 
 The regular universal hex-manager survey is entry `0`; the natural

@@ -206,7 +206,7 @@ Commands:
 ```text
 .venv/bin/python -m pingo_terrain.regional_lod budget
 .venv/bin/python -m pingo_terrain.regional_lod proof \
-  --project-root /home/smith/Agon/mystuff/pingo_terrain \
+  --project-root /home/smith/Agon/mystuff/pingoasm/apps/fsim \
   --output-root /tmp/pingo-terrain-regional-lod-proof-verified
 ```
 

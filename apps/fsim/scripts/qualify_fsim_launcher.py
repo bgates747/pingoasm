@@ -27,9 +27,9 @@ MOS_MAP = input_trace.MOS_BINARY.with_suffix(".map")
 
 CALLER_CWD = "/caller"
 FIXTURE_CWD = (
-    "/mystuff/pingo_terrain/fixtures/nested-agnb-loader-probe/tgt"
+    "/mystuff/pingoasm/apps/fsim/fixtures/nested-agnb-loader-probe/tgt"
 )
-CONFIG_ROOT = "/mystuff/pingo_terrain"
+CONFIG_ROOT = "/mystuff/pingoasm/apps/fsim"
 SELECTION_SCANCODE = 0x003E  # Top-row 8 in Fab's PS/2 set-2 table.
 ESCAPE_SCANCODE = input_trace.SET2_CODES["ESCAPE"]
 TAP_HOLD_VBLANKS = 4

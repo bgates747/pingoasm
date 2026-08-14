@@ -48,7 +48,7 @@ a fixture cannot also exit the launcher.
 project-local emulator installation writes:
 
 ```text
-/mystuff/pingo_terrain
+/mystuff/pingoasm/apps/fsim
 ```
 
 The launcher saves the caller's working directory, combines that root with
@@ -100,7 +100,7 @@ Launch the dedicated emulator from any host directory with:
 
 ```bash
 ~/Agon/mystuff/agon-dev-env/scripts/run_emulator.sh \
-  ~/Agon/mystuff/pingo_terrain/emulator
+  ~/Agon/mystuff/pingoasm/apps/fsim/emulator
 ```
 
 The launcher is explicit rather than an auto-run payload. The project-owned

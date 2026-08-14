@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Provision pingo_terrain's project-local, fail-closed PingoWolf profile."""
+"""Provision FSIM's project-local, fail-closed PingoWolf profile."""
 
 from __future__ import annotations
 
@@ -17,7 +17,9 @@ DEFAULT_VDP_MODULE = (
     AGON_ROOT / "mystuff/agon-vdp/video/build/userspace/vdp_combined.so"
 )
 FSIM_PROGRAM = PROJECT_ROOT / "moslets/fsim/tgt/fsim.bin"
-FSIM_CONFIG = b"/mystuff/pingo_terrain\r\n"
+FSIM_MOS_ROOT = "mystuff/pingoasm/apps/fsim"
+FSIM_CONFIG = f"/{FSIM_MOS_ROOT}\r\n".encode("ascii")
+LEGACY_FSIM_CONFIGS = (b"/mystuff/pingo_terrain\r\n",)
 DEFAULT_AUTOEXEC = b"SET KEYBOARD 1\r\n"
 LEGACY_GENERATED_AUTOEXECS = (
     (
@@ -86,19 +88,6 @@ def populate_shared_moslets(shared: Path, local: Path) -> None:
             destination.symlink_to(os.path.relpath(source, destination.parent))
 
 
-def create_profile_file(path: Path, data: bytes) -> None:
-    """Create a profile-owned file once while preserving later user edits."""
-
-    if path.is_symlink():
-        raise SystemExit(f"Refusing to replace profile-file symlink: {path}")
-    if path.exists():
-        if not path.is_file():
-            raise SystemExit(f"Expected a regular profile file: {path}")
-        return
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_bytes(data)
-
-
 def provision_autoexec(path: Path) -> None:
     """Create the keyboard setup or retire an exact old generated autorun."""
 
@@ -111,6 +100,21 @@ def provision_autoexec(path: Path) -> None:
         raise SystemExit(f"Expected a regular autoexec file: {path}")
     if path.read_bytes() in LEGACY_GENERATED_AUTOEXECS:
         path.write_bytes(DEFAULT_AUTOEXEC)
+
+
+def provision_fsim_config(path: Path) -> None:
+    """Install the project root or migrate the exact pre-subtree value."""
+
+    if path.is_symlink():
+        raise SystemExit(f"Refusing to replace profile-file symlink: {path}")
+    if not path.exists():
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(FSIM_CONFIG)
+        return
+    if not path.is_file():
+        raise SystemExit(f"Expected a regular profile file: {path}")
+    if path.read_bytes() in LEGACY_FSIM_CONFIGS:
+        path.write_bytes(FSIM_CONFIG)
 
 
 def emulator_executable() -> Path:
@@ -161,14 +165,14 @@ def main() -> None:
         "vdp_combined.so\n", encoding="utf-8"
     )
     replace_directory_link(
-        SDCARD / "mystuff/pingo_terrain/fixtures", fixtures
+        SDCARD / FSIM_MOS_ROOT / "fixtures", fixtures
     )
-    replace_directory_link(SDCARD / "mystuff/pingo_terrain/build", build)
+    replace_directory_link(SDCARD / FSIM_MOS_ROOT / "build", build)
 
     local_moslets = SDCARD / "mos"
     populate_shared_moslets(shared_moslets, local_moslets)
     replace_symlink(local_moslets / "fsim.bin", FSIM_PROGRAM)
-    create_profile_file(local_moslets / "fsim.cfg", FSIM_CONFIG)
+    provision_fsim_config(local_moslets / "fsim.cfg")
 
     autoexec = SDCARD / "autoexec.txt"
     provision_autoexec(autoexec)

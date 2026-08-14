@@ -433,7 +433,7 @@ class FsimBuildAndSetupTests(unittest.TestCase):
             self.assertEqual(installed.resolve(), launcher.resolve())
             self.assertEqual(
                 (sdcard / "mos/fsim.cfg").read_bytes(),
-                b"/mystuff/pingo_terrain\r\n",
+                b"/mystuff/pingoasm/apps/fsim\r\n",
             )
 
 

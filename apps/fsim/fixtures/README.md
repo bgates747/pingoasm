@@ -7,5 +7,5 @@ payload, and README naming its acceptance purpose and authoritative inputs.
 The complete tree is mapped live into the project-local emulator at:
 
 ```text
-/mystuff/pingo_terrain/fixtures
+/mystuff/pingoasm/apps/fsim/fixtures
 ```
