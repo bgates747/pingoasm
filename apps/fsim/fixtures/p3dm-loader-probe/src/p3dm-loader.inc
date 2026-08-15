@@ -10,6 +10,13 @@
 ;   pingo_set_object_active
 ;       sends Pingo subcommand 51 for an already-established object.
 ;
+; Required compile-time policy:
+;   p3dm_mirror_z_on_load
+;       0 uploads validated DATA byte-for-byte.
+;       1 converts the legacy reflected terrain basis from Z=-east to
+;       Z=+east after CRC/index validation and before VDP upload. The
+;       conversion negates every vertex Z and reverses position/UV winding.
+;
 ; The 16 KiB whole-file window admits all current Bay Area proof components,
 ; including KSFO M00 (14,120 bytes). It keeps parsing fail-closed and wholly
 ; pre-publication while the regional coordinator reuses the request block.
@@ -127,6 +134,9 @@ p3dm_load_component:
     ret nz
     ld a,p3dm_state_validated
     ld (p3dm_loader_state),a
+.if p3dm_mirror_z_on_load
+    call p3dm_mirror_validated_z
+.endif
     call p3dm_upload_data
     ret nz
     ld a,p3dm_state_staged
@@ -781,6 +791,88 @@ p3dm_validate_crc32:
     djnz @compare
     xor a
     ret
+
+.if p3dm_mirror_z_on_load
+; Convert one already-validated layout-1 DATA payload from the legacy
+; (north,up,-east) reflection to the right-handed (north,up,+east) basis.
+; The stored CRC intentionally authenticates the immutable disk payload; this
+; adapter runs only after CRC and index validation and before staging upload.
+p3dm_mirror_validated_z:
+; Positions are packed s16 X,Y,Z. Negate every Z word. The validated encoder
+; excludes -32768, so signed negation remains representable.
+    ld ix,p3dm_file_buffer+p3dm_data_offset+4
+    P3DM_LD_U16_BC p3dm_vertex_count
+@vertex:
+    ld a,b
+    or c
+    jr z,@position_indices
+    ld de,0
+    ld e,(ix+0)
+    ld d,(ix+1)
+    ld hl,0
+    or a
+    sbc.s hl,de
+    ld (ix+0),l
+    ld (ix+1),h
+    lea ix,ix+6
+    dec bc
+    jr @vertex
+
+@position_indices:
+; Position indices begin at DATA+6V. Point IX at each triangle's second word
+; and swap its second/third vertices to preserve front-facing winding after
+; the reflection is removed.
+    ld hl,0
+    P3DM_LD_U16_DE p3dm_vertex_count
+    add hl,de
+    add hl,de
+    add hl,de
+    add hl,de
+    add hl,de
+    add hl,de
+    ld de,p3dm_file_buffer+p3dm_data_offset+2
+    add hl,de
+    push hl
+    pop ix
+    P3DM_LD_U16_BC p3dm_position_index_count
+    call p3dm_swap_triangle_second_third
+
+; UV indices are the final 2T bytes. Their winding follows the position
+; indices even though current flat terrain repeats one selector per face.
+    P3DM_LD_U16_HL p3dm_data_size
+    P3DM_LD_U16_DE p3dm_uv_index_count
+    or a
+    sbc hl,de
+    or a
+    sbc hl,de
+    ld de,p3dm_file_buffer+p3dm_data_offset+2
+    add hl,de
+    push hl
+    pop ix
+    P3DM_LD_U16_BC p3dm_uv_index_count
+    jp p3dm_swap_triangle_second_third
+
+; Input IX points at the second u16 of a triangle stream and BC is the exact
+; index count, already proven divisible by three. Return with BC=0.
+p3dm_swap_triangle_second_third:
+@triangle:
+    ld a,b
+    or c
+    ret z
+    ld l,(ix+0)
+    ld h,(ix+1)
+    ld a,(ix+2)
+    ld (ix+0),a
+    ld a,(ix+3)
+    ld (ix+1),a
+    ld (ix+2),l
+    ld (ix+3),h
+    lea ix,ix+6
+    dec bc
+    dec bc
+    dec bc
+    jr @triangle
+.endif
 
 ; Upload one exact consolidated DATA block. Container headers and metadata
 ; never enter the VDP staging buffer.

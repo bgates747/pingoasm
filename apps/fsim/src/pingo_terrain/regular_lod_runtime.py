@@ -17,11 +17,12 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from functools import lru_cache
+import hashlib
 import re
 import struct
 from typing import Iterable, Sequence
 
-from .hex_terrain import disk_offsets, validate_cell
+from .hex_terrain import HexCell, disk_offsets, validate_cell
 from .regular_lod import (
     COARSE_SLOT_COUNT,
     COARSE_SLOT_FIRST,
@@ -61,6 +62,34 @@ PHASE_PLAN_COUNT = (NEAR_RING_MAX + 1) * PHASE_COUNT
 PHASE_RECORD_BYTES = 3
 PHASE_REFERENCE_Q = 80
 PHASE_REFERENCE_OFFSET_ROW = 120
+
+# This order is the executable ABI of ``hex_provider_origin_steps``.  Recipe
+# index arithmetic and firmware direction selection must not substitute a
+# conventional compass or axial-neighbor order.
+TRANSITION_NEAR_RADIUS = 5
+TRANSITION_DIRECTION_NAMES = (
+    "north",
+    "south",
+    "northeast",
+    "southeast",
+    "northwest",
+    "southwest",
+)
+TRANSITION_DIRECTION_STEPS = (
+    (0, 1),
+    (0, -1),
+    (1, 0),
+    (1, -1),
+    (-1, 1),
+    (-1, 0),
+)
+TRANSITION_DIRECTION_COUNT = len(TRANSITION_DIRECTION_STEPS)
+TRANSITION_RECIPE_COUNT = PHASE_COUNT * TRANSITION_DIRECTION_COUNT
+TRANSITION_DIRECTORY_POINTER_BYTES = 3
+TRANSITION_RECIPE_GROUP_COUNT = 0
+TRANSITION_GROUP_RETIRING_COUNT = 0
+TRANSITION_GROUP_ENTERING_COUNT = 1
+TRANSITION_GROUP_ORDINALS = 2
 
 PROTECTED_MASK_BYTES = (COARSE_SLOT_COUNT + 7) // 8
 _ASSEMBLY_IDENTIFIER = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
@@ -347,6 +376,714 @@ def resolve_phase_plan(
     return CoarsePlan(origin_q, origin_r, near_radius, entries)
 
 
+TerrainOwner = NearPlanEntry | CoarsePlanEntry
+
+
+@dataclass(frozen=True, slots=True)
+class TerrainOwnerPlan:
+    """Complete near and coarse ownership at one regional position.
+
+    ``NearPlanEntry.slot`` remains the compact endpoint convention used by the
+    existing provider, but it is not a staging constraint.  A live transition
+    may temporarily place any entering owner in any inactive manager slot and
+    publish that slot only when its complete coverage group is ready.
+    """
+
+    origin_q: int
+    origin_r: int
+    near_radius: int
+    near_entries: tuple[NearPlanEntry, ...]
+    coarse_entries: tuple[CoarsePlanEntry, ...]
+
+    def __post_init__(self) -> None:
+        if not 0 <= self.near_radius <= NEAR_RING_MAX:
+            raise ValueError(
+                f"near radius lies outside 0..{NEAR_RING_MAX}: {self.near_radius}"
+            )
+        _require_s16(self.origin_q, "origin q")
+        _require_s16(self.origin_r, "origin r")
+        if len(self.owners) > MANAGER_SLOT_COUNT:
+            raise ValueError(
+                f"terrain plan has {len(self.owners)} owners for "
+                f"{MANAGER_SLOT_COUNT} slots"
+            )
+        near_cells = tuple((entry.q, entry.r) for entry in self.near_entries)
+        if len(set(near_cells)) != len(near_cells):
+            raise ValueError("terrain plan contains duplicate near identities")
+        coarse_identities = tuple(entry.identity for entry in self.coarse_entries)
+        if len(set(coarse_identities)) != len(coarse_identities):
+            raise ValueError("terrain plan contains duplicate coarse identities")
+
+    @property
+    def owners(self) -> tuple[TerrainOwner, ...]:
+        return (*self.near_entries, *self.coarse_entries)
+
+    @property
+    def origin_offset_row(self) -> int:
+        return offset_row(self.origin_q, self.origin_r)
+
+
+def build_terrain_owner_plan(
+    origin_q: int,
+    origin_r: int,
+    near_radius: int,
+    *,
+    clip_to_region: bool = True,
+) -> TerrainOwnerPlan:
+    """Build the complete slot-independent ownership plan.
+
+    Near and coarse owners intentionally share one capacity domain.  That is
+    what permits an incoming detailed cell to stage outside its eventual
+    stable near slot while the outgoing owner of that slot remains visible.
+    """
+
+    near_entries = build_near_plan(
+        origin_q,
+        origin_r,
+        near_radius,
+        clip_to_region=clip_to_region,
+    )
+    coarse_plan = resolve_phase_plan(
+        origin_q,
+        origin_r,
+        near_radius,
+        clip_to_region=clip_to_region,
+    )
+    return TerrainOwnerPlan(
+        origin_q,
+        origin_r,
+        near_radius,
+        near_entries,
+        coarse_plan.entries,
+    )
+
+
+def _terrain_owner_sort_key(owner: TerrainOwner) -> tuple[int, ...]:
+    if isinstance(owner, NearPlanEntry):
+        return 0, owner.q, owner.r
+    return 1, owner.lod, owner.anchor_q, owner.anchor_offset_row
+
+
+@lru_cache(maxsize=None)
+def _terrain_owner_coverage(owner: TerrainOwner) -> frozenset[HexCell]:
+    """Return the exact bounded L0 cells represented by one owner."""
+
+    if isinstance(owner, NearPlanEntry):
+        return frozenset((HexCell(owner.q, owner.r),))
+    return _coarse_entry_coverage(owner)
+
+
+@lru_cache(maxsize=None)
+def _coarse_entry_coverage(entry: CoarsePlanEntry) -> frozenset:
+    """Return the exact bounded L0 cells owned by one hierarchy identity."""
+
+    return frozenset(bounded_node_cells(entry.node))
+
+
+@dataclass(frozen=True, slots=True)
+class CoarseTransitionGroup:
+    """One indivisible old/new coverage component.
+
+    Retiring and entering hierarchy nodes share underlying L0 coverage either
+    directly or transitively.  Different groups have no old-to-new coverage
+    dependency and can therefore commit at separate render-idle boundaries.
+    Empty sides describe terrain leaving or entering the regional view.
+    """
+
+    retiring: tuple[CoarsePlanEntry, ...]
+    entering: tuple[CoarsePlanEntry, ...]
+
+    def __post_init__(self) -> None:
+        if not self.retiring and not self.entering:
+            raise ValueError("a transition group cannot be empty")
+        if len(set(self.retiring)) != len(self.retiring):
+            raise ValueError("a transition group repeats a retiring identity")
+        if len(set(self.entering)) != len(self.entering):
+            raise ValueError("a transition group repeats an entering identity")
+        if set(self.retiring) & set(self.entering):
+            raise ValueError("a transition group cannot retire and enter one identity")
+
+    @property
+    def retiring_count(self) -> int:
+        return len(self.retiring)
+
+    @property
+    def entering_count(self) -> int:
+        return len(self.entering)
+
+    @property
+    def net_slot_cost(self) -> int:
+        """Additional occupied slots after this group commits."""
+
+        return self.entering_count - self.retiring_count
+
+
+@dataclass(frozen=True, slots=True)
+class CoarseTransitionStep:
+    """Capacity proof for staging and committing one coverage group."""
+
+    group: CoarseTransitionGroup
+    free_before: int
+    staging_margin: int
+    free_after: int
+
+    def __post_init__(self) -> None:
+        if self.free_before < self.group.entering_count:
+            raise ValueError("transition step cannot stage its entering group")
+        if self.staging_margin != self.free_before - self.group.entering_count:
+            raise ValueError("transition step has an inconsistent staging margin")
+        expected_after = (
+            self.free_before
+            + self.group.retiring_count
+            - self.group.entering_count
+        )
+        if self.free_after != expected_after:
+            raise ValueError("transition step has an inconsistent final capacity")
+
+
+@dataclass(frozen=True, slots=True)
+class CoarseTransitionSchedule:
+    """A complete render-idle group handoff within one fixed slot pool."""
+
+    old_plan: CoarsePlan
+    new_plan: CoarsePlan
+    preserved: tuple[CoarsePlanEntry, ...]
+    steps: tuple[CoarseTransitionStep, ...]
+    slot_capacity: int
+    initial_free_slots: int
+    final_free_slots: int
+    minimum_staging_margin: int
+
+    def __post_init__(self) -> None:
+        old = set(self.old_plan.entries)
+        new = set(self.new_plan.entries)
+        if set(self.preserved) != old & new:
+            raise ValueError("transition schedule changed the preserved identity set")
+        retiring = tuple(
+            entry for step in self.steps for entry in step.group.retiring
+        )
+        entering = tuple(
+            entry for step in self.steps for entry in step.group.entering
+        )
+        if set(retiring) != old - new or len(retiring) != len(set(retiring)):
+            raise ValueError("transition schedule does not retire the exact old set")
+        if set(entering) != new - old or len(entering) != len(set(entering)):
+            raise ValueError("transition schedule does not enter the exact new set")
+        if self.initial_free_slots != self.slot_capacity - len(old):
+            raise ValueError("transition schedule has the wrong initial capacity")
+        if self.final_free_slots != self.slot_capacity - len(new):
+            raise ValueError("transition schedule has the wrong final capacity")
+        margins = tuple(step.staging_margin for step in self.steps)
+        expected_margin = min(margins, default=self.initial_free_slots)
+        if self.minimum_staging_margin != expected_margin:
+            raise ValueError("transition schedule has the wrong minimum margin")
+
+
+def build_coarse_transition_groups(
+    old_plan: CoarsePlan,
+    new_plan: CoarsePlan,
+) -> tuple[CoarseTransitionGroup, ...]:
+    """Partition a hierarchy change by exact underlying L0 overlap.
+
+    The bipartite graph contains one vertex for every retiring or entering
+    hierarchy identity and an edge when the pair owns at least one common L0
+    cell.  Connected components are the smallest groups whose ownership can be
+    switched without separating a parent/child or boundary replacement.
+    """
+
+    old_set = set(old_plan.entries)
+    new_set = set(new_plan.entries)
+    retiring = tuple(entry for entry in old_plan.entries if entry not in new_set)
+    entering = tuple(entry for entry in new_plan.entries if entry not in old_set)
+    retiring_edges: list[list[int]] = [[] for _ in retiring]
+    entering_edges: list[list[int]] = [[] for _ in entering]
+
+    for old_index, old_entry in enumerate(retiring):
+        old_coverage = _coarse_entry_coverage(old_entry)
+        for new_index, new_entry in enumerate(entering):
+            if old_coverage.isdisjoint(_coarse_entry_coverage(new_entry)):
+                continue
+            retiring_edges[old_index].append(new_index)
+            entering_edges[new_index].append(old_index)
+
+    seen_old: set[int] = set()
+    seen_new: set[int] = set()
+    groups: list[CoarseTransitionGroup] = []
+    for first_old in range(len(retiring)):
+        if first_old in seen_old:
+            continue
+        if not retiring_edges[first_old]:
+            seen_old.add(first_old)
+            groups.append(CoarseTransitionGroup((retiring[first_old],), ()))
+            continue
+
+        pending_old = [first_old]
+        pending_new: list[int] = []
+        component_old: list[int] = []
+        component_new: list[int] = []
+        seen_old.add(first_old)
+        while pending_old or pending_new:
+            while pending_old:
+                old_index = pending_old.pop()
+                component_old.append(old_index)
+                for new_index in retiring_edges[old_index]:
+                    if new_index in seen_new:
+                        continue
+                    seen_new.add(new_index)
+                    pending_new.append(new_index)
+            while pending_new:
+                new_index = pending_new.pop()
+                component_new.append(new_index)
+                for old_index in entering_edges[new_index]:
+                    if old_index in seen_old:
+                        continue
+                    seen_old.add(old_index)
+                    pending_old.append(old_index)
+        groups.append(
+            CoarseTransitionGroup(
+                tuple(retiring[index] for index in sorted(component_old)),
+                tuple(entering[index] for index in sorted(component_new)),
+            )
+        )
+
+    for new_index, new_entry in enumerate(entering):
+        if new_index not in seen_new:
+            groups.append(CoarseTransitionGroup((), (new_entry,)))
+
+    return tuple(groups)
+
+
+def _transition_group_sort_key(group: CoarseTransitionGroup) -> tuple:
+    """Put slot-releasing groups before progressively expanding groups."""
+
+    identities = tuple(
+        entry.identity for entry in (*group.retiring, *group.entering)
+    )
+    return (
+        group.net_slot_cost,
+        group.entering_count,
+        -group.retiring_count,
+        identities,
+    )
+
+
+def schedule_coarse_transition(
+    old_plan: CoarsePlan,
+    new_plan: CoarsePlan,
+    *,
+    slot_capacity: int = COARSE_SLOT_COUNT,
+) -> CoarseTransitionSchedule:
+    """Build and prove a shrink-first staged hierarchy handoff.
+
+    All entering meshes in one step are loaded and positioned into inactive
+    slots while its retiring owners remain active.  A later render-idle commit
+    activates the complete entering group and deactivates the retiring group;
+    only then may their old slots be reused.  A ``RuntimeError`` means this
+    policy cannot stage the transition within the supplied capacity.
+    """
+
+    if slot_capacity < len(old_plan.entries) or slot_capacity < len(new_plan.entries):
+        raise RuntimeError("a transition endpoint exceeds the coarse slot pool")
+    groups = tuple(
+        sorted(
+            build_coarse_transition_groups(old_plan, new_plan),
+            key=_transition_group_sort_key,
+        )
+    )
+    free = slot_capacity - len(old_plan.entries)
+    initial_free = free
+    steps: list[CoarseTransitionStep] = []
+    for group in groups:
+        if free < group.entering_count:
+            raise RuntimeError(
+                "coarse transition cannot stage a complete coverage group: "
+                f"free={free}, entering={group.entering_count}, "
+                f"retiring={group.retiring_count}"
+            )
+        after = free + group.retiring_count - group.entering_count
+        steps.append(
+            CoarseTransitionStep(
+                group,
+                free,
+                free - group.entering_count,
+                after,
+            )
+        )
+        free = after
+
+    old_set = set(old_plan.entries)
+    new_set = set(new_plan.entries)
+    schedule = CoarseTransitionSchedule(
+        old_plan,
+        new_plan,
+        tuple(entry for entry in old_plan.entries if entry in new_set),
+        tuple(steps),
+        slot_capacity,
+        initial_free,
+        free,
+        min(
+            (step.staging_margin for step in steps),
+            default=initial_free,
+        ),
+    )
+    if set(schedule.preserved) != old_set & new_set:
+        raise AssertionError("coarse transition lost a preserved identity")
+    return schedule
+
+
+@dataclass(frozen=True, slots=True)
+class TerrainTransitionGroup:
+    """One indivisible near/coarse ownership replacement component."""
+
+    retiring: tuple[TerrainOwner, ...]
+    entering: tuple[TerrainOwner, ...]
+
+    def __post_init__(self) -> None:
+        if not self.retiring and not self.entering:
+            raise ValueError("a terrain transition group cannot be empty")
+        if len(set(self.retiring)) != len(self.retiring):
+            raise ValueError("a terrain transition group repeats a retiring owner")
+        if len(set(self.entering)) != len(self.entering):
+            raise ValueError("a terrain transition group repeats an entering owner")
+        if set(self.retiring) & set(self.entering):
+            raise ValueError("a terrain transition group cannot replace one owner")
+
+    @property
+    def retiring_count(self) -> int:
+        return len(self.retiring)
+
+    @property
+    def entering_count(self) -> int:
+        return len(self.entering)
+
+    @property
+    def net_slot_cost(self) -> int:
+        return self.entering_count - self.retiring_count
+
+
+@dataclass(frozen=True, slots=True)
+class TerrainTransitionStep:
+    """Capacity proof for one staged full-owner group handoff."""
+
+    group: TerrainTransitionGroup
+    free_before: int
+    staging_margin: int
+    free_after: int
+
+    def __post_init__(self) -> None:
+        if self.free_before < self.group.entering_count:
+            raise ValueError("terrain transition step cannot stage its entering group")
+        if self.staging_margin != self.free_before - self.group.entering_count:
+            raise ValueError("terrain transition step has an inconsistent margin")
+        expected_after = (
+            self.free_before
+            + self.group.retiring_count
+            - self.group.entering_count
+        )
+        if self.free_after != expected_after:
+            raise ValueError("terrain transition step has an inconsistent capacity")
+
+
+@dataclass(frozen=True, slots=True)
+class TerrainTransitionSchedule:
+    """A complete near/coarse handoff in the 255-object manager pool."""
+
+    old_plan: TerrainOwnerPlan
+    new_plan: TerrainOwnerPlan
+    preserved: tuple[TerrainOwner, ...]
+    steps: tuple[TerrainTransitionStep, ...]
+    slot_capacity: int
+    initial_free_slots: int
+    final_free_slots: int
+    minimum_staging_margin: int
+
+    def __post_init__(self) -> None:
+        old = set(self.old_plan.owners)
+        new = set(self.new_plan.owners)
+        if set(self.preserved) != old & new:
+            raise ValueError("terrain schedule changed the preserved owner set")
+        retiring = tuple(
+            owner for step in self.steps for owner in step.group.retiring
+        )
+        entering = tuple(
+            owner for step in self.steps for owner in step.group.entering
+        )
+        if set(retiring) != old - new or len(retiring) != len(set(retiring)):
+            raise ValueError("terrain schedule does not retire the exact old set")
+        if set(entering) != new - old or len(entering) != len(set(entering)):
+            raise ValueError("terrain schedule does not enter the exact new set")
+        if self.initial_free_slots != self.slot_capacity - len(old):
+            raise ValueError("terrain schedule has the wrong initial capacity")
+        if self.final_free_slots != self.slot_capacity - len(new):
+            raise ValueError("terrain schedule has the wrong final capacity")
+        margins = tuple(step.staging_margin for step in self.steps)
+        expected_margin = min(margins, default=self.initial_free_slots)
+        if self.minimum_staging_margin != expected_margin:
+            raise ValueError("terrain schedule has the wrong minimum margin")
+
+
+def build_terrain_transition_groups(
+    old_plan: TerrainOwnerPlan,
+    new_plan: TerrainOwnerPlan,
+) -> tuple[TerrainTransitionGroup, ...]:
+    """Partition a complete plan change by exact L0 ownership overlap.
+
+    Shared owner identities remain active and are removed before graphing.
+    Each remaining old/new owner is a vertex; an edge means their bounded L0
+    footprints intersect.  Connected components are therefore the smallest
+    units that can replace near and coarse coverage without a partial handoff.
+    """
+
+    old_owners = old_plan.owners
+    new_owners = new_plan.owners
+    old_set = set(old_owners)
+    new_set = set(new_owners)
+    retiring = tuple(owner for owner in old_owners if owner not in new_set)
+    entering = tuple(owner for owner in new_owners if owner not in old_set)
+    retiring_edges: list[list[int]] = [[] for _ in retiring]
+    entering_edges: list[list[int]] = [[] for _ in entering]
+
+    for old_index, old_owner in enumerate(retiring):
+        old_coverage = _terrain_owner_coverage(old_owner)
+        for new_index, new_owner in enumerate(entering):
+            if old_coverage.isdisjoint(_terrain_owner_coverage(new_owner)):
+                continue
+            retiring_edges[old_index].append(new_index)
+            entering_edges[new_index].append(old_index)
+
+    seen_old: set[int] = set()
+    seen_new: set[int] = set()
+    groups: list[TerrainTransitionGroup] = []
+    for first_old in range(len(retiring)):
+        if first_old in seen_old:
+            continue
+        if not retiring_edges[first_old]:
+            seen_old.add(first_old)
+            groups.append(TerrainTransitionGroup((retiring[first_old],), ()))
+            continue
+
+        pending_old = [first_old]
+        pending_new: list[int] = []
+        component_old: list[int] = []
+        component_new: list[int] = []
+        seen_old.add(first_old)
+        while pending_old or pending_new:
+            while pending_old:
+                old_index = pending_old.pop()
+                component_old.append(old_index)
+                for new_index in retiring_edges[old_index]:
+                    if new_index in seen_new:
+                        continue
+                    seen_new.add(new_index)
+                    pending_new.append(new_index)
+            while pending_new:
+                new_index = pending_new.pop()
+                component_new.append(new_index)
+                for old_index in entering_edges[new_index]:
+                    if old_index in seen_old:
+                        continue
+                    seen_old.add(old_index)
+                    pending_old.append(old_index)
+        groups.append(
+            TerrainTransitionGroup(
+                tuple(retiring[index] for index in sorted(component_old)),
+                tuple(entering[index] for index in sorted(component_new)),
+            )
+        )
+
+    for new_index, new_owner in enumerate(entering):
+        if new_index not in seen_new:
+            groups.append(TerrainTransitionGroup((), (new_owner,)))
+    return tuple(groups)
+
+
+def _terrain_transition_group_sort_key(group: TerrainTransitionGroup) -> tuple:
+    identities = tuple(
+        _terrain_owner_sort_key(owner)
+        for owner in (*group.retiring, *group.entering)
+    )
+    return (
+        group.net_slot_cost,
+        group.entering_count,
+        -group.retiring_count,
+        identities,
+    )
+
+
+def schedule_terrain_transition(
+    old_plan: TerrainOwnerPlan,
+    new_plan: TerrainOwnerPlan,
+    *,
+    slot_capacity: int = MANAGER_SLOT_COUNT,
+) -> TerrainTransitionSchedule:
+    """Prove a failure-atomic, shrink-first full-owner transition.
+
+    For each step, all entering owners stage in inactive slots while all
+    retiring owners remain visible.  The complete group swaps at one
+    render-idle boundary.  Retired slots become reusable only after that
+    commit.  Selection is deterministic and considers only groups which fit
+    the current free capacity, preferring the greatest immediate release.
+    """
+
+    old_owners = old_plan.owners
+    new_owners = new_plan.owners
+    if slot_capacity < len(old_owners) or slot_capacity < len(new_owners):
+        raise RuntimeError("a terrain transition endpoint exceeds the slot pool")
+
+    pending = list(build_terrain_transition_groups(old_plan, new_plan))
+    free = slot_capacity - len(old_owners)
+    initial_free = free
+    steps: list[TerrainTransitionStep] = []
+    while pending:
+        feasible = [
+            group for group in pending if group.entering_count <= free
+        ]
+        if not feasible:
+            largest_release = max(
+                (group.retiring_count - group.entering_count for group in pending),
+                default=0,
+            )
+            raise RuntimeError(
+                "terrain transition cannot stage any complete coverage group: "
+                f"free={free}, pending={len(pending)}, "
+                f"best_release={largest_release}"
+            )
+        group = min(feasible, key=_terrain_transition_group_sort_key)
+        pending.remove(group)
+        after = free + group.retiring_count - group.entering_count
+        steps.append(
+            TerrainTransitionStep(
+                group,
+                free,
+                free - group.entering_count,
+                after,
+            )
+        )
+        free = after
+
+    new_set = set(new_owners)
+    return TerrainTransitionSchedule(
+        old_plan,
+        new_plan,
+        tuple(owner for owner in old_owners if owner in new_set),
+        tuple(steps),
+        slot_capacity,
+        initial_free,
+        free,
+        min(
+            (step.staging_margin for step in steps),
+            default=initial_free,
+        ),
+    )
+
+
+@dataclass(frozen=True, slots=True)
+class TerrainTransitionRecipe:
+    """One canonical radius-five phase/direction transition schedule."""
+
+    phase_q: int
+    phase_offset_row: int
+    direction_index: int
+    schedule: TerrainTransitionSchedule
+
+    def __post_init__(self) -> None:
+        phase_index(self.phase_q, self.phase_offset_row)
+        if not 0 <= self.direction_index < TRANSITION_DIRECTION_COUNT:
+            raise ValueError("transition recipe has an invalid direction")
+        old = self.schedule.old_plan
+        if old.near_radius != TRANSITION_NEAR_RADIUS:
+            raise ValueError("transition recipe is not radius five")
+        if old.origin_q % PHASE_Q_COUNT != self.phase_q:
+            raise ValueError("transition recipe old q phase is inconsistent")
+        if old.origin_offset_row % PHASE_OFFSET_ROW_COUNT != self.phase_offset_row:
+            raise ValueError("transition recipe old row phase is inconsistent")
+        delta_q, delta_r = TRANSITION_DIRECTION_STEPS[self.direction_index]
+        new = self.schedule.new_plan
+        if (new.origin_q, new.origin_r) != (
+            old.origin_q + delta_q,
+            old.origin_r + delta_r,
+        ):
+            raise ValueError("transition recipe endpoint is not its named neighbor")
+
+    @property
+    def index(self) -> int:
+        return (
+            phase_index(self.phase_q, self.phase_offset_row)
+            * TRANSITION_DIRECTION_COUNT
+            + self.direction_index
+        )
+
+    @property
+    def direction_name(self) -> str:
+        return TRANSITION_DIRECTION_NAMES[self.direction_index]
+
+
+@dataclass(frozen=True, slots=True)
+class TransitionOrdinalGroup:
+    """Decoded recipe group using old-plan and new-plan u8 ordinals."""
+
+    retiring_ordinals: tuple[int, ...]
+    entering_ordinals: tuple[int, ...]
+
+    def __post_init__(self) -> None:
+        if not self.retiring_ordinals and not self.entering_ordinals:
+            raise ValueError("an ordinal transition group cannot be empty")
+        for name, ordinals in (
+            ("retiring", self.retiring_ordinals),
+            ("entering", self.entering_ordinals),
+        ):
+            if len(set(ordinals)) != len(ordinals):
+                raise ValueError(f"ordinal group repeats a {name} owner")
+            if any(not 0 <= ordinal < MANAGER_SLOT_COUNT for ordinal in ordinals):
+                raise ValueError(f"ordinal group has an invalid {name} ordinal")
+
+
+@lru_cache(maxsize=None)
+def build_terrain_transition_recipe(
+    phase_q: int,
+    phase_offset_row: int,
+    direction_index: int,
+) -> TerrainTransitionRecipe:
+    """Build one translation-independent adjacent-transition recipe."""
+
+    phase_index(phase_q, phase_offset_row)
+    if not 0 <= direction_index < TRANSITION_DIRECTION_COUNT:
+        raise ValueError("transition direction lies outside 0..5")
+    origin_q = PHASE_REFERENCE_Q + phase_q
+    origin_row = PHASE_REFERENCE_OFFSET_ROW + phase_offset_row
+    origin_r = origin_row - origin_q // 2
+    delta_q, delta_r = TRANSITION_DIRECTION_STEPS[direction_index]
+    old_plan = build_terrain_owner_plan(
+        origin_q,
+        origin_r,
+        TRANSITION_NEAR_RADIUS,
+        clip_to_region=False,
+    )
+    new_plan = build_terrain_owner_plan(
+        origin_q + delta_q,
+        origin_r + delta_r,
+        TRANSITION_NEAR_RADIUS,
+        clip_to_region=False,
+    )
+    return TerrainTransitionRecipe(
+        phase_q,
+        phase_offset_row,
+        direction_index,
+        schedule_terrain_transition(old_plan, new_plan),
+    )
+
+
+def all_terrain_transition_recipes() -> tuple[TerrainTransitionRecipe, ...]:
+    """Return all 192 recipes in phase-major, provider-direction order."""
+
+    return tuple(
+        build_terrain_transition_recipe(phase_q, phase_row, direction)
+        for phase_q in range(PHASE_Q_COUNT)
+        for phase_row in range(PHASE_OFFSET_ROW_COUNT)
+        for direction in range(TRANSITION_DIRECTION_COUNT)
+    )
+
+
 @dataclass(frozen=True, slots=True)
 class ResidentSlot:
     """The retained identity and publication state of one coarse slot."""
@@ -460,11 +1197,12 @@ def allocate_coarse_plan(
     """Atomically reconcile a plan with protected-slot allocation.
 
     Pass one protects every desired identity already resident, preserving its
-    slot whether it is active or inactive.  Stale active residents are then
-    deactivated.  Pass two assigns each missing identity to the lowest slot
-    that is both inactive and unprotected.  The proven 159-entry maximum
-    leaves at least five spare slots, so a qualified plan cannot exhaust the
-    164-slot pool.
+    slot whether it is active or inactive.  Pass two assigns each missing
+    identity first to the lowest slot that was already inactive, then (only if
+    necessary) to a stale active slot.  The preference matters to the live
+    deferred handoff: replacing a mesh in a still-visible fallback slot would
+    make the scenery jump before the desired plan converges.  Final snapshot
+    state remains the completed desired plan, with stale residents inactive.
     """
 
     desired = set(plan.entries)
@@ -474,6 +1212,7 @@ def allocate_coarse_plan(
         if resident.identity is not None
     }
     work = list(snapshot.slots)
+    active_before = tuple(resident.active for resident in snapshot.slots)
     local_by_identity: dict[CoarsePlanEntry, int] = {}
     protected: set[int] = set()
     preserved: list[int] = []
@@ -505,18 +1244,19 @@ def allocate_coarse_plan(
     for identity in plan.entries:
         if identity in local_by_identity:
             continue
-        try:
-            local = next(
-                candidate
-                for candidate, resident in enumerate(work)
-                if not resident.active and candidate not in protected
-            )
-        except StopIteration as error:
-            raise RuntimeError("qualified coarse plan exhausted its slot pool") from error
-        # This is the central allocator invariant: assignment never overwrites
-        # an active or protected resident.
-        if work[local].active or local in protected:
-            raise AssertionError("allocator selected an active/protected slot")
+        candidates = tuple(
+            candidate
+            for candidate in range(COARSE_SLOT_COUNT)
+            if candidate not in protected
+        )
+        if not candidates:
+            raise RuntimeError("qualified coarse plan exhausted its slot pool")
+        local = next(
+            (candidate for candidate in candidates if not active_before[candidate]),
+            candidates[0],
+        )
+        if local in protected:
+            raise AssertionError("allocator selected a protected slot")
         work[local] = ResidentSlot(identity, True)
         local_by_identity[identity] = local
         protected.add(local)
@@ -665,6 +1405,190 @@ def _u24(value: int) -> bytes:
     return value.to_bytes(3, "little")
 
 
+def transition_recipe_ordinal_groups(
+    recipe: TerrainTransitionRecipe,
+) -> tuple[TransitionOrdinalGroup, ...]:
+    """Resolve a recipe's owner identities to endpoint-local u8 ordinals."""
+
+    old_ordinals = {
+        owner: ordinal
+        for ordinal, owner in enumerate(recipe.schedule.old_plan.owners)
+    }
+    new_ordinals = {
+        owner: ordinal
+        for ordinal, owner in enumerate(recipe.schedule.new_plan.owners)
+    }
+    return tuple(
+        TransitionOrdinalGroup(
+            tuple(old_ordinals[owner] for owner in step.group.retiring),
+            tuple(new_ordinals[owner] for owner in step.group.entering),
+        )
+        for step in recipe.schedule.steps
+    )
+
+
+def encode_transition_recipe(recipe: TerrainTransitionRecipe) -> bytes:
+    """Encode one variable-length grouped handoff recipe.
+
+    Schema::
+
+        group_count:u8
+        repeat group_count times:
+            retiring_count:u8
+            entering_count:u8
+            old_owner_ordinals[retiring_count]:u8
+            new_owner_ordinals[entering_count]:u8
+    """
+
+    groups = transition_recipe_ordinal_groups(recipe)
+    if len(groups) > 0xFF:
+        raise ValueError("transition recipe has too many groups")
+    encoded = bytearray((len(groups),))
+    for group in groups:
+        encoded.extend(
+            (len(group.retiring_ordinals), len(group.entering_ordinals))
+        )
+        encoded.extend(group.retiring_ordinals)
+        encoded.extend(group.entering_ordinals)
+    return bytes(encoded)
+
+
+def decode_transition_recipe(payload: bytes) -> tuple[TransitionOrdinalGroup, ...]:
+    """Decode one exact recipe payload and reject truncation or trailing data."""
+
+    if not payload:
+        raise ValueError("transition recipe payload is empty")
+    group_count = payload[TRANSITION_RECIPE_GROUP_COUNT]
+    cursor = 1
+    groups: list[TransitionOrdinalGroup] = []
+    for _ in range(group_count):
+        if cursor + TRANSITION_GROUP_ORDINALS > len(payload):
+            raise ValueError("transition recipe ends inside a group header")
+        retiring_count = payload[cursor + TRANSITION_GROUP_RETIRING_COUNT]
+        entering_count = payload[cursor + TRANSITION_GROUP_ENTERING_COUNT]
+        cursor += TRANSITION_GROUP_ORDINALS
+        end_retiring = cursor + retiring_count
+        end_entering = end_retiring + entering_count
+        if end_entering > len(payload):
+            raise ValueError("transition recipe ends inside an ordinal list")
+        groups.append(
+            TransitionOrdinalGroup(
+                tuple(payload[cursor:end_retiring]),
+                tuple(payload[end_retiring:end_entering]),
+            )
+        )
+        cursor = end_entering
+    if cursor != len(payload):
+        raise ValueError("transition recipe has trailing bytes")
+    return tuple(groups)
+
+
+def resolve_transition_recipe_groups(
+    recipe: TerrainTransitionRecipe,
+    origin_q: int,
+    origin_r: int,
+    *,
+    clip_to_region: bool = True,
+) -> tuple[TerrainTransitionGroup, ...]:
+    """Resolve source ordinals at any translation of a recipe's old phase.
+
+    Recipe ordinals are deliberately *not* dense runtime ordinals.  They name
+    the unbounded source plans: near ordinals 0..90 follow ``disk_offsets(5)``
+    and coarse ordinals continue at 91 in static phase-record order.  At a
+    corpus edge, an absent source ordinal is skipped rather than renumbered.
+    This makes an interior-generated component a conservative supergroup for
+    every clipped translation and prevents a recipe from selecting the wrong
+    owner when invalid phase entries disappear.
+    """
+
+    if origin_q % PHASE_Q_COUNT != recipe.phase_q:
+        raise ValueError("origin q does not match transition recipe phase")
+    origin_row = offset_row(origin_q, origin_r)
+    if origin_row % PHASE_OFFSET_ROW_COUNT != recipe.phase_offset_row:
+        raise ValueError("origin row does not match transition recipe phase")
+    delta_q, delta_r = TRANSITION_DIRECTION_STEPS[recipe.direction_index]
+    old_source = build_terrain_owner_plan(
+        origin_q,
+        origin_r,
+        TRANSITION_NEAR_RADIUS,
+        clip_to_region=False,
+    )
+    new_source = build_terrain_owner_plan(
+        origin_q + delta_q,
+        origin_r + delta_r,
+        TRANSITION_NEAR_RADIUS,
+        clip_to_region=False,
+    )
+    if clip_to_region:
+        old_present = set(
+            build_terrain_owner_plan(
+                origin_q,
+                origin_r,
+                TRANSITION_NEAR_RADIUS,
+                clip_to_region=True,
+            ).owners
+        )
+        new_present = set(
+            build_terrain_owner_plan(
+                origin_q + delta_q,
+                origin_r + delta_r,
+                TRANSITION_NEAR_RADIUS,
+                clip_to_region=True,
+            ).owners
+        )
+    else:
+        old_present = set(old_source.owners)
+        new_present = set(new_source.owners)
+
+    groups: list[TerrainTransitionGroup] = []
+    for ordinal_group in transition_recipe_ordinal_groups(recipe):
+        retiring = tuple(
+            old_source.owners[ordinal]
+            for ordinal in ordinal_group.retiring_ordinals
+            if old_source.owners[ordinal] in old_present
+        )
+        entering = tuple(
+            new_source.owners[ordinal]
+            for ordinal in ordinal_group.entering_ordinals
+            if new_source.owners[ordinal] in new_present
+        )
+        if retiring or entering:
+            groups.append(TerrainTransitionGroup(retiring, entering))
+    return tuple(groups)
+
+
+def encode_transition_table(
+    recipes: Sequence[TerrainTransitionRecipe] | None = None,
+) -> bytes:
+    """Encode the 192-entry radius-five adjacent-transition table.
+
+    The directory contains 192 little-endian u24 offsets relative to the
+    start of the returned blob.  Payloads follow in phase-major order, with
+    the six directions in exact ``hex_provider_origin_steps`` order.
+    """
+
+    selected = (
+        all_terrain_transition_recipes()
+        if recipes is None
+        else tuple(recipes)
+    )
+    if len(selected) != TRANSITION_RECIPE_COUNT:
+        raise ValueError(
+            f"transition table needs exactly {TRANSITION_RECIPE_COUNT} recipes"
+        )
+    if tuple(recipe.index for recipe in selected) != tuple(
+        range(TRANSITION_RECIPE_COUNT)
+    ):
+        raise ValueError("transition recipes are not in canonical table order")
+    payloads = tuple(encode_transition_recipe(recipe) for recipe in selected)
+    cursor = TRANSITION_RECIPE_COUNT * TRANSITION_DIRECTORY_POINTER_BYTES
+    directory = bytearray()
+    for payload in payloads:
+        directory.extend(_u24(cursor))
+        cursor += len(payload)
+    return bytes(directory) + b"".join(payloads)
+
+
 def encode_phase_table(plans: Sequence[PhasePlan] | None = None) -> bytes:
     """Encode a random-access table for all 192 plans.
 
@@ -761,3 +1685,113 @@ def emit_phase_include(prefix: str = "regular_lod_phase") -> str:
             for entry in plan.entries
         )
     return "\n".join(lines) + "\n"
+
+
+def emit_transition_include(prefix: str = "regular_lod_transition") -> str:
+    """Emit the canonical full-owner radius-five transition recipes.
+
+    Directory entries are assembly-native 24-bit pointers.  The documented
+    hash is over :func:`encode_transition_table`, whose directory instead uses
+    blob-relative u24 offsets so the same logical table is host-verifiable
+    independently of its eventual assembly address.
+    """
+
+    if not _ASSEMBLY_IDENTIFIER.fullmatch(prefix):
+        raise ValueError(f"invalid assembly label prefix: {prefix!r}")
+    recipes = all_terrain_transition_recipes()
+    labels = tuple(
+        f"{prefix}_q{recipe.phase_q}_o{recipe.phase_offset_row}_"
+        f"{recipe.direction_name}"
+        for recipe in recipes
+    )
+    encoded = encode_transition_table(recipes)
+    directory_bytes = (
+        TRANSITION_RECIPE_COUNT * TRANSITION_DIRECTORY_POINTER_BYTES
+    )
+    payload_bytes = len(encoded) - directory_bytes
+    digest = hashlib.sha256(encoded).hexdigest()
+    maximum_groups = max(len(recipe.schedule.steps) for recipe in recipes)
+    maximum_retiring = max(
+        step.group.retiring_count
+        for recipe in recipes
+        for step in recipe.schedule.steps
+    )
+    maximum_entering = max(
+        step.group.entering_count
+        for recipe in recipes
+        for step in recipe.schedule.steps
+    )
+    minimum_margin = min(
+        recipe.schedule.minimum_staging_margin for recipe in recipes
+    )
+    lines = [
+        "; Generated by pingo_terrain.regular_lod_runtime.emit_transition_include.",
+        "; Index = ((origin_q&7)*4 + (origin_offset_row&3))*6 + direction.",
+        "; Directions exactly match hex_provider_origin_steps.",
+        "; Owner ordinals name the unbounded source plan; absent edge owners",
+        "; are 0ffh in the runtime ordinal map and must be skipped, never packed.",
+        "; Source plan = 91 near disk entries, then static coarse phase records.",
+        "; Recipe: group_count:u8, followed by variable-length groups.",
+        "; Group: retiring_count:u8, entering_count:u8, then old source",
+        "; ordinals[retiring_count] and new source ordinals[entering_count].",
+        f"; Canonical offset-table SHA-256: {digest}",
+        f"{prefix}_near_radius: equ {TRANSITION_NEAR_RADIUS}",
+        f"{prefix}_q_count: equ {PHASE_Q_COUNT}",
+        f"{prefix}_offset_row_count: equ {PHASE_OFFSET_ROW_COUNT}",
+        f"{prefix}_direction_count: equ {TRANSITION_DIRECTION_COUNT}",
+        f"{prefix}_count: equ {TRANSITION_RECIPE_COUNT}",
+        f"{prefix}_directory_pointer_bytes: equ "
+        f"{TRANSITION_DIRECTORY_POINTER_BYTES}",
+        f"{prefix}_directory_bytes: equ {directory_bytes}",
+        f"{prefix}_payload_bytes: equ {payload_bytes}",
+        f"{prefix}_table_bytes: equ {len(encoded)}",
+        f"{prefix}_maximum_groups: equ {maximum_groups}",
+        f"{prefix}_maximum_retiring: equ {maximum_retiring}",
+        f"{prefix}_maximum_entering: equ {maximum_entering}",
+        f"{prefix}_minimum_staging_margin: equ {minimum_margin}",
+        f"{prefix}_recipe_group_count: equ {TRANSITION_RECIPE_GROUP_COUNT}",
+        f"{prefix}_group_retiring_count: equ {TRANSITION_GROUP_RETIRING_COUNT}",
+        f"{prefix}_group_entering_count: equ {TRANSITION_GROUP_ENTERING_COUNT}",
+        f"{prefix}_group_ordinals: equ {TRANSITION_GROUP_ORDINALS}",
+    ]
+    for index, (name, (delta_q, delta_r)) in enumerate(
+        zip(
+            TRANSITION_DIRECTION_NAMES,
+            TRANSITION_DIRECTION_STEPS,
+            strict=True,
+        )
+    ):
+        lines.extend(
+            (
+                f"{prefix}_direction_{name}: equ {index}",
+                f"; direction {index} {name}: dq={delta_q}, dr={delta_r}",
+            )
+        )
+    lines.append(f"{prefix}_offsets:")
+    lines.extend(f"    dl {label}" for label in labels)
+    lines.append(f"{prefix}_payload:")
+    for recipe, label in zip(recipes, labels, strict=True):
+        groups = transition_recipe_ordinal_groups(recipe)
+        lines.extend((f"{label}:", f"    db {len(groups)}"))
+        for group in groups:
+            values = (
+                len(group.retiring_ordinals),
+                len(group.entering_ordinals),
+                *group.retiring_ordinals,
+                *group.entering_ordinals,
+            )
+            lines.append("    db " + ",".join(str(value) for value in values))
+    return "\n".join(lines) + "\n"
+
+
+def emit_runtime_include(
+    phase_prefix: str = "regular_lod_phase",
+    transition_prefix: str = "regular_lod_transition",
+) -> str:
+    """Emit phase profiles and full-owner handoff recipes as one include."""
+
+    return (
+        emit_phase_include(phase_prefix)
+        + "\n"
+        + emit_transition_include(transition_prefix)
+    )

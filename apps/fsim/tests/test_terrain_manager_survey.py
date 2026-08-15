@@ -450,16 +450,48 @@ class TerrainManagerSurveyHexContractTests(unittest.TestCase):
                 self.assertEqual(steps, 1)
                 self.assertIsNone(provider_rebase_step(local_x, local_z))
 
-    def test_rebase_retires_delta_six_cells_before_bounded_placement(self) -> None:
+    def test_regular_rebase_retains_a_positionable_delta_six_fringe(self) -> None:
         if not self.manager:
             self.skipTest("universal terrain manager source is not present yet")
         rebase = self.manager.split("terrain_manager_reposition_active:", 1)[1]
         rebase = rebase.split("terrain_manager_query:", 1)[0]
-        desired_at = rebase.index("call terrain_provider_candidate_is_desired")
-        position_at = rebase.index("call terrain_provider_position_candidate")
-        deactivate_at = rebase.index("call pingo_set_object_active")
-        self.assertLess(desired_at, position_at)
-        self.assertLess(desired_at, deactivate_at)
+        deferred = rebase.split(".if terrain_manager_defer_stale_rebase", 1)[1]
+        deferred = deferred.split(".else", 1)[0]
+        self.assertIn("call terrain_provider_position_candidate", deferred)
+        self.assertNotIn("call pingo_set_object_active", deferred)
+
+        regular_main = normalized(
+            ROOT
+            / "fixtures/terrain-manager-survey/src/terrain-manager-regular-lod-survey.asm"
+        )
+        regular_provider = normalized(
+            ROOT
+            / "fixtures/terrain-manager-survey/src/terrain-manager-regular-lod-provider.inc"
+        )
+        self.assertIn("terrain_manager_defer_stale_rebase: equ 1", regular_main)
+        delta_index = regular_provider.split("hex_provider_delta_index:", 1)[1]
+        delta_index = delta_index.split("hex_provider_table_pointer:", 1)[0]
+        self.assertIn("ld de,6", delta_index)
+        self.assertIn("cp 13", delta_index)
+        self.assertIn("dl -26400,-22000", regular_provider)
+        self.assertIn("dl -46080,-38400", regular_provider)
+        self.assertIn("dl -52800,-44000", regular_provider)
+        self.assertIn("terrain_manager_defer_stale_rebase: equ 0", self.main)
+
+    def test_regular_fixture_publishes_a_right_handed_east_positive_world(self) -> None:
+        regular_main = normalized(
+            ROOT
+            / "fixtures/terrain-manager-survey/src/terrain-manager-regular-lod-survey.asm"
+        )
+        regular_provider = normalized(
+            ROOT
+            / "fixtures/terrain-manager-survey/src/terrain-manager-regular-lod-provider.inc"
+        )
+        self.assertIn("p3dm_mirror_z_on_load: equ 1", regular_main)
+        self.assertIn("camera_initial_z: equ -466", regular_main)
+        self.assertIn("jr nz,@west", regular_provider)
+        self.assertIn("dw 4400,7680", regular_provider)
+        self.assertIn("dw -4400,-7680", regular_provider)
 
     def test_top_row_zero_through_five_have_exact_mos_matrix_bindings(self) -> None:
         expected = (

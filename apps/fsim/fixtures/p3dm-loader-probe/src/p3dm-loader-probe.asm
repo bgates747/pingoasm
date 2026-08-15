@@ -9,6 +9,7 @@ mos_getkey: equ 00h
 mos_load: equ 01h
 mos_sysvars: equ 08h
 sysvar_time: equ 00h
+p3dm_mirror_z_on_load: equ 0
     MACRO MOSCALL function
         ld a,function
         rst.lil 08h

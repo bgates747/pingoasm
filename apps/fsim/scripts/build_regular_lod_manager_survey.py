@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 """Assemble and install the position-driven regular-LOD manager survey.
 
-The hierarchy corpus and its phase table are independent build products.  This
-script binds them to the universal terrain manager, validates the exact Marina
-cold view, assembles the fixture, and installs only the small executable and a
-receipt beside the already-built hierarchy.  The accepted detailed ``TRH``
-tree is exposed through one checked relative symlink; it is never copied or
-modified here.
+The hierarchy corpus, phase table, and full-owner transition recipes are
+independent build products.  This script binds them to the universal terrain
+manager, validates the exact Marina cold view and generated table contracts,
+assembles the fixture, and installs only the small executable and a receipt
+beside the already-built hierarchy.  The accepted detailed ``TRH`` tree is
+exposed through one checked relative symlink; it is never copied or modified
+here.
 """
 
 from __future__ import annotations
@@ -33,12 +34,13 @@ PROGRAM = TARGET / "terrain-manager-regular-lod-survey.bin"
 LISTING = TARGET / "terrain-manager-regular-lod-survey.lst"
 SYMBOLS = TARGET / "terrain-manager-regular-lod-survey.symbols"
 RUNTIME_INCLUDE = TARGET / "regular-lod-runtime.inc"
+TRANSITION_INCLUDE = TARGET / "regular-lod-transitions.inc"
 DEFAULT_OUTPUT = ROOT / "build/p3dm/bay-area-regular-n1-hierarchy"
 DEFAULT_FINE_CORPUS = ROOT / "build/p3dm/bay-area-hex-full-l0"
 RUNTIME_PROGRAM_NAME = "P3DRGL.BIN"
 RUNTIME_MANIFEST_NAME = "MANAGER.json"
 HIERARCHY_SCHEMA = "pingo-terrain-regular-n1-hierarchy-v1"
-MANAGER_SCHEMA = "pingo-terrain-regular-lod-manager-survey-v1"
+MANAGER_SCHEMA = "pingo-terrain-regular-lod-manager-survey-v2"
 FINE_WORLD_SHA256 = (
     "43a41bced05f35eaf104e48c906b59e28f4b0ac254ec60fa2b35166b0e707a26"
 )
@@ -77,8 +79,11 @@ from pingo_terrain.regional_terrain import (  # noqa: E402
 )
 from pingo_terrain.regular_lod_runtime import (  # noqa: E402
     ProtectedSlotAllocator,
+    all_terrain_transition_recipes,
     build_runtime_plan,
+    encode_transition_table,
     emit_phase_include,
+    emit_transition_include,
 )
 
 
@@ -127,6 +132,47 @@ def _runtime_include() -> dict[str, object]:
         "path": str(RUNTIME_INCLUDE.relative_to(ROOT)),
         "bytes": len(payload),
         "sha256": sha256_bytes(payload),
+    }
+
+
+def _transition_include() -> dict[str, object]:
+    payload = emit_transition_include().encode("ascii")
+    recipes = all_terrain_transition_recipes()
+    encoded = encode_transition_table(recipes)
+    groups = tuple(
+        step
+        for recipe in recipes
+        for step in recipe.schedule.steps
+    )
+    witness = (
+        len(recipes),
+        len(groups),
+        len(encoded),
+        max(step.group.retiring_count for step in groups),
+        max(step.group.entering_count for step in groups),
+        max(
+            step.group.retiring_count + step.group.entering_count
+            for step in groups
+        ),
+        min(recipe.schedule.minimum_staging_margin for recipe in recipes),
+    )
+    expected = (192, 4_176, 21_504, 14, 14, 15, 4)
+    if witness != expected:
+        raise SystemExit(f"transition recipe contract changed: {witness} != {expected}")
+    _atomic_bytes(TRANSITION_INCLUDE, payload)
+    return {
+        "path": str(TRANSITION_INCLUDE.relative_to(ROOT)),
+        "bytes": len(payload),
+        "sha256": sha256_bytes(payload),
+        "recipe_count": witness[0],
+        "group_count": witness[1],
+        "logical_table_bytes": witness[2],
+        "logical_table_sha256": sha256_bytes(encoded),
+        "maximum_retiring": witness[3],
+        "maximum_entering": witness[4],
+        "maximum_commit_activity": witness[5],
+        "minimum_staging_margin": witness[6],
+        "audited_directed_bounded_transitions": 299_306,
     }
 
 
@@ -281,7 +327,7 @@ def initial_runtime_records(
         translation = (
             (cell.center_m[1] - origin_north) * 16,
             9_728,
-            -(cell.center_m[0] - origin_east) * 16,
+            (cell.center_m[0] - origin_east) * 16,
         )
         records.append(
             _record_receipt(
@@ -328,7 +374,7 @@ def initial_runtime_records(
         translation = (
             (center_north - origin_north) * 16,
             9_728,
-            -(center_east - origin_east) * 16,
+            (center_east - origin_east) * 16,
         )
         records.append(
             _record_receipt(
@@ -474,6 +520,7 @@ def install(
     selected_records: list[dict[str, object]],
     aggregates: dict[str, object],
     runtime_include: dict[str, object],
+    transition_include: dict[str, object],
 ) -> dict:
     expose_fine_corpus(output, fine)
     runtime_program = output / RUNTIME_PROGRAM_NAME
@@ -498,7 +545,7 @@ def install(
         "camera": {
             "axial_cell": list(START_CELL),
             "offset_row": START_OFFSET_ROW,
-            "local_position_counts": [4_275, 8_000, 466],
+            "local_position_counts": [4_275, 8_000, -466],
             "rotation": list(START_ROTATION),
         },
         "presentation": {
@@ -532,13 +579,35 @@ def install(
             "mesh_id_range": [1, MANAGER_SLOT_COUNT],
             "object_id_range": [1, MANAGER_SLOT_COUNT],
             "publication_budget_per_idle_pass": 1,
+            "defer_stale_rebase": True,
+            "fallback_position_fringe_cells": 1,
+            "group_staging_enabled": True,
+            "owner_domain": "unified detailed and coarse owners",
+            "cold_slot_policy": "91 hashed detailed slots, then coarse slots",
+            "post_handoff_slot_policy": "arbitrary authoritative owner-to-slot map",
+            "transition_policy": "coverage-component atomic commit",
+            "transition_radius": 5,
+            "transition_recipe_count": 192,
+            "transition_group_count": 4_176,
+            "maximum_group_retiring": 14,
+            "maximum_group_entering": 14,
+            "maximum_group_commit_activity": 15,
+            "minimum_group_staging_margin": 4,
+            "radius_change_policy": "render-idle cold restart at current origin",
+            "runtime_axis_adapter": {
+                "source": "X=north,Y=up,Z=-east (reflected)",
+                "published": "X=north,Y=up,Z=+east (right-handed)",
+                "vertex_z_negated": True,
+                "triangle_winding_reversed": True,
+            },
             "projection_far_command": 53,
             "projection_far_units": 65_535,
             "phase_q": START_PHASE[0],
             "phase_offset_row": START_PHASE[1],
             "protected_slot_policy": (
-                "preserve every matching active or inactive resident identity; "
-                "reuse only stale unprotected slots"
+                "preserve shared owner identities in their actual slots; stage "
+                "each entering coverage component only in inactive slots; "
+                "atomically retire and activate its complete owner group"
             ),
         },
         "hierarchy": {
@@ -547,6 +616,7 @@ def install(
             "records": EXPECTED_HIERARCHY_RECORDS,
             "container_bytes": EXPECTED_HIERARCHY_CONTAINER_BYTES,
             "runtime_include": runtime_include,
+            "transition_include": transition_include,
         },
         "fine_corpus": {
             "world_path": str(fine / "WORLD.json"),
@@ -560,7 +630,23 @@ def install(
         },
         "resources": resources,
         "experimental_limits": [
-            "parent/child replacement is not group-atomic during plan changes",
+            (
+                "adjacent regional handoff recipes are qualified only for an "
+                "exact converged radius-five endpoint"
+            ),
+            (
+                "radius zero through four are cold-fill review modes: they do "
+                "not normalize regional movement, and translation eventually "
+                "stops at the signed local-coordinate boundary"
+            ),
+            (
+                "a radius-key cold restart deactivates the complete endpoint "
+                "before its sky-only incremental refill"
+            ),
+            (
+                "retained detailed placement proves only the normal one-cell "
+                "origin transition fringe"
+            ),
             "skirts are a fail-soft crack mask, not a conforming mixed-LOD seam",
             "L8/L4 records can retain independent same-level quantization",
         ],
@@ -576,6 +662,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     hierarchy, hierarchy_records = require_hierarchy(output)
     require_fine_corpus(fine)
     runtime_include = _runtime_include()
+    transition_include = _transition_include()
     records, aggregates = initial_runtime_records(
         output, fine, hierarchy_records
     )
@@ -585,6 +672,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             f"objects={aggregates['records']}",
             f"container_bytes={aggregates['container_bytes']}",
             f"runtime_include_sha256={runtime_include['sha256']}",
+            f"transition_include_sha256={transition_include['sha256']}",
             f"output={output}",
         )
         return 0
@@ -601,6 +689,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         records,
         aggregates,
         runtime_include,
+        transition_include,
     )
     print(
         "REGULAR_LOD_MANAGER",

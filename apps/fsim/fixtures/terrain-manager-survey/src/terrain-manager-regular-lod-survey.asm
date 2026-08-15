@@ -16,6 +16,9 @@ sid: equ 1731
 tgtbmid: equ 257
 terrain_bmid: equ 256
 p3dm_stage_buffer_id: equ 07400h
+; Correct the legacy reflected disk corpus to right-handed Z=+east while it is
+; in the validated host staging window, before publication to Pingo.
+p3dm_mirror_z_on_load: equ 1
 
 viewport_width: equ 320
 viewport_height: equ 240
@@ -43,6 +46,13 @@ terrain_manager_max_ring: equ 5
 terrain_manager_initial_ring: equ 5
 terrain_manager_mesh_id_base: equ 1
 terrain_manager_object_id_base: equ 1
+; Keep the preceding plan visible until every desired replacement is active.
+; The regular provider has a proven one-cell placement fringe for this handoff.
+terrain_manager_defer_stale_rebase: equ 1
+; The accepted regular fixture uses full-owner coverage-group staging.
+; scripts/build_regular_lod_group_scratch.py --group-staging 0 preserves the
+; byte-exact inactive-first policy as an isolated rollback build.
+terrain_manager_group_staging: equ 1
 
 ; Command 53 carries the complete unsigned word.  At the terrain convention of
 ; eight metres per Pingo unit this is about 524 km; resident rings and later
@@ -62,7 +72,7 @@ manager_survey_start_q: equ 80
 manager_survey_start_r: equ 125
 camera_initial_x: equ 4275
 camera_initial_y: equ 8000
-camera_initial_z: equ 466
+camera_initial_z: equ -466
 camera_initial_pitch: equ 0
 camera_initial_yaw: equ -8192
 
@@ -112,6 +122,9 @@ start:
     include "terrain-manager-controls.inc"
     include "../../../build/p3dm/bay-area-regular-n1-hierarchy/REGCORP.INC"
     include "../../terrain-manager-regular-lod-survey/tgt/regular-lod-runtime.inc"
+.if terrain_manager_group_staging
+    include "../../terrain-manager-regular-lod-survey/tgt/regular-lod-transitions.inc"
+.endif
     include "terrain-manager-regular-lod-provider.inc"
     include "../../../runtime/ez80/terrain-manager.inc"
 
@@ -196,6 +209,13 @@ main:
     ld a,(exit_requested)
     or a
     jr nz,@exit
+.if terrain_manager_group_staging
+; Radius changes in the unified-slot profile are deliberately cold restarts.
+; Apply them only after the completed frame has released the render target;
+; the early input/simulation calls merely leave the latest request queued.
+    call manager_survey_apply_radius_request
+    jr c,@exit
+.endif
 
 ; The manager alone owns reposition, one bounded publication/deactivation,
 ; activation order, retry state, and stable residency between renders.
@@ -234,6 +254,27 @@ manager_survey_apply_radius_request:
     ld a,(manager_survey_radius_pending)
     or a
     ret z
+.if terrain_manager_group_staging
+; The canonical handoff recipes cover adjacent radius-five moves.  Radius
+; changes cannot reconcile arbitrary unified owner slots through the old split
+; allocator, so apply every changed request as a render-idle cold fill at the
+; current regional origin.  Requests arriving during a group transaction or
+; in-flight frame remain queued and coalesce to the latest selected radius.
+    call terrain_provider_transition_busy
+    or a
+    ret nz
+    ld a,(render_in_flight)
+    or a
+    ret nz
+    ld a,(manager_survey_radius_request)
+    ld b,a
+    ld a,(terrain_manager_current_ring)
+    cp b
+    jr nz,manager_survey_cold_restart_radius
+    xor a
+    ld (manager_survey_radius_pending),a
+    ret
+.else
     xor a
     ld (manager_survey_radius_pending),a
     ld a,(manager_survey_radius_request)
@@ -242,12 +283,70 @@ manager_survey_apply_radius_request:
     call terrain_provider_prepare_plan
     ret c
 ; Ring-only refinement changes have the same ancestor/descendant retirement
-; requirement as an origin change.  Reuse the manager's render-idle rebase
-; phase so every stale parent is inactive before a replacement is published.
+; requirement as an origin change. Reuse the manager's render-idle rebase
+; phase to reposition the preceding plan; its stale parents remain active until
+; every desired replacement has published and activated.
     ld a,1
     ld (terrain_manager_origin_dirty),a
     xor a
     ret
+.endif
+
+.if terrain_manager_group_staging
+manager_survey_cold_restart_radius:
+    ld a,(manager_survey_radius_request)
+    cp terrain_manager_max_ring+1
+    jr c,@ring_valid
+    ld a,terrain_manager_error_ring
+    jr @failed
+@ring_valid:
+    ld (manager_survey_restart_ring),a
+    ld a,(terrain_manager_origin_q+0)
+    ld (manager_survey_restart_origin_q+0),a
+    ld a,(terrain_manager_origin_q+1)
+    ld (manager_survey_restart_origin_q+1),a
+    ld a,(terrain_manager_origin_r+0)
+    ld (manager_survey_restart_origin_r+0),a
+    ld a,(terrain_manager_origin_r+1)
+    ld (manager_survey_restart_origin_r+1),a
+
+; Shutdown first makes every published object invisible.  Resetting the
+; provider then discards its unified owner map before manager initialization
+; asks for a cold ring count.  Camera position and attitude live outside both
+; state blocks and intentionally survive unchanged.
+    call terrain_manager_shutdown_idle
+    jr c,@failed
+    call terrain_provider_reset_for_cold_restart
+    jr c,@failed
+    call terrain_manager_initialize
+    jr c,@failed
+    ld bc,0
+    ld a,(manager_survey_restart_origin_q+0)
+    ld c,a
+    ld a,(manager_survey_restart_origin_q+1)
+    ld b,a
+    ld de,0
+    ld a,(manager_survey_restart_origin_r+0)
+    ld e,a
+    ld a,(manager_survey_restart_origin_r+1)
+    ld d,a
+    call terrain_manager_submit_origin
+    jr c,@failed
+    ld a,(manager_survey_restart_ring)
+    call terrain_manager_set_ring
+    jr c,@failed
+    call terrain_provider_prepare_plan
+    jr c,@failed
+    xor a
+    ld (manager_survey_radius_pending),a
+    ret
+@failed:
+    ld (startup_error),a
+    ld a,1
+    ld (exit_requested),a
+    scf
+    ret
+.endif
 
 load_scene_resources:
     ld hl,pingo_flat_patterns_buffer_id
@@ -367,7 +466,11 @@ run_simulation_batch:
     call simulate_camera_step
     ld ix,camera_state
     call terrain_manager_update_position
+.if terrain_manager_group_staging
+    call nz,terrain_provider_begin_transition
+.else
     call nz,terrain_provider_prepare_plan
+.endif
     call reset_keys
     call set_keys
     call latch_exit_request
@@ -440,6 +543,11 @@ survey_rotation_changed: db 0
 simulation_accumulator: dl 0
 simulation_steps_remaining: db 0
 startup_error: db 0
+.if terrain_manager_group_staging
+manager_survey_restart_ring: db manager_survey_default_radius
+manager_survey_restart_origin_q: dw 0
+manager_survey_restart_origin_r: dw 0
+.endif
 
 terrain_texture: db "MATID.RG2",0
 terrain_patterns_file: db "PATTERN.RG2",0

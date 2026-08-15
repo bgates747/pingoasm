@@ -16,6 +16,7 @@ sid: equ 1731
 tgtbmid: equ 257
 terrain_bmid: equ 256
 p3dm_stage_buffer_id: equ 07400h
+p3dm_mirror_z_on_load: equ 0
 
 viewport_width: equ 320
 viewport_height: equ 240
@@ -39,6 +40,8 @@ terrain_manager_max_ring: equ 5
 terrain_manager_initial_ring: equ 5
 terrain_manager_mesh_id_base: equ 1
 terrain_manager_object_id_base: equ 1
+terrain_manager_defer_stale_rebase: equ 0
+terrain_manager_group_staging: equ 0
 
 ; Command 53 carries the complete unsigned word.  At the terrain convention of
 ; eight metres per Pingo unit this is about 524 km; resident rings and later

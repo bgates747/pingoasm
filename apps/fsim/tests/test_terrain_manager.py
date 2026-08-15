@@ -43,6 +43,8 @@ class TerrainManagerContractTests(unittest.TestCase):
             "terrain_manager_update_position",
             "terrain_manager_set_ring",
             "terrain_manager_service_idle",
+            "terrain_manager_stage_candidate",
+            "terrain_manager_commit_staged_group",
             "terrain_manager_query",
             "terrain_manager_shutdown_idle",
         ):
@@ -55,9 +57,14 @@ class TerrainManagerContractTests(unittest.TestCase):
             "terrain_provider_position_candidate",
             "terrain_provider_candidate_is_desired",
             "terrain_provider_normalize_position",
+            "terrain_provider_transition_busy",
+            "terrain_provider_ring_change_allowed",
             "pingo_set_object_active",
         ):
             self.assertIn(f"call {hook}", self.source)
+        self.assertIn(
+            "jp nz,terrain_provider_service_transition", self.source
+        )
 
         # Topology, path construction, and corpus bounds belong to providers.
         for forbidden in ("square", "chebyshev", "mod 91", "5*q", "11*r"):
@@ -120,6 +127,20 @@ class TerrainManagerContractTests(unittest.TestCase):
         self.assertTrue(update.endswith("ld a,1\nor a\nret\n"))
         self.assertNotIn("scf", update)
 
+    def test_group_profile_rejects_changed_direct_origin_submit(self) -> None:
+        submit = routine(
+            self.source,
+            "terrain_manager_submit_origin",
+            "terrain_manager_update_position",
+        )
+        changed = submit.index("@changed:")
+        reject = submit.index("jp terrain_manager_bad_group", changed)
+        store = submit.index(
+            "terrain_manager_store_u16_bc terrain_manager_origin_q", changed
+        )
+        self.assertLess(reject, store)
+        self.assertIn("@first:", submit)
+
     def test_load_publication_order_and_failure_retention_are_locked(self) -> None:
         load = routine(
             self.source,
@@ -163,7 +184,7 @@ class TerrainManagerContractTests(unittest.TestCase):
         failure = routine(
             self.source,
             "terrain_manager_record_activation_position_failure",
-            "terrain_manager_commit_candidate",
+            "terrain_manager_stage_candidate",
         )
         self.assertIn("call terrain_manager_slot_error_pointer", failure)
         for forbidden in (
@@ -175,18 +196,86 @@ class TerrainManagerContractTests(unittest.TestCase):
         ):
             self.assertNotIn(forbidden, failure)
 
-    def test_rebase_retires_stale_cells_before_positioning_overlap(self) -> None:
+    def test_staging_never_publishes_into_an_active_slot_or_activates(self) -> None:
+        stage = routine(
+            self.source,
+            "terrain_manager_stage_candidate",
+            "terrain_manager_commit_staged_candidate",
+        )
+        active_guard = stage.index("and terrain_manager_flag_active+terrain_manager_flag_staged")
+        load = stage.index("call terrain_provider_load_candidate")
+        position = stage.index("call terrain_provider_position_candidate", load)
+        commit = stage.index("call terrain_manager_commit_staged_candidate", position)
+        self.assertLess(active_guard, load)
+        self.assertLess(load, position)
+        self.assertLess(position, commit)
+        self.assertNotIn("call pingo_set_object_active", stage)
+
+        staged_commit = routine(
+            self.source,
+            "terrain_manager_commit_staged_candidate",
+            "terrain_manager_commit_staged_group",
+        )
+        self.assertIn(
+            "ld (hl),terrain_manager_flag_resident+terrain_manager_flag_staged",
+            staged_commit,
+        )
+        self.assertIn("inc (hl)", staged_commit)
+        self.assertNotIn("terrain_manager_active_count", staged_commit)
+        self.assertNotIn("pingo_set_object_active", staged_commit)
+
+    def test_group_commit_preflights_then_retires_before_entering(self) -> None:
+        commit = routine(
+            self.source,
+            "terrain_manager_commit_staged_group",
+            "terrain_manager_validate_staged_group",
+        )
+        self.assertIn("call terrain_manager_validate_staged_group", commit)
+        retire = commit.index("@retire:")
+        enter = commit.index("@enter:")
+        self.assertLess(retire, enter)
+        self.assertIn("call pingo_set_object_active", commit[retire:enter])
+        self.assertIn("call pingo_set_object_active", commit[enter:])
+
+        preflight = routine(
+            self.source,
+            "terrain_manager_validate_staged_group",
+            "terrain_manager_group_mark_slot",
+        )
+        self.assertIn("call terrain_manager_group_mark_slot", preflight)
+        self.assertIn(
+            "and terrain_manager_flag_resident+terrain_manager_flag_active+terrain_manager_flag_staged",
+            preflight,
+        )
+        self.assertIn(
+            "cp terrain_manager_flag_resident+terrain_manager_flag_active",
+            preflight,
+        )
+        self.assertNotIn("call pingo_set_object_active", preflight)
+        self.assertNotIn("call terrain_provider_load_candidate", preflight)
+
+    def test_rebase_has_explicit_immediate_and_deferred_retirement_profiles(self) -> None:
         rebase = routine(
             self.source,
             "terrain_manager_reposition_active",
             "terrain_manager_query",
         )
-        desired = rebase.index("call terrain_provider_candidate_is_desired")
-        placement = rebase.index("call terrain_provider_position_candidate")
+        deferred = rebase.index(".if terrain_manager_defer_stale_rebase")
+        deferred_placement = rebase.index(
+            "call terrain_provider_position_candidate", deferred
+        )
+        legacy = rebase.index(".else", deferred)
+        desired = rebase.index("call terrain_provider_candidate_is_desired", legacy)
+        legacy_placement = rebase.index(
+            "call terrain_provider_position_candidate", legacy
+        )
+        deactivate = rebase.index("call pingo_set_object_active", legacy)
         clear_dirty = rebase.index("ld (terrain_manager_origin_dirty),a")
-        self.assertLess(desired, placement)
-        self.assertLess(placement, clear_dirty)
-        self.assertIn("call pingo_set_object_active", rebase)
+        self.assertLess(deferred, deferred_placement)
+        self.assertLess(deferred_placement, legacy)
+        self.assertLess(desired, legacy_placement)
+        self.assertLess(legacy_placement, deactivate)
+        self.assertLess(deactivate, clear_dirty)
         self.assertIn("and terrain_manager_flag_resident", rebase)
         self.assertIn("call terrain_manager_decrement_active_count", rebase)
         self.assertNotIn("call terrain_provider_load_candidate", rebase)
@@ -210,7 +299,9 @@ class TerrainManagerContractTests(unittest.TestCase):
     def test_service_has_one_mesh_publication_path_per_idle_call(self) -> None:
         # Rebase intentionally positions/deactivates all active slots atomically;
         # ordinary convergence reaches one load/activate/deactivate and returns.
-        self.assertEqual(self.source.count("call terrain_provider_load_candidate"), 1)
+        # Ordinary convergence and explicit inactive staging are the only mesh
+        # publication callers.  The staged path never activates its object.
+        self.assertEqual(self.source.count("call terrain_provider_load_candidate"), 2)
         for operation in (
             "terrain_manager_load_candidate",
             "terrain_manager_activate_candidate",
@@ -226,6 +317,37 @@ class TerrainManagerContractTests(unittest.TestCase):
                 }[operation],
             )
             self.assertRegex(body, r"or a\nret(?:\n|$)")
+
+    def test_group_dispatch_precedes_ordinary_convergence_and_fails_closed(self) -> None:
+        service = routine(
+            self.source,
+            "terrain_manager_service_idle",
+            "terrain_manager_provider_error",
+        )
+        rebase = service.index("jp nz,terrain_manager_reposition_active")
+        busy = service.index("call terrain_provider_transition_busy")
+        dispatch = service.index("jp nz,terrain_provider_service_transition")
+        staged = service.index("ld a,(terrain_manager_staged_count)")
+        ordinary = service.index("call terrain_provider_ring_count")
+        self.assertLess(rebase, busy)
+        self.assertLess(busy, dispatch)
+        self.assertLess(dispatch, staged)
+        self.assertLess(staged, ordinary)
+        self.assertIn("jp nz,terrain_manager_bad_group", service[staged:ordinary])
+
+        update = routine(
+            self.source,
+            "terrain_manager_update_position",
+            "terrain_manager_set_ring",
+        )
+        self.assertLess(
+            update.index("call terrain_provider_transition_busy"),
+            update.index("ld a,(terrain_manager_converged)"),
+        )
+        self.assertLess(
+            update.index("ld a,(terrain_manager_converged)"),
+            update.index("call terrain_provider_normalize_position"),
+        )
 
     def test_slot_storage_is_generic_u8_capacity_not_radius_specific(self) -> None:
         self.assertIn("terrain_manager_slot_count", self.source)
@@ -250,6 +372,8 @@ terrain_manager_max_ring: equ 5
 terrain_manager_initial_ring: equ 2
 terrain_manager_mesh_id_base: equ 65445
 terrain_manager_object_id_base: equ 65445
+terrain_manager_defer_stale_rebase: equ 0
+terrain_manager_group_staging: equ 1
 
     .assume adl=1
     .org 040000h
@@ -258,6 +382,15 @@ terrain_manager_object_id_base: equ 65445
 
 terrain_provider_ring_count:
     ld a,1
+    ret
+terrain_provider_transition_busy:
+    xor a
+    ret
+terrain_provider_ring_change_allowed:
+    xor a
+    ret
+terrain_provider_service_transition:
+    xor a
     ret
 terrain_provider_desired_at:
     xor a

@@ -1,7 +1,7 @@
 # Universal terrain-manager runtime contract
 
-Status: **implemented for first hex-native qualification; emulator and hardware
-acceptance pending**. The reusable ADL eZ80 core is
+Status: **implemented and emulator-qualified for the regular radius-five
+coverage-group client; physical-hardware acceptance remains open**. The reusable ADL eZ80 core is
 `runtime/ez80/terrain-manager.inc`. Its first client is
 `fixtures/terrain-manager-survey`; topology and corpus policy live in that
 fixture's hex provider rather than in the manager.
@@ -32,6 +32,8 @@ One inclusion supplies these symbols before the manager source:
 | `terrain_manager_initial_ring` | initial policy index, no larger than the maximum |
 | `terrain_manager_mesh_id_base` | first exact `u16` Pingo mesh ID |
 | `terrain_manager_object_id_base` | first exact `u16` Pingo object ID |
+| `terrain_manager_defer_stale_rebase` | retain (`1`) or retire (`0`) stale owners during the ordinary origin rebase |
+| `terrain_manager_group_staging` | compile staged-inactive load and atomic coverage-group commit support when `1`; historical clients use `0` |
 
 Both inclusive ID ranges are checked against `0..65535`; ID arithmetic is
 never truncated to a byte. The 255-slot manager-profile ceiling is not a Pingo
@@ -51,23 +53,32 @@ with `A` equal to the error code.
 1. `terrain_manager_initialize` validates compile-time bounds and clears all
    manager-owned state.
 2. `terrain_manager_submit_origin` accepts signed axial or provider-defined
-   coordinates in `BC=q`, `DE=r`. Changing an established origin schedules one
-   atomic active-set rebase. The provider must accept desired ordinal zero at a
-   valid origin; a clipped centre is reported as `error_origin`.
+   coordinates in `BC=q`, `DE=r`. Historical clients may change an established
+   origin to schedule an active-set rebase. Group-staged clients reject that
+   direct mutation: adjacent moves use `update_position`, while a teleport or
+   radius restart uses shutdown, initialize, and a new first submit. The
+   provider must accept desired ordinal zero at a valid origin; a clipped centre
+   is reported as `error_origin`.
 3. `terrain_manager_update_position` accepts `IX` as an opaque mutable
    application position-state pointer. It delegates normalization to the
    provider and returns `A=0` when unchanged or `A=1` when rebased. Carry is
    reserved for an actual error. The provider updates the local position and
    proposed regional origin as one CPU-side transaction.
 4. `terrain_manager_set_ring` accepts `A=0..max_ring`, resets convergence, and
-   does no I/O.
+   does no I/O. A group provider may reject an in-place policy change after its
+   slot ownership becomes unified; the regular fixture implements number-key
+   changes as a render-idle cold restart at the same regional origin.
 5. `terrain_manager_service_idle` is called only between completed renders. It
    performs at most one ordinary load, cached activation, or deactivation, or
    one atomic all-active origin-rebase transaction. On success, `A` is the
    operation code.
-6. `terrain_manager_query` returns `IX` pointing to the stable 19-byte status
+6. `terrain_manager_stage_candidate` loads and positions one candidate in an
+   inactive slot without activating it. `terrain_manager_commit_staged_group`
+   accepts exact retiring and entering slot arrays and swaps the complete group
+   synchronously. These exist only when group staging is compiled.
+7. `terrain_manager_query` returns `IX` pointing to the stable 19-byte status
    block.
-7. `terrain_manager_shutdown_idle` is called only between renders. It
+8. `terrain_manager_shutdown_idle` is called only between renders. It
    deactivates every active manager object, clears residency/error state, and
    moves the lifecycle to `shutdown`.
 
@@ -87,10 +98,33 @@ The linked provider implements these exact hooks:
 | `terrain_provider_position_candidate` | reads candidate, current origin, and work object ID; emits the complete object transform; `A=0` success, nonzero error |
 | `terrain_provider_candidate_is_desired` | zero if the resident candidate belongs to the current desired set, nonzero otherwise |
 | `terrain_provider_normalize_position` | normalizes the opaque `IX` position, writes proposed origin, and returns carry iff the origin changed |
+| `terrain_provider_transition_busy` | group profile: nonzero while the provider owns idle service for one transition |
+| `terrain_provider_ring_change_allowed` | group profile: nonzero rejects an unsafe in-place ring change |
+| `terrain_provider_service_transition` | group profile: stage or atomically commit one selected coverage group at render idle |
 
-Provider slot assignment must be injective over every possible desired set and
-stable for a given world component. The first hex provider satisfies this with
-`(5*q + 11*r) mod 91`, a perfect map for every radius-five disk.
+The regular client additionally exposes
+`terrain_provider_reset_for_cold_restart`. It clears provider-private plan,
+unified-slot, and transition state only after the manager has deactivated and
+forgotten every slot; the fixture then initializes and resubmits the saved
+origin before rebuilding the requested radius.
+
+With `terrain_manager_group_staging=1`, the provider also exposes a busy flag,
+a ring-change guard, and a render-idle transition dispatcher. The manager's
+`terrain_manager_stage_candidate` publishes and positions one mesh only in an
+inactive slot and marks it staged without activation. After a complete group
+has staged, `terrain_manager_commit_staged_group` preflights exact, distinct
+resident/active retiring slots and resident/staged entering slots, deactivates
+the whole retiring set, then activates the whole entering set synchronously.
+No render can interleave within that commit. A partial stage or failed
+preflight leaves the old visible coverage intact.
+
+An ordinary provider's slot assignment must be injective over every desired set
+and stable for a given world component. The first hex provider satisfies this
+with `(5*q + 11*r) mod 91`, a perfect map for every radius-five disk. A group
+provider may instead publish an authoritative live owner-to-slot map: preserved
+owners keep their actual slots, entering owners acquire staged inactive slots,
+and every later desired/stale query must use that map rather than recomputing a
+historical hash.
 
 The load hook is the transaction boundary for geometry: a failure must leave
 the old mesh and object untouched. On success the manager orders publication
@@ -102,18 +136,43 @@ so the validated inactive resident and both counts remain intact.
 ## Rebase and eviction semantics
 
 When the provider normalizes a position into a new regional origin, the
-manager defers all VDP work to the next idle barrier. That service pass examines
-every active resident against the new desired set. Stale old-edge cells are
-deactivated before placement, while overlapping cells receive their exact new
-transform. This is intentionally one atomic idle transaction: the next render
-cannot observe a mixture of old- and new-origin placements.
+manager defers all VDP work to the next idle barrier. The provider selects one
+of two compile-time policies. The historical policy deactivates stale old-edge
+cells before positioning the overlap. A provider with a proven placement
+fringe may instead reposition every active resident and retain stale owners as
+fallback scenery. In either case the rebase itself is one atomic idle
+transaction: the next render cannot observe a mixture of old- and new-origin
+coordinate frames.
 
 Inactive residents retain validated meshes as a small opportunistic cache.
 Reactivation reissues placement before activation. Ordinary convergence loads
 or activates a desired component first; only after a complete desired scan does
-it deactivate at most one stale object per idle call. Load failures use a
-bounded exponential visit countdown, preserve the previous complete resident,
-and remain observable per slot and in the public status.
+it deactivate at most one stale object per idle call. Under deferred stale
+rebase, this ordering keeps the preceding scene visible until the complete new
+desired plan is active. A dynamic provider must not confuse an unclaimed slot
+with an inactive slot during that interval: command 50 on an active stale slot
+replaces the mesh beneath visible fallback scenery.
+
+The promoted regular provider instead treats detailed and coarse owners as one
+slot domain. Its radius-five recipes partition old/new coverage overlap into
+components, stage every entering component only in inactive capacity, and swap
+the complete component atomically. Shared identities retain their actual slots;
+after the first handoff a detailed cell may legally occupy a former coarse
+slot. Runtime edge filtering preserves source-plan ordinals and selects the
+best currently feasible shrink-first group. The generated 192-recipe table and
+complete 299,306-edge host audit prove a maximum 14 owners on either side, 15
+activation changes in one commit, and at least four free staging slots.
+
+Load failures use a bounded exponential visit countdown, preserve the previous
+complete resident, and remain observable per slot and in the public status.
+
+The regular hierarchy fixture additionally adapts the immutable legacy terrain
+payload at the loader boundary. After disk CRC and index validation but before
+VDP upload, it negates every vertex Z and reverses each position/UV triangle.
+Together with east-positive command-52, camera, and rebase translations, this
+publishes a right-handed `X=north, Y=up, Z=east` world without modifying or
+duplicating the checksum-bound 133,476-record source corpus. Other bindings
+compile the adapter out.
 
 ## Status ABI
 
@@ -137,8 +196,9 @@ and remain observable per slot and in the public status.
 | 17 | 2 | successful-operation generation counter |
 
 Lifecycle states are uninitialized, ready, error, and shutdown. Operation
-codes are none, load, activate, deactivate, rebase, and shutdown. Manager error
-codes distinguish configuration, ring, origin, provider, position, and slot
+codes are none, load, activate, deactivate, rebase, shutdown, stage, and group
+commit. Manager error codes distinguish configuration, ring, origin, provider,
+position, slot, and group
 failures; component-loader error values pass through unchanged.
 
 ## First qualified binding

@@ -7,6 +7,13 @@
 ;   terrain_manager_initial_ring
 ;   terrain_manager_mesh_id_base     exact u16
 ;   terrain_manager_object_id_base   exact u16
+;   terrain_manager_defer_stale_rebase
+;       0 retires stale active objects during the origin transaction.
+;       1 repositions and retains them until the complete desired plan is
+;       active, then lets ordinary stale eviction retire them.
+;   terrain_manager_group_staging
+;       0 omits the experimental coverage-group staging API and storage.
+;       1 assembles load-without-activate and atomic group-commit support.
 ;
 ; Required provider hooks:
 ;   terrain_provider_ring_count
@@ -28,6 +35,10 @@
 ;       IX is opaque mutable application position state. The manager seeds
 ;       proposed_origin_q/r. Provider may normalize local X/Z, writes proposed
 ;       q/r, marks application position dirty, and returns carry iff origin moved.
+; When terrain_manager_group_staging=1:
+;   terrain_provider_transition_busy     A=0 idle/A!=0 owns manager service
+;   terrain_provider_ring_change_allowed A=0 allowed/A!=0 reject unchanged
+;   terrain_provider_service_transition only while no render is in flight
 ;
 ; Required VDU helper: pingo_set_object_active (HL=u16 object ID, A=0/1).
 ;
@@ -38,6 +49,11 @@
 ;                                       A=0 unchanged/A=1 rebased, carry=error
 ;   terrain_manager_set_ring            A=ring
 ;   terrain_manager_service_idle        only while no render is in flight
+;   terrain_manager_stage_candidate     load/position one inactive candidate
+;                                       without making it visible
+;   terrain_manager_commit_staged_group IX=retiring u8 slots, B=count;
+;                                       IY=entering u8 slots, C=count;
+;                                       only while no render is in flight
 ;   terrain_manager_query               IX=status
 ;   terrain_manager_shutdown_idle       only while no render is in flight
 ;
@@ -57,9 +73,12 @@ terrain_manager_operation_activate:   equ 2
 terrain_manager_operation_deactivate: equ 3
 terrain_manager_operation_rebase:     equ 4
 terrain_manager_operation_shutdown:   equ 5
+terrain_manager_operation_stage:      equ 6
+terrain_manager_operation_group:      equ 7
 
 terrain_manager_flag_resident: equ 1
 terrain_manager_flag_active:   equ 2
+terrain_manager_flag_staged:   equ 4
 
 terrain_manager_error_config:   equ 020h
 terrain_manager_error_ring:     equ 021h
@@ -67,6 +86,7 @@ terrain_manager_error_origin:   equ 022h
 terrain_manager_error_provider: equ 023h
 terrain_manager_error_position: equ 024h
 terrain_manager_error_slot:     equ 025h
+terrain_manager_error_group:    equ 026h
 terrain_manager_retry_max:      equ 5
 
     MACRO TERRAIN_MANAGER_STORE_U16_HL ADDRESS
@@ -109,6 +129,9 @@ terrain_manager_initialize:
     ld (terrain_manager_converged),a
     ld (terrain_manager_resident_count),a
     ld (terrain_manager_active_count),a
+.if terrain_manager_group_staging
+    ld (terrain_manager_staged_count),a
+.endif
     ld (terrain_manager_scan_cursor),a
     ld (terrain_manager_eviction_cursor),a
     ld (terrain_manager_generation+0),a
@@ -204,6 +227,13 @@ terrain_manager_submit_origin:
     cp (hl)
     jr z,@unchanged
 @changed:
+.if terrain_manager_group_staging
+; Once a staged profile has an origin, adjacent moves must flow through the
+; provider's one-step recipe transaction.  Teleports/radius cold restarts use
+; shutdown -> initialize -> first submit; mutating this public origin in place
+; would desynchronize the authoritative owner map.
+    jp terrain_manager_bad_group
+.endif
     TERRAIN_MANAGER_STORE_U16_BC terrain_manager_origin_q
     TERRAIN_MANAGER_STORE_U16_DE terrain_manager_origin_r
     ld a,1
@@ -233,6 +263,23 @@ terrain_manager_update_position:
     ld a,(terrain_manager_origin_valid)
     or a
     jp z,terrain_manager_bad_origin
+.if terrain_manager_group_staging
+; One coverage recipe owns one adjacent origin step.  While its replacement
+; groups are staged, camera motion remains local and cannot overwrite either
+; the old-owner snapshot or the target plan.
+    call terrain_provider_transition_busy
+    or a
+    jr z,@transition_idle
+    xor a
+    ret
+@transition_idle:
+    ld a,(terrain_manager_converged)
+    or a
+    jr nz,@endpoint_ready
+    xor a
+    ret
+@endpoint_ready:
+.endif
     ld a,(terrain_manager_origin_q+0)
     ld (terrain_manager_proposed_origin_q+0),a
     ld a,(terrain_manager_origin_q+1)
@@ -268,6 +315,18 @@ terrain_manager_set_ring:
     ld a,(terrain_manager_state)
     cp terrain_manager_state_ready
     jp nz,terrain_manager_not_ready
+.if terrain_manager_group_staging
+    push bc
+    call terrain_provider_transition_busy
+    or a
+    pop bc
+    jp nz,terrain_manager_bad_group
+    push bc
+    call terrain_provider_ring_change_allowed
+    or a
+    pop bc
+    jp nz,terrain_manager_bad_group
+.endif
     ld a,b
     cp terrain_manager_max_ring+1
     jr nc,terrain_manager_bad_ring
@@ -307,6 +366,18 @@ terrain_manager_service_idle:
     ld a,(terrain_manager_origin_dirty)
     or a
     jp nz,terrain_manager_reposition_active
+.if terrain_manager_group_staging
+; Staged ownership is intentionally invisible to ordinary convergence.  The
+; provider is the sole dispatcher until every atomic coverage group commits;
+; otherwise the regular scanner could activate a partial group or evict its
+; still-visible predecessor.
+    call terrain_provider_transition_busy
+    or a
+    jp nz,terrain_provider_service_transition
+    ld a,(terrain_manager_staged_count)
+    or a
+    jp nz,terrain_manager_bad_group
+.endif
 
     ld a,(terrain_manager_current_ring)
     call terrain_provider_ring_count
@@ -558,6 +629,325 @@ terrain_manager_record_activation_position_failure:
     scf
     ret
 
+.if terrain_manager_group_staging
+; Publish one candidate only into an object slot which is both inactive and not
+; already reserved by the current staged group.  Exact inactive cache hits need
+; only placement; every other candidate follows validated command-50 load then
+; placement.  Neither path activates the object.  The provider may therefore
+; prepare a complete coverage replacement while the old group remains visible.
+terrain_manager_stage_candidate:
+    ld a,(terrain_manager_state)
+    cp terrain_manager_state_ready
+    jp nz,terrain_manager_not_ready
+    ld a,(terrain_manager_origin_valid)
+    or a
+    jp z,terrain_manager_bad_origin
+    call terrain_manager_prepare_work_ids
+    ld a,(terrain_manager_candidate_slot)
+    cp terrain_manager_slot_count
+    jp nc,terrain_manager_bad_provider_slot
+    call terrain_manager_slot_flags_pointer
+    ld a,(hl)
+    ld (terrain_manager_previous_flags),a
+    and terrain_manager_flag_active+terrain_manager_flag_staged
+    jp nz,terrain_manager_bad_provider_slot
+    call terrain_manager_slot_matches_candidate
+    jr nz,@load
+
+; A validated inactive cache hit has no command-50 failure boundary.  Position
+; first, then reserve it for the group.
+    call terrain_provider_position_candidate
+    or a
+    jp nz,terrain_manager_record_activation_position_failure
+    ld a,(terrain_manager_candidate_slot)
+    call terrain_manager_slot_flags_pointer
+    ld (hl),terrain_manager_flag_resident+terrain_manager_flag_staged
+    ld hl,terrain_manager_staged_count
+    inc (hl)
+    call terrain_manager_clear_candidate_failure
+    ld a,terrain_manager_operation_stage
+    call terrain_manager_record_success
+    ld a,terrain_manager_operation_stage
+    or a
+    ret
+
+@load:
+    call terrain_provider_load_candidate
+    or a
+    jp nz,terrain_manager_record_load_failure
+    call terrain_provider_position_candidate
+    or a
+    jp nz,terrain_manager_record_position_failure
+    call terrain_manager_commit_staged_candidate
+    ld a,terrain_manager_operation_stage
+    call terrain_manager_record_success
+    ld a,terrain_manager_operation_stage
+    or a
+    ret
+
+; Commit identity and residency for a successfully loaded inactive candidate.
+; Active ownership is deliberately untouched until the complete group commit.
+terrain_manager_commit_staged_candidate:
+    ld a,(terrain_manager_candidate_slot)
+    call terrain_manager_slot_q_pointer
+    ld a,(terrain_manager_candidate_q+0)
+    ld (hl),a
+    inc hl
+    ld a,(terrain_manager_candidate_q+1)
+    ld (hl),a
+    ld a,(terrain_manager_candidate_slot)
+    call terrain_manager_slot_r_pointer
+    ld a,(terrain_manager_candidate_r+0)
+    ld (hl),a
+    inc hl
+    ld a,(terrain_manager_candidate_r+1)
+    ld (hl),a
+    ld a,(terrain_manager_candidate_slot)
+    call terrain_manager_slot_lod_pointer
+    ld a,(terrain_manager_candidate_lod)
+    ld (hl),a
+
+    ld a,(terrain_manager_previous_flags)
+    and terrain_manager_flag_resident
+    jr nz,@resident_counted
+    ld hl,terrain_manager_resident_count
+    inc (hl)
+@resident_counted:
+    ld a,(terrain_manager_candidate_slot)
+    call terrain_manager_slot_flags_pointer
+    ld (hl),terrain_manager_flag_resident+terrain_manager_flag_staged
+    ld hl,terrain_manager_staged_count
+    inc (hl)
+    call terrain_manager_clear_candidate_failure
+    ret
+
+; Atomically, from the renderer's point of view, exchange one complete coverage
+; group. Inputs are IX=retiring u8 slot list/B=count and IY=entering u8 slot
+; list/C=count. The caller guarantees no render is in flight and submits none
+; until this routine returns. Full preflight occurs before the first command 51;
+; after it succeeds the old side is retired before the staged side is exposed.
+terrain_manager_commit_staged_group:
+    ld a,(terrain_manager_state)
+    cp terrain_manager_state_ready
+    jp nz,terrain_manager_not_ready
+    ld a,(terrain_manager_origin_valid)
+    or a
+    jp z,terrain_manager_bad_origin
+    ld (terrain_manager_group_retire_pointer),ix ; ADL24: native list pointer
+    ld a,b
+    ld (terrain_manager_group_retire_count),a
+    ld (terrain_manager_group_enter_pointer),iy  ; ADL24: native list pointer
+    ld a,c
+    ld (terrain_manager_group_enter_count),a
+    call terrain_manager_validate_staged_group
+    ret c
+
+    ld a,(terrain_manager_group_retire_count)
+    ld (terrain_manager_group_remaining),a
+    ld ix,(terrain_manager_group_retire_pointer) ; ADL24: native list pointer
+@retire:
+    ld a,(terrain_manager_group_remaining)
+    or a
+    jr z,@enter_begin
+    ld a,(ix)
+    inc ix
+    ld (terrain_manager_group_retire_pointer),ix ; ADL24: advanced list pointer
+    ld (terrain_manager_candidate_slot),a
+    call terrain_manager_load_candidate_from_slot
+    call terrain_manager_prepare_work_ids
+    TERRAIN_MANAGER_LOAD_U16_HL terrain_manager_work_object_id
+    xor a
+    call pingo_set_object_active
+    ld a,(terrain_manager_candidate_slot)
+    call terrain_manager_slot_flags_pointer
+    ld (hl),terrain_manager_flag_resident
+    call terrain_manager_decrement_active_count
+    ld ix,(terrain_manager_group_retire_pointer) ; ADL24: native list pointer
+    ld hl,terrain_manager_group_remaining
+    dec (hl)
+    jr @retire
+
+@enter_begin:
+    ld a,(terrain_manager_group_enter_count)
+    ld (terrain_manager_group_remaining),a
+    ld iy,(terrain_manager_group_enter_pointer)  ; ADL24: native list pointer
+@enter:
+    ld a,(terrain_manager_group_remaining)
+    or a
+    jr z,@committed
+    ld a,(iy)
+    inc iy
+    ld (terrain_manager_group_enter_pointer),iy  ; ADL24: advanced list pointer
+    ld (terrain_manager_candidate_slot),a
+    call terrain_manager_load_candidate_from_slot
+    call terrain_manager_prepare_work_ids
+    TERRAIN_MANAGER_LOAD_U16_HL terrain_manager_work_object_id
+    ld a,1
+    call pingo_set_object_active
+    ld a,(terrain_manager_candidate_slot)
+    call terrain_manager_slot_flags_pointer
+    ld (hl),terrain_manager_flag_resident+terrain_manager_flag_active
+    ld hl,terrain_manager_active_count
+    inc (hl)
+    ld hl,terrain_manager_staged_count
+    dec (hl)
+    ld iy,(terrain_manager_group_enter_pointer)  ; ADL24: native list pointer
+    ld hl,terrain_manager_group_remaining
+    dec (hl)
+    jr @enter
+
+@committed:
+    ld a,terrain_manager_operation_group
+    call terrain_manager_record_success
+    ld a,terrain_manager_operation_group
+    or a
+    ret
+
+; Validate every group list, its exact slot flags, uniqueness, staged count, and
+; resulting active-count bound before emitting any VDP command. A failure leaves
+; the old group active and every entering mesh staged but invisible.
+terrain_manager_validate_staged_group:
+    ld hl,terrain_manager_group_seen_slots
+    ld b,32
+    xor a
+@clear_seen:
+    ld (hl),a
+    inc hl
+    djnz @clear_seen
+
+    ld a,(terrain_manager_group_retire_count)
+    ld b,a
+    ld a,(terrain_manager_group_enter_count)
+    or b
+    jp z,terrain_manager_bad_group
+    ld a,(terrain_manager_staged_count)
+    ld b,a
+    ld a,(terrain_manager_group_enter_count)
+    cp b
+    jp nz,terrain_manager_bad_group
+
+; Prove 0 <= active-retiring+entering <= configured capacity in 24-bit
+; arithmetic so the 255-slot profile never turns 256 into zero.
+    ld hl,0
+    ld a,(terrain_manager_active_count)
+    ld l,a
+    ld de,0
+    ld a,(terrain_manager_group_retire_count)
+    ld e,a
+    or a
+    sbc hl,de
+    jp c,terrain_manager_bad_group
+    ld de,0
+    ld a,(terrain_manager_group_enter_count)
+    ld e,a
+    add hl,de
+    ld de,terrain_manager_slot_count+1
+    or a
+    sbc hl,de
+    jp nc,terrain_manager_bad_group
+
+    ld ix,(terrain_manager_group_retire_pointer) ; ADL24: native list pointer
+    ld a,(terrain_manager_group_retire_count)
+    ld (terrain_manager_group_remaining),a
+@retire:
+    ld a,(terrain_manager_group_remaining)
+    or a
+    jr z,@enter_begin
+    ld a,(ix)
+    cp terrain_manager_slot_count
+    jp nc,terrain_manager_bad_group
+    push ix
+    call terrain_manager_group_mark_slot
+    pop ix
+    jp c,terrain_manager_bad_group
+    ld a,(ix)
+    call terrain_manager_slot_flags_pointer
+    ld a,(hl)
+    and terrain_manager_flag_resident+terrain_manager_flag_active+terrain_manager_flag_staged
+    cp terrain_manager_flag_resident+terrain_manager_flag_active
+    jp nz,terrain_manager_bad_group
+    inc ix
+    ld hl,terrain_manager_group_remaining
+    dec (hl)
+    jr @retire
+
+@enter_begin:
+    ld iy,(terrain_manager_group_enter_pointer)  ; ADL24: native list pointer
+    ld a,(terrain_manager_group_enter_count)
+    ld (terrain_manager_group_remaining),a
+@enter:
+    ld a,(terrain_manager_group_remaining)
+    or a
+    jr z,@ok
+    ld a,(iy)
+    cp terrain_manager_slot_count
+    jp nc,terrain_manager_bad_group
+    push iy
+    call terrain_manager_group_mark_slot
+    pop iy
+    jp c,terrain_manager_bad_group
+    ld a,(iy)
+    call terrain_manager_slot_flags_pointer
+    ld a,(hl)
+    and terrain_manager_flag_resident+terrain_manager_flag_active+terrain_manager_flag_staged
+    cp terrain_manager_flag_resident+terrain_manager_flag_staged
+    jp nz,terrain_manager_bad_group
+    inc iy
+    ld hl,terrain_manager_group_remaining
+    dec (hl)
+    jr @enter
+@ok:
+    or a
+    ret
+
+; A=slot. Carry set means the slot was already present in either list.
+terrain_manager_group_mark_slot:
+    push bc
+    push de
+    push hl
+    ld (terrain_manager_group_checked_slot),a
+    and 7
+    ld de,0
+    ld e,a
+    ld hl,terrain_manager_group_bit_masks
+    add hl,de
+    ld a,(hl)
+    ld (terrain_manager_group_bit_mask),a
+    ld a,(terrain_manager_group_checked_slot)
+    srl a
+    srl a
+    srl a
+    ld de,0
+    ld e,a
+    ld hl,terrain_manager_group_seen_slots
+    add hl,de
+    ld a,(terrain_manager_group_bit_mask)
+    ld b,a
+    ld a,(hl)
+    and b
+    jr nz,@duplicate
+    ld a,(hl)
+    or b
+    ld (hl),a
+    pop hl
+    pop de
+    pop bc
+    or a
+    ret
+@duplicate:
+    pop hl
+    pop de
+    pop bc
+    scf
+    ret
+
+terrain_manager_bad_group:
+    ld a,terrain_manager_error_group
+    ld (terrain_manager_last_error),a
+    scf
+    ret
+.endif
+
 terrain_manager_commit_candidate:
     ld a,(terrain_manager_candidate_slot)
     call terrain_manager_slot_q_pointer
@@ -659,6 +1049,9 @@ terrain_manager_deactivate_one_stale:
 
 ; A rebase is one render-idle transaction. Inactive cached entries are placed
 ; immediately before reactivation, so only active entries need work here.
+; Providers with a positionable fallback fringe may retain stale actives until
+; the desired plan converges. This makes the existing post-scan stale eviction
+; a conservative old-plan -> complete-new-plan handoff rather than a hole.
 terrain_manager_reposition_active:
     xor a
     ld (terrain_manager_reposition_index),a
@@ -671,6 +1064,16 @@ terrain_manager_reposition_active:
     ld a,(terrain_manager_reposition_index)
     ld (terrain_manager_candidate_slot),a
     call terrain_manager_load_candidate_from_slot
+.if terrain_manager_defer_stale_rebase
+; Keep the complete preceding plan visible while replacements publish. Every
+; active fallback is moved into the new floating-origin frame, including
+; identities outside the new desired plan. Ordinary convergence will retire
+; them only after every desired identity is active.
+    call terrain_manager_prepare_work_ids
+    call terrain_provider_position_candidate
+    or a
+    jr nz,@failed
+.else
 ; Old edge cells can fall outside the new desired set (and outside a
 ; provider's bounded placement domain).  Retire them inside this same
 ; render-idle transaction; only overlapping residents need command 52.
@@ -692,6 +1095,7 @@ terrain_manager_reposition_active:
     and terrain_manager_flag_resident
     ld (hl),a
     call terrain_manager_decrement_active_count
+.endif
 @advance:
     ld a,(terrain_manager_reposition_index)
     inc a
@@ -752,6 +1156,9 @@ terrain_manager_shutdown_idle:
     xor a
     ld (terrain_manager_resident_count),a
     ld (terrain_manager_active_count),a
+.if terrain_manager_group_staging
+    ld (terrain_manager_staged_count),a
+.endif
     ld (terrain_manager_converged),a
     ld (terrain_manager_origin_valid),a
     ld a,terrain_manager_state_shutdown
@@ -830,6 +1237,16 @@ terrain_manager_decrement_active_count:
     dec a
     ld (terrain_manager_active_count),a
     ret
+
+.if terrain_manager_group_staging
+terrain_manager_decrement_staged_count:
+    ld a,(terrain_manager_staged_count)
+    or a
+    ret z
+    dec a
+    ld (terrain_manager_staged_count),a
+    ret
+.endif
 
 ; A=checked slot -> HL=native pointer.
 terrain_manager_slot_q_pointer:
@@ -931,6 +1348,19 @@ terrain_manager_eviction_remaining: db 0
 terrain_manager_reposition_index:   db 0
 terrain_manager_candidate_ordinal:  db 0
 terrain_manager_previous_flags:     db 0
+.if terrain_manager_group_staging
+terrain_manager_staged_count:       db 0
+terrain_manager_group_retire_count: db 0
+terrain_manager_group_enter_count:  db 0
+terrain_manager_group_remaining:    db 0
+terrain_manager_group_checked_slot: db 0
+terrain_manager_group_bit_mask:     db 0
+terrain_manager_group_retire_pointer: dl 0
+terrain_manager_group_enter_pointer:  dl 0
+terrain_manager_group_seen_slots:   ds 32
+terrain_manager_group_bit_masks:
+    db 1,2,4,8,16,32,64,128
+.endif
 
 ; Nine bytes per slot; exactly 819 bytes for the first 91-slot hex provider.
 terrain_manager_slot_storage:

@@ -16,6 +16,7 @@ sid: equ 1731
 tgtbmid: equ 257
 terrain_bmid: equ 256
 p3dm_stage_buffer_id: equ 07400h
+p3dm_mirror_z_on_load: equ 0
 
 viewport_width: equ 320
 viewport_height: equ 240

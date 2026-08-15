@@ -60,6 +60,35 @@ class P3DMLoaderFixtureTests(unittest.TestCase):
         self.assertIn("FFSCALL ffs_fopen", reader)
         self.assertIn("FFSCALL ffs_fclose", reader)
 
+    def test_optional_right_handed_adapter_runs_after_validation_before_upload(self):
+        source = LOADER.read_text(encoding="utf-8")
+        top = source.split("p3dm_load_component:", 1)[1].split(
+            "; Open/read/close", 1
+        )[0]
+        self.assertLess(
+            top.index("call p3dm_validate_container"),
+            top.index("call p3dm_mirror_validated_z"),
+        )
+        self.assertLess(
+            top.index("call p3dm_mirror_validated_z"),
+            top.index("call p3dm_upload_data"),
+        )
+        adapter = source.split("p3dm_mirror_validated_z:", 1)[1].split(
+            "; Upload one exact consolidated DATA block", 1
+        )[0]
+        self.assertIn("sbc.s hl,de", adapter)
+        self.assertEqual(adapter.count("call p3dm_swap_triangle_second_third"), 1)
+        self.assertIn("jp p3dm_swap_triangle_second_third", adapter)
+        self.assertIn("lea ix,ix+6", adapter)
+
+        probe = MAIN.read_text(encoding="utf-8")
+        regular = (
+            ROOT
+            / "fixtures/terrain-manager-survey/src/terrain-manager-regular-lod-survey.asm"
+        ).read_text(encoding="utf-8")
+        self.assertIn("p3dm_mirror_z_on_load: equ 0", probe)
+        self.assertIn("p3dm_mirror_z_on_load: equ 1", regular)
+
     def test_loader_checks_structure_policy_crc_and_indices(self):
         source = LOADER.read_text(encoding="utf-8")
         for required in (

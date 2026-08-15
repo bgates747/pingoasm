@@ -43,11 +43,18 @@ this file, and update any affected specification.
   build has 83,293 validated records / 57,521,020 logical bytes, generated
   phase plans, protected dynamic slots, transforms, skirts, receipts, and the
   mandatory Blender review. The proven bound remains 91 detailed plus at most
-  159 coarse objects. A 227-object Marina cold run passes, but plan transitions
-  are not group-atomic and only cold residency is qualified. Next capture
-  moving-origin parent/child transitions, radius 0--5 changes, regional-edge
-  clipping, convergence holes/pops, SD seek/read/upload cost, and full-region
-  travel before promoting a more sophisticated reducer.
+  159 coarse objects. A 227-object Marina cold run passes. The regular binding
+  now treats detailed and coarse owners as one slot domain and consumes the
+  generated full-owner coverage recipes. Entering meshes stage only in inactive
+  slots; complete overlap components swap atomically at render idle. Four live
+  north crossings and a subsequent radius-four cold restart match the host
+  owner sets with no active mesh overwrite, coverage hole, or render inside a
+  commit. Its loader also converts the legacy reflected `Z=-east` corpus to a
+  right-handed `Z=+east` published world, with matching placement, camera, and
+  rebase signs. Next capture all six live directions, regional-edge crossings,
+  longer full-region routes, and SD seek/read/upload cost. Adjacent movement is
+  currently qualified only at radius five; decide whether smaller review radii
+  need their own recipes or a cold-crossing policy.
   Next decide whether full runtime promotion requires exact canonical
   six-neighbor combinatorics or accepts the artifact's explicit physical
   graph; repair 0.180-degree constraint slivers and implement nested LOD seams
@@ -73,12 +80,16 @@ this file, and update any affected specification.
   command-53 far plane at 65,535. The rejected mixed-topology ring-30 control
   proved that the manager can own 183 multi-LOD objects, but it remains only
   historical evidence. The position-driven regular-only hierarchy provider
-  and its 227-object Marina cold run now exist. Next run a deterministic
-  moving-origin/radius transition because parent/child replacement is not
-  group-atomic; measure complete SD seek/read/validate/upload latency rather
-  than only VDP publication time; and expose persistent runtime failures in
-  clients. Human seam/pop review and physical-hardware range, depth, and
-  performance qualification remain open.
+  and its 227-object Marina cold run now exist. Its continuity-first transition
+  has been superseded by full-owner component staging and atomic commits. The
+  corrected cardinal orientation is human-approved; four live moving-origin
+  handoffs and the render-idle radius-four cold restart now pass deterministic
+  debugger capture. Six-direction, regional-edge, extended-route, and physical
+  hardware qualification remain open.
+  Measure complete SD
+  seek/read/validate/upload latency rather than only VDP publication time, and
+  expose persistent runtime failures in clients. Physical-hardware range,
+  depth, and performance qualification remain open.
 - [ ] **A1 — Bay Area airports:** pinned and generated SFO, OAK, Hayward
   Executive, San Carlos, and Concord/Buchanan components exist, and KOAK 28L
   is the qualified canonical start. Replace the proof overlays with pinned

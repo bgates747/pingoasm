@@ -41,6 +41,18 @@ regular_provider_plan_record_slot: equ 5
 regular_provider_plan_record_bytes: equ 6
 regular_provider_unassigned_slot: equ 0ffh
 regular_provider_error_plan: equ 031h
+.if terrain_manager_group_staging
+regular_transition_owner_count: equ 250
+regular_transition_near_owner_count: equ 91
+regular_transition_coarse_owner_count: equ 159
+regular_transition_state_idle: equ 0
+regular_transition_state_wait_rebase: equ 1
+regular_transition_state_select: equ 2
+regular_transition_state_stage: equ 3
+regular_transition_state_commit: equ 4
+regular_transition_state_error: equ 5
+regular_transition_processed_bytes: equ 5
+.endif
 
     MACRO HEX_PROVIDER_LOAD_U16_HL ADDRESS
         ld hl,0
@@ -111,6 +123,29 @@ terrain_provider_desired_at:
     jp regular_provider_coarse_desired_at
 
 regular_provider_near_desired_at:
+.if terrain_manager_group_staging
+    ld (regular_provider_near_ordinal),a
+    call regular_provider_build_near_candidate
+    ret c
+    ld a,(regular_provider_near_ordinal)
+    call regular_provider_near_slot_pointer
+    ld a,(hl)
+    cp regular_provider_unassigned_slot
+    jr z,@outside
+    ld (terrain_manager_candidate_slot),a
+    xor a
+    ld (terrain_manager_candidate_lod),a
+    or a
+    ret
+@outside:
+    scf
+    ret
+
+; Build only the bounded L0 identity for one canonical disk ordinal.  Physical
+; ownership is deliberately separate: after the first coverage handoff a near
+; cell may occupy any one of the 255 manager slots.
+regular_provider_build_near_candidate:
+.endif
     ld hl,0
     ld l,a
     add hl,hl
@@ -141,11 +176,18 @@ regular_provider_near_desired_at:
 
     call hex_provider_validate_candidate
     ret c
+.if terrain_manager_group_staging
+    xor a
+    ld (terrain_manager_candidate_lod),a
+    or a
+    ret
+.else
     call hex_provider_compute_candidate_slot
     xor a
     ld (terrain_manager_candidate_lod),a
     or a
     ret
+.endif
 
 ; A is a dense coarse ordinal in the current mutable plan.  Manager q/r retain
 ; anchor q/offset-row so identity comparisons and paths require no side table.
@@ -196,6 +238,18 @@ regular_provider_plan_pointer:
 ; profiles are translation-independent; absolute anchors are resolved here and
 ; empty nodes beyond the bounded Bay Area corpus are omitted before allocation.
 terrain_provider_prepare_plan:
+.if terrain_manager_group_staging
+    ld a,(regular_transition_build_target)
+    or a
+    jr nz,@target_build
+    ld a,(regular_provider_unified_slots)
+    or a
+    jp nz,@failed
+    call regular_provider_initialize_split_near_slots
+@target_build:
+    xor a
+    ld (regular_provider_phase_source_ordinal),a
+.endif
     xor a
     ld (regular_provider_plan_valid),a
     ld (regular_provider_plan_count),a
@@ -214,6 +268,10 @@ terrain_provider_prepare_plan:
     pop ix
     ld a,(ix+regular_lod_phase_record_lod)
     ld (regular_provider_build_lod),a
+.if terrain_manager_group_staging
+    ld a,(regular_provider_phase_source_ordinal)
+    ld (regular_provider_build_source_ordinal),a
+.endif
 
     HEX_PROVIDER_LOAD_U16_HL terrain_manager_origin_q
     ld de,0
@@ -239,6 +297,10 @@ terrain_provider_prepare_plan:
     ld de,regular_lod_phase_record_bytes
     add hl,de
     ld (regular_provider_phase_pointer),hl ; ADL24: generated profile pointer
+.if terrain_manager_group_staging
+    ld hl,regular_provider_phase_source_ordinal
+    inc (hl)
+.endif
     call regular_provider_validate_build_record
     jp c,@record
     call regular_provider_append_build_record
@@ -246,8 +308,20 @@ terrain_provider_prepare_plan:
     jp @record
 
 @allocate:
+.if terrain_manager_group_staging
+    ld a,(regular_transition_build_target)
+    or a
+    jr nz,@target_mappings
+.endif
     call regular_provider_reconcile_slots
     jr c,@failed
+.if terrain_manager_group_staging
+    jr @allocated
+@target_mappings:
+    call regular_transition_prepare_target_mappings
+    jr c,@failed
+@allocated:
+.endif
     ld a,(terrain_manager_current_ring)
     call regular_provider_near_ring_count
     ld b,a
@@ -255,6 +329,19 @@ terrain_provider_prepare_plan:
     add a,b
     jr c,@failed
     ld (regular_provider_desired_count),a
+.if terrain_manager_group_staging
+; Cold split fill counts near owners during table initialization; target-map
+; construction counts both classes itself.
+    ld a,(regular_transition_build_target)
+    or a
+    jr nz,@endpoint_ready
+    ld a,(regular_provider_endpoint_count)
+    ld b,a
+    ld a,(regular_provider_plan_count)
+    add a,b
+    ld (regular_provider_endpoint_count),a
+@endpoint_ready:
+.endif
     ld a,1
     ld (regular_provider_plan_valid),a
     xor a
@@ -375,6 +462,16 @@ regular_provider_append_build_record:
     ld a,(regular_provider_build_row+1)
     ld (ix+regular_provider_plan_record_row+1),a
     ld (ix+regular_provider_plan_record_slot),regular_provider_unassigned_slot
+.if terrain_manager_group_staging
+    pop af
+    push af
+    ld hl,0
+    ld l,a
+    ld de,regular_provider_plan_source_ordinals
+    add hl,de
+    ld a,(regular_provider_build_source_ordinal)
+    ld (hl),a
+.endif
     pop af
     inc a
     ld (regular_provider_plan_count),a
@@ -386,9 +483,12 @@ regular_provider_append_build_record:
 
 ; Protect every resident identity retained by the new plan before assigning any
 ; newcomer.  Inactive cached residents are protected just like active ones.
-; Remaining records take the lowest unclaimed coarse slot.  The fixture marks
-; origin_dirty after this succeeds, so a stale active identity is retired by
-; the manager before a newcomer can publish over its object/mesh ID.
+; Remaining records take the lowest unclaimed coarse slot. The fixture marks
+; origin_dirty after this succeeds; its deferred-rebase policy repositions
+; stale active identities as temporary fallback geometry. Desired ordinals put
+; every near L0 cell first, so successful detail publication precedes any
+; newcomer that can reuse a stale coarse slot. Ordinary stale eviction begins
+; only after the complete desired plan is active.
 regular_provider_reconcile_slots:
     ld hl,regular_provider_claimed_slots
     ld b,regular_provider_coarse_slot_count
@@ -479,9 +579,38 @@ regular_provider_reconcile_slots:
     ld a,(ix+regular_provider_plan_record_slot)
     cp regular_provider_unassigned_slot
     jr nz,@assign_next_plan
+; Prefer an inactive (or wholly unused) unclaimed slot.  During the deferred
+; old-plan handoff, an unclaimed slot can still own visible fallback terrain.
+; Publishing a newcomer into such a slot replaces the mesh beneath that live
+; object before convergence and produces an apparent world-position snap.
+; Only fall back to an active stale slot when the 164-slot pool has no inactive
+; candidate.  The initial Marina northbound transition fits completely; some
+; denser hierarchy phases still require a future coverage-aware handoff.
     xor a
     ld (regular_provider_pool_index),a
-@find_free:
+@find_inactive:
+    ld a,(regular_provider_pool_index)
+    cp regular_provider_coarse_slot_count
+    jr nc,@find_any_begin
+    call regular_provider_claimed_pointer
+    ld a,(hl)
+    or a
+    jr nz,@inactive_advance
+    ld a,(regular_provider_pool_index)
+    add a,regular_provider_coarse_slot_first
+    call terrain_manager_slot_flags_pointer
+    ld a,(hl)
+    and terrain_manager_flag_active
+    jr z,@claim
+@inactive_advance:
+    ld a,(regular_provider_pool_index)
+    inc a
+    ld (regular_provider_pool_index),a
+    jr @find_inactive
+@find_any_begin:
+    xor a
+    ld (regular_provider_pool_index),a
+@find_any:
     ld a,(regular_provider_pool_index)
     cp regular_provider_coarse_slot_count
     jr nc,@no_slot
@@ -492,8 +621,10 @@ regular_provider_reconcile_slots:
     ld a,(regular_provider_pool_index)
     inc a
     ld (regular_provider_pool_index),a
-    jr @find_free
+    jr @find_any
 @claim:
+    ld a,(regular_provider_pool_index)
+    call regular_provider_claimed_pointer
     ld (hl),1
     ld a,(regular_provider_pool_index)
     add a,regular_provider_coarse_slot_first
@@ -502,7 +633,7 @@ regular_provider_reconcile_slots:
     ld a,(regular_provider_plan_index)
     inc a
     ld (regular_provider_plan_index),a
-    jr @assign_plan
+    jp @assign_plan
 @done:
     or a
     ret
@@ -517,6 +648,940 @@ regular_provider_claimed_pointer:
     ld de,regular_provider_claimed_slots
     add hl,de
     ret
+
+.if terrain_manager_group_staging
+; -----------------------------------------------------------------------------
+; Unified full-owner plan maps.  Recipe ordinals always address the unbounded
+; source profile.  Bounded edge clipping is represented only by 0xff map
+; entries; dense-plan omission must never shift a recipe identity.
+
+; A=near ordinal 0..90 -> HL=&authoritative physical slot.
+regular_provider_near_slot_pointer:
+    ld hl,0
+    ld l,a
+    ld de,regular_provider_near_slots
+    add hl,de
+    ret
+
+; A=near ordinal 0..90 -> HL=&bounded-valid byte.
+regular_provider_near_valid_pointer:
+    ld hl,0
+    ld l,a
+    ld de,regular_provider_near_valid
+    add hl,de
+    ret
+
+; A=coarse source ordinal 0..158 -> HL=&target dense index or 0xff.
+regular_transition_template_pointer:
+    ld hl,0
+    ld l,a
+    ld de,regular_transition_target_template_to_dense
+    add hl,de
+    ret
+
+; A=full owner ordinal 0..249 -> HL=&old physical slot or 0xff.
+regular_transition_old_slot_pointer:
+    ld hl,0
+    ld l,a
+    ld de,regular_transition_old_slot_by_ordinal
+    add hl,de
+    ret
+
+; Cold start deliberately reproduces the accepted split allocation.  It also
+; materializes the near owner table which subsequent full-owner handoffs keep
+; authoritative even when near cells migrate outside slots 0..90.
+regular_provider_initialize_split_near_slots:
+    xor a
+    ld (regular_provider_near_ordinal),a
+    ld (regular_provider_endpoint_count),a
+    ld (regular_provider_unified_slots),a
+    ld (regular_transition_state),a
+    ld a,(terrain_manager_current_ring)
+    call regular_provider_near_ring_count
+    ld (regular_provider_endpoint_near_limit),a
+@next:
+    ld a,(regular_provider_near_ordinal)
+    call regular_provider_build_near_candidate
+    jr c,@clipped
+    call hex_provider_compute_candidate_slot
+    ld a,(terrain_manager_candidate_slot)
+    ld b,a
+    ld a,(regular_provider_near_ordinal)
+    call regular_provider_near_slot_pointer
+    ld (hl),b
+    ld a,(regular_provider_near_ordinal)
+    call regular_provider_near_valid_pointer
+    ld (hl),1
+    ld a,(regular_provider_near_ordinal)
+    ld b,a
+    ld a,(regular_provider_endpoint_near_limit)
+    cp b
+    jr z,@advance
+    jr c,@advance
+    ld hl,regular_provider_endpoint_count
+    inc (hl)
+    jr @advance
+@clipped:
+    ld a,(regular_provider_near_ordinal)
+    call regular_provider_near_slot_pointer
+    ld (hl),regular_provider_unassigned_slot
+    ld a,(regular_provider_near_ordinal)
+    call regular_provider_near_valid_pointer
+    ld (hl),0
+@advance:
+    ld a,(regular_provider_near_ordinal)
+    inc a
+    ld (regular_provider_near_ordinal),a
+    cp regular_provider_near_slot_count
+    jr c,@next
+    xor a
+    ret
+
+; Snapshot the complete old endpoint before target-plan construction overwrites
+; the mutable dense records.  The table remains source-ordinal keyed at corpus
+; edges, and already-unified near slots are copied verbatim.
+regular_transition_snapshot_old_slots:
+    ld hl,regular_transition_old_slot_by_ordinal
+    ld b,regular_transition_owner_count
+    ld a,regular_provider_unassigned_slot
+@clear:
+    ld (hl),a
+    inc hl
+    djnz @clear
+
+    xor a
+    ld (regular_provider_near_ordinal),a
+@near:
+    ld a,(regular_provider_near_ordinal)
+    call regular_provider_near_valid_pointer
+    ld a,(hl)
+    or a
+    jr z,@near_advance
+    ld a,(regular_provider_near_ordinal)
+    call regular_provider_near_slot_pointer
+    ld b,(hl)
+    ld a,(regular_provider_near_ordinal)
+    call regular_transition_old_slot_pointer
+    ld (hl),b
+@near_advance:
+    ld a,(regular_provider_near_ordinal)
+    inc a
+    ld (regular_provider_near_ordinal),a
+    cp regular_transition_near_owner_count
+    jr c,@near
+
+    xor a
+    ld (regular_provider_plan_index),a
+@coarse:
+    ld a,(regular_provider_plan_index)
+    ld b,a
+    ld a,(regular_provider_plan_count)
+    cp b
+    jr z,@done
+    ld a,b
+    ld hl,0
+    ld l,a
+    ld de,regular_provider_plan_source_ordinals
+    add hl,de
+    ld a,(hl)
+    add a,regular_transition_near_owner_count
+    call regular_transition_old_slot_pointer
+    push hl
+    ld a,(regular_provider_plan_index)
+    call regular_provider_plan_pointer
+    push hl
+    pop ix
+    pop hl
+    ld a,(ix+regular_provider_plan_record_slot)
+    ld (hl),a
+    ld a,(regular_provider_plan_index)
+    inc a
+    ld (regular_provider_plan_index),a
+    jr @coarse
+@done:
+    ret
+
+; Return carry clear/A=slot for an exact active resident candidate, or carry
+; set if the identity is new.  Shared owners thereby retain their actual
+; physical slots without relying on the retired near/coarse split.
+regular_transition_find_active_candidate:
+    xor a
+    ld (regular_provider_scan_slot),a
+@scan:
+    ld a,(regular_provider_scan_slot)
+    call terrain_manager_slot_flags_pointer
+    ld a,(hl)
+    and terrain_manager_flag_resident+terrain_manager_flag_active
+    cp terrain_manager_flag_resident+terrain_manager_flag_active
+    jp nz,@advance
+    ld a,(regular_provider_scan_slot)
+    ld (terrain_manager_candidate_slot),a
+    call terrain_manager_slot_matches_candidate
+    jr nz,@advance
+    ld a,(regular_provider_scan_slot)
+    or a
+    ret
+@advance:
+    ld a,(regular_provider_scan_slot)
+    inc a
+    ld (regular_provider_scan_slot),a
+    cp terrain_manager_slot_count
+    jr c,@scan
+    scf
+    ret
+
+; Build bounded target maps and preserve only exact shared owner identities.
+; New owners intentionally remain unassigned until their coverage group stages.
+regular_transition_prepare_target_mappings:
+    ld hl,regular_transition_target_template_to_dense
+    ld b,regular_transition_coarse_owner_count
+    ld a,regular_provider_unassigned_slot
+@clear_templates:
+    ld (hl),a
+    inc hl
+    djnz @clear_templates
+    ld hl,regular_provider_near_slots
+    ld b,regular_transition_near_owner_count
+@clear_near_slots:
+    ld (hl),a
+    inc hl
+    djnz @clear_near_slots
+    ld hl,regular_provider_near_valid
+    ld b,regular_transition_near_owner_count
+    xor a
+@clear_near_valid:
+    ld (hl),a
+    inc hl
+    djnz @clear_near_valid
+    ld (regular_provider_endpoint_count),a
+    ld (regular_provider_near_ordinal),a
+
+@near:
+    ld a,(regular_provider_near_ordinal)
+    call regular_provider_build_near_candidate
+    jr c,@near_advance
+    ld a,(regular_provider_near_ordinal)
+    call regular_provider_near_valid_pointer
+    ld (hl),1
+    ld hl,regular_provider_endpoint_count
+    inc (hl)
+    call regular_transition_find_active_candidate
+    jr c,@near_advance
+    ld b,a
+    ld a,(regular_provider_near_ordinal)
+    call regular_provider_near_slot_pointer
+    ld (hl),b
+@near_advance:
+    ld a,(regular_provider_near_ordinal)
+    inc a
+    ld (regular_provider_near_ordinal),a
+    cp regular_transition_near_owner_count
+    jr c,@near
+
+    xor a
+    ld (regular_provider_plan_index),a
+@coarse:
+    ld a,(regular_provider_plan_index)
+    ld b,a
+    ld a,(regular_provider_plan_count)
+    cp b
+    jr z,@done
+    ld a,(regular_provider_plan_index)
+    ld hl,0
+    ld l,a
+    ld de,regular_provider_plan_source_ordinals
+    add hl,de
+    ld a,(hl)
+    call regular_transition_template_pointer
+    ld a,(regular_provider_plan_index)
+    ld (hl),a
+
+    call regular_provider_plan_pointer
+    push hl
+    pop ix
+    ld a,(ix+regular_provider_plan_record_lod)
+    ld (terrain_manager_candidate_lod),a
+    ld a,(ix+regular_provider_plan_record_q+0)
+    ld (terrain_manager_candidate_q+0),a
+    ld a,(ix+regular_provider_plan_record_q+1)
+    ld (terrain_manager_candidate_q+1),a
+    ld a,(ix+regular_provider_plan_record_row+0)
+    ld (terrain_manager_candidate_r+0),a
+    ld a,(ix+regular_provider_plan_record_row+1)
+    ld (terrain_manager_candidate_r+1),a
+    ld hl,regular_provider_endpoint_count
+    inc (hl)
+    call regular_transition_find_active_candidate
+    jr c,@coarse_advance
+    ld (ix+regular_provider_plan_record_slot),a
+@coarse_advance:
+    ld a,(regular_provider_plan_index)
+    inc a
+    ld (regular_provider_plan_index),a
+    jr @coarse
+@done:
+    or a
+    ret
+
+; Select one of 32 old phases and six exact step directions.  Each directory
+; entry is a native 24-bit pointer to group_count followed by packed groups.
+regular_transition_select_recipe:
+    ld hl,0
+    ld a,(regular_transition_old_phase_q)
+    ld l,a
+    add hl,hl
+    add hl,hl                           ; q * 4
+    ld de,0
+    ld a,(regular_transition_old_phase_row)
+    ld e,a
+    add hl,de
+    push hl
+    add hl,hl                           ; phase * 2
+    pop de
+    add hl,de                           ; phase * 3
+    add hl,hl                           ; phase * 6
+    ld de,0
+    ld a,(regular_transition_direction)
+    ld e,a
+    add hl,de                           ; phase * 6 + direction
+    push hl
+    add hl,hl
+    pop de
+    add hl,de                           ; native dl directory byte offset
+    ld de,regular_lod_transition_offsets
+    add hl,de
+    ld a,(hl)
+    ld (regular_transition_recipe_pointer+0),a
+    inc hl
+    ld a,(hl)
+    ld (regular_transition_recipe_pointer+1),a
+    inc hl
+    ld a,(hl)
+    ld (regular_transition_recipe_pointer+2),a
+    ld hl,(regular_transition_recipe_pointer)
+    ld a,(hl)
+    cp regular_lod_transition_maximum_groups+1
+    jr nc,@bad
+    ld (regular_transition_group_count),a
+    inc hl
+    ld (regular_transition_groups_pointer),hl
+    ld hl,regular_transition_processed_groups
+    ld b,regular_transition_processed_bytes
+    xor a
+@clear:
+    ld (hl),a
+    inc hl
+    djnz @clear
+    ld (regular_transition_processed_count),a
+    or a
+    ret
+@bad:
+    scf
+    ret
+
+terrain_provider_begin_transition:
+    call terrain_provider_transition_busy
+    or a
+    jr nz,@busy
+    ld a,(terrain_manager_current_ring)
+    cp regular_lod_transition_near_radius
+    jr nz,@bad
+    call regular_transition_snapshot_old_slots
+    ld a,1
+    ld (regular_transition_build_target),a
+    call terrain_provider_prepare_plan
+    push af
+    xor a
+    ld (regular_transition_build_target),a
+    pop af
+    jr c,@bad
+    call regular_transition_select_recipe
+    jr c,@bad
+    ld a,1
+    ld (regular_provider_unified_slots),a
+    ld a,regular_transition_state_wait_rebase
+    ld (regular_transition_state),a
+    xor a
+    ret
+@bad:
+    ld a,regular_transition_state_error
+    ld (regular_transition_state),a
+    ld a,regular_provider_error_plan
+    scf
+    ret
+@busy:
+    ld a,regular_provider_error_plan
+    scf
+    ret
+
+terrain_provider_transition_busy:
+    ld a,(regular_transition_state)
+    or a
+    ret
+
+terrain_provider_ring_change_allowed:
+    ld a,(regular_provider_unified_slots)
+    or a
+    ret
+
+; Reset provider-private ownership after the manager has deactivated and
+; forgotten every slot.  This is the only legal route from unified arbitrary
+; slots back to the deterministic cold split allocator.  It deliberately does
+; not touch camera or regional origin state; the fixture resubmits that origin
+; as the newly initialized manager's first origin.
+terrain_provider_reset_for_cold_restart:
+    call terrain_provider_transition_busy
+    or a
+    jr nz,@busy
+    xor a
+    ld (regular_provider_plan_valid),a
+    ld (regular_provider_plan_count),a
+    ld (regular_provider_desired_count),a
+    ld (regular_provider_endpoint_count),a
+    ld (regular_provider_endpoint_near_limit),a
+    ld (regular_provider_unified_slots),a
+    ld (regular_transition_build_target),a
+    ld (regular_transition_state),a
+    ret
+@busy:
+    ld a,regular_provider_error_plan
+    scf
+    ret
+
+; Return NZ when A's full owner ordinal exists in the bounded target endpoint.
+regular_transition_target_owner_present:
+    cp regular_transition_near_owner_count
+    jr nc,@coarse
+    call regular_provider_near_valid_pointer
+    ld a,(hl)
+    or a
+    ret
+@coarse:
+    sub regular_transition_near_owner_count
+    call regular_transition_template_pointer
+    ld a,(hl)
+    cp regular_provider_unassigned_slot
+    ret
+
+; Return NZ when group index A is already committed/edge-empty, Z otherwise.
+regular_transition_group_is_processed:
+    ld (regular_transition_group_checked_index),a
+    and 7
+    ld hl,0
+    ld l,a
+    ld de,regular_transition_bit_masks
+    add hl,de
+    ld b,(hl)
+    ld a,(regular_transition_group_checked_index)
+    srl a
+    srl a
+    srl a
+    ld hl,0
+    ld l,a
+    ld de,regular_transition_processed_groups
+    add hl,de
+    ld a,(hl)
+    and b
+    ret
+
+regular_transition_mark_selected_processed:
+    ld a,(regular_transition_selected_index)
+    ld (regular_transition_group_checked_index),a
+    and 7
+    ld hl,0
+    ld l,a
+    ld de,regular_transition_bit_masks
+    add hl,de
+    ld b,(hl)
+    ld a,(regular_transition_group_checked_index)
+    srl a
+    srl a
+    srl a
+    ld hl,0
+    ld l,a
+    ld de,regular_transition_processed_groups
+    add hl,de
+    ld a,(hl)
+    or b
+    ld (hl),a
+    ld hl,regular_transition_processed_count
+    inc (hl)
+    ret
+
+; Inspect every pending recipe component and choose a currently feasible group
+; by the host-proven shrink-first order: maximum retiring-entering, then fewer
+; entering, then more retiring, then source order.  Counts are edge-filtered
+; through the source-ordinal maps before capacity is tested.
+regular_transition_select_feasible_group:
+    ld hl,(regular_transition_groups_pointer)
+    ld (regular_transition_scan_group_pointer),hl
+    xor a
+    ld (regular_transition_scan_group_index),a
+    ld a,regular_provider_unassigned_slot
+    ld (regular_transition_selected_index),a
+    xor a
+    ld (regular_transition_selected_score),a
+
+@group:
+    ld a,(regular_transition_scan_group_index)
+    ld b,a
+    ld a,(regular_transition_group_count)
+    cp b
+    jp z,@selected
+    ld hl,(regular_transition_scan_group_pointer)
+    push hl
+    pop ix
+    ld a,(ix+regular_lod_transition_group_retiring_count)
+    ld (regular_transition_raw_retire_count),a
+    ld a,(ix+regular_lod_transition_group_entering_count)
+    ld (regular_transition_raw_enter_count),a
+    ld a,(regular_transition_scan_group_index)
+    call regular_transition_group_is_processed
+    jp nz,@advance
+
+    xor a
+    ld (regular_transition_actual_retire_count),a
+    ld (regular_transition_actual_enter_count),a
+    push ix
+    pop hl
+    ld de,regular_lod_transition_group_ordinals
+    add hl,de
+    ld (regular_transition_scan_ordinal_pointer),hl
+    ld a,(regular_transition_raw_retire_count)
+    ld (regular_transition_scan_remaining),a
+@old:
+    ld a,(regular_transition_scan_remaining)
+    or a
+    jr z,@new_begin
+    ld hl,(regular_transition_scan_ordinal_pointer)
+    ld a,(hl)
+    inc hl
+    ld (regular_transition_scan_ordinal_pointer),hl
+    call regular_transition_old_slot_pointer
+    ld a,(hl)
+    cp regular_provider_unassigned_slot
+    jr z,@old_next
+    ld hl,regular_transition_actual_retire_count
+    inc (hl)
+@old_next:
+    ld hl,regular_transition_scan_remaining
+    dec (hl)
+    jr @old
+
+@new_begin:
+    ld a,(regular_transition_raw_enter_count)
+    ld (regular_transition_scan_remaining),a
+@new:
+    ld a,(regular_transition_scan_remaining)
+    or a
+    jr z,@score
+    ld hl,(regular_transition_scan_ordinal_pointer)
+    ld a,(hl)
+    inc hl
+    ld (regular_transition_scan_ordinal_pointer),hl
+    call regular_transition_target_owner_present
+    jr z,@new_next
+    ld hl,regular_transition_actual_enter_count
+    inc (hl)
+@new_next:
+    ld hl,regular_transition_scan_remaining
+    dec (hl)
+    jr @new
+
+@score:
+; With 255 slots, CPL(active_count) is the exact inactive capacity.
+    ld a,(terrain_manager_active_count)
+    cpl
+    ld b,a
+    ld a,(regular_transition_actual_enter_count)
+    cp b
+    jr c,@feasible
+    jr z,@feasible
+    jr @advance
+@feasible:
+    ld a,(regular_transition_actual_retire_count)
+    ld b,a
+    ld a,(regular_transition_actual_enter_count)
+    ld c,a
+    ld a,b
+    sub c
+    add a,16
+    ld (regular_transition_candidate_score),a
+    ld b,a
+    ld a,(regular_transition_selected_index)
+    cp regular_provider_unassigned_slot
+    jr z,@choose
+    ld a,(regular_transition_selected_score)
+    cp b
+    jr c,@choose
+    jr nz,@advance
+    ld a,(regular_transition_actual_enter_count)
+    ld b,a
+    ld a,(regular_transition_selected_enter_count)
+    cp b
+    jr nc,@tie_enter
+    jr @advance
+@tie_enter:
+    jr nz,@choose
+    ld a,(regular_transition_actual_retire_count)
+    ld b,a
+    ld a,(regular_transition_selected_retire_count)
+    cp b
+    jr c,@choose
+    jr @advance
+@choose:
+    ld a,(regular_transition_scan_group_index)
+    ld (regular_transition_selected_index),a
+    ld hl,(regular_transition_scan_group_pointer)
+    ld (regular_transition_selected_pointer),hl
+    ld a,(regular_transition_candidate_score)
+    ld (regular_transition_selected_score),a
+    ld a,(regular_transition_actual_retire_count)
+    ld (regular_transition_selected_retire_count),a
+    ld a,(regular_transition_actual_enter_count)
+    ld (regular_transition_selected_enter_count),a
+
+@advance:
+    ld hl,(regular_transition_scan_group_pointer)
+    push hl
+    pop ix
+    ld a,(ix+regular_lod_transition_group_retiring_count)
+    ld b,a
+    ld a,(ix+regular_lod_transition_group_entering_count)
+    add a,b
+    add a,regular_lod_transition_group_ordinals
+    ld de,0
+    ld e,a
+    add hl,de
+    ld (regular_transition_scan_group_pointer),hl
+    ld hl,regular_transition_scan_group_index
+    inc (hl)
+    jp @group
+
+@selected:
+    ld a,(regular_transition_selected_index)
+    cp regular_provider_unassigned_slot
+    jr z,@none
+    or a
+    ret
+@none:
+    scf
+    ret
+
+; Materialize the selected edge-filtered group into bounded slot/ordinal lists.
+regular_transition_prepare_selected_group:
+    xor a
+    ld (regular_transition_actual_retire_count),a
+    ld (regular_transition_actual_enter_count),a
+    ld (regular_transition_stage_index),a
+    ld a,regular_provider_unassigned_slot
+    ld (regular_transition_stage_pending_slot),a
+    ld hl,(regular_transition_selected_pointer)
+    push hl
+    pop ix
+    ld a,(ix+regular_lod_transition_group_retiring_count)
+    ld (regular_transition_raw_retire_count),a
+    ld a,(ix+regular_lod_transition_group_entering_count)
+    ld (regular_transition_raw_enter_count),a
+    push ix
+    pop hl
+    ld de,regular_lod_transition_group_ordinals
+    add hl,de
+    ld (regular_transition_scan_ordinal_pointer),hl
+
+    ld a,(regular_transition_raw_retire_count)
+    ld (regular_transition_scan_remaining),a
+@old:
+    ld a,(regular_transition_scan_remaining)
+    or a
+    jr z,@new_begin
+    ld hl,(regular_transition_scan_ordinal_pointer)
+    ld a,(hl)
+    inc hl
+    ld (regular_transition_scan_ordinal_pointer),hl
+    call regular_transition_old_slot_pointer
+    ld a,(hl)
+    cp regular_provider_unassigned_slot
+    jr z,@old_next
+    ld b,a
+    ld a,(regular_transition_actual_retire_count)
+    ld hl,0
+    ld l,a
+    ld de,regular_transition_retire_slots
+    add hl,de
+    ld (hl),b
+    ld hl,regular_transition_actual_retire_count
+    inc (hl)
+@old_next:
+    ld hl,regular_transition_scan_remaining
+    dec (hl)
+    jr @old
+
+@new_begin:
+    ld a,(regular_transition_raw_enter_count)
+    ld (regular_transition_scan_remaining),a
+@new:
+    ld a,(regular_transition_scan_remaining)
+    or a
+    jr z,@ready
+    ld hl,(regular_transition_scan_ordinal_pointer)
+    ld a,(hl)
+    inc hl
+    ld (regular_transition_scan_ordinal_pointer),hl
+    ld b,a
+    call regular_transition_target_owner_present
+    jr z,@new_next
+    ld a,(regular_transition_actual_enter_count)
+    ld hl,0
+    ld l,a
+    ld de,regular_transition_enter_ordinals
+    add hl,de
+    ld (hl),b
+    ld hl,regular_transition_actual_enter_count
+    inc (hl)
+@new_next:
+    ld hl,regular_transition_scan_remaining
+    dec (hl)
+    jr @new
+
+@ready:
+    ld a,(regular_transition_actual_retire_count)
+    ld b,a
+    ld a,(regular_transition_actual_enter_count)
+    or b
+    jr nz,@nonempty
+    call regular_transition_mark_selected_processed
+    ld a,regular_transition_state_select
+    ld (regular_transition_state),a
+    xor a
+    ret
+@nonempty:
+    ld a,(regular_transition_actual_enter_count)
+    or a
+    ld a,regular_transition_state_commit
+    jr z,@state
+    ld a,regular_transition_state_stage
+@state:
+    ld (regular_transition_state),a
+    xor a
+    ret
+
+; Load one target identity from its stable full-owner source ordinal.
+regular_transition_build_enter_candidate:
+    cp regular_transition_near_owner_count
+    jr nc,@coarse
+    ld (regular_provider_near_ordinal),a
+    jp regular_provider_build_near_candidate
+@coarse:
+    sub regular_transition_near_owner_count
+    call regular_transition_template_pointer
+    ld a,(hl)
+    cp regular_provider_unassigned_slot
+    jr z,@bad
+    call regular_provider_plan_pointer
+    push hl
+    pop ix
+    ld a,(ix+regular_provider_plan_record_lod)
+    ld (terrain_manager_candidate_lod),a
+    ld a,(ix+regular_provider_plan_record_q+0)
+    ld (terrain_manager_candidate_q+0),a
+    ld a,(ix+regular_provider_plan_record_q+1)
+    ld (terrain_manager_candidate_q+1),a
+    ld a,(ix+regular_provider_plan_record_row+0)
+    ld (terrain_manager_candidate_r+0),a
+    ld a,(ix+regular_provider_plan_record_row+1)
+    ld (terrain_manager_candidate_r+1),a
+    or a
+    ret
+@bad:
+    scf
+    ret
+
+; Exact inactive cache hits are preferred; otherwise retain the first inactive
+; non-staged physical slot.  Active predecessors are never offered to command
+; 50, even when their group is selected for the subsequent atomic commit.
+regular_transition_find_staging_slot:
+    ld a,regular_provider_unassigned_slot
+    ld (regular_transition_fallback_slot),a
+    xor a
+    ld (regular_provider_scan_slot),a
+@scan:
+    ld a,(regular_provider_scan_slot)
+    call terrain_manager_slot_flags_pointer
+    ld a,(hl)
+    and terrain_manager_flag_active+terrain_manager_flag_staged
+    jr nz,@advance
+    ld a,(regular_transition_fallback_slot)
+    cp regular_provider_unassigned_slot
+    jr nz,@match
+    ld a,(regular_provider_scan_slot)
+    ld (regular_transition_fallback_slot),a
+@match:
+    ld a,(regular_provider_scan_slot)
+    ld (terrain_manager_candidate_slot),a
+    call terrain_manager_slot_matches_candidate
+    jr z,@found
+@advance:
+    ld a,(regular_provider_scan_slot)
+    inc a
+    ld (regular_provider_scan_slot),a
+    cp terrain_manager_slot_count
+    jr c,@scan
+    ld a,(regular_transition_fallback_slot)
+    cp regular_provider_unassigned_slot
+    jr z,@none
+    ld (terrain_manager_candidate_slot),a
+    or a
+    ret
+@found:
+    ld a,(regular_provider_scan_slot)
+    ld (terrain_manager_candidate_slot),a
+    or a
+    ret
+@none:
+    scf
+    ret
+
+; Record a successfully staged physical slot into the authoritative target map.
+regular_transition_assign_enter_slot:
+    ld b,a                              ; B=physical slot
+    ld a,(regular_transition_stage_index)
+    ld hl,0
+    ld l,a
+    ld de,regular_transition_enter_ordinals
+    add hl,de
+    ld a,(hl)
+    cp regular_transition_near_owner_count
+    jr nc,@coarse
+    call regular_provider_near_slot_pointer
+    ld (hl),b
+    ret
+@coarse:
+    sub regular_transition_near_owner_count
+    call regular_transition_template_pointer
+    ld a,(hl)
+    call regular_provider_plan_pointer
+    ld de,regular_provider_plan_record_slot
+    add hl,de
+    ld (hl),b
+    ret
+
+regular_transition_service_stage:
+    ld a,(regular_transition_stage_index)
+    ld hl,0
+    ld l,a
+    ld de,regular_transition_enter_ordinals
+    add hl,de
+    ld a,(hl)
+    call regular_transition_build_enter_candidate
+    jr c,@bad
+    ld a,(regular_transition_stage_pending_slot)
+    cp regular_provider_unassigned_slot
+    jr nz,@slot_ready
+    call regular_transition_find_staging_slot
+    jr c,@bad
+    ld a,(terrain_manager_candidate_slot)
+    ld (regular_transition_stage_pending_slot),a
+@slot_ready:
+    ld (terrain_manager_candidate_slot),a
+    call terrain_manager_candidate_retry_ready
+    jr nz,@idle
+    call terrain_manager_stage_candidate
+    ret c
+    ld a,(regular_transition_stage_index)
+    ld hl,0
+    ld l,a
+    ld de,regular_transition_enter_slots
+    add hl,de
+    ld a,(terrain_manager_candidate_slot)
+    ld (hl),a
+    call regular_transition_assign_enter_slot
+    ld hl,regular_transition_stage_index
+    inc (hl)
+    ld a,regular_provider_unassigned_slot
+    ld (regular_transition_stage_pending_slot),a
+    ld a,(regular_transition_actual_enter_count)
+    ld b,a
+    ld a,(regular_transition_stage_index)
+    cp b
+    jr nz,@idle
+    ld a,regular_transition_state_commit
+    ld (regular_transition_state),a
+@idle:
+    xor a
+    ret
+@bad:
+    ld a,regular_provider_error_plan
+    scf
+    ret
+
+regular_transition_service_commit:
+    ld ix,regular_transition_retire_slots
+    ld a,(regular_transition_actual_retire_count)
+    ld b,a
+    ld iy,regular_transition_enter_slots
+    ld a,(regular_transition_actual_enter_count)
+    ld c,a
+    call terrain_manager_commit_staged_group
+    ret c
+    call regular_transition_mark_selected_processed
+    ld a,regular_transition_state_select
+    ld (regular_transition_state),a
+    xor a
+    ret
+
+regular_transition_finish:
+    ld a,(terrain_manager_staged_count)
+    or a
+    jr nz,@bad
+    ld a,(terrain_manager_active_count)
+    ld b,a
+    ld a,(regular_provider_endpoint_count)
+    cp b
+    jr nz,@bad
+    xor a
+    ld (regular_transition_state),a
+    ld (terrain_manager_scan_cursor),a
+    ld (terrain_manager_converged),a
+    ret
+@bad:
+    ld a,regular_transition_state_error
+    ld (regular_transition_state),a
+    ld a,regular_provider_error_plan
+    scf
+    ret
+
+; Sole manager-idle dispatcher while a transaction exists.  Target records may
+; be built immediately, but each tick performs at most one mesh publication or
+; one atomic group commit; no render can interleave within the commit routine.
+terrain_provider_service_transition:
+    ld a,(regular_transition_state)
+    cp regular_transition_state_wait_rebase
+    jr nz,@select
+    ld a,regular_transition_state_select
+    ld (regular_transition_state),a
+    xor a
+    ret
+@select:
+    cp regular_transition_state_select
+    jr nz,@stage
+    ld a,(regular_transition_processed_count)
+    ld b,a
+    ld a,(regular_transition_group_count)
+    cp b
+    jp z,regular_transition_finish
+    call regular_transition_select_feasible_group
+    ret c
+    jp regular_transition_prepare_selected_group
+@stage:
+    cp regular_transition_state_stage
+    jp z,regular_transition_service_stage
+    cp regular_transition_state_commit
+    jp z,regular_transition_service_commit
+    ld a,regular_provider_error_plan
+    scf
+    ret
+.endif
 
 ; q must be 0..213.  offset_row=r+floor(q/2) must lie in the alternating
 ; 235/234-row bounded columns used by cell_id in hex_terrain.py.
@@ -818,7 +1883,11 @@ regular_provider_cache_loaded_center:
 
 ; A=coarse slot, DE=array base -> HL=&array[(slot-91)*3].
 regular_provider_center_pointer:
+.if terrain_manager_group_staging
+; Unified handoff slots are physical object slots, not coarse-pool ordinals.
+.else
     sub regular_provider_coarse_slot_first
+.endif
     ld hl,0
     ld l,a
     push hl
@@ -911,8 +1980,8 @@ regular_provider_position_near_candidate:
 
 ; Actual descriptor centres are relative to REGIONAL_ORIGIN.  The live axial
 ; cell centre is (256+480q, 256+275q+550r) metres from that same origin, hence
-; counts east=4096+7680q and north=4096+4400q+8800r.  Pingo local X is north;
-; local Z is negative east.
+; counts east=4096+7680q and north=4096+4400q+8800r. Pingo local X is north;
+; this fixture corrects the legacy corpus reflection so local Z is east.
 regular_provider_position_coarse_candidate:
     call regular_provider_refresh_origin_counts
     ld a,(terrain_manager_candidate_slot)
@@ -924,13 +1993,10 @@ regular_provider_position_coarse_candidate:
     ld (regular_provider_translation+0),hl ; ADL24: exact local X
     ld hl,hex_provider_terrain_y_count
     ld (regular_provider_translation+3),hl ; ADL24: exact local Y
-    ld hl,(regular_provider_origin_east_count) ; ADL24: exact origin count
-    push hl
     ld a,(terrain_manager_candidate_slot)
     ld de,regular_provider_center_east_counts
     call regular_provider_load_cached_center
-    ex de,hl
-    pop hl
+    ld de,(regular_provider_origin_east_count) ; ADL24: exact origin count
     or a
     sbc hl,de
     ld (regular_provider_translation+6),hl ; ADL24: exact local Z
@@ -990,13 +2056,16 @@ hex_provider_r_delta_index:
     or a
     sbc.s hl,de
 hex_provider_delta_index:
-    ld de,5
+; Desired L0 cells occupy delta -5..+5. During a one-cell rebase the preceding
+; plan's outer fringe reaches exactly -6 or +6 and must remain positionable
+; until all replacement detail is active.
+    ld de,6
     add.s hl,de
     ld a,h
     or a
     jr nz,@outside
     ld a,l
-    cp 11
+    cp 13
     jr nc,@outside
     or a
     ret
@@ -1004,7 +2073,7 @@ hex_provider_delta_index:
     scf
     ret
 
-; Input A=0..10 and DE=table.  Output HL=&table[A*3].
+; Input A=0..12 and DE=table. Output HL=&table[A*3].
 hex_provider_table_pointer:
     ld hl,0
     ld l,a
@@ -1147,6 +2216,41 @@ regular_provider_near_candidate_is_desired:
 ; multiplication, so each unsigned product and sum fits in 24 bits.
 terrain_provider_normalize_position:
     push iy
+.if terrain_manager_group_staging
+    call terrain_provider_transition_busy
+    or a
+    jr z,@transition_idle
+    pop iy
+    or a
+    ret
+@transition_idle:
+; Recipes are qualified only for a complete radius-five endpoint.  Cold fill,
+; stale retirement, or a pre-unified smaller-ring view leaves camera motion in
+; local coordinates until an exact endpoint is active; it cannot start from a
+; partial owner snapshot.
+    ld a,(terrain_manager_current_ring)
+    cp regular_lod_transition_near_radius
+    jr nz,@transition_deferred
+    ld a,(regular_provider_plan_valid)
+    or a
+    jr z,@transition_deferred
+    ld a,(terrain_manager_converged)
+    or a
+    jr z,@transition_deferred
+    ld a,(regular_provider_endpoint_count)
+    ld b,a
+    ld a,(terrain_manager_active_count)
+    cp b
+    jr nz,@transition_deferred
+    ld a,(terrain_manager_staged_count)
+    or a
+    jr z,@transition_ready
+@transition_deferred:
+    pop iy
+    xor a
+    ret
+@transition_ready:
+.endif
     xor a
     ld (hex_provider_origin_changed),a
 @again:
@@ -1194,7 +2298,7 @@ terrain_provider_normalize_position:
 @outside_sloped:
     ld a,(hex_provider_local_z+1)
     bit 7,a
-    jr z,@west
+    jr nz,@west
     ld a,(hex_provider_local_x+1)
     bit 7,a
     ld a,2                             ; northeast/east: (+1,0)
@@ -1209,9 +2313,25 @@ terrain_provider_normalize_position:
     ld a,5                             ; southwest/west: (-1,0)
 
 @apply:
+.if terrain_manager_group_staging
+    ld (regular_transition_direction),a
+    ld a,(terrain_manager_origin_q)
+    and 7
+    ld (regular_transition_old_phase_q),a
+    ld a,(regular_provider_origin_offset_row)
+    and 3
+    ld (regular_transition_old_phase_row),a
+    ld a,(regular_transition_direction)
+.endif
     call hex_provider_apply_origin_step
     jr nz,@normalized                  ; bounded coverage edge
+.if terrain_manager_group_staging
+; One canonical recipe covers exactly one adjacent move.  Large local camera
+; displacement catches up one transaction at a time after each handoff.
+    jr @normalized
+.else
     jp @again
+.endif
 
 @normalized:
     ld a,(hex_provider_origin_changed)
@@ -1356,13 +2476,17 @@ hex_provider_disk_offsets:
     db 4,-5, 3,-5, 2,-5, 1,-5, 0,-5, -1,-4, -2,-3
     db -3,-2, -4,-1, -5,0, -5,1, -5,2, -5,3, -5,4
 
-; Index -5..+5.  Each entry is one exact signed 24-bit translation count.
+; Index -6..+6. Each entry is one exact signed 24-bit translation count. The
+; outer pair exists solely for conservative old-plan retention during rebase.
 hex_provider_q_x_counts:
-    dl -22000,-17600,-13200,-8800,-4400,0,4400,8800,13200,17600,22000
+    dl -26400,-22000,-17600,-13200,-8800,-4400,0
+    dl 4400,8800,13200,17600,22000,26400
 hex_provider_q_z_counts:
-    dl 38400,30720,23040,15360,7680,0,-7680,-15360,-23040,-30720,-38400
+    dl -46080,-38400,-30720,-23040,-15360,-7680,0
+    dl 7680,15360,23040,30720,38400,46080
 hex_provider_r_x_counts:
-    dl -44000,-35200,-26400,-17600,-8800,0,8800,17600,26400,35200,44000
+    dl -52800,-44000,-35200,-26400,-17600,-8800,0
+    dl 8800,17600,26400,35200,44000,52800
 
 ; dq,dr and corresponding origin-centre displacement in Pingo local X/Z.
 hex_provider_origin_steps:
@@ -1371,13 +2495,13 @@ hex_provider_origin_steps:
     db 0,-1
     dw -8800,0
     db 1,0
-    dw 4400,-7680
-    db 1,-1
-    dw -4400,-7680
-    db -1,1
     dw 4400,7680
-    db -1,0
+    db 1,-1
     dw -4400,7680
+    db -1,1
+    dw 4400,-7680
+    db -1,0
+    dw -4400,-7680
 
 hex_provider_slot_accumulator: dw 0
 hex_provider_delta_q: dw 0
@@ -1416,5 +2540,56 @@ regular_provider_origin_north_count: dl 0
 regular_provider_translation: ds 9
 regular_provider_plan: ds regular_provider_plan_max*regular_provider_plan_record_bytes
 regular_provider_claimed_slots: ds regular_provider_coarse_slot_count
+.if terrain_manager_group_staging
+regular_provider_near_ordinal: db 0
+regular_provider_near_slots: ds regular_provider_near_slot_count
+regular_provider_near_valid: ds regular_provider_near_slot_count
+regular_provider_plan_source_ordinals: ds regular_provider_plan_max
+regular_provider_phase_source_ordinal: db 0
+regular_provider_build_source_ordinal: db 0
+regular_provider_endpoint_count: db 0
+regular_provider_endpoint_near_limit: db 0
+regular_provider_unified_slots: db 0
+
+regular_transition_state: db 0
+regular_transition_build_target: db 0
+regular_transition_direction: db 0
+regular_transition_old_phase_q: db 0
+regular_transition_old_phase_row: db 0
+regular_transition_recipe_pointer: dl 0
+regular_transition_groups_pointer: dl 0
+regular_transition_scan_group_pointer: dl 0
+regular_transition_selected_pointer: dl 0
+regular_transition_scan_ordinal_pointer: dl 0
+regular_transition_group_count: db 0
+regular_transition_processed_count: db 0
+regular_transition_scan_group_index: db 0
+regular_transition_selected_index: db 0
+regular_transition_group_checked_index: db 0
+regular_transition_raw_retire_count: db 0
+regular_transition_raw_enter_count: db 0
+regular_transition_actual_retire_count: db 0
+regular_transition_actual_enter_count: db 0
+regular_transition_selected_retire_count: db 0
+regular_transition_selected_enter_count: db 0
+regular_transition_selected_score: db 0
+regular_transition_candidate_score: db 0
+regular_transition_scan_remaining: db 0
+regular_transition_stage_index: db 0
+regular_transition_stage_pending_slot: db 0
+regular_transition_fallback_slot: db 0
+regular_transition_processed_groups: ds regular_transition_processed_bytes
+regular_transition_bit_masks: db 1,2,4,8,16,32,64,128
+regular_transition_retire_slots: ds regular_lod_transition_maximum_retiring
+regular_transition_enter_ordinals: ds regular_lod_transition_maximum_entering
+regular_transition_enter_slots: ds regular_lod_transition_maximum_entering
+regular_transition_old_slot_by_ordinal: ds regular_transition_owner_count
+regular_transition_target_template_to_dense: ds regular_transition_coarse_owner_count
+.endif
+.if terrain_manager_group_staging
+regular_provider_center_east_counts: ds terrain_manager_slot_count*3
+regular_provider_center_north_counts: ds terrain_manager_slot_count*3
+.else
 regular_provider_center_east_counts: ds regular_provider_coarse_slot_count*3
 regular_provider_center_north_counts: ds regular_provider_coarse_slot_count*3
+.endif

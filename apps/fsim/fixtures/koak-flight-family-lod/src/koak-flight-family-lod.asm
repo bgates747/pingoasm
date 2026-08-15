@@ -20,6 +20,7 @@ aircraft_bmid: equ 260
 aircraft_mesh_id: equ 201
 aircraft_object_id: equ 201
 p3dm_stage_buffer_id: equ 07400h
+p3dm_mirror_z_on_load: equ 0
 
 viewport_width: equ 320
 viewport_height: equ 148

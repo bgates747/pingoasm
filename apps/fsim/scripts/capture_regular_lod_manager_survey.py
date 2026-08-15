@@ -97,6 +97,27 @@ def validate_fixture_contract(
         "mesh_id_range": [1, 255],
         "object_id_range": [1, 255],
         "publication_budget_per_idle_pass": 1,
+        "defer_stale_rebase": True,
+        "fallback_position_fringe_cells": 1,
+        "group_staging_enabled": True,
+        "owner_domain": "unified detailed and coarse owners",
+        "cold_slot_policy": "91 hashed detailed slots, then coarse slots",
+        "post_handoff_slot_policy": "arbitrary authoritative owner-to-slot map",
+        "transition_policy": "coverage-component atomic commit",
+        "transition_radius": 5,
+        "transition_recipe_count": 192,
+        "transition_group_count": 4_176,
+        "maximum_group_retiring": 14,
+        "maximum_group_entering": 14,
+        "maximum_group_commit_activity": 15,
+        "minimum_group_staging_margin": 4,
+        "radius_change_policy": "render-idle cold restart at current origin",
+        "runtime_axis_adapter": {
+            "source": "X=north,Y=up,Z=-east (reflected)",
+            "published": "X=north,Y=up,Z=+east (right-handed)",
+            "vertex_z_negated": True,
+            "triangle_winding_reversed": True,
+        },
         "projection_far_units": 65_535,
         "phase_q": 0,
         "phase_offset_row": 1,
@@ -113,6 +134,29 @@ def validate_fixture_contract(
     hierarchy = document.get("hierarchy", {})
     if hierarchy.get("world_sha256") != survey.sha256(world):
         raise SystemExit("regular-LOD hierarchy WORLD checksum changed")
+    transition = hierarchy.get("transition_include", {})
+    expected_transition = {
+        "path": "fixtures/terrain-manager-regular-lod-survey/tgt/regular-lod-transitions.inc",
+        "bytes": 109_831,
+        "sha256": "aa6a3d152370f59fc2cefceacc46766bfc3425cb012be927beb5a758788de749",
+        "recipe_count": 192,
+        "group_count": 4_176,
+        "logical_table_bytes": 21_504,
+        "logical_table_sha256": "34fd0c448e6b653d4ab25883eb283a328dc5825cd6232591866059cbd2b6a79d",
+        "maximum_retiring": 14,
+        "maximum_entering": 14,
+        "maximum_commit_activity": 15,
+        "minimum_staging_margin": 4,
+        "audited_directed_bounded_transitions": 299_306,
+    }
+    for name, expected in expected_transition.items():
+        if transition.get(name) != expected:
+            raise SystemExit(
+                f"regular-LOD transition {name}={transition.get(name)!r}, "
+                f"expected {expected!r}"
+            )
+    if transition.get("sha256") != survey.sha256(builder.TRANSITION_INCLUDE):
+        raise SystemExit("regular-LOD transition source include checksum changed")
 
     resources: dict[str, dict[str, object]] = {}
     for name in survey.RESOURCE_NAMES:
