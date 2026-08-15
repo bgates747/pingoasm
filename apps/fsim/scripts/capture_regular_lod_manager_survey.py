@@ -206,11 +206,15 @@ def configure_shared_capture() -> None:
     survey.validate_fixture_contract = validate_fixture_contract
 
 
-def _final_render_counts(log: str) -> dict[str, int]:
+def _final_render_counts(
+    log: str, final_sequence: int | None = None
+) -> dict[str, int]:
+    if final_sequence is None:
+        final_sequence = SEQUENCES[-1]
     lines = [
         match.group(0)
         for match in RENDER_RE.finditer(log)
-        if int(match.group(1)) == SEQUENCES[-1]
+        if int(match.group(1)) == final_sequence
     ]
     if len(lines) != 1:
         raise SystemExit(f"expected one final regular-LOD render, got {len(lines)}")
@@ -238,7 +242,9 @@ def main() -> int:
     if "PINGO_SCENE active_overflow=1" in log:
         raise SystemExit("regular-LOD capture hit the retired scene-object limit")
     report["projection_far_units"] = 65_535
-    report["final_traversal"] = _final_render_counts(log)
+    report["final_traversal"] = _final_render_counts(
+        log, int(report["requested_sequences"][-1])
+    )
     report["active_object_capacity_overflow"] = False
     report_path.write_text(
         json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8"

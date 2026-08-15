@@ -48,6 +48,18 @@ RESOURCE_NAMES = ("MATID.RG2", "PATLUT.BIN", "PATTERN.RG2")
 FIXTURE_STUB = bytes((0xC3, 0x45, 0x00, 0x04))
 MOS_ADL_HEADER = b"MOS\x00\x01"
 FIXTURE_LOAD_CAPACITY = 0x070000
+CURRENT_PROGRAM_BYTES = 142_763
+CURRENT_PROGRAM_SHA256 = (
+    "27f09db1eb0b0eec702aad5c17f35e68922f154a6c3391370d07a76027cc57bf"
+)
+CURRENT_LISTING_BYTES = 2_294_668
+CURRENT_LISTING_SHA256 = (
+    "92c967ec861422bd967d27581c21f8e9ab8fd3cbbeec637b86761a793e8178f1"
+)
+CURRENT_SYMBOLS_BYTES = 66_048
+CURRENT_SYMBOLS_SHA256 = (
+    "86421619d43bf6471a265b51a71e3e19f1e58b569d85a067ee456e99da7bb165"
+)
 
 START_CELL = (80, 125)
 START_OFFSET_ROW = 165
@@ -123,6 +135,90 @@ def _atomic_json(path: Path, document: dict) -> None:
         path,
         (json.dumps(document, indent=2, sort_keys=True) + "\n").encode("utf-8"),
     )
+
+
+def publish_current_artifact_set(
+    generated_program: Path,
+    generated_listing: Path,
+    generated_symbols: Path,
+    *,
+    program: Path = PROGRAM,
+    listing: Path = LISTING,
+    symbols: Path = SYMBOLS,
+) -> None:
+    """Gate the complete current artifact set before replacing any member.
+
+    Each member is replaced atomically. If publication or the final identity
+    check fails, the prior complete set is restored before the error escapes.
+    """
+
+    specifications = (
+        (
+            generated_program,
+            program,
+            CURRENT_PROGRAM_BYTES,
+            CURRENT_PROGRAM_SHA256,
+            "program",
+        ),
+        (
+            generated_listing,
+            listing,
+            CURRENT_LISTING_BYTES,
+            CURRENT_LISTING_SHA256,
+            "listing",
+        ),
+        (
+            generated_symbols,
+            symbols,
+            CURRENT_SYMBOLS_BYTES,
+            CURRENT_SYMBOLS_SHA256,
+            "symbols",
+        ),
+    )
+    payloads: list[tuple[Path, bytes]] = []
+    for generated, target, expected_bytes, expected_sha256, description in specifications:
+        if generated.is_symlink() or not generated.is_file():
+            raise SystemExit(f"generated {description} is absent: {generated}")
+        if generated.resolve() == target.resolve():
+            raise SystemExit(f"generated {description} aliases canonical target")
+        payload = generated.read_bytes()
+        digest = sha256_bytes(payload)
+        if len(payload) != expected_bytes or digest != expected_sha256:
+            raise SystemExit(
+                f"generated {description} identity changed: "
+                f"bytes={len(payload)} sha256={digest}"
+            )
+        payloads.append((target, payload))
+
+    prior: dict[Path, bytes | None] = {}
+    for target, _payload in payloads:
+        if target.is_symlink():
+            raise SystemExit(f"canonical artifact is a symlink: {target}")
+        prior[target] = target.read_bytes() if target.is_file() else None
+
+    try:
+        for target, payload in payloads:
+            _atomic_bytes(target, payload)
+        for (_generated, target, expected_bytes, expected_sha256, description) in specifications:
+            if (
+                not target.is_file()
+                or target.stat().st_size != expected_bytes
+                or sha256_file(target) != expected_sha256
+            ):
+                raise SystemExit(
+                    f"published {description} failed final identity check"
+                )
+    except BaseException:
+        for target, previous in prior.items():
+            if previous is None:
+                if target.is_file() and not target.is_symlink():
+                    target.unlink()
+            else:
+                _atomic_bytes(target, previous)
+        raise
+
+    for generated, _target, _bytes, _sha256, _description in specifications:
+        generated.unlink()
 
 
 def _runtime_include() -> dict[str, object]:
@@ -503,14 +599,16 @@ def assemble() -> None:
     for path in (generated_program, generated_listing, generated_symbols):
         if not path.is_file():
             raise SystemExit(f"ez80asm omitted expected output: {path}")
-    shutil.move(generated_program, PROGRAM)
-    shutil.move(generated_listing, LISTING)
-    shutil.move(generated_symbols, SYMBOLS)
-    payload = PROGRAM.read_bytes()
+    payload = generated_program.read_bytes()
     if len(payload) > FIXTURE_LOAD_CAPACITY:
         raise SystemExit("regular-LOD fixture exceeds the fixture load window")
     if payload[:4] != FIXTURE_STUB or payload[0x40:0x45] != MOS_ADL_HEADER:
         raise SystemExit("regular-LOD fixture lost the common fixture entry")
+    publish_current_artifact_set(
+        generated_program,
+        generated_listing,
+        generated_symbols,
+    )
 
 
 def install(

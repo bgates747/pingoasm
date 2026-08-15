@@ -53,6 +53,17 @@ terrain_manager_defer_stale_rebase: equ 1
 ; scripts/build_regular_lod_group_scratch.py --group-staging 0 preserves the
 ; byte-exact inactive-first policy as an isolated rollback build.
 terrain_manager_group_staging: equ 1
+; The accepted appliance keeps the qualified assembly selector byte-for-byte.
+; A separately named sibling fixture overrides both constants and includes the
+; fixed-address AgonDev policy client without changing P3DRGL.BIN.
+terrain_manager_regular_policy_client: equ 0
+terrain_manager_regular_policy_mode: equ 0
+    MACRO REGULAR_POLICY_BEGIN_TRANSITION
+        .align 1
+    ENDMACRO
+    MACRO REGULAR_POLICY_SELECT_DISPATCH
+        .align 1
+    ENDMACRO
 
 ; Command 53 carries the complete unsigned word.  At the terrain convention of
 ; eight metres per Pingo unit this is about 524 km; resident rings and later
@@ -126,11 +137,17 @@ start:
     include "../../terrain-manager-regular-lod-survey/tgt/regular-lod-transitions.inc"
 .endif
     include "terrain-manager-regular-lod-provider.inc"
+.if terrain_manager_regular_policy_client
+    include "terrain-manager-regular-lod-policy-client.inc"
+.endif
     include "../../../runtime/ez80/terrain-manager.inc"
 
 main:
     ld hl,title
     call printString
+.if terrain_manager_regular_policy_client
+    call regular_policy_initialize
+.endif
     call load_scene_resources
     CTB2 tgtbmid,viewport_width,viewport_height
     CCS sid,viewport_width,viewport_height

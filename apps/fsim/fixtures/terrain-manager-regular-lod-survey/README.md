@@ -57,3 +57,24 @@ Runtime files expected beside the appliance are:
 The generated `tgt/regular-lod-runtime.inc` and separate
 `tgt/regular-lod-transitions.inc` are part of the fixture contract. Neither is
 a hand-edited topology table.
+
+## Rebuild order
+
+Generated corpora remain under ignored `build/`; they are not Git payloads.
+Starting from the pinned acquired inputs, the complete regular hierarchy and
+accepted manager are reproducible in this order:
+
+```bash
+.venv/bin/python scripts/build_regional_hex_terrain.py --selection full
+.venv/bin/python scripts/build_regular_lod_corpus.py
+.venv/bin/python scripts/build_regular_lod_manager_survey.py
+.venv/bin/python scripts/build_fsim_launcher.py
+```
+
+The first command creates the accepted 50,183-cell N=5 `TRH/L0` source. The
+second derives all 83,293 regular hierarchy records and receipts
+algorithmically; no regional stitching is manual. The third regenerates the
+phase and transition tables, verifies both corpora, assembles the fixture, and
+gates the program, listing, and symbols as one binary-matched artifact set
+before publishing any member. It then installs the small runtime program and
+receipt beside the ignored corpus.

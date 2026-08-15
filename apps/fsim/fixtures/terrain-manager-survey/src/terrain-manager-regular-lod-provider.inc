@@ -982,10 +982,10 @@ regular_transition_select_recipe:
 terrain_provider_begin_transition:
     call terrain_provider_transition_busy
     or a
-    jr nz,@busy
+    jr nz,regular_transition_begin_busy
     ld a,(terrain_manager_current_ring)
     cp regular_lod_transition_near_radius
-    jr nz,@bad
+    jr nz,regular_transition_begin_failed
     call regular_transition_snapshot_old_slots
     ld a,1
     ld (regular_transition_build_target),a
@@ -994,22 +994,23 @@ terrain_provider_begin_transition:
     xor a
     ld (regular_transition_build_target),a
     pop af
-    jr c,@bad
+    jr c,regular_transition_begin_failed
     call regular_transition_select_recipe
-    jr c,@bad
+    jr c,regular_transition_begin_failed
+    REGULAR_POLICY_BEGIN_TRANSITION
     ld a,1
     ld (regular_provider_unified_slots),a
     ld a,regular_transition_state_wait_rebase
     ld (regular_transition_state),a
     xor a
     ret
-@bad:
+regular_transition_begin_failed:
     ld a,regular_transition_state_error
     ld (regular_transition_state),a
     ld a,regular_provider_error_plan
     scf
     ret
-@busy:
+regular_transition_begin_busy:
     ld a,regular_provider_error_plan
     scf
     ret
@@ -1113,6 +1114,8 @@ regular_transition_mark_selected_processed:
 ; entering, then more retiring, then source order.  Counts are edge-filtered
 ; through the source-ordinal maps before capacity is tested.
 regular_transition_select_feasible_group:
+    REGULAR_POLICY_SELECT_DISPATCH
+regular_transition_select_feasible_group_asm:
     ld hl,(regular_transition_groups_pointer)
     ld (regular_transition_scan_group_pointer),hl
     xor a

@@ -1,0 +1,37 @@
+{
+  "schema": "pingo-fsim-agondev-regular-policy-provenance-v1",
+  "toolchain": {
+    "name": "AgonDev",
+    "canonical_path_hint": "/home/smith/Agon/agondev",
+    "git_commit": "b67ab2444a63267a42193f204889d466765d8dd2",
+    "files": {
+      "release/bin/ez80-none-elf-as": "00dec630d1c386521887e6af0bb1b2045f66ae6f181f84491269f020a0342bdb",
+      "release/bin/ez80-none-elf-clang": "34670dda66966bc83b59bafe97bbe84fd7ca20ad15728eb3f3753097d22dc51d",
+      "release/bin/ez80-none-elf-ld": "2f4321d67956d8389bc28661b8684f8e054ee3b4e9eb890245f6c9afa33434cf",
+      "release/bin/ez80-none-elf-nm": "6ce3cc98f8b17f590be5362db5af2919536b0bf905381ef275212f19433666ed",
+      "release/bin/ez80-none-elf-objcopy": "2a6a03bbd8c1f1a528a98013e58fb7cb88463c5931b70a6c922c52fefe49d86c",
+      "release/bin/ez80-none-elf-objdump": "a9a89d31a727e50895fcfc3c6f532907dd875b870e3660429ef8fa07992ceadf",
+      "release/bin/ez80-none-elf-readelf": "7b6ebad86007b6cba174c857d4fc9dbae4e88327a612e84ff464d6921e76deb3",
+      "release/lib/libagon.a": "5de7878342ab6780593fbf8d54d8005960e2471bd0e34c0e307fbcfe42fef28a"
+    },
+    "frame_helper": {
+      "archive": "release/lib/libagon.a",
+      "member": "frameset.o",
+      "symbol": "__frameset"
+    }
+  },
+  "licensing": {
+    "status": "unknown-no-root-license-or-notice",
+    "distribution": "local-build-input-only-not-redistributed",
+    "checkout_root_names_checked": [
+      "LICENSE",
+      "LICENSE.txt",
+      "LICENSE.md",
+      "COPYING",
+      "COPYING.txt",
+      "NOTICE",
+      "NOTICE.txt"
+    ],
+    "present": []
+  }
+}

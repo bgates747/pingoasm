@@ -81,6 +81,15 @@ def parse_arguments() -> argparse.Namespace:
     )
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--timeout", type=float, default=90.0)
+    parser.add_argument(
+        "--steady-frames",
+        type=int,
+        default=0,
+        help=(
+            "after the normal final sequence, capture one more frame after "
+            "this many mutation-free renders"
+        ),
+    )
     return parser.parse_args()
 
 
@@ -532,9 +541,14 @@ def analyze_frame(raw_path: Path, depth_path: Path, *, require_geometry: bool) -
 
 
 def main() -> int:
+    global SEQUENCES
     arguments = parse_arguments()
     if arguments.timeout <= 0:
         raise SystemExit("--timeout must be positive")
+    if arguments.steady_frames < 0:
+        raise SystemExit("--steady-frames must be non-negative")
+    if arguments.steady_frames:
+        SEQUENCES = (*SEQUENCES, SEQUENCES[-1] + arguments.steady_frames)
     emulator = capture.require_file(capture.FAB_BINARY, "Fab executable")
     mos = capture.require_file(capture.MOS_BINARY, "MOS image")
     vdp = capture.require_file(arguments.vdp_module, "diagnostic VDP module")

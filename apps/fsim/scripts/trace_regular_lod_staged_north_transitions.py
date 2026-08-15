@@ -61,6 +61,7 @@ SCHEMA = "pingo-terrain-regular-lod-staged-north-transitions-v2"
 
 COLD_SEQUENCE = 226
 SLOT_COUNT = 255
+PROGRAM_LOAD_ADDRESS = 0x040000
 COLD_ACTIVE_COUNT = 227
 COLD_RENDER_MARKER = f"PINGO_RENDER seq={COLD_SEQUENCE} "
 START_ORIGIN = (80, 125)
@@ -79,8 +80,28 @@ CAMERA_INITIAL_Y = 8000
 CAMERA_INITIAL_Z = -466
 ORIGIN_NORTH_STEP = 8800
 CAMERA_SIZE = 36
+POLICY_MODULE_NAME = "CPOLICY.BIN"
+POLICY_STATUS_READY = 1
+POLICY_STATUS_MOS_NO_CARRY = 2
+POLICY_STATUS_MOS_ERROR = 3
+POLICY_STATUS_HEADER = 4
+POLICY_STATUS_CRC = 5
+POLICY_MODE_ASM_ONLY = 0
+POLICY_MODE_DUAL_STRICT = 1
+POLICY_MODE_C_GUARDED = 2
+POLICY_MODE_ASM_CACHED = 3
+POLICY_MODE_SYMBOL = "terrain_manager_regular_policy_mode"
+POLICY_SYMBOLS = {
+    POLICY_MODE_SYMBOL,
+    "regular_policy_module_status",
+    "regular_policy_qualification_failure",
+    "regular_policy_selector_calls",
+    "regular_policy_selector_matches",
+}
 
 RENDER_RE = re.compile(r"PINGO_RENDER seq=(\d+)\b")
+SELECTOR_PAUSE_RE = re.compile(r"CPU paused \(breakpoint\)")
+SELECTOR_CYCLES_RE = re.compile(r"Cycles since last break: (\d+)")
 CAMERA_TRANSLATION_RE = re.compile(
     r"PINGO_POSE camera_translation "
     r"raw_x=(-?\d+) raw_y=(-?\d+) raw_z=(-?\d+)"
@@ -96,6 +117,44 @@ def parse_arguments() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--program", type=Path, default=DEFAULT_PROGRAM)
     parser.add_argument("--symbols", type=Path, default=DEFAULT_SYMBOLS)
+    parser.add_argument(
+        "--policy-module",
+        type=Path,
+        help=(
+            "fixed CPOLICY image for a policy sibling (defaults to the "
+            "installed hierarchy copy when policy symbols are present)"
+        ),
+    )
+    parser.add_argument(
+        "--omit-policy-module",
+        action="store_true",
+        help="deliberately omit CPOLICY for a capability-fallback smoke run",
+    )
+    parser.add_argument(
+        "--expect-policy-unavailable",
+        action="store_true",
+        help="require capability fallback instead of a READY policy module",
+    )
+    parser.add_argument(
+        "--expect-policy-status",
+        type=int,
+        choices=(
+            POLICY_STATUS_READY,
+            POLICY_STATUS_MOS_NO_CARRY,
+            POLICY_STATUS_MOS_ERROR,
+            POLICY_STATUS_HEADER,
+            POLICY_STATUS_CRC,
+        ),
+        help="require one exact policy startup status in the final snapshot",
+    )
+    parser.add_argument(
+        "--corrupt-policy-body",
+        action="store_true",
+        help=(
+            "stage a copy with its final body byte toggled; requires exact "
+            "expected policy status 5 (CRC rejection)"
+        ),
+    )
     parser.add_argument(
         "--vdp-module",
         type=Path,
@@ -113,6 +172,14 @@ def parse_arguments() -> argparse.Namespace:
         "--crossings-only",
         action="store_true",
         help="stop after four staged crossings without testing radius restart",
+    )
+    parser.add_argument(
+        "--profile-selector",
+        action="store_true",
+        help=(
+            "measure the accepted assembly selector with automated debugger "
+            "breakpoints in a timing-only run"
+        ),
     )
     return parser.parse_args()
 
@@ -138,9 +205,12 @@ def wait_for_log(
     deadline: float,
     predicate,
     description: str,
+    service=None,
 ) -> str:
     while time.monotonic() < deadline:
         contents = log_path.read_text(encoding="utf-8", errors="replace")
+        if service is not None:
+            service(contents)
         failures = sorted(
             set(
                 capture.find_log_failures(contents)
@@ -690,6 +760,7 @@ def parse_symbols(path: Path) -> dict[str, int]:
         "regular_provider_unified_slots",
         "regular_transition_state",
         "regular_transition_state_idle",
+        "regular_transition_select_feasible_group",
         "camera_state",
         "p3d_camera_size",
         "p3d_camera_world_position",
@@ -703,6 +774,142 @@ def parse_symbols(path: Path) -> dict[str, int]:
     if symbols["p3d_camera_size"] != CAMERA_SIZE:
         raise SystemExit("Unexpected packed camera size")
     return symbols
+
+
+def classify_policy_abi(symbols: dict[str, int]) -> tuple[bool, int | None]:
+    """Distinguish the canonical assembly marker from a policy-client ABI."""
+
+    present = POLICY_SYMBOLS & symbols.keys()
+    if not present:
+        return False, None
+    if present == {POLICY_MODE_SYMBOL} and (
+        symbols[POLICY_MODE_SYMBOL] == POLICY_MODE_ASM_ONLY
+    ):
+        return False, POLICY_MODE_ASM_ONLY
+    if present != POLICY_SYMBOLS:
+        raise SystemExit(
+            "Staged symbols contain a partial policy ABI: "
+            f"{sorted(present)}"
+        )
+    return True, int(symbols[POLICY_MODE_SYMBOL])
+
+
+def selector_call_span(program: Path, selector_address: int) -> tuple[int, int]:
+    """Find the selector's unique ADL call and its following instruction.
+
+    eZ80 ADL ``call`` is opcode 0xcd followed by a little-endian 24-bit
+    address. Resolving the return site from the exact program bytes avoids a
+    hard-coded listing address while still failing closed if call topology
+    changes.
+    """
+
+    if selector_address < PROGRAM_LOAD_ADDRESS:
+        raise SystemExit("Selector lies below the fixture load address")
+    call = bytes((0xCD,)) + selector_address.to_bytes(3, "little")
+    image = program.read_bytes()
+    offsets: list[int] = []
+    cursor = 0
+    while True:
+        offset = image.find(call, cursor)
+        if offset < 0:
+            break
+        offsets.append(offset)
+        cursor = offset + 1
+    if len(offsets) != 1:
+        raise SystemExit(
+            "Expected one ADL call to regular_transition_select_feasible_group, "
+            f"found {len(offsets)}"
+        )
+    call_address = PROGRAM_LOAD_ADDRESS + offsets[0]
+    return call_address, call_address + len(call)
+
+
+class SelectorCycleProfiler:
+    """Drive alternating call/post-call breakpoints and collect guest cycles."""
+
+    def __init__(
+        self,
+        process: subprocess.Popen[bytes],
+        call: int,
+        returned: int,
+        start_offset: int,
+        expected_samples: int,
+    ) -> None:
+        self.process = process
+        self.call = call
+        self.returned = returned
+        self.cursor = start_offset
+        self.expected_samples = expected_samples
+        self.current_pc: int | None = None
+        self.next_pc = call
+        self.waiting_for_state = False
+        self.samples: list[int] = []
+        self.complete = False
+
+    def service(self, contents: str) -> None:
+        if self.complete:
+            return
+        if not self.waiting_for_state:
+            pause = SELECTOR_PAUSE_RE.search(contents, self.cursor)
+            if pause is None:
+                return
+            call_marker = contents.find(f"* {self.call:06x}:", pause.end())
+            return_marker = contents.find(
+                f"* {self.returned:06x}:", pause.end()
+            )
+            candidates = [
+                (offset, pc)
+                for offset, pc in (
+                    (call_marker, self.call),
+                    (return_marker, self.returned),
+                )
+                if offset >= 0
+            ]
+            if not candidates:
+                return
+            marker, pc = min(candidates)
+            expected_pc = self.next_pc
+            if pc != expected_pc:
+                raise EvidenceError(
+                    f"selector breakpoint order changed: {pc:06x} != "
+                    f"{expected_pc:06x}"
+                )
+            self.current_pc = pc
+            self.cursor = marker + len(f"* {pc:06x}:")
+            self.waiting_for_state = True
+            debugger.write_debugger(self.process, "state")
+            return
+
+        cycles = SELECTOR_CYCLES_RE.search(contents, self.cursor)
+        if cycles is None:
+            return
+        if self.current_pc == self.returned:
+            self.samples.append(int(cycles.group(1)))
+        self.cursor = cycles.end()
+        self.waiting_for_state = False
+        self.next_pc = (
+            self.returned if self.current_pc == self.call else self.call
+        )
+        self.current_pc = None
+        if len(self.samples) == self.expected_samples:
+            debugger.write_debugger(self.process, f"delete 0x{self.call:x}")
+            debugger.write_debugger(self.process, f"delete 0x{self.returned:x}")
+            self.complete = True
+        debugger.write_debugger(self.process, "continue")
+
+    def require_complete(self) -> dict[str, object]:
+        if not self.complete or len(self.samples) != self.expected_samples:
+            raise EvidenceError(
+                "selector cycle profile is incomplete: "
+                f"{len(self.samples)} != {self.expected_samples}"
+            )
+        return {
+            "call": self.call,
+            "return": self.returned,
+            "sample_count": len(self.samples),
+            "cycles": self.samples,
+            "measurement": "paused-debugger-call-to-post-call",
+        }
 
 
 def snapshot_at_next_idle_render(
@@ -732,10 +939,22 @@ def snapshot_at_next_idle_render(
         deadline,
         lambda value: debugger.ANSI_RE.sub("", value).count("CPU paused")
         > pause_count + 1,
-        "final staged render-idle boundary",
+        "first staged render-idle boundary",
+    )
+    # SIGINT can land after manager service but before the render call in the
+    # current pass.  Cross one complete additional pass so the snapshot never
+    # observes cold-start scratch fields before their first steady-state update.
+    debugger.write_debugger(process, "continue")
+    wait_for_log(
+        log_path,
+        process,
+        deadline,
+        lambda value: debugger.ANSI_RE.sub("", value).count("CPU paused")
+        > pause_count + 2,
+        "settled staged render-idle boundary",
     )
 
-    spans = (
+    spans = [
         (symbols["terrain_manager_status"], symbols["terrain_manager_status_size"]),
         (symbols["terrain_manager_proposed_origin_q"], 4),
         (symbols["terrain_manager_staged_count"], 1),
@@ -757,15 +976,30 @@ def snapshot_at_next_idle_render(
         ),
         (symbols["camera_state"], CAMERA_SIZE),
         (symbols["terrain_manager_origin_dirty"], 1),
-    )
+    ]
+    if POLICY_SYMBOLS.issubset(symbols):
+        spans.extend(
+            (
+                (symbols["regular_policy_module_status"], 1),
+                (symbols["regular_policy_qualification_failure"], 1),
+                (symbols["regular_policy_selector_calls"], 3),
+                (symbols["regular_policy_selector_matches"], 3),
+            )
+        )
     for address, length in spans:
         debugger.write_debugger(process, f"memory 0x{address:x} {length}")
     final_address = spans[-1][0]
+
+    def final_memory_prompted(value: str) -> bool:
+        plain = debugger.ANSI_RE.sub("", value)
+        marker = plain.rfind(f"{final_address:06x}:")
+        return marker >= 0 and plain.find(">>", marker + 7) >= 0
+
     wait_for_log(
         log_path,
         process,
         deadline,
-        lambda value: f"{final_address:06x}:" in debugger.ANSI_RE.sub("", value),
+        final_memory_prompted,
         "staged manager/provider debugger memory",
     )
     debugger.write_debugger(process, "exit")
@@ -795,6 +1029,8 @@ def decode_and_validate_snapshot(
     expected_radius: int = 5,
     expected_unified_slots: int = 1,
     expected_camera_position: list[int] | None = None,
+    expected_camera_fixed_axes: dict[int, int] | None = None,
+    expected_scan_desired_count: int | None = None,
     require_exact_residency: bool = False,
 ) -> dict[str, object]:
     memory = debugger.parse_memory(contents)
@@ -871,11 +1107,21 @@ def decode_and_validate_snapshot(
         "staged_count": staged_count,
     }
     expected_plan = build_terrain_owner_plan(*expected_origin, expected_radius)
+    expected_source_plan = build_terrain_owner_plan(
+        *expected_origin,
+        expected_radius,
+        clip_to_region=False,
+    )
     expected_active_count = len(expected_plan.owners)
+    scan_desired_count = (
+        expected_active_count
+        if expected_scan_desired_count is None
+        else expected_scan_desired_count
+    )
     expected_manager = {
         "state": symbols["terrain_manager_state_ready"],
         "ring": expected_radius,
-        "desired_count": expected_active_count,
+        "desired_count": scan_desired_count,
         "active_count": expected_active_count,
         "converged": 1,
         "last_operation": symbols["terrain_manager_operation_none"],
@@ -954,9 +1200,9 @@ def decode_and_validate_snapshot(
     expected_provider = {
         "plan_valid": 1,
         "plan_count": len(expected.coarse_entries),
-        "desired_count": len(expected.owners),
+        "desired_count": scan_desired_count,
         "endpoint_count": len(expected.owners),
-        "endpoint_near_limit": len(expected.near_entries),
+        "endpoint_near_limit": len(expected_source_plan.near_entries),
         "unified_slots": expected_unified_slots,
         "transition_state": symbols["regular_transition_state_idle"],
     }
@@ -964,15 +1210,19 @@ def decode_and_validate_snapshot(
         raise EvidenceError(
             f"final provider state changed: {provider!r} != {expected_provider!r}"
         )
-    if near_valid[: len(expected.near_entries)] != bytes([1]) * len(
-        expected.near_entries
-    ):
-        raise EvidenceError("selected final near-valid map is not all ones")
-    for ordinal, entry in enumerate(expected.near_entries):
+    expected_near = set(expected.near_entries)
+    expected_near_valid = bytes(
+        entry in expected_near for entry in expected_source_plan.near_entries
+    )
+    if near_valid[: len(expected_near_valid)] != expected_near_valid:
+        raise EvidenceError("selected final near-valid source-ordinal map changed")
+    for ordinal, entry in enumerate(expected_source_plan.near_entries):
+        if entry not in expected_near:
+            continue
         slot = near_slots[ordinal]
         if slot not in active_slots or identity_at(slot) != (0, entry.q, entry.r):
             raise EvidenceError(
-                f"near ordinal {ordinal} does not map to its active owner"
+                f"near source ordinal {ordinal} does not map to its active owner"
             )
 
     stride = symbols["regular_provider_plan_record_bytes"]
@@ -998,8 +1248,20 @@ def decode_and_validate_snapshot(
         "position": vec3_words(camera, symbols["p3d_camera_world_position"]),
         "rotation": vec3_words(camera, symbols["p3d_camera_pingo_rotation"]),
     }
-    if camera_state["position"][1:] != [CAMERA_INITIAL_Y, CAMERA_INITIAL_Z]:
-        raise EvidenceError(f"final camera Y/Z changed: {camera_state!r}")
+    fixed_axes = (
+        {1: CAMERA_INITIAL_Y, 2: CAMERA_INITIAL_Z}
+        if expected_camera_fixed_axes is None
+        else expected_camera_fixed_axes
+    )
+    for axis, expected_value in fixed_axes.items():
+        if axis not in (0, 1, 2):
+            raise ValueError(f"invalid fixed camera axis: {axis}")
+        if camera_state["position"][axis] != expected_value:
+            raise EvidenceError(
+                "final camera fixed axis changed: "
+                f"axis={axis} value={camera_state['position'][axis]} "
+                f"expected={expected_value}"
+            )
     if (
         expected_camera_position is not None
         and camera_state["position"] != expected_camera_position
@@ -1010,6 +1272,30 @@ def decode_and_validate_snapshot(
         )
     if camera_state["rotation"] != [0, -8192, 0]:
         raise EvidenceError(f"final camera attitude changed: {camera_state!r}")
+
+    policy = None
+    if POLICY_SYMBOLS.issubset(symbols):
+        policy = {
+            "mode": symbols["terrain_manager_regular_policy_mode"],
+            "module_status": debugger.read_span(
+                memory, symbols["regular_policy_module_status"], 1
+            )[0],
+            "qualification_failure": debugger.read_span(
+                memory, symbols["regular_policy_qualification_failure"], 1
+            )[0],
+            "selector_calls": int.from_bytes(
+                debugger.read_span(
+                    memory, symbols["regular_policy_selector_calls"], 3
+                ),
+                "little",
+            ),
+            "selector_matches": int.from_bytes(
+                debugger.read_span(
+                    memory, symbols["regular_policy_selector_matches"], 3
+                ),
+                "little",
+            ),
+        }
 
     return {
         "manager": manager,
@@ -1024,19 +1310,108 @@ def decode_and_validate_snapshot(
             "flags_sha256": hashlib.sha256(flags).hexdigest(),
         },
         "camera": camera_state,
+        "policy": policy,
     }
 
 
-def stage_fixture(sd_root: Path, program: Path) -> None:
+def stage_fixture(
+    sd_root: Path,
+    program: Path,
+    policy_module: Path | None = None,
+    *,
+    corrupt_policy_body: bool = False,
+) -> None:
     survey_root = sd_root / "survey"
     survey_root.mkdir()
     for source in FIXTURE.iterdir():
-        if source.name == "P3DRGL.BIN":
+        if source.name in {"P3DRGL.BIN", POLICY_MODULE_NAME}:
             continue
         (survey_root / source.name).symlink_to(
             source.resolve(), target_is_directory=source.is_dir()
         )
     (survey_root / "P3DRGL.BIN").symlink_to(program)
+    if policy_module is not None:
+        staged_policy = survey_root / POLICY_MODULE_NAME
+        if corrupt_policy_body:
+            payload = bytearray(policy_module.read_bytes())
+            if len(payload) <= 32:
+                raise EvidenceError("policy body is absent; cannot stage CRC corruption")
+            payload[-1] ^= 1
+            staged_policy.write_bytes(payload)
+        else:
+            staged_policy.symlink_to(policy_module)
+
+
+def validate_policy_state(
+    policy: dict[str, object] | None,
+    *,
+    expected_available: bool,
+    expected_group_calls: int,
+    expected_status: int | None = None,
+) -> dict[str, object] | None:
+    if policy is None:
+        return None
+    mode = int(policy["mode"])
+    status = int(policy["module_status"])
+    failure = int(policy["qualification_failure"])
+    calls = int(policy["selector_calls"])
+    matches = int(policy["selector_matches"])
+    if mode not in {
+        POLICY_MODE_ASM_ONLY,
+        POLICY_MODE_DUAL_STRICT,
+        POLICY_MODE_C_GUARDED,
+        POLICY_MODE_ASM_CACHED,
+    }:
+        raise EvidenceError(f"unknown policy mode in snapshot: {mode}")
+    if failure != 0:
+        raise EvidenceError(f"policy qualification failure latched: {failure}")
+    module_required = mode != POLICY_MODE_ASM_CACHED
+    if not module_required:
+        if expected_available:
+            raise EvidenceError("ASM_CACHED unexpectedly requires CPOLICY")
+        if status != 0:
+            raise EvidenceError(
+                f"ASM_CACHED touched the policy-module status: {status}"
+            )
+        expected_calls = expected_group_calls
+        expected_matches = 0
+    elif expected_available:
+        if status != POLICY_STATUS_READY:
+            raise EvidenceError(f"policy module is not READY: {status}")
+        expected_calls = (
+            0 if mode == POLICY_MODE_ASM_ONLY else expected_group_calls
+        )
+        expected_matches = (
+            expected_group_calls if mode == POLICY_MODE_DUAL_STRICT else 0
+        )
+    else:
+        if status == POLICY_STATUS_READY or status == 0:
+            raise EvidenceError(
+                f"omitted/corrupt policy capability has bad status: {status}"
+            )
+        expected_calls = 0
+        expected_matches = 0
+    if expected_status is not None and status != expected_status:
+        raise EvidenceError(
+            f"policy module status changed: {status} != {expected_status}"
+        )
+    if calls != expected_calls or matches != expected_matches:
+        raise EvidenceError(
+            "policy selector counters changed: "
+            f"calls/matches={(calls, matches)} != "
+            f"{(expected_calls, expected_matches)}"
+        )
+    policy["module_expected_available"] = expected_available
+    policy["module_required"] = module_required
+    policy["module_expected_status"] = expected_status
+    policy["selector_counter_contract"] = True
+    policy["c_guarded_healthy_path_has_no_asm_oracle"] = (
+        expected_available and mode == POLICY_MODE_C_GUARDED
+    )
+    policy["asm_cached_has_no_module_dependency"] = (
+        not module_required and status == 0
+    )
+    return policy
 
 
 def main() -> int:
@@ -1045,6 +1420,33 @@ def main() -> int:
         raise SystemExit("--timeout must be positive")
     if arguments.cold_only and arguments.crossings_only:
         raise SystemExit("--cold-only and --crossings-only are mutually exclusive")
+    if arguments.cold_only and arguments.profile_selector:
+        raise SystemExit("--profile-selector requires at least one crossing")
+    if arguments.omit_policy_module and arguments.policy_module is not None:
+        raise SystemExit("--omit-policy-module conflicts with --policy-module")
+    if arguments.omit_policy_module and arguments.corrupt_policy_body:
+        raise SystemExit("--omit-policy-module conflicts with --corrupt-policy-body")
+    if (
+        arguments.corrupt_policy_body
+        and arguments.expect_policy_status != POLICY_STATUS_CRC
+    ):
+        raise SystemExit(
+            "--corrupt-policy-body requires --expect-policy-status 5"
+        )
+    if arguments.omit_policy_module:
+        arguments.expect_policy_unavailable = True
+    if (
+        arguments.expect_policy_status == POLICY_STATUS_READY
+        and arguments.expect_policy_unavailable
+    ):
+        raise SystemExit(
+            "READY --expect-policy-status conflicts with unavailable policy"
+        )
+    if (
+        arguments.expect_policy_status is not None
+        and arguments.expect_policy_status != POLICY_STATUS_READY
+    ):
+        arguments.expect_policy_unavailable = True
 
     emulator = require_file(input_trace.FAB_BINARY, "Fab executable")
     mos = require_file(input_trace.MOS_BINARY, "MOS image")
@@ -1061,6 +1463,51 @@ def main() -> int:
             "Installed regular-LOD fixture does not match its tracked assembly"
         )
     symbols = parse_symbols(symbols_path)
+    policy_enabled, policy_mode = classify_policy_abi(symbols)
+    policy_module_required = (
+        policy_enabled and policy_mode != POLICY_MODE_ASM_CACHED
+    )
+    policy_module = None
+    if policy_enabled and not policy_module_required:
+        if arguments.policy_module is not None:
+            raise SystemExit("ASM_CACHED does not accept --policy-module")
+        if arguments.corrupt_policy_body:
+            raise SystemExit("ASM_CACHED cannot corrupt an unused policy module")
+        if arguments.expect_policy_status is not None:
+            raise SystemExit("ASM_CACHED policy-module status is fixed at 0")
+    elif policy_enabled and not arguments.omit_policy_module:
+        requested_policy_module = (
+            arguments.policy_module
+            if arguments.policy_module is not None
+            else FIXTURE / POLICY_MODULE_NAME
+        )
+        policy_module = require_file(
+            requested_policy_module, "fixed regular-policy module"
+        )
+    elif not policy_enabled and (
+        arguments.policy_module is not None
+        or arguments.omit_policy_module
+        or arguments.expect_policy_unavailable
+        or arguments.expect_policy_status is not None
+        or arguments.corrupt_policy_body
+    ):
+        raise SystemExit("Policy-module options require policy-aware symbols")
+    policy_expected_available = (
+        policy_module_required and not arguments.expect_policy_unavailable
+    )
+    selector_profile = None
+    selector_profiler: SelectorCycleProfiler | None = None
+    if arguments.profile_selector:
+        selector_target = symbols["regular_transition_select_feasible_group"]
+        selector_call, selector_return = selector_call_span(
+            program, selector_target
+        )
+        selector_profile = {
+            "target": selector_target,
+            "call": selector_call,
+            "return": selector_return,
+            "method": "automated-pausing-debugger-breakpoints",
+        }
     proxy_source = require_file(
         input_trace.PROXY_SOURCE, "input trace proxy source"
     )
@@ -1090,7 +1537,12 @@ def main() -> int:
         tempfile.TemporaryDirectory(prefix="regular-staged-fifo-") as fifo_name,
     ):
         sd_root = Path(sd_name)
-        stage_fixture(sd_root, program)
+        stage_fixture(
+            sd_root,
+            program,
+            policy_module,
+            corrupt_policy_body=arguments.corrupt_policy_body,
+        )
         (sd_root / "autoexec.txt").write_bytes(autoexec)
         fifo_path = Path(fifo_name) / "keyboard.fifo"
         os.mkfifo(fifo_path, 0o600)
@@ -1128,6 +1580,15 @@ def main() -> int:
             "-z",
             "-u",
         ]
+        if selector_profile is not None:
+            command.extend(
+                [
+                    "--breakpoint",
+                    f"0x{int(selector_profile['call']):x}",
+                    "--breakpoint",
+                    f"0x{int(selector_profile['return']):x}",
+                ]
+            )
         (output / "command.json").write_text(
             json.dumps(
                 {
@@ -1136,6 +1597,19 @@ def main() -> int:
                     "program_sha256": sha256(program),
                     "symbols": str(symbols_path),
                     "symbols_sha256": sha256(symbols_path),
+                    "selector_profile": selector_profile,
+                    "policy_module": (
+                        None
+                        if policy_module is None
+                        else {
+                            "path": str(policy_module),
+                            "sha256": sha256(policy_module),
+                        }
+                    ),
+                    "policy_module_required": policy_module_required,
+                    "policy_expected_available": policy_expected_available,
+                    "policy_expected_status": arguments.expect_policy_status,
+                    "policy_body_corrupted": arguments.corrupt_policy_body,
                     "environment": {
                         "SDL_VIDEODRIVER": "dummy",
                         "SDL_AUDIODRIVER": "dummy",
@@ -1168,6 +1642,14 @@ def main() -> int:
                     "unchanged staged cold endpoint",
                 )
                 if not arguments.cold_only:
+                    if selector_profile is not None:
+                        selector_profiler = SelectorCycleProfiler(
+                            process,
+                            int(selector_profile["call"]),
+                            int(selector_profile["return"]),
+                            len(contents),
+                            sum(len(item) for item in expected_group_shapes()),
+                        )
                     input_trace.write_command(
                         control_fd, f"down 0x{W_SCANCODE:04x}"
                     )
@@ -1177,6 +1659,11 @@ def main() -> int:
                         deadline,
                         four_wraps_observed,
                         "four adjacent north-origin changes",
+                        service=(
+                            None
+                            if selector_profiler is None
+                            else selector_profiler.service
+                        ),
                     )
                     input_trace.write_command(
                         control_fd, f"up 0x{W_SCANCODE:04x}"
@@ -1187,6 +1674,11 @@ def main() -> int:
                         deadline,
                         transition_stream_complete,
                         "stationary staged convergence at origin (80,129)",
+                        service=(
+                            None
+                            if selector_profiler is None
+                            else selector_profiler.service
+                        ),
                     )
                     if not arguments.crossings_only:
                         input_trace.write_command(
@@ -1199,11 +1691,20 @@ def main() -> int:
                             deadline,
                             radius_restart_complete,
                             "radius-four cold restart at origin (80,129)",
+                            service=(
+                                None
+                                if selector_profiler is None
+                                else selector_profiler.service
+                            ),
                         )
-                    contents = snapshot_at_next_idle_render(
-                        process, log_path, symbols, deadline
-                    )
-                    shutdown = "debugger-memory-exit"
+                    if selector_profiler is not None:
+                        selector_profile.update(
+                            selector_profiler.require_complete()
+                        )
+                contents = snapshot_at_next_idle_render(
+                    process, log_path, symbols, deadline
+                )
+                shutdown = "debugger-memory-exit"
         finally:
             os.close(control_fd)
             if process is not None and process.poll() is None:
@@ -1219,7 +1720,19 @@ def main() -> int:
             stream = None
             radius_input = None
             radius_stream = None
-            final_state = None
+            final_state = decode_and_validate_snapshot(
+                contents,
+                symbols,
+                {"final_active_ids": cold["active_ids"]},
+                expected_origin=START_ORIGIN,
+                expected_unified_slots=0,
+                expected_camera_position=[
+                    CAMERA_INITIAL_X,
+                    CAMERA_INITIAL_Y,
+                    CAMERA_INITIAL_Z,
+                ],
+                require_exact_residency=True,
+            )
         else:
             start = cold_end_offset(contents)
             input_evidence = validate_input(contents)
@@ -1255,6 +1768,16 @@ def main() -> int:
                 radius_stream["origin_preserved"] = (
                     final_state["manager"]["origin"] == list(FINAL_ORIGIN)
                 )
+        final_state["policy"] = validate_policy_state(
+            final_state["policy"],
+            expected_available=policy_expected_available,
+            expected_group_calls=(
+                0
+                if arguments.cold_only
+                else sum(len(item) for item in expected_group_shapes())
+            ),
+            expected_status=arguments.expect_policy_status,
+        )
     except EvidenceError as error:
         raise SystemExit(f"staged north qualification failed: {error}") from error
     if process.returncode != 0:
@@ -1271,6 +1794,18 @@ def main() -> int:
         ),
         "program": {"path": str(program), "sha256": sha256(program)},
         "symbols": {"path": str(symbols_path), "sha256": sha256(symbols_path)},
+        "selector_profile": selector_profile,
+        "policy_module": (
+            None
+            if policy_module is None
+            else {"path": str(policy_module), "sha256": sha256(policy_module)}
+        ),
+        "policy_module_required": policy_module_required,
+        "policy_expected_available": policy_expected_available,
+        "policy_expected_status": arguments.expect_policy_status,
+        "policy_body_corrupted": arguments.corrupt_policy_body,
+        "emulator": {"path": str(emulator), "sha256": sha256(emulator)},
+        "mos": {"path": str(mos), "sha256": sha256(mos)},
         "vdp": {"path": str(vdp), "sha256": sha256(vdp)},
         "proxy": {"sha256": sha256(proxy), "exports": sorted(exports)},
         "cold": cold,

@@ -9,6 +9,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from unittest import mock
 
 from pingo_terrain.regular_lod_runtime import (
     ProtectedSlotAllocator,
@@ -285,6 +286,106 @@ class RegularLodManagerContractTests(unittest.TestCase):
             hashlib.sha256(actual).hexdigest(),
             "aa6a3d152370f59fc2cefceacc46766bfc3425cb012be927beb5a758788de749",
         )
+
+    def test_artifact_set_is_gated_before_transactional_publication(self) -> None:
+        with tempfile.TemporaryDirectory(dir="/tmp") as directory:
+            root = Path(directory)
+            program_bytes = builder.PROGRAM.read_bytes()
+            listing_bytes = builder.LISTING.read_bytes()
+            symbol_bytes = builder.SYMBOLS.read_bytes()
+            generated = root / "generated"
+            generated.mkdir()
+            generated_program = generated / "program.bin"
+            generated_listing = generated / "program.lst"
+            generated_symbols = generated / "program.symbols"
+            generated_program.write_bytes(program_bytes)
+            generated_listing.write_bytes(listing_bytes)
+            generated_symbols.write_bytes(symbol_bytes)
+
+            canonical = root / "canonical"
+            canonical.mkdir()
+            program = canonical / "program.bin"
+            listing = canonical / "program.lst"
+            symbols = canonical / "program.symbols"
+            prior = {
+                program: b"legacy-program",
+                listing: b"legacy-listing",
+                symbols: b"legacy-symbols",
+            }
+            for path, payload in prior.items():
+                path.write_bytes(payload)
+
+            damaged = bytearray(program_bytes)
+            damaged[-1] ^= 1
+            generated_program.write_bytes(damaged)
+            with self.assertRaisesRegex(SystemExit, "program identity changed"):
+                builder.publish_current_artifact_set(
+                    generated_program,
+                    generated_listing,
+                    generated_symbols,
+                    program=program,
+                    listing=listing,
+                    symbols=symbols,
+                )
+            self.assertEqual(
+                {path: path.read_bytes() for path in prior}, prior
+            )
+
+            generated_program.write_bytes(program_bytes)
+            real_atomic_bytes = builder._atomic_bytes
+            failed = False
+
+            def fail_second_publish(path: Path, payload: bytes) -> None:
+                nonlocal failed
+                if path == listing and not failed:
+                    failed = True
+                    raise OSError("injected second-member publication failure")
+                real_atomic_bytes(path, payload)
+
+            with mock.patch.object(
+                builder, "_atomic_bytes", side_effect=fail_second_publish
+            ):
+                with self.assertRaisesRegex(
+                    OSError, "injected second-member"
+                ):
+                    builder.publish_current_artifact_set(
+                        generated_program,
+                        generated_listing,
+                        generated_symbols,
+                        program=program,
+                        listing=listing,
+                        symbols=symbols,
+                    )
+            self.assertEqual(
+                {path: path.read_bytes() for path in prior}, prior
+            )
+            self.assertTrue(generated_program.is_file())
+            self.assertTrue(generated_listing.is_file())
+            self.assertTrue(generated_symbols.is_file())
+
+            builder.publish_current_artifact_set(
+                generated_program,
+                generated_listing,
+                generated_symbols,
+                program=program,
+                listing=listing,
+                symbols=symbols,
+            )
+            self.assertEqual(
+                (program.stat().st_size, hashlib.sha256(program.read_bytes()).hexdigest()),
+                (builder.CURRENT_PROGRAM_BYTES, builder.CURRENT_PROGRAM_SHA256),
+            )
+            self.assertEqual(
+                (listing.stat().st_size, hashlib.sha256(listing.read_bytes()).hexdigest()),
+                (builder.CURRENT_LISTING_BYTES, builder.CURRENT_LISTING_SHA256),
+            )
+            self.assertEqual(
+                (symbols.stat().st_size, hashlib.sha256(symbols.read_bytes()).hexdigest()),
+                (builder.CURRENT_SYMBOLS_BYTES, builder.CURRENT_SYMBOLS_SHA256),
+            )
+            self.assertFalse(generated_program.exists())
+            self.assertFalse(generated_listing.exists())
+            self.assertFalse(generated_symbols.exists())
 
     def test_checked_trh_link_is_idempotent_and_fail_closed(self) -> None:
         with tempfile.TemporaryDirectory(dir="/tmp") as directory:

@@ -55,8 +55,9 @@ with the broader packaging and promotion contract in
 [regional LOD family bundles](docs/regional-lod-bundles.md).
 All eZ80 work must follow the project’s
 [ADL fixed-width memory safety rule](docs/adl-fixed-width-safety.md).
-The isolated, host- and headless-target-qualified C/assembly seam is documented in the
-[AgonDev interoperability experiment](docs/agondev-interop-experiment.md);
+The isolated, host- and headless-target-qualified C/assembly seam is documented
+in the [AgonDev interoperability experiment](docs/agondev-interop-experiment.md)
+and its [regular-LOD policy sibling](fixtures/terrain-manager-regular-lod-c-policy-survey/README.md);
 it does not replace the accepted assembly terrain manager.
 
 ## Layout
@@ -194,6 +195,8 @@ make -C ~/Agon/mystuff/agon-vdp/userspace \
 .venv/bin/python scripts/build_berkeley_camera_survey.py
 .venv/bin/python scripts/build_regional_hex_terrain.py --selection full
 .venv/bin/python scripts/build_terrain_manager_survey.py
+.venv/bin/python scripts/build_regular_lod_corpus.py
+.venv/bin/python scripts/build_regular_lod_manager_survey.py
 blender --background --python scripts/export_natural_runtime_corpus_blender.py
 .venv/bin/python scripts/build_natural_terrain_corpus.py
 blender --background --python scripts/build_natural_runtime_review_blender.py

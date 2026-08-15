@@ -3,7 +3,6 @@ sendVDUsequence $40246
 sendVDUsequence $40246
 regular_lod_phase_r2_q1_o2 $4e025
 hex_provider_odd_rows $ea
-hex_provider_odd_rows $ea
 cursor_on $40259
 cursor_on $40259
 cursor_on $40259
@@ -56,6 +55,7 @@ p3d_object_local_angular_velocity $34
 regular_corpus_l4_path_code $1
 regular_lod_phase_r2_q5_o3 $4f923
 regular_lod_phase_r2_q5_o3 $4f923
+regular_lod_phase_r2_q5_o3 $4f923
 terrain_manager_group_enter_pointer $61fc1
 pingo_bind_flat_pattern_library $40221
 pingo_bind_flat_pattern_library $40221
@@ -71,7 +71,6 @@ timestamp_chg $4009d
 fil_obj $0
 regular_corpus_level_record_lod $0
 regular_lod_transition_q0_o0_northeast $5a0d5
-regular_provider_plan_record_lod $0
 regular_provider_plan_record_lod $0
 terrain_manager_state_ready $1
 terrain_manager_slot_q_pointer $61f3f
@@ -105,6 +104,7 @@ regular_provider_compute_origin_offset_row $5f3ec
 regular_lod_phase_record_bytes $3
 regular_lod_phase_r4_q6_o3 $561ad
 regular_lod_transition_q4_o0_northwest $5cabe
+regular_lod_transition_q7_o3_northwest $5f0f7
 regular_lod_transition_q7_o3_northwest $5f0f7
 initialize_regional_camera_attitude $62b64
 initialize_regional_camera_attitude $62b64
@@ -158,7 +158,6 @@ terrain_sky_plot_triangle_absolute $55
 terrain_sky_plot_triangle_absolute $55
 regular_lod_phase_r5_q0_o3 $56e57
 regular_lod_phase_r5_q0_o3 $56e57
-regular_lod_phase_r5_q0_o3 $56e57
 mos_getkbmap $1e
 camera_initial_y $1f40
 camera_initial_y $1f40
@@ -180,6 +179,7 @@ terrain_provider_desired_at $5f1ec
 terrain_manager_deactivate_one_stale $61d30
 manager_survey_cold_restart_radius $62a7b
 manager_survey_cold_restart_radius $62a7b
+terrain_manager_regular_policy_mode $0
 p3d_vec3_y $2
 p3d_camera_look_valid $1
 survey_update_rotation $4288a
@@ -209,6 +209,7 @@ hex_provider_cell_id_pair_stride $1d5
 hex_provider_cell_id_pair_stride $1d5
 p3dm_list_size_offset $1c
 terrain_scene_define_vertices $47c6c
+regular_corpus_l8_object_scale_q8_8 $fa20
 regular_corpus_l8_object_scale_q8_8 $fa20
 regular_provider_position_near_candidate $600e0
 p3d_object_sid $2
@@ -242,6 +243,7 @@ regular_lod_transition_q2_o3_northwest $5bdfc
 pingo_set_projection_far_units $47b66
 regular_lod_phase_r1_q6_o2 $4cf33
 regular_lod_transition_q2_o3_southwest $5be6a
+regular_lod_transition_q2_o3_southwest $5be6a
 hex_provider_r_x_count $60773
 hex_provider_r_x_count $60773
 p3d_pingo_create_object $5
@@ -264,6 +266,7 @@ survey_angular_step $98
 terrain_scene_definition_mesh_id $47d41
 regular_lod_phase_r4_q5_o0 $5568d
 regular_lod_phase_r4_q5_o0 $5568d
+regular_transition_begin_busy $5f900
 regular_lod_phase_r0_q3_o2 $492e3
 hex_provider_origin_changed $6076c
 hex_provider_origin_changed $6076c
@@ -277,7 +280,6 @@ regular_lod_phase_r2_q7_o0 $50051
 regular_lod_phase_r5_q1_o3 $5747f
 regular_lod_transition_q3_o0_northeast $5bfd1
 hex_provider_q_max $d5
-terrain_provider_begin_transition $5f8bc
 terrain_provider_begin_transition $5f8bc
 regular_provider_plan_source_ordinals $60cd9
 tgtbmid $101
@@ -297,7 +299,6 @@ regular_lod_phase_r3_q7_o1 $5325e
 regular_provider_desired_count $607a3
 regular_transition_selected_pointer $60d8b
 regular_transition_enter_slots $60dcb
-terrain_manager_not_ready $6176b
 terrain_manager_not_ready $6176b
 terrain_manager_not_ready $6176b
 p3d_mat3_r0c1 $2
@@ -358,7 +359,6 @@ hex_provider_object_scale_q8_8 $8000
 regular_transition_enter_ordinals $60dbd
 terrain_manager_status_end $61fa1
 terrain_manager_status_size $13
-regular_lod_phase_r3_q4_o3 $522ee
 regular_lod_phase_r3_q4_o3 $522ee
 regular_lod_phase_r3_q4_o3 $522ee
 terrain_manager_bad_ring $61773
@@ -432,9 +432,9 @@ regular_lod_transition_q4_o2_north $5cdfa
 regular_lod_transition_q7_o1_north $5ea5a
 hex_provider_max_with_hl $605cb
 terrain_manager_group_retire_pointer $61fbe
+terrain_manager_group_retire_pointer $61fbe
 regular_lod_phase_r3_q1_o3 $51097
 regular_lod_transition_q5_o0_north $5d2fa
-hex_provider_vertical_exit_first $1231
 hex_provider_vertical_exit_first $1231
 hex_provider_local_z $60763
 terrain_manager_query $61ded
@@ -541,6 +541,7 @@ regular_lod_transition_q3_o2_northeast $5c4bb
 regular_lod_phase_r1_q3_o0 $4bb54
 regular_lod_phase_r5_q2_o2 $5793b
 regular_lod_transition_q4_o3_south $5d0db
+regular_lod_transition_q7_o0_south $5e86c
 regular_lod_transition_q7_o0_south $5e86c
 regular_lod_transition_q7_o0_south $5e86c
 terrain_manager_current_ring $61f8f
@@ -695,8 +696,9 @@ terrain_manager_candidate_active $61894
 regular_lod_phase_r5_q5_o0 $58ac7
 regular_lod_transition_q3_o1_northeast $5c250
 regular_lod_transition_q3_o1_northeast $5c250
-regular_lod_transition_q3_o1_northeast $5c250
-regular_lod_transition_q3_o1_northeast $5c250
+terrain_manager_regular_policy_client $0
+terrain_manager_regular_policy_client $0
+terrain_manager_regular_policy_client $0
 fa_read $1
 p3dm_stage_id_offset $2c
 p3dm_desc_vertices $50
@@ -707,13 +709,11 @@ regular_lod_phase_r3_q0_o2 $50912
 regular_lod_transition_q3_o3_southeast $5c7b9
 regular_lod_transition_q3_o3_southeast $5c7b9
 regular_lod_transition_q3_o3_southeast $5c7b9
-regular_lod_transition_q3_o3_southeast $5c7b9
 p3d_object_world_position $a
 p3d_object_world_position $a
 p3dm_validate_container $431c1
 regular_lod_transition_q1_o1_southwest $5aec2
 regular_lod_transition_q6_o0_southwest $5df88
-terrain_manager_update_position $616b6
 terrain_manager_update_position $616b6
 pingo_mesh_illumination_scene $0
 pingo_mesh_illumination_scene $0
@@ -779,7 +779,8 @@ p3d_camera_dirty_rotation $2
 terrain_scene_next_mesh_id $47d43
 regular_lod_phase_r3_q5_o3 $5293d
 regular_lod_transition_q2_o3_north $5bc48
-regular_lod_transition_q2_o3_north $5bc48
+regular_transition_select_feasible_group_asm $5f9ac
+regular_transition_select_feasible_group_asm $5f9ac
 regular_transition_actual_retire_count $60d98
 regular_lod_transition_q0_o1_northwest $5a422
 regular_provider_near_slot_count $5b
@@ -827,7 +828,6 @@ p3d_object_local_linear_velocity $2e
 p3d_object_local_linear_velocity $2e
 p3d_object_local_linear_velocity $2e
 p3d_camera_look_at_object16 $4211f
-regular_lod_phase_r2_q3_o3 $4ed5d
 regular_lod_phase_r2_q3_o3 $4ed5d
 terrain_manager_state_uninitialized $0
 p3d_sadd32 $4046f
@@ -884,6 +884,7 @@ regular_lod_phase_r4_q7_o1 $564c7
 regular_lod_transition_direction_north $0
 regular_lod_transition_q1_o3_southeast $5b321
 regular_lod_transition_q2_o1_south $5b768
+regular_lod_transition_q6_o2_southeast $5e3f9
 regular_lod_transition_q6_o2_southeast $5e3f9
 regular_lod_transition_q6_o2_southeast $5e3f9
 regular_lod_transition_q6_o2_southeast $5e3f9
@@ -998,13 +999,13 @@ regular_lod_transition_q5_o0_southeast $5d448
 regular_lod_transition_q5_o0_southeast $5d448
 regular_lod_transition_q3_o3_south $5c6d1
 regular_lod_transition_q3_o3_south $5c6d1
-regular_lod_transition_q3_o3_south $5c6d1
 terrain_manager_decrement_staged_count $61f33
 terrain_manager_decrement_staged_count $61f33
 p3dm_id_vers $43a48
 p3dm_expected_illumination $43aa8
 p3dm_expected_illumination $43aa8
 regular_corpus_level_record_width_q $1
+regular_lod_phase_r3_q4_o0 $51e77
 regular_lod_phase_r3_q4_o0 $51e77
 regular_provider_plan $607c4
 manager_survey_mesh_base $1
@@ -1216,7 +1217,6 @@ regular_lod_transition_maximum_entering $e
 regular_lod_transition_q3_o1_northwest $5c305
 regular_lod_transition_q4_o1_south $5cbee
 regular_lod_transition_q7_o2_south $5ed64
-regular_lod_transition_q7_o2_south $5ed64
 regular_transition_assign_enter_slot $5fc84
 regular_transition_assign_enter_slot $5fc84
 regular_transition_assign_enter_slot $5fc84
@@ -1236,6 +1236,7 @@ p3dm_center_east_m $43ab4
 regular_corpus_l8_center_east_offset_m $690
 regular_lod_phase_r0_q7_o3 $4a98f
 regular_lod_transition_q3_o3_northeast $5c742
+regular_lod_transition_q3_o3_northeast $5c742
 regular_transition_retire_slots $60daf
 regular_transition_retire_slots $60daf
 regular_transition_retire_slots $60daf
@@ -1248,13 +1249,13 @@ hex_provider_q_x_count $6076d
 regular_provider_coarse_filename $60790
 terrain_manager_reposition_index $61fb5
 terrain_manager_reposition_index $61fb5
-terrain_manager_reposition_index $61fb5
 startup_error $62d84
 startup_error $62d84
 terrain_sky_clear_packet $42afe
 p3dm_descriptor_offset $38
 p3dm_descriptor_offset $38
 regular_lod_phase_r2_q6_o2 $4fd73
+regular_lod_phase_r3_q0_o0 $50622
 regular_lod_phase_r3_q0_o0 $50622
 terrain_manager_status_resident_count $3
 survey_pitch_limit $1fff
@@ -1271,6 +1272,7 @@ regular_corpus_path_l4 $47e17
 regular_lod_phase_r2_q6_o3 $4fedc
 regular_lod_phase_r3_q0_o1 $5079a
 regular_lod_transition_q1_o0_northwest $5abb5
+regular_lod_transition_q6_o1_northwest $5e1b9
 regular_lod_transition_q6_o1_northwest $5e1b9
 regular_lod_transition_q6_o1_northwest $5e1b9
 regular_lod_transition_q6_o1_northwest $5e1b9
@@ -1327,6 +1329,7 @@ regular_transition_target_template_to_dense $60ed3
 terrain_manager_status_last_q $d
 terrain_manager_status_last_q $d
 p3dm_model_half_extent_m $43ac0
+regular_lod_phase_r4_q0_o0 $536cc
 regular_lod_phase_r4_q0_o0 $536cc
 regular_lod_phase_r4_q0_o0 $536cc
 terrain_manager_candidate_ordinal $61fb6
@@ -1397,6 +1400,7 @@ regular_provider_phase_remaining $607a6
 regular_provider_phase_remaining $607a6
 p3dm_bad_close $430e5
 p3dm_read_exact $43154
+regular_transition_begin_failed $5f8f6
 regular_provider_center_north_counts $6126f
 regular_provider_center_north_counts $6126f
 regular_provider_center_north_counts $6126f
@@ -1428,6 +1432,7 @@ vdu_clg $4029b
 vdu_clg $4029b
 survey_update_translation_rate $42808
 render_notify_token $c35a
+render_notify_token $c35a
 regular_provider_plan_index $607af
 terrain_manager_converged $61f93
 terrain_bmid $100
@@ -1435,6 +1440,7 @@ pingo_set_mesh_shading_mode $401d7
 pingo_set_mesh_shading_mode $401d7
 p3dm_read_pointer $43ad9
 regular_lod_phase_r4_q6_o2 $5601a
+regular_lod_transition_q3_o0_northwest $5c09b
 regular_lod_transition_q3_o0_northwest $5c09b
 regular_lod_transition_q3_o0_northwest $5c09b
 regular_lod_transition_q3_o0_northwest $5c09b
@@ -1448,7 +1454,6 @@ hex_provider_table_pointer $60269
 hex_provider_abs_x $60765
 p3d_object_dirty_pose $3
 p3d_object_dirty_pose $3
-regular_lod_phase_r4_q7_o0 $56331
 regular_lod_phase_r4_q7_o0 $56331
 regular_lod_phase_r4_q7_o0 $56331
 cursor_off $40267
@@ -1543,7 +1548,6 @@ survey_translation_rate_max $100
 p3dm_bad_structure $43a24
 p3dm_bad_structure $43a24
 regular_lod_transition_direction_southeast $3
-regular_lod_transition_direction_southeast $3
 terrain_manager_shutdown_idle $61df4
 terrain_manager_shutdown_idle $61df4
 p3dm_validate_crc32 $437c7
@@ -1557,6 +1561,7 @@ p3dm_state_staged $4
 regular_lod_phase_r1_q5_o0 $4c6fc
 regular_lod_phase_r3_q6_o1 $52c57
 regular_lod_phase_r4_q2_o3 $54811
+regular_lod_transition_q5_o2_northwest $5d9fb
 regular_lod_transition_q5_o2_northwest $5d9fb
 terrain_manager_record_activation_position_failure $619b6
 terrain_manager_slot_r_pointer $61f4b
@@ -1585,7 +1590,6 @@ p3d_object_init16 $41441
 p3d_object_init16 $41441
 disable_render_notifications $42f23
 regular_corpus_level_record_path_code $3
-regular_lod_transition_q2_o1_northeast $5b7dc
 regular_lod_transition_q2_o1_northeast $5b7dc
 viewport_y $0
 viewport_y $0
@@ -1629,7 +1633,6 @@ regular_transition_candidate_score $60d9d
 p3d_umul16x16_32 $4041e
 regular_lod_phase_r2_q2_o2 $4e5f0
 regular_lod_phase_r4_q4_o0 $55017
-regular_lod_transition_q2_o0_southeast $5b5b7
 regular_lod_transition_q2_o0_southeast $5b5b7
 regular_lod_transition_q2_o0_southeast $5b5b7
 regular_lod_transition_q2_o0_southeast $5b5b7
@@ -1739,7 +1742,6 @@ terrain_manager_slot_lod_pointer $61f62
 terrain_manager_slot_lod_pointer $61f62
 terrain_manager_slot_lod_pointer $61f62
 regular_lod_phase_r4_q1_o2 $54014
-regular_lod_phase_r4_q1_o2 $54014
 terrain_manager_candidate_lod $61faa
 terrain_manager_staged_count $61fb8
 p3d_sincos16 $40539
@@ -1781,7 +1783,6 @@ regular_lod_phase_r0_q2_o3 $48ec6
 regular_lod_phase_r2_q4_o0 $4eecc
 regular_lod_phase_r2_q4_o0 $4eecc
 regular_lod_phase_r2_q4_o0 $4eecc
-regular_lod_phase_r2_q4_o0 $4eecc
 hex_provider_q_z_counts $606e7
 run_simulation_batch $62c2a
 run_simulation_batch $62c2a
@@ -1795,6 +1796,7 @@ regular_lod_transition_q7_o2_north $5ecfb
 regular_lod_transition_q7_o2_north $5ecfb
 regular_lod_transition_q7_o2_north $5ecfb
 regular_lod_transition_q7_o2_north $5ecfb
+hex_provider_origin_steps $60735
 hex_provider_origin_steps $60735
 filedata $62dab
 pingo_flat_patterns_buffer_id $bb8
@@ -1830,6 +1832,7 @@ p3dm_bad_file_size $4314e
 p3dm_validate_position_indices $436d3
 regular_lod_transition_direction_south $1
 regular_transition_mark_selected_processed $5f97a
+hex_provider_copy_dl $60277
 hex_provider_copy_dl $60277
 hex_provider_copy_dl $60277
 hex_provider_copy_dl $60277
