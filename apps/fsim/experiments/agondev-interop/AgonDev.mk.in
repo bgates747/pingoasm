@@ -1,0 +1,32 @@
+NAME := fsim-agondev-interop
+LDHAS_ARG_PROCESSING := 0
+LDHAS_EXIT_HANDLER := 0
+
+include @AGONDEV_MAKEFILE@
+
+# Policy code is freestanding and may not acquire compiler arithmetic through
+# implicit builtins. libagon remains the authoritative application CRT/MOS ABI.
+CFLAGS += -std=gnu17 -Wall -Wextra -Werror -ffreestanding -fno-builtin
+
+INSPECTDIR := inspect
+INSPECT_ASSEMBLY := $(INSPECTDIR)/main.s
+ELF := $(BINDIR)/$(NAME).elf
+ELF_MAP := $(BINDIR)/$(NAME).elf.map
+
+all: inspection $(ELF)
+
+.PHONY: inspection
+inspection: $(INSPECT_ASSEMBLY)
+
+$(INSPECT_ASSEMBLY): $(SRCDIR)/main.c | $(INSPECTDIR)
+	@echo [compiling inspection assembly $<]
+	$(V)$(CC) $(CFLAGS) $< -S -o $@
+
+$(INSPECTDIR):
+	@mkdir -p $@
+
+$(ELF): $(BINDIR) $(OBJS)
+	@echo [linking inspection ELF $@]
+	$(V)$(LINKER) $(MEMCONFIG) $(LINKER_ARG) $(LINKER_EXIT) \
+		-Map=$(ELF_MAP) -T $(LINKERCONFIG) -o $@ \
+		$(OBJS) $(LINKERLIBFLAGS)

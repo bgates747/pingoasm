@@ -1,0 +1,33 @@
+cmake_minimum_required(VERSION 3.24)
+project(fsim_agondev_interop LANGUAGES NONE)
+
+option(FSIM_ENABLE_AGONDEV_INTEROP
+       "Expose the explicit AgonDev interoperability build target" OFF)
+set(AGONDEV_ROOT "@AGONDEV_ROOT@" CACHE PATH
+    "Path to the read-only AgonDev checkout")
+
+if(NOT FSIM_ENABLE_AGONDEV_INTEROP)
+  message(STATUS
+    "FSIM AgonDev interoperability is disabled; ordinary configure is inert")
+  add_custom_target(agondev-interop
+    COMMAND "${CMAKE_COMMAND}" -E echo
+            "AgonDev interop disabled; use the agondev configure preset")
+  return()
+endif()
+
+foreach(required_path
+        "${AGONDEV_ROOT}/release/bin/ez80-none-elf-clang"
+        "${AGONDEV_ROOT}/release/config/makefile.inc")
+  if(NOT EXISTS "${required_path}")
+    message(FATAL_ERROR
+      "Explicit AgonDev build requested, but ${required_path} is absent")
+  endif()
+endforeach()
+
+add_custom_target(agondev-interop
+  COMMAND "@PYTHON@" "@BUILD_SCRIPT@"
+          --agondev-root "${AGONDEV_ROOT}"
+          --output "@OUTPUT_ROOT@"
+  WORKING_DIRECTORY "@FSIM_ROOT@"
+  USES_TERMINAL
+  VERBATIM)

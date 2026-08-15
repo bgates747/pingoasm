@@ -55,6 +55,9 @@ with the broader packaging and promotion contract in
 [regional LOD family bundles](docs/regional-lod-bundles.md).
 All eZ80 work must follow the project’s
 [ADL fixed-width memory safety rule](docs/adl-fixed-width-safety.md).
+The isolated, host- and headless-target-qualified C/assembly seam is documented in the
+[AgonDev interoperability experiment](docs/agondev-interop-experiment.md);
+it does not replace the accepted assembly terrain manager.
 
 ## Layout
 
@@ -63,6 +66,7 @@ data/manifests/       tracked source-data provenance and checksums
 assets/               vendored editable/source artwork with provenance
 docs/                 authoritative TODO, specifications, and dated evidence
 fixtures/             source and built Pingo terrain qualification scenes
+experiments/          isolated source-level toolchain and architecture probes
 moslets/              resident MOS launchers and their target artifacts
 profiles/             tracked compiler/fixture configuration
 scripts/              project setup and command-line entry points

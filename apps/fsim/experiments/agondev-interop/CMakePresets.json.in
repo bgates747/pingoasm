@@ -1,0 +1,38 @@
+{
+  "version": 6,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 24,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "default",
+      "displayName": "FSIM AgonDev interop (disabled)",
+      "generator": "Ninja",
+      "binaryDir": "@OUTPUT_ROOT@/cmake-disabled",
+      "cacheVariables": {
+        "FSIM_ENABLE_AGONDEV_INTEROP": "OFF"
+      }
+    },
+    {
+      "name": "agondev",
+      "displayName": "FSIM AgonDev interop (explicit)",
+      "inherits": "default",
+      "binaryDir": "@OUTPUT_ROOT@/cmake-agondev",
+      "cacheVariables": {
+        "FSIM_ENABLE_AGONDEV_INTEROP": "ON",
+        "AGONDEV_ROOT": "@AGONDEV_ROOT@"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "agondev",
+      "configurePreset": "agondev",
+      "targets": [
+        "agondev-interop"
+      ]
+    }
+  ]
+}

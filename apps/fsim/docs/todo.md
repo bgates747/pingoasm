@@ -5,6 +5,26 @@ manual IDs. When work is accepted, rejected, or superseded, record its ID,
 evidence, and rationale in the current dated development log, remove it from
 this file, and update any affected specification.
 
+- [ ] **E1 — AgonDev C/assembly interoperability experiment:** retain the
+  qualified assembly fixed-point, vector, matrix, coordinate-transform, MOS,
+  and VDP mechanisms. Establish an isolated `experiments/agondev-interop`
+  application that uses the canonical `~/Agon/agondev` toolchain and the
+  `mos-agondev` port as its ABI reference. Prove C-to-assembly and
+  assembly-to-C calls, three-byte argument slots, 8/16/24-bit return values,
+  explicit shared-state layout, deterministic linking, and a normal CMake
+  configure that remains inert unless the experiment is explicitly enabled.
+  Keep C limited to policy/state-machine work and reject compiler runtime
+  arithmetic helpers from the probe. The isolated MOS application, generated-
+  only CMake wrapper, pinned provenance, C-to-assembly-to-C round trip,
+  8/16/24-bit return witnesses, deterministic binary/ELF rebuild, and static
+  helper/symbol/layout gates now pass. A pinned isolated headless Agon run also
+  proves one PASS and a clean return to MOS. The first bounded terrain-policy
+  A/B now compares C and assembly coverage-group selection across processed,
+  infeasible, score, tie, and source-order cases without moving fixed-point
+  mathematics. Human-qualify the standalone probe on physical hardware, then
+  build and measure a sibling fixture that substitutes only this policy seam
+  before deciding whether any production runtime policy should be promoted.
+
 - [ ] **D1 — Flat-pattern terrain dithering:** the pattern resource, firmware
   protocol, direct RGBA2222 path, triangular fixture, native tests, and
   visually accepted emulator proof exist. Retain solid-flat as a control and
