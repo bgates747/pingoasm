@@ -1,0 +1,122 @@
+{
+  "adl_width_audit": "ADL width audit: 23 files, 117 wide memory accesses, 0 definite width hazards, 0 indirect/unresolved review items\nclassifications: 24-bit-storage=109, indirect=2, reserved-storage=6",
+  "artifacts": {
+    "terrain-manager-regular-lod-c-policy-survey.bin": {
+      "bytes": 144184,
+      "sha256": "ed117101bc1ac1bb64a9e1ffd2726c8ba031f2f021bcdb8b9850312f37d817d5"
+    },
+    "terrain-manager-regular-lod-c-policy-survey.lst": {
+      "bytes": 2339015,
+      "sha256": "b506120ccb0390271a6105eeac85cee7de2448363805f0bfebf103f6251d6e1a"
+    },
+    "terrain-manager-regular-lod-c-policy-survey.symbols": {
+      "bytes": 71362,
+      "sha256": "bb42d8898db30d9b4fd271a80f6dd8dd31b2a49aad98babcf676a4fe06651146"
+    }
+  },
+  "assembly_control": {
+    "installed_runtime_program": false,
+    "kind": "accepted assembly-only control",
+    "program": "RLC.BIN",
+    "sha256": "27f09db1eb0b0eec702aad5c17f35e68922f154a6c3391370d07a76027cc57bf",
+    "source": "fixtures/terrain-manager-survey/src/terrain-manager-regular-lod-survey.asm"
+  },
+  "human_gates": [
+    "interactive emulator presentation",
+    "physical hardware execution and timing"
+  ],
+  "initial_view": {
+    "container_bytes": 787192,
+    "data_bytes": 764288,
+    "level_counts": {
+      "L1": 11,
+      "L2": 21,
+      "L4": 6,
+      "L8": 98,
+      "fine": 91
+    },
+    "maximum_record_bytes": 4568,
+    "records": 227,
+    "triangles": 48364,
+    "vertices": 28232
+  },
+  "memory_map": {
+    "descriptor_array_bytes": 114,
+    "descriptor_array_gaps": [
+      114,
+      114
+    ],
+    "fixture_filedata": 406328,
+    "fixture_limit_exclusive": 458752,
+    "fixture_load_address": 262144,
+    "fixture_program_end": 406328,
+    "launcher_load_address": 720896,
+    "module_entry_address": 458784,
+    "module_image_end": 459053,
+    "module_limit_exclusive": 524288,
+    "module_load_address": 458752,
+    "p3dm_file_buffer": [
+      277248,
+      293632
+    ],
+    "resource_staging_end": 408344,
+    "resource_staging_maximum_bytes": 2016,
+    "resources": [
+      {
+        "bytes": 16,
+        "path": "build/p3dm/bay-area-regular-n1-hierarchy/MATID.RG2",
+        "sha256": "13a88af40ba2a90e641349d255ff7c752b11fa84f1f8b976149ec32614afd926"
+      },
+      {
+        "bytes": 240,
+        "path": "build/p3dm/bay-area-regular-n1-hierarchy/PATLUT.BIN",
+        "sha256": "6bf0bf8ec7ac9804f172cbf6fe78a64bc56a61cf5ae58bba6ff998ddd79e62d6"
+      },
+      {
+        "bytes": 2016,
+        "path": "build/p3dm/bay-area-regular-n1-hierarchy/PATTERN.RG2",
+        "sha256": "25b68f47d4729a3e1402d24f3118c6d48d84f7ac951b18bcb2f41cd6afc61af1"
+      }
+    ]
+  },
+  "module": {
+    "build_receipt": "build/experiments/agondev-regular-policy/BUILD.json",
+    "build_receipt_sha256": "5f37229e959287dea48ca2e8f9d0f642ad319046b848b345de2b72ef272c5341",
+    "crc32": "be23558a",
+    "entry_address": 458784,
+    "filename": "CPOLICY.BIN",
+    "header_bytes": 32,
+    "image_bytes": 301,
+    "import_include": "build/experiments/agondev-regular-policy/regular-policy-import.inc",
+    "import_include_sha256": "f05b4e10bcac5c3d58b199eb47967fd9fae5f575e399423a002ed8e72f7dc57f",
+    "limit_exclusive": 524288,
+    "load_address": 458752,
+    "sha256": "8c73781f71e9b335408659047047df6fb760f43bea0e67fc0580b7da32b78c71"
+  },
+  "policy": {
+    "authority": "revalidated C result; assembly fault fallback",
+    "descriptor_cache_bytes": 114,
+    "descriptor_capacity": 38,
+    "edge_filter_cache": "once per transition, then pending-only packing",
+    "fallback": "accepted assembly selector",
+    "mode": "C_GUARDED",
+    "mode_value": 2,
+    "module_required": true,
+    "selector_seam": "regular_transition_select_feasible_group"
+  },
+  "schema": "pingo-terrain-regular-lod-c-policy-survey-build-v1",
+  "source": {
+    "client": "fixtures/terrain-manager-survey/src/terrain-manager-regular-lod-policy-client.inc",
+    "client_sha256": "e0c19f71163fe90acaf503ea74ea225738150564ed93fe61c643efe596bcc58a",
+    "controlled_copy_difference": true,
+    "mode_dependencies": [],
+    "mode_include": "fixtures/terrain-manager-survey/src/terrain-manager-regular-lod-policy-mode-c-guarded.inc",
+    "mode_include_sha256": "1f6b3226a985d3067e11d9cf209b551fcf4b421e8741e7b0fe006c91dbf8a942",
+    "path": "fixtures/terrain-manager-survey/src/terrain-manager-regular-lod-c-policy-survey.asm",
+    "profiled_sha256": "3f53f83de7d8bac1d08651c33b0154cc2dab920e5bf5953b3d454c996011ef4f",
+    "provider": "fixtures/terrain-manager-survey/src/terrain-manager-regular-lod-provider.inc",
+    "provider_sha256": "f06ebd15ab4aa6e1293859d90b6a7141b51969565ba3829af077ef2cbbd8d56c",
+    "sha256": "3f53f83de7d8bac1d08651c33b0154cc2dab920e5bf5953b3d454c996011ef4f"
+  },
+  "status": "statically-qualified"
+}

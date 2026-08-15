@@ -1,0 +1,10 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+*.egg-info/
+data/downloads/
+build/
+emulator/
+fixtures/terrain-manager-regular-lod-c-policy-survey/tgt/*.lst
+fixtures/terrain-manager-regular-lod-c-policy-survey/tgt/*.symbols

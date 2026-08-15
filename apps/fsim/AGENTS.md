@@ -1,8 +1,8 @@
 # Pingo Terrain handoff
 
-Read `~/Agon/mystuff/agon-dev-env/codex/AGENTS.md` first. This application subtree owns
-experimental Pingo terrain research, data-acquisition records, generators,
-fixtures, benchmarks, and qualification evidence.
+Read `~/Agon/mystuff/agon-dev-env/codex/AGENTS.md` first. The sole active
+application is `application/`; everything under `deprecated/` is historical
+and must not be used by the active build.
 
 ## Repository boundaries
 
@@ -22,9 +22,9 @@ fixtures, benchmarks, and qualification evidence.
 
 ## Session start
 
-1. Read `docs/todo.md` and the latest pertinent development log.
-2. Use this repository's `.venv` once one is established; never silently use
+1. Read `application/TODO.md` and `application/README.md`.
+2. Use `application/.venv`; never silently use
    system Python for project tools.
 3. Inspect Git status before editing and preserve unrelated work.
-4. Keep rejected experiments in dated logs or Git history, not in the active
-   TODO.
+4. Keep rejected or superseded work under `deprecated/` or in Git history, not
+   in the active TODO or application dependency graph.
