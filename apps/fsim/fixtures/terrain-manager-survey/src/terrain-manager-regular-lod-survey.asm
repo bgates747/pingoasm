@@ -54,17 +54,17 @@ manager_survey_default_radius: equ terrain_manager_initial_ring
 manager_survey_mesh_base: equ terrain_manager_mesh_id_base
 manager_survey_object_base: equ terrain_manager_object_id_base
 
-; Preserve the visually reviewed Berkeley Marina pose, but express it in its
+; Preserve the reviewed Berkeley Marina position, but express it in its
 ; actual containing cell so the first manager publication needs no corrective
-; origin rebase.  The view is 500 m above the source datum, facing almost due
-; south and pitched down twenty degrees.
+; origin rebase.  The view is 500 m above the source datum, level, and facing
+; almost due north.  Roll is explicitly zeroed by the attitude initializer.
 manager_survey_start_q: equ 80
 manager_survey_start_r: equ 125
 camera_initial_x: equ 4275
 camera_initial_y: equ 8000
 camera_initial_z: equ 466
-camera_initial_pitch: equ -1820
-camera_initial_yaw: equ 8192
+camera_initial_pitch: equ 0
+camera_initial_yaw: equ -8192
 
 ; The complete TRH/RGL corpora use the provider's true Bay Area q/r bounds. The
 ; historical Campanile and Marina extractions remain separate build artifacts,
@@ -102,7 +102,7 @@ start:
     include "../../berkeley-flight-triangular-dither/src/agon/3d.inc"
     include "../../berkeley-flight-triangular-dither/src/agon/3d_sincos_table.inc"
     include "../../berkeley-flight-triangular-dither/src/camera-survey-input.inc"
-    include "../../koak-flight-streamed/src/flight-backdrop.inc"
+    include "terrain-manager-solid-sky.inc"
     include "../../berkeley-flight-fdm/src/render-async.inc"
     include "../../koak-flight-streamed/src/streaming-vdu.inc"
     include "../../p3dm-loader-probe/src/p3dm-loader.inc"
@@ -124,9 +124,14 @@ main:
     ld hl,manager_survey_projection_far_units
     call pingo_set_projection_far_units
     call pingo_bind_flat_pattern_library
+; Disable the scene illumination multiplier.  Flat-pattern faces therefore
+; select the unity band, whose three accepted terrain patterns are solid Agon
+; palette pixels rather than dithers.
+    call manager_survey_disable_scene_illumination
     call manager_survey_establish_scene_slots
 
-; Preserve the visually qualified regional-survey illumination.
+; Retain the light settings as inert scene state so illumination can be
+; re-enabled later without rebuilding terrain or changing its material ABI.
     ld bc,0
     ld de,16384
     ld iy,-28377
@@ -264,6 +269,19 @@ load_scene_resources:
     ld iy,terrain_texture
     ld a,1
     jp vdu_load_img
+
+; This scene-local wrapper deliberately avoids changing the shared historical
+; Pingo transport include and therefore preserves every older fixture binary.
+manager_survey_disable_scene_illumination:
+    ld hl,@command
+    ld bc,@end-@command
+    rst.lil 18h
+    ret
+@command:
+    db 23,0,0A0h
+    dw sid
+    db 49h,46,0
+@end:
 
 ; The shared camera-control include deliberately defaults to a zero Euler
 ; pose.  This fixture then installs its reviewed regional attitude and rebuilds

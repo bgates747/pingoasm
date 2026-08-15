@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import importlib.util
+import json
 from pathlib import Path
 import tempfile
 import unittest
@@ -74,11 +75,42 @@ class RegularLodManagerContractTests(unittest.TestCase):
             'include "terrain-manager-regular-lod-provider.inc"',
             'include "../../../runtime/ez80/terrain-manager.inc"',
             "call terrain_provider_prepare_plan",
+            'include "terrain-manager-solid-sky.inc"',
+            "camera_initial_pitch: equ 0",
+            "camera_initial_yaw: equ -8192",
+            "call manager_survey_disable_scene_illumination",
         ):
             self.assertIn(literal, source)
+        self.assertNotIn(
+            'include "../../koak-flight-streamed/src/flight-backdrop.inc"',
+            source,
+        )
         self.assertLess(
             source.index("CCS sid"), source.index("pingo_set_projection_far_units")
         )
+
+    def test_solid_sky_has_no_horizon_or_attitude_dependency(self) -> None:
+        sky = ASSEMBLY.with_name("terrain-manager-solid-sky.inc").read_text(
+            encoding="utf-8"
+        )
+        self.assertIn("terrain_sky_colour: equ 47", sky)
+        self.assertIn("terrain_sky_compatibility_reserve_bytes: equ 704", sky)
+        self.assertEqual(sky.count("terrain_sky_plot_triangle_absolute"), 3)
+        for forbidden in (
+            "camera_state",
+            "backdrop_ground_colour",
+            "backdrop_extract_attitude",
+            "p3d_sincos16",
+        ):
+            self.assertNotIn(forbidden, sky)
+
+    def test_runtime_presentation_is_level_north_and_unlit(self) -> None:
+        self.assertEqual(builder.START_ROTATION, (0, -8_192, 0))
+        source = ASSEMBLY.read_text(encoding="utf-8")
+        illumination = source.split(
+            "manager_survey_disable_scene_illumination:", 1
+        )[1]
+        self.assertIn("db 49h,46,0", illumination.split("@end:", 1)[0])
 
     def test_generated_phase_include_is_exact(self) -> None:
         expected = emit_phase_include().encode("ascii")
@@ -123,6 +155,27 @@ class RegularLodManagerArtifactTests(unittest.TestCase):
         self.assertEqual(self.hierarchy["schema"], builder.HIERARCHY_SCHEMA)
         fine = builder.require_fine_corpus(builder.DEFAULT_FINE_CORPUS)
         self.assertEqual(fine["world_sha256"], builder.FINE_WORLD_SHA256)
+
+    def test_installed_presentation_receipt_is_unlit_and_solid(self) -> None:
+        manager = json.loads(
+            builder.DEFAULT_OUTPUT.joinpath("MANAGER.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        self.assertEqual(manager["camera"]["rotation"], [0, -8_192, 0])
+        self.assertEqual(
+            manager["presentation"]["background"],
+            {
+                "agon_palette_index": 47,
+                "attitude_dependent": False,
+                "false_ground_enabled": False,
+                "policy": "full-frame solid sky behind transparent target",
+            },
+        )
+        terrain = manager["presentation"]["terrain"]
+        self.assertFalse(terrain["scene_illumination_enabled"])
+        self.assertFalse(terrain["illumination_bands_may_dither"])
+        self.assertEqual(terrain["agon_palette_indices"], [20, 7, 21])
 
     def test_exact_marina_record_set_round_trips(self) -> None:
         records, aggregates = builder.initial_runtime_records(

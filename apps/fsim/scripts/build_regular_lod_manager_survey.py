@@ -50,6 +50,7 @@ FIXTURE_LOAD_CAPACITY = 0x070000
 START_CELL = (80, 125)
 START_OFFSET_ROW = 165
 START_PHASE = (0, 1)
+START_ROTATION = (0, -8_192, 0)
 DEFAULT_RADIUS = 5
 NEAR_COUNTS = (1, 7, 19, 37, 61, 91)
 MARINA_COARSE_COUNTS = (110, 117, 127, 125, 135, 136)
@@ -498,7 +499,22 @@ def install(
             "axial_cell": list(START_CELL),
             "offset_row": START_OFFSET_ROW,
             "local_position_counts": [4_275, 8_000, 466],
-            "rotation": [-1_820, 8_192, 0],
+            "rotation": list(START_ROTATION),
+        },
+        "presentation": {
+            "background": {
+                "policy": "full-frame solid sky behind transparent target",
+                "agon_palette_index": 47,
+                "attitude_dependent": False,
+                "false_ground_enabled": False,
+            },
+            "terrain": {
+                "shading": "flat-pattern",
+                "scene_illumination_enabled": False,
+                "unity_patterns_are_solid": True,
+                "illumination_bands_may_dither": False,
+                "agon_palette_indices": [20, 7, 21],
+            },
         },
         "manager": {
             "implementation": "runtime/ez80/terrain-manager.inc",

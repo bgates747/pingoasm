@@ -2,8 +2,12 @@
 
 This sibling fixture exercises the position-driven Bay Area terrain hierarchy
 without changing the accepted universal manager or the earlier mixed-distance
-control. It starts over the Berkeley Marina with the same reviewed camera,
-lighting, three-colour terrain presentation, and Pingo far plane of 65,535.
+control. It starts over the Berkeley Marina, level and facing north, with the
+three-colour terrain presentation and Pingo far plane of 65,535. Scene
+illumination is disabled at runtime, so each terrain face uses its exact solid
+Agon base colour without illumination-selected dithering. Transparent pixels
+in the Pingo target reveal one full-frame blue clear; there is no synthetic
+ground plane or attitude-derived horizon.
 
 The fixture reserves all 255 manager slots. Slots 0 through 90 retain the
 qualified radius-five hash for detailed `TRH/L0` cells. The generated runtime

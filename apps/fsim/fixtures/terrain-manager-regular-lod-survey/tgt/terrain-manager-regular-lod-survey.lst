@@ -55,19 +55,19 @@ PC     Output      Line
 040000             0054    manager_survey_mesh_base: equ terrain_manager_mesh_id_base
 040000             0055    manager_survey_object_base: equ terrain_manager_object_id_base
 040000             0056    
-040000             0057    ; Preserve the visually reviewed Berkeley Marina pose, but express it in its
+040000             0057    ; Preserve the reviewed Berkeley Marina position, but express it in its
 040000             0058    ; actual containing cell so the first manager publication needs no corrective
-040000             0059    ; origin rebase.  The view is 500 m above the source datum, facing almost due
-040000             0060    ; south and pitched down twenty degrees.
+040000             0059    ; origin rebase.  The view is 500 m above the source datum, level, and facing
+040000             0060    ; almost due north.  Roll is explicitly zeroed by the attitude initializer.
 040000             0061    manager_survey_start_q: equ 80
 040000             0062    manager_survey_start_r: equ 125
 040000             0063    camera_initial_x: equ 4275
 040000             0064    camera_initial_y: equ 8000
 040000             0065    camera_initial_z: equ 466
-040000             0066    camera_initial_pitch: equ -1820
-040000             0067    camera_initial_yaw: equ 8192
+040000             0066    camera_initial_pitch: equ 0
+040000             0067    camera_initial_yaw: equ -8192
 040000             0068    
-040000             0069    ; The complete NAT corpus uses the provider's true Bay Area q/r bounds.  The
+040000             0069    ; The complete TRH/RGL corpora use the provider's true Bay Area q/r bounds. The
 040000             0070    ; historical Campanile and Marina extractions remain separate build artifacts,
 040000             0071    ; but no experimental disk fence limits this regional viewer.
 040000             0072    hex_provider_fixture_bounds_enabled: equ 0
@@ -964,7 +964,7 @@ PC     Output      Line
 04037C             0659*   ; load the file from disk into ram
 04037C FD E5       0660*       push iy
 04037E E1          0661*   	pop hl ; pointer to filename
-04037F 11 F2 C6 05 0662*   	ld de,filedata
+04037F 11 12 C7 05 0662*   	ld de,filedata
 040383 3E 01       0663*   	ld a,mos_load
 040385 5B CF       0664*   	RST.LIL 08h
 040387             0665*   ; clear target buffer
@@ -982,7 +982,7 @@ PC     Output      Line
 0403A0 3E 01       0677*       ld a,1
 0403A2 32 F1 03 04 0678*       ld (@chunksize+1),a
 0403A6             0679*   ; point hl at the start of the file data
-0403A6 21 F2 C6 05 0680*       ld hl,filedata
+0403A6 21 12 C7 05 0680*       ld hl,filedata
 0403AA 22 1B 04 04 0681*       ld (@chunkpointer),hl
 0403AE             0682*   @loop:
 0403AE 2A 18 04 04 0683*       ld hl,(@filesize) ; get the remaining bytes
@@ -7128,18 +7128,18 @@ PC     Output      Line
 0427D7             0041*       SURVEY_STORE_HL survey_translation_rate
                        M1 Args: ADDRESS=survey_translation_rate 
 0427D7 7D          0001*M1         ld a,l
-0427D8 32 C8 C6 05 0002*M1         ld (ADDRESS),a
+0427D8 32 E8 C6 05 0002*M1         ld (ADDRESS),a
 0427DC 7C          0003*M1         ld a,h
-0427DD 32 C9 C6 05 0004*M1         ld (ADDRESS+1),a
+0427DD 32 E9 C6 05 0004*M1         ld (ADDRESS+1),a
 0427E1 AF          0042*       xor a
-0427E2 32 CA C6 05 0043*       ld (survey_speed_keys_down),a
-0427E6 DD 21 9E C6 0044*       ld ix,camera_state
+0427E2 32 EA C6 05 0043*       ld (survey_speed_keys_down),a
+0427E6 DD 21 BE C6 0044*       ld ix,camera_state
        05          
-0427EB FD 21 98 C6 0045*       ld iy,camera_initial_position
+0427EB FD 21 B8 C6 0045*       ld iy,camera_initial_position
        05          
 0427F0 21 C3 06 00 0046*       ld hl,sid
 0427F4 CD 90 1B 04 0047*       call p3d_camera_init16
-0427F8 C3 FD C4 05 0048*       jp sync_camera_state
+0427F8 C3 14 C5 05 0048*       jp sync_camera_state
 0427FC             0049*   
 0427FC             0050*   ; One deterministic input quantum.  Changing the speed setting alone does not
 0427FC             0051*   ; dirty the camera or request a redundant render.
@@ -7164,10 +7164,10 @@ PC     Output      Line
 04281B 28 02       0069*       jr z,@current_ready
 04281D CB C8       0070*       set 1,b
 04281F             0071*   @current_ready:
-04281F 3A CA C6 05 0072*       ld a,(survey_speed_keys_down)
+04281F 3A EA C6 05 0072*       ld a,(survey_speed_keys_down)
 042823 4F          0073*       ld c,a                             ; C = preceding held state
 042824 78          0074*       ld a,b
-042825 32 CA C6 05 0075*       ld (survey_speed_keys_down),a
+042825 32 EA C6 05 0075*       ld (survey_speed_keys_down),a
 042829 FE 03       0076*       cp 3
 04282B C8          0077*       ret z                              ; opposed keys cancel
 04282C 79          0078*       ld a,c
@@ -7182,9 +7182,9 @@ PC     Output      Line
 042838             0087*   survey_translation_rate_down:
 042838             0088*       SURVEY_LOAD_HL survey_translation_rate
                        M1 Args: ADDRESS=survey_translation_rate 
-042838 3A C8 C6 05 0001*M1         ld a,(ADDRESS)
+042838 3A E8 C6 05 0001*M1         ld a,(ADDRESS)
 04283C 6F          0002*M1         ld l,a
-04283D 3A C9 C6 05 0003*M1         ld a,(ADDRESS+1)
+04283D 3A E9 C6 05 0003*M1         ld a,(ADDRESS+1)
 042841 67          0004*M1         ld h,a
 042842 CB 3C       0089*       srl h
 042844 CB 1D       0090*       rr l
@@ -7199,17 +7199,17 @@ PC     Output      Line
 042856             0099*       SURVEY_STORE_HL survey_translation_rate
                        M1 Args: ADDRESS=survey_translation_rate 
 042856 7D          0001*M1         ld a,l
-042857 32 C8 C6 05 0002*M1         ld (ADDRESS),a
+042857 32 E8 C6 05 0002*M1         ld (ADDRESS),a
 04285B 7C          0003*M1         ld a,h
-04285C 32 C9 C6 05 0004*M1         ld (ADDRESS+1),a
+04285C 32 E9 C6 05 0004*M1         ld (ADDRESS+1),a
 042860 C9          0100*       ret
 042861             0101*   
 042861             0102*   survey_translation_rate_up:
 042861             0103*       SURVEY_LOAD_HL survey_translation_rate
                        M1 Args: ADDRESS=survey_translation_rate 
-042861 3A C8 C6 05 0001*M1         ld a,(ADDRESS)
+042861 3A E8 C6 05 0001*M1         ld a,(ADDRESS)
 042865 6F          0002*M1         ld l,a
-042866 3A C9 C6 05 0003*M1         ld a,(ADDRESS+1)
+042866 3A E9 C6 05 0003*M1         ld a,(ADDRESS+1)
 04286A 67          0004*M1         ld h,a
 04286B 52 29       0104*       add.s hl,hl
 04286D E5          0105*       push hl
@@ -7224,9 +7224,9 @@ PC     Output      Line
 04287F             0114*       SURVEY_STORE_HL survey_translation_rate
                        M1 Args: ADDRESS=survey_translation_rate 
 04287F 7D          0001*M1         ld a,l
-042880 32 C8 C6 05 0002*M1         ld (ADDRESS),a
+042880 32 E8 C6 05 0002*M1         ld (ADDRESS),a
 042884 7C          0003*M1         ld a,h
-042885 32 C9 C6 05 0004*M1         ld (ADDRESS+1),a
+042885 32 E9 C6 05 0004*M1         ld (ADDRESS+1),a
 042889 C9          0115*       ret
 04288A             0116*   
 04288A             0117*   ; Arrow keys own absolute camera pitch/yaw. Camera Euler angles act inversely
@@ -7236,7 +7236,7 @@ PC     Output      Line
 04288A             0121*   ; whenever an angular command is applied.
 04288A             0122*   survey_update_rotation:
 04288A AF          0123*       xor a
-04288B 32 CB C6 05 0124*       ld (survey_rotation_changed),a
+04288B 32 EB C6 05 0124*       ld (survey_rotation_changed),a
 04288F DD 21 5C 00 0125*       ld ix,keyboard_masks
        04          
 042894             0126*   
@@ -7252,7 +7252,7 @@ PC     Output      Line
 0428AC CD 32 29 04 0136*       call survey_pitch_down
 0428B0             0137*   @pitch_changed:
 0428B0 3E 01       0138*       ld a,1
-0428B2 32 CB C6 05 0139*       ld (survey_rotation_changed),a
+0428B2 32 EB C6 05 0139*       ld (survey_rotation_changed),a
 0428B6             0140*   @pitch_done:
 0428B6             0141*   
 0428B6 DD CB 03 4E 0142*       bit 1,(ix+3)                       ; Left
@@ -7267,26 +7267,26 @@ PC     Output      Line
 0428CE CD 7E 29 04 0151*       call survey_yaw_right
 0428D2             0152*   @yaw_changed:
 0428D2 3E 01       0153*       ld a,1
-0428D4 32 CB C6 05 0154*       ld (survey_rotation_changed),a
+0428D4 32 EB C6 05 0154*       ld (survey_rotation_changed),a
 0428D8             0155*   @yaw_done:
 0428D8             0156*   
-0428D8 3A CB C6 05 0157*       ld a,(survey_rotation_changed)
+0428D8 3A EB C6 05 0157*       ld a,(survey_rotation_changed)
 0428DC B7          0158*       or a
 0428DD C8          0159*       ret z
 0428DE             0160*   
 0428DE             0161*   ; The no-roll invariant is executable rather than merely conventional.
 0428DE AF          0162*       xor a
-0428DF 32 AC C6 05 0163*       ld (camera_state+p3d_camera_pingo_rotation+p3d_vec3_z),a
-0428E3 32 AD C6 05 0164*       ld (camera_state+p3d_camera_pingo_rotation+p3d_vec3_z+1),a
+0428DF 32 CC C6 05 0163*       ld (camera_state+p3d_camera_pingo_rotation+p3d_vec3_z),a
+0428E3 32 CD C6 05 0164*       ld (camera_state+p3d_camera_pingo_rotation+p3d_vec3_z+1),a
 0428E7             0165*   
 0428E7             0166*   ; Keep the retained camera orientation coherent with the emitted Euler words.
 0428E7             0167*   ; This closed form is Ry(yaw)*Rx(pitch), explicitly with roll zero.
-0428E7 DD 21 AE C6 0168*       ld ix,camera_state+p3d_camera_orientation
+0428E7 DD 21 CE C6 0168*       ld ix,camera_state+p3d_camera_orientation
        05          
-0428EC FD 21 A8 C6 0169*       ld iy,camera_state+p3d_camera_pingo_rotation
+0428EC FD 21 C8 C6 0169*       ld iy,camera_state+p3d_camera_pingo_rotation
        05          
 0428F1 CD BF 12 04 0170*       call p3d_camera_mat3_from_euler_fine16
-0428F5 DD 21 9E C6 0171*       ld ix,camera_state
+0428F5 DD 21 BE C6 0171*       ld ix,camera_state
        05          
 0428FA DD 7E 00    0172*       ld a,(ix+p3d_camera_dirty)
 0428FD F6 02       0173*       or p3d_camera_dirty_rotation
@@ -7296,9 +7296,9 @@ PC     Output      Line
 042903             0177*   survey_pitch_up:
 042903             0178*       SURVEY_LOAD_HL camera_state+p3d_camera_pingo_rotation+p3d_vec3_x
                        M1 Args: ADDRESS=camera_state+p3d_camera_pingo_rotation+p3d_vec3_x 
-042903 3A A8 C6 05 0001*M1         ld a,(ADDRESS)
+042903 3A C8 C6 05 0001*M1         ld a,(ADDRESS)
 042907 6F          0002*M1         ld l,a
-042908 3A A9 C6 05 0003*M1         ld a,(ADDRESS+1)
+042908 3A C9 C6 05 0003*M1         ld a,(ADDRESS+1)
 04290C 67          0004*M1         ld h,a
 04290D 11 68 FF FF 0179*       ld de,-survey_angular_step
 042911 52 19       0180*       add.s hl,de
@@ -7318,17 +7318,17 @@ PC     Output      Line
 042927             0194*       SURVEY_STORE_HL camera_state+p3d_camera_pingo_rotation+p3d_vec3_x
                        M1 Args: ADDRESS=camera_state+p3d_camera_pingo_rotation+p3d_vec3_x 
 042927 7D          0001*M1         ld a,l
-042928 32 A8 C6 05 0002*M1         ld (ADDRESS),a
+042928 32 C8 C6 05 0002*M1         ld (ADDRESS),a
 04292C 7C          0003*M1         ld a,h
-04292D 32 A9 C6 05 0004*M1         ld (ADDRESS+1),a
+04292D 32 C9 C6 05 0004*M1         ld (ADDRESS+1),a
 042931 C9          0195*       ret
 042932             0196*   
 042932             0197*   survey_pitch_down:
 042932             0198*       SURVEY_LOAD_HL camera_state+p3d_camera_pingo_rotation+p3d_vec3_x
                        M1 Args: ADDRESS=camera_state+p3d_camera_pingo_rotation+p3d_vec3_x 
-042932 3A A8 C6 05 0001*M1         ld a,(ADDRESS)
+042932 3A C8 C6 05 0001*M1         ld a,(ADDRESS)
 042936 6F          0002*M1         ld l,a
-042937 3A A9 C6 05 0003*M1         ld a,(ADDRESS+1)
+042937 3A C9 C6 05 0003*M1         ld a,(ADDRESS+1)
 04293B 67          0004*M1         ld h,a
 04293C 11 98 00 00 0199*       ld de,survey_angular_step
 042940 52 19       0200*       add.s hl,de
@@ -7348,43 +7348,43 @@ PC     Output      Line
 042958             0214*       SURVEY_STORE_HL camera_state+p3d_camera_pingo_rotation+p3d_vec3_x
                        M1 Args: ADDRESS=camera_state+p3d_camera_pingo_rotation+p3d_vec3_x 
 042958 7D          0001*M1         ld a,l
-042959 32 A8 C6 05 0002*M1         ld (ADDRESS),a
+042959 32 C8 C6 05 0002*M1         ld (ADDRESS),a
 04295D 7C          0003*M1         ld a,h
-04295E 32 A9 C6 05 0004*M1         ld (ADDRESS+1),a
+04295E 32 C9 C6 05 0004*M1         ld (ADDRESS+1),a
 042962 C9          0215*       ret
 042963             0216*   
 042963             0217*   survey_yaw_left:
 042963             0218*       SURVEY_LOAD_HL camera_state+p3d_camera_pingo_rotation+p3d_vec3_y
                        M1 Args: ADDRESS=camera_state+p3d_camera_pingo_rotation+p3d_vec3_y 
-042963 3A AA C6 05 0001*M1         ld a,(ADDRESS)
+042963 3A CA C6 05 0001*M1         ld a,(ADDRESS)
 042967 6F          0002*M1         ld l,a
-042968 3A AB C6 05 0003*M1         ld a,(ADDRESS+1)
+042968 3A CB C6 05 0003*M1         ld a,(ADDRESS+1)
 04296C 67          0004*M1         ld h,a
 04296D 11 98 00 00 0219*       ld de,survey_angular_step
 042971 52 19       0220*       add.s hl,de                         ; intentional 16-bit turn wrap
 042973             0221*       SURVEY_STORE_HL camera_state+p3d_camera_pingo_rotation+p3d_vec3_y
                        M1 Args: ADDRESS=camera_state+p3d_camera_pingo_rotation+p3d_vec3_y 
 042973 7D          0001*M1         ld a,l
-042974 32 AA C6 05 0002*M1         ld (ADDRESS),a
+042974 32 CA C6 05 0002*M1         ld (ADDRESS),a
 042978 7C          0003*M1         ld a,h
-042979 32 AB C6 05 0004*M1         ld (ADDRESS+1),a
+042979 32 CB C6 05 0004*M1         ld (ADDRESS+1),a
 04297D C9          0222*       ret
 04297E             0223*   
 04297E             0224*   survey_yaw_right:
 04297E             0225*       SURVEY_LOAD_HL camera_state+p3d_camera_pingo_rotation+p3d_vec3_y
                        M1 Args: ADDRESS=camera_state+p3d_camera_pingo_rotation+p3d_vec3_y 
-04297E 3A AA C6 05 0001*M1         ld a,(ADDRESS)
+04297E 3A CA C6 05 0001*M1         ld a,(ADDRESS)
 042982 6F          0002*M1         ld l,a
-042983 3A AB C6 05 0003*M1         ld a,(ADDRESS+1)
+042983 3A CB C6 05 0003*M1         ld a,(ADDRESS+1)
 042987 67          0004*M1         ld h,a
 042988 11 68 FF FF 0226*       ld de,-survey_angular_step
 04298C 52 19       0227*       add.s hl,de                         ; intentional 16-bit turn wrap
 04298E             0228*       SURVEY_STORE_HL camera_state+p3d_camera_pingo_rotation+p3d_vec3_y
                        M1 Args: ADDRESS=camera_state+p3d_camera_pingo_rotation+p3d_vec3_y 
 04298E 7D          0001*M1         ld a,l
-04298F 32 AA C6 05 0002*M1         ld (ADDRESS),a
+04298F 32 CA C6 05 0002*M1         ld (ADDRESS),a
 042993 7C          0003*M1         ld a,h
-042994 32 AB C6 05 0004*M1         ld (ADDRESS+1),a
+042994 32 CB C6 05 0004*M1         ld (ADDRESS+1),a
 042998 C9          0229*       ret
 042999             0230*   
 042999             0231*   ; Build one local XZ displacement from WASD, rotate it around world Y using
@@ -7393,12 +7393,12 @@ PC     Output      Line
 042999             0234*   ; or leaves the camera unchanged at a signed-coordinate boundary.
 042999             0235*   survey_update_translation:
 042999 AF          0236*       xor a
-04299A 32 C2 C6 05 0237*       ld (survey_translation_delta+p3d_vec3_x+0),a
-04299E 32 C3 C6 05 0238*       ld (survey_translation_delta+p3d_vec3_x+1),a
-0429A2 32 C4 C6 05 0239*       ld (survey_translation_delta+p3d_vec3_y+0),a
-0429A6 32 C5 C6 05 0240*       ld (survey_translation_delta+p3d_vec3_y+1),a
-0429AA 32 C6 C6 05 0241*       ld (survey_translation_delta+p3d_vec3_z+0),a
-0429AE 32 C7 C6 05 0242*       ld (survey_translation_delta+p3d_vec3_z+1),a
+04299A 32 E2 C6 05 0237*       ld (survey_translation_delta+p3d_vec3_x+0),a
+04299E 32 E3 C6 05 0238*       ld (survey_translation_delta+p3d_vec3_x+1),a
+0429A2 32 E4 C6 05 0239*       ld (survey_translation_delta+p3d_vec3_y+0),a
+0429A6 32 E5 C6 05 0240*       ld (survey_translation_delta+p3d_vec3_y+1),a
+0429AA 32 E6 C6 05 0241*       ld (survey_translation_delta+p3d_vec3_z+0),a
+0429AE 32 E7 C6 05 0242*       ld (survey_translation_delta+p3d_vec3_z+1),a
 0429B2             0243*   
 0429B2 DD 21 5C 00 0244*       ld ix,keyboard_masks
        04          
@@ -7410,9 +7410,9 @@ PC     Output      Line
 0429C1 20 37       0250*       jr nz,@forward_done
 0429C3             0251*       SURVEY_LOAD_HL survey_translation_rate
                        M1 Args: ADDRESS=survey_translation_rate 
-0429C3 3A C8 C6 05 0001*M1         ld a,(ADDRESS)
+0429C3 3A E8 C6 05 0001*M1         ld a,(ADDRESS)
 0429C7 6F          0002*M1         ld l,a
-0429C8 3A C9 C6 05 0003*M1         ld a,(ADDRESS+1)
+0429C8 3A E9 C6 05 0003*M1         ld a,(ADDRESS+1)
 0429CC 67          0004*M1         ld h,a
 0429CD             0252*       SURVEY_NEGATE_HL
                        M1 Args: none
@@ -7425,25 +7425,25 @@ PC     Output      Line
 0429D4             0253*       SURVEY_STORE_HL survey_translation_delta+p3d_vec3_z
                        M1 Args: ADDRESS=survey_translation_delta+p3d_vec3_z 
 0429D4 7D          0001*M1         ld a,l
-0429D5 32 C6 C6 05 0002*M1         ld (ADDRESS),a
+0429D5 32 E6 C6 05 0002*M1         ld (ADDRESS),a
 0429D9 7C          0003*M1         ld a,h
-0429DA 32 C7 C6 05 0004*M1         ld (ADDRESS+1),a
+0429DA 32 E7 C6 05 0004*M1         ld (ADDRESS+1),a
 0429DE 18 1A       0254*       jr @forward_done
 0429E0             0255*   @backward_only:
 0429E0 DD CB 0A 4E 0256*       bit 1,(ix+10)
 0429E4 28 14       0257*       jr z,@forward_done
 0429E6             0258*       SURVEY_LOAD_HL survey_translation_rate
                        M1 Args: ADDRESS=survey_translation_rate 
-0429E6 3A C8 C6 05 0001*M1         ld a,(ADDRESS)
+0429E6 3A E8 C6 05 0001*M1         ld a,(ADDRESS)
 0429EA 6F          0002*M1         ld l,a
-0429EB 3A C9 C6 05 0003*M1         ld a,(ADDRESS+1)
+0429EB 3A E9 C6 05 0003*M1         ld a,(ADDRESS+1)
 0429EF 67          0004*M1         ld h,a
 0429F0             0259*       SURVEY_STORE_HL survey_translation_delta+p3d_vec3_z
                        M1 Args: ADDRESS=survey_translation_delta+p3d_vec3_z 
 0429F0 7D          0001*M1         ld a,l
-0429F1 32 C6 C6 05 0002*M1         ld (ADDRESS),a
+0429F1 32 E6 C6 05 0002*M1         ld (ADDRESS),a
 0429F5 7C          0003*M1         ld a,h
-0429F6 32 C7 C6 05 0004*M1         ld (ADDRESS+1),a
+0429F6 32 E7 C6 05 0004*M1         ld (ADDRESS+1),a
 0429FA             0260*   @forward_done:
 0429FA             0261*   
 0429FA             0262*   ; A/D: left local -X / right local +X.
@@ -7453,9 +7453,9 @@ PC     Output      Line
 042A04 20 37       0266*       jr nz,@horizontal_ready
 042A06             0267*       SURVEY_LOAD_HL survey_translation_rate
                        M1 Args: ADDRESS=survey_translation_rate 
-042A06 3A C8 C6 05 0001*M1         ld a,(ADDRESS)
+042A06 3A E8 C6 05 0001*M1         ld a,(ADDRESS)
 042A0A 6F          0002*M1         ld l,a
-042A0B 3A C9 C6 05 0003*M1         ld a,(ADDRESS+1)
+042A0B 3A E9 C6 05 0003*M1         ld a,(ADDRESS+1)
 042A0F 67          0004*M1         ld h,a
 042A10             0268*       SURVEY_NEGATE_HL
                        M1 Args: none
@@ -7468,29 +7468,29 @@ PC     Output      Line
 042A17             0269*       SURVEY_STORE_HL survey_translation_delta+p3d_vec3_x
                        M1 Args: ADDRESS=survey_translation_delta+p3d_vec3_x 
 042A17 7D          0001*M1         ld a,l
-042A18 32 C2 C6 05 0002*M1         ld (ADDRESS),a
+042A18 32 E2 C6 05 0002*M1         ld (ADDRESS),a
 042A1C 7C          0003*M1         ld a,h
-042A1D 32 C3 C6 05 0004*M1         ld (ADDRESS+1),a
+042A1D 32 E3 C6 05 0004*M1         ld (ADDRESS+1),a
 042A21 18 1A       0270*       jr @horizontal_ready
 042A23             0271*   @right_translation_only:
 042A23 DD CB 06 56 0272*       bit 2,(ix+6)
 042A27 28 14       0273*       jr z,@horizontal_ready
 042A29             0274*       SURVEY_LOAD_HL survey_translation_rate
                        M1 Args: ADDRESS=survey_translation_rate 
-042A29 3A C8 C6 05 0001*M1         ld a,(ADDRESS)
+042A29 3A E8 C6 05 0001*M1         ld a,(ADDRESS)
 042A2D 6F          0002*M1         ld l,a
-042A2E 3A C9 C6 05 0003*M1         ld a,(ADDRESS+1)
+042A2E 3A E9 C6 05 0003*M1         ld a,(ADDRESS+1)
 042A32 67          0004*M1         ld h,a
 042A33             0275*       SURVEY_STORE_HL survey_translation_delta+p3d_vec3_x
                        M1 Args: ADDRESS=survey_translation_delta+p3d_vec3_x 
 042A33 7D          0001*M1         ld a,l
-042A34 32 C2 C6 05 0002*M1         ld (ADDRESS),a
+042A34 32 E2 C6 05 0002*M1         ld (ADDRESS),a
 042A38 7C          0003*M1         ld a,h
-042A39 32 C3 C6 05 0004*M1         ld (ADDRESS+1),a
+042A39 32 E3 C6 05 0004*M1         ld (ADDRESS+1),a
 042A3D             0276*   @horizontal_ready:
 042A3D             0277*   
 042A3D             0278*   ; Skip the trigonometric path for a vertical-only command.
-042A3D DD 21 C2 C6 0279*       ld ix,survey_translation_delta
+042A3D DD 21 E2 C6 0279*       ld ix,survey_translation_delta
        05          
 042A42 DD 7E 00    0280*       ld a,(ix+p3d_vec3_x+0)
 042A45 DD B6 01    0281*       or (ix+p3d_vec3_x+1)
@@ -7499,21 +7499,21 @@ PC     Output      Line
 042A4E 28 26       0284*       jr z,@vertical
 042A50             0285*       SURVEY_LOAD_HL camera_state+p3d_camera_pingo_rotation+p3d_vec3_y
                        M1 Args: ADDRESS=camera_state+p3d_camera_pingo_rotation+p3d_vec3_y 
-042A50 3A AA C6 05 0001*M1         ld a,(ADDRESS)
+042A50 3A CA C6 05 0001*M1         ld a,(ADDRESS)
 042A54 6F          0002*M1         ld l,a
-042A55 3A AB C6 05 0003*M1         ld a,(ADDRESS+1)
+042A55 3A CB C6 05 0003*M1         ld a,(ADDRESS+1)
 042A59 67          0004*M1         ld h,a
-042A5A DD 21 C2 C6 0286*       ld ix,survey_translation_delta
+042A5A DD 21 E2 C6 0286*       ld ix,survey_translation_delta
        05          
 042A5F CD 63 0B 04 0287*       call p3d_vec3_rotate_y16
 042A63 30 11       0288*       jr nc,@vertical
 042A65             0289*   ; This cannot overflow at the bounded rate, but fail closed if the shared
 042A65             0290*   ; arithmetic contract ever changes.
 042A65 AF          0291*       xor a
-042A66 32 C2 C6 05 0292*       ld (survey_translation_delta+p3d_vec3_x+0),a
-042A6A 32 C3 C6 05 0293*       ld (survey_translation_delta+p3d_vec3_x+1),a
-042A6E 32 C6 C6 05 0294*       ld (survey_translation_delta+p3d_vec3_z+0),a
-042A72 32 C7 C6 05 0295*       ld (survey_translation_delta+p3d_vec3_z+1),a
+042A66 32 E2 C6 05 0292*       ld (survey_translation_delta+p3d_vec3_x+0),a
+042A6A 32 E3 C6 05 0293*       ld (survey_translation_delta+p3d_vec3_x+1),a
+042A6E 32 E6 C6 05 0294*       ld (survey_translation_delta+p3d_vec3_z+0),a
+042A72 32 E7 C6 05 0295*       ld (survey_translation_delta+p3d_vec3_z+1),a
 042A76             0296*   
 042A76             0297*   @vertical:
 042A76 DD 21 5C 00 0298*       ld ix,keyboard_masks
@@ -7524,25 +7524,25 @@ PC     Output      Line
 042A85 20 37       0302*       jr nz,@translation_ready
 042A87             0303*       SURVEY_LOAD_HL survey_translation_rate
                        M1 Args: ADDRESS=survey_translation_rate 
-042A87 3A C8 C6 05 0001*M1         ld a,(ADDRESS)
+042A87 3A E8 C6 05 0001*M1         ld a,(ADDRESS)
 042A8B 6F          0002*M1         ld l,a
-042A8C 3A C9 C6 05 0003*M1         ld a,(ADDRESS+1)
+042A8C 3A E9 C6 05 0003*M1         ld a,(ADDRESS+1)
 042A90 67          0004*M1         ld h,a
 042A91             0304*       SURVEY_STORE_HL survey_translation_delta+p3d_vec3_y
                        M1 Args: ADDRESS=survey_translation_delta+p3d_vec3_y 
 042A91 7D          0001*M1         ld a,l
-042A92 32 C4 C6 05 0002*M1         ld (ADDRESS),a
+042A92 32 E4 C6 05 0002*M1         ld (ADDRESS),a
 042A96 7C          0003*M1         ld a,h
-042A97 32 C5 C6 05 0004*M1         ld (ADDRESS+1),a
+042A97 32 E5 C6 05 0004*M1         ld (ADDRESS+1),a
 042A9B 18 21       0305*       jr @translation_ready
 042A9D             0306*   @page_down_only:
 042A9D DD CB 09 76 0307*       bit 6,(ix+9)
 042AA1 28 1B       0308*       jr z,@translation_ready
 042AA3             0309*       SURVEY_LOAD_HL survey_translation_rate
                        M1 Args: ADDRESS=survey_translation_rate 
-042AA3 3A C8 C6 05 0001*M1         ld a,(ADDRESS)
+042AA3 3A E8 C6 05 0001*M1         ld a,(ADDRESS)
 042AA7 6F          0002*M1         ld l,a
-042AA8 3A C9 C6 05 0003*M1         ld a,(ADDRESS+1)
+042AA8 3A E9 C6 05 0003*M1         ld a,(ADDRESS+1)
 042AAC 67          0004*M1         ld h,a
 042AAD             0310*       SURVEY_NEGATE_HL
                        M1 Args: none
@@ -7555,12 +7555,12 @@ PC     Output      Line
 042AB4             0311*       SURVEY_STORE_HL survey_translation_delta+p3d_vec3_y
                        M1 Args: ADDRESS=survey_translation_delta+p3d_vec3_y 
 042AB4 7D          0001*M1         ld a,l
-042AB5 32 C4 C6 05 0002*M1         ld (ADDRESS),a
+042AB5 32 E4 C6 05 0002*M1         ld (ADDRESS),a
 042AB9 7C          0003*M1         ld a,h
-042ABA 32 C5 C6 05 0004*M1         ld (ADDRESS+1),a
+042ABA 32 E5 C6 05 0004*M1         ld (ADDRESS+1),a
 042ABE             0312*   
 042ABE             0313*   @translation_ready:
-042ABE DD 21 C2 C6 0314*       ld ix,survey_translation_delta
+042ABE DD 21 E2 C6 0314*       ld ix,survey_translation_delta
        05          
 042AC3 DD 7E 00    0315*       ld a,(ix+p3d_vec3_x+0)
 042AC6 DD B6 01    0316*       or (ix+p3d_vec3_x+1)
@@ -7570,452 +7570,62 @@ PC     Output      Line
 042AD2 DD B6 05    0320*       or (ix+p3d_vec3_z+1)
 042AD5 C8          0321*       ret z
 042AD6             0322*   
-042AD6 DD 21 A2 C6 0323*       ld ix,camera_state+p3d_camera_world_position
+042AD6 DD 21 C2 C6 0323*       ld ix,camera_state+p3d_camera_world_position
        05          
-042ADB FD 21 C2 C6 0324*       ld iy,survey_translation_delta
+042ADB FD 21 E2 C6 0324*       ld iy,survey_translation_delta
        05          
 042AE0 CD 02 0A 04 0325*       call p3d_vec3_translate16
 042AE4 D8          0326*       ret c
-042AE5 DD 21 9E C6 0327*       ld ix,camera_state
+042AE5 DD 21 BE C6 0327*       ld ix,camera_state
        05          
 042AEA DD 7E 00    0328*       ld a,(ix+p3d_camera_dirty)
 042AED F6 01       0329*       or p3d_camera_dirty_position
 042AEF DD 77 00    0330*       ld (ix+p3d_camera_dirty),a
 042AF2 C9          0331*       ret
-042AF3             0105        include "../../koak-flight-streamed/src/flight-backdrop.inc"
+042AF3             0105        include "terrain-manager-solid-sky.inc"
 042AF3             0001*   ; =============================================================================
-042AF3             0002*   ; Camera-attitude sky/ground fallback for the 320x148 exterior viewport.
+042AF3             0002*   ; Fixed full-frame sky clear for terrain-manager camera fixtures.
 042AF3             0003*   ;
-042AF3             0004*   ; This is the qualified four-triangle Berkeley implementation with one vital
-042AF3             0005*   ; regional-view distinction: pitch and roll come from camera_state's retained
-042AF3             0006*   ; orientation matrix. Cockpit orientation equals the aircraft attitude, while
-042AF3             0007*   ; the chase solver owns an upright horizon that must not inherit aircraft bank.
-042AF3             0008*   ; Matrix-derived screen attitude avoids the equivalent +/-180-degree branches
-042AF3             0009*   ; that a complete Pingo Euler triple may legitimately use.
-042AF3             0010*   ; =============================================================================
-042AF3             0011*   
-042AF3             0012*   backdrop_plot_move_absolute: equ 04h
-042AF3             0013*   backdrop_plot_triangle_absolute: equ 55h
-042AF3             0014*   backdrop_sky_colour: equ 47
-042AF3             0015*   backdrop_ground_colour: equ 8
-042AF3             0016*   backdrop_center_x: equ 160
-042AF3             0017*   ; Keep the qualified KOAK value (148/2 = 74) while allowing full-height
-042AF3             0018*   ; camera-only fixtures to reuse this camera-matrix backdrop without a fork.
-042AF3             0019*   backdrop_center_y: equ viewport_height/2
-042AF3             0020*   
-042AF3             0021*       MACRO BACKDROP_STORE_HL16 target
-042AF3             0022*           ld a,l
-042AF3             0023*           ld (target),a
-042AF3             0024*           ld a,h
-042AF3             0025*           ld (target+1),a
-042AF3             0026*       ENDMACRO
-042AF3             0027*   
-042AF3             0028*       MACRO BACKDROP_LOAD_HL16 source
-042AF3             0029*           ld a,(source)
-042AF3             0030*           ld l,a
-042AF3             0031*           ld a,(source+1)
-042AF3             0032*           ld h,a
-042AF3             0033*       ENDMACRO
-042AF3             0034*   
-042AF3             0035*       MACRO BACKDROP_LOAD_DE16 source
-042AF3             0036*           ld a,(source)
-042AF3             0037*           ld e,a
-042AF3             0038*           ld a,(source+1)
-042AF3             0039*           ld d,a
-042AF3             0040*       ENDMACRO
-042AF3             0041*   
-042AF3             0042*   ; IX points to one row-major local-to-world camera orientation.  World-up in
-042AF3             0043*   ; view coordinates is row 1, so pitch is asin(-r1c2) and screen roll is
-042AF3             0044*   ; atan2(r1c0,r1c1).  Both library calls return the same coarse angle-word
-042AF3             0045*   ; domain used by the original horizon implementation.
-042AF3             0046*   backdrop_extract_attitude:
-042AF3 DD 6E 0A    0047*       ld l,(ix+p3d_mat3_r1c2)
-042AF6 DD 66 0B    0048*       ld h,(ix+p3d_mat3_r1c2+1)
-042AF9 7C          0049*       ld a,h
-042AFA FE 80       0050*       cp 080h
-042AFC 20 0A       0051*       jr nz,@negate_pitch
-042AFE 7D          0052*       ld a,l
-042AFF B7          0053*       or a
-042B00 20 06       0054*       jr nz,@negate_pitch
-042B02 21 FF 7F 00 0055*       ld hl,32767
-042B06 18 07       0056*       jr @pitch_ready
-042B08             0057*   @negate_pitch:
-042B08 AF          0058*       xor a
-042B09 95          0059*       sub l
-042B0A 6F          0060*       ld l,a
-042B0B 3E 00       0061*       ld a,0
-042B0D 9C          0062*       sbc a,h
-042B0E 67          0063*       ld h,a
-042B0F             0064*   @pitch_ready:
-042B0F CD 91 08 04 0065*       call p3d_asin16
-042B13             0066*       BACKDROP_STORE_HL16 backdrop_pitch_word
-                       M1 Args: target=backdrop_pitch_word 
-042B13 7D          0001*M1         ld a,l
-042B14 32 C9 2D 04 0002*M1         ld (target),a
-042B18 7C          0003*M1         ld a,h
-042B19 32 CA 2D 04 0004*M1         ld (target+1),a
-042B1D             0067*   
-042B1D DD 6E 06    0068*       ld l,(ix+p3d_mat3_r1c0)
-042B20 DD 66 07    0069*       ld h,(ix+p3d_mat3_r1c0+1)
-042B23 DD 5E 08    0070*       ld e,(ix+p3d_mat3_r1c1)
-042B26 DD 56 09    0071*       ld d,(ix+p3d_mat3_r1c1+1)
-042B29 CD 57 06 04 0072*       call p3d_atan2_16
-042B2D             0073*       BACKDROP_STORE_HL16 backdrop_roll_word
-                       M1 Args: target=backdrop_roll_word 
-042B2D 7D          0001*M1         ld a,l
-042B2E 32 CB 2D 04 0002*M1         ld (target),a
-042B32 7C          0003*M1         ld a,h
-042B33 32 CC 2D 04 0004*M1         ld (target+1),a
-042B37 C9          0074*       ret
-042B38             0075*   
-042B38             0076*   draw_flight_backdrop:
-042B38 DD 21 AE C6 0077*       ld ix,camera_state+p3d_camera_orientation
-       05          
-042B3D CD F3 2A 04 0078*       call backdrop_extract_attitude
-042B41             0079*   
-042B41             0080*       BACKDROP_LOAD_HL16 backdrop_pitch_word
-                       M1 Args: source=backdrop_pitch_word 
-042B41 3A C9 2D 04 0001*M1         ld a,(source)
-042B45 6F          0002*M1         ld l,a
-042B46 3A CA 2D 04 0003*M1         ld a,(source+1)
-042B4A 67          0004*M1         ld h,a
-042B4B 3E 06       0081*       ld a,6
-042B4D             0082*   @pitch_shift:
-042B4D CB 2C       0083*       sra h
-042B4F CB 1D       0084*       rr l
-042B51 3D          0085*       dec a
-042B52 20 F9       0086*       jr nz,@pitch_shift
-042B54 11 78 00 00 0087*       ld de,backdrop_center_y
-042B58 52 19       0088*       add.s hl,de
-042B5A             0089*       BACKDROP_STORE_HL16 backdrop_horizon_y
-                       M1 Args: target=backdrop_horizon_y 
-042B5A 7D          0001*M1         ld a,l
-042B5B 32 C7 2D 04 0002*M1         ld (target),a
-042B5F 7C          0003*M1         ld a,h
-042B60 32 C8 2D 04 0004*M1         ld (target+1),a
-042B64             0090*   
-042B64             0091*       BACKDROP_LOAD_HL16 backdrop_roll_word
-                       M1 Args: source=backdrop_roll_word 
-042B64 3A CB 2D 04 0001*M1         ld a,(source)
-042B68 6F          0002*M1         ld l,a
-042B69 3A CC 2D 04 0003*M1         ld a,(source+1)
-042B6D 67          0004*M1         ld h,a
-042B6E CD 39 05 04 0092*       call p3d_sincos16
-042B72 60          0093*       ld h,b
-042B73 69          0094*       ld l,c
-042B74 CD CE 2C 04 0095*       call backdrop_shift_hl_6
-042B78             0096*       BACKDROP_STORE_HL16 backdrop_sin_r512
-                       M1 Args: target=backdrop_sin_r512 
-042B78 7D          0001*M1         ld a,l
-042B79 32 CD 2D 04 0002*M1         ld (target),a
-042B7D 7C          0003*M1         ld a,h
-042B7E 32 CE 2D 04 0004*M1         ld (target+1),a
-042B82 62          0097*       ld h,d
-042B83 6B          0098*       ld l,e
-042B84 CD CE 2C 04 0099*       call backdrop_shift_hl_6
-042B88             0100*       BACKDROP_STORE_HL16 backdrop_cos_r512
-                       M1 Args: target=backdrop_cos_r512 
-042B88 7D          0001*M1         ld a,l
-042B89 32 CF 2D 04 0002*M1         ld (target),a
-042B8D 7C          0003*M1         ld a,h
-042B8E 32 D0 2D 04 0004*M1         ld (target+1),a
-042B92             0101*   
-042B92             0102*       BACKDROP_LOAD_HL16 backdrop_cos_r512
-                       M1 Args: source=backdrop_cos_r512 
-042B92 3A CF 2D 04 0001*M1         ld a,(source)
-042B96 6F          0002*M1         ld l,a
-042B97 3A D0 2D 04 0003*M1         ld a,(source+1)
-042B9B 67          0004*M1         ld h,a
-042B9C 11 A0 00 00 0103*       ld de,backdrop_center_x
-042BA0 EB          0104*       ex de,hl
-042BA1 B7          0105*       or a
-042BA2 52 ED 52    0106*       sbc.s hl,de
-042BA5             0107*       BACKDROP_STORE_HL16 backdrop_h0_x
-                       M1 Args: target=backdrop_h0_x 
-042BA5 7D          0001*M1         ld a,l
-042BA6 32 D1 2D 04 0002*M1         ld (target),a
-042BAA 7C          0003*M1         ld a,h
-042BAB 32 D2 2D 04 0004*M1         ld (target+1),a
-042BAF             0108*       BACKDROP_LOAD_HL16 backdrop_cos_r512
-                       M1 Args: source=backdrop_cos_r512 
-042BAF 3A CF 2D 04 0001*M1         ld a,(source)
-042BB3 6F          0002*M1         ld l,a
-042BB4 3A D0 2D 04 0003*M1         ld a,(source+1)
-042BB8 67          0004*M1         ld h,a
-042BB9 11 A0 00 00 0109*       ld de,backdrop_center_x
-042BBD 52 19       0110*       add.s hl,de
-042BBF             0111*       BACKDROP_STORE_HL16 backdrop_h1_x
-                       M1 Args: target=backdrop_h1_x 
-042BBF 7D          0001*M1         ld a,l
-042BC0 32 D5 2D 04 0002*M1         ld (target),a
-042BC4 7C          0003*M1         ld a,h
-042BC5 32 D6 2D 04 0004*M1         ld (target+1),a
-042BC9             0112*   
-042BC9             0113*       BACKDROP_LOAD_HL16 backdrop_sin_r512
-                       M1 Args: source=backdrop_sin_r512 
-042BC9 3A CD 2D 04 0001*M1         ld a,(source)
-042BCD 6F          0002*M1         ld l,a
-042BCE 3A CE 2D 04 0003*M1         ld a,(source+1)
-042BD2 67          0004*M1         ld h,a
-042BD3             0114*       BACKDROP_LOAD_DE16 backdrop_horizon_y
-                       M1 Args: source=backdrop_horizon_y 
-042BD3 3A C7 2D 04 0001*M1         ld a,(source)
-042BD7 5F          0002*M1         ld e,a
-042BD8 3A C8 2D 04 0003*M1         ld a,(source+1)
-042BDC 57          0004*M1         ld d,a
-042BDD EB          0115*       ex de,hl
-042BDE B7          0116*       or a
-042BDF 52 ED 52    0117*       sbc.s hl,de
-042BE2             0118*       BACKDROP_STORE_HL16 backdrop_h0_y
-                       M1 Args: target=backdrop_h0_y 
-042BE2 7D          0001*M1         ld a,l
-042BE3 32 D3 2D 04 0002*M1         ld (target),a
-042BE7 7C          0003*M1         ld a,h
-042BE8 32 D4 2D 04 0004*M1         ld (target+1),a
-042BEC             0119*       BACKDROP_LOAD_HL16 backdrop_sin_r512
-                       M1 Args: source=backdrop_sin_r512 
-042BEC 3A CD 2D 04 0001*M1         ld a,(source)
-042BF0 6F          0002*M1         ld l,a
-042BF1 3A CE 2D 04 0003*M1         ld a,(source+1)
-042BF5 67          0004*M1         ld h,a
-042BF6             0120*       BACKDROP_LOAD_DE16 backdrop_horizon_y
-                       M1 Args: source=backdrop_horizon_y 
-042BF6 3A C7 2D 04 0001*M1         ld a,(source)
-042BFA 5F          0002*M1         ld e,a
-042BFB 3A C8 2D 04 0003*M1         ld a,(source+1)
-042BFF 57          0004*M1         ld d,a
-042C00 52 19       0121*       add.s hl,de
-042C02             0122*       BACKDROP_STORE_HL16 backdrop_h1_y
-                       M1 Args: target=backdrop_h1_y 
-042C02 7D          0001*M1         ld a,l
-042C03 32 D7 2D 04 0002*M1         ld (target),a
-042C07 7C          0003*M1         ld a,h
-042C08 32 D8 2D 04 0004*M1         ld (target+1),a
-042C0C             0123*   
-042C0C             0124*       BACKDROP_LOAD_HL16 backdrop_sin_r512
-                       M1 Args: source=backdrop_sin_r512 
-042C0C 3A CD 2D 04 0001*M1         ld a,(source)
-042C10 6F          0002*M1         ld l,a
-042C11 3A CE 2D 04 0003*M1         ld a,(source+1)
-042C15 67          0004*M1         ld h,a
-042C16 52 29       0125*       add.s hl,hl
-042C18 AF          0126*       xor a
-042C19 95          0127*       sub l
-042C1A 6F          0128*       ld l,a
-042C1B 3E 00       0129*       ld a,0
-042C1D 9C          0130*       sbc a,h
-042C1E 67          0131*       ld h,a
-042C1F             0132*       BACKDROP_STORE_HL16 backdrop_down_x
-                       M1 Args: target=backdrop_down_x 
-042C1F 7D          0001*M1         ld a,l
-042C20 32 D9 2D 04 0002*M1         ld (target),a
-042C24 7C          0003*M1         ld a,h
-042C25 32 DA 2D 04 0004*M1         ld (target+1),a
-042C29             0133*       BACKDROP_LOAD_HL16 backdrop_cos_r512
-                       M1 Args: source=backdrop_cos_r512 
-042C29 3A CF 2D 04 0001*M1         ld a,(source)
-042C2D 6F          0002*M1         ld l,a
-042C2E 3A D0 2D 04 0003*M1         ld a,(source+1)
-042C32 67          0004*M1         ld h,a
-042C33 52 29       0134*       add.s hl,hl
-042C35             0135*       BACKDROP_STORE_HL16 backdrop_down_y
-                       M1 Args: target=backdrop_down_y 
-042C35 7D          0001*M1         ld a,l
-042C36 32 DB 2D 04 0002*M1         ld (target),a
-042C3A 7C          0003*M1         ld a,h
-042C3B 32 DC 2D 04 0004*M1         ld (target+1),a
-042C3F             0136*   
-042C3F             0137*       BACKDROP_LOAD_HL16 backdrop_h0_x
-                       M1 Args: source=backdrop_h0_x 
-042C3F 3A D1 2D 04 0001*M1         ld a,(source)
-042C43 6F          0002*M1         ld l,a
-042C44 3A D2 2D 04 0003*M1         ld a,(source+1)
-042C48 67          0004*M1         ld h,a
-042C49             0138*       BACKDROP_LOAD_DE16 backdrop_down_x
-                       M1 Args: source=backdrop_down_x 
-042C49 3A D9 2D 04 0001*M1         ld a,(source)
-042C4D 5F          0002*M1         ld e,a
-042C4E 3A DA 2D 04 0003*M1         ld a,(source+1)
-042C52 57          0004*M1         ld d,a
-042C53 52 19       0139*       add.s hl,de
-042C55             0140*       BACKDROP_STORE_HL16 backdrop_g0_x
-                       M1 Args: target=backdrop_g0_x 
-042C55 7D          0001*M1         ld a,l
-042C56 32 DD 2D 04 0002*M1         ld (target),a
-042C5A 7C          0003*M1         ld a,h
-042C5B 32 DE 2D 04 0004*M1         ld (target+1),a
-042C5F             0141*       BACKDROP_LOAD_HL16 backdrop_h0_y
-                       M1 Args: source=backdrop_h0_y 
-042C5F 3A D3 2D 04 0001*M1         ld a,(source)
-042C63 6F          0002*M1         ld l,a
-042C64 3A D4 2D 04 0003*M1         ld a,(source+1)
-042C68 67          0004*M1         ld h,a
-042C69             0142*       BACKDROP_LOAD_DE16 backdrop_down_y
-                       M1 Args: source=backdrop_down_y 
-042C69 3A DB 2D 04 0001*M1         ld a,(source)
-042C6D 5F          0002*M1         ld e,a
-042C6E 3A DC 2D 04 0003*M1         ld a,(source+1)
-042C72 57          0004*M1         ld d,a
-042C73 52 19       0143*       add.s hl,de
-042C75             0144*       BACKDROP_STORE_HL16 backdrop_g0_y
-                       M1 Args: target=backdrop_g0_y 
-042C75 7D          0001*M1         ld a,l
-042C76 32 DF 2D 04 0002*M1         ld (target),a
-042C7A 7C          0003*M1         ld a,h
-042C7B 32 E0 2D 04 0004*M1         ld (target+1),a
-042C7F             0145*       BACKDROP_LOAD_HL16 backdrop_h1_x
-                       M1 Args: source=backdrop_h1_x 
-042C7F 3A D5 2D 04 0001*M1         ld a,(source)
-042C83 6F          0002*M1         ld l,a
-042C84 3A D6 2D 04 0003*M1         ld a,(source+1)
-042C88 67          0004*M1         ld h,a
-042C89             0146*       BACKDROP_LOAD_DE16 backdrop_down_x
-                       M1 Args: source=backdrop_down_x 
-042C89 3A D9 2D 04 0001*M1         ld a,(source)
-042C8D 5F          0002*M1         ld e,a
-042C8E 3A DA 2D 04 0003*M1         ld a,(source+1)
-042C92 57          0004*M1         ld d,a
-042C93 52 19       0147*       add.s hl,de
-042C95             0148*       BACKDROP_STORE_HL16 backdrop_g1_x
-                       M1 Args: target=backdrop_g1_x 
-042C95 7D          0001*M1         ld a,l
-042C96 32 E1 2D 04 0002*M1         ld (target),a
-042C9A 7C          0003*M1         ld a,h
-042C9B 32 E2 2D 04 0004*M1         ld (target+1),a
-042C9F             0149*       BACKDROP_LOAD_HL16 backdrop_h1_y
-                       M1 Args: source=backdrop_h1_y 
-042C9F 3A D7 2D 04 0001*M1         ld a,(source)
-042CA3 6F          0002*M1         ld l,a
-042CA4 3A D8 2D 04 0003*M1         ld a,(source+1)
-042CA8 67          0004*M1         ld h,a
-042CA9             0150*       BACKDROP_LOAD_DE16 backdrop_down_y
-                       M1 Args: source=backdrop_down_y 
-042CA9 3A DB 2D 04 0001*M1         ld a,(source)
-042CAD 5F          0002*M1         ld e,a
-042CAE 3A DC 2D 04 0003*M1         ld a,(source+1)
-042CB2 57          0004*M1         ld d,a
-042CB3 52 19       0151*       add.s hl,de
-042CB5             0152*       BACKDROP_STORE_HL16 backdrop_g1_y
-                       M1 Args: target=backdrop_g1_y 
-042CB5 7D          0001*M1         ld a,l
-042CB6 32 E3 2D 04 0002*M1         ld (target),a
-042CBA 7C          0003*M1         ld a,h
-042CBB 32 E4 2D 04 0004*M1         ld (target+1),a
-042CBF             0153*   
-042CBF CD D8 2C 04 0154*       call backdrop_patch_ground_packet
-042CC3 21 79 2D 04 0155*       ld hl,backdrop_packet
-042CC7 01 4E 00 00 0156*       ld bc,backdrop_packet_end-backdrop_packet
-042CCB 5B DF       0157*       rst.lil 18h
-042CCD C9          0158*       ret
-042CCE             0159*   
-042CCE             0160*   backdrop_shift_hl_6:
-042CCE 3E 06       0161*       ld a,6
-042CD0             0162*   @loop:
-042CD0 CB 2C       0163*       sra h
-042CD2 CB 1D       0164*       rr l
-042CD4 3D          0165*       dec a
-042CD5 20 F9       0166*       jr nz,@loop
-042CD7 C9          0167*       ret
-042CD8             0168*   
-042CD8             0169*   ; Packet words are deliberately patched bytewise. ADL-wide stores would
-042CD8             0170*   ; overwrite the following VDU opcode.
-042CD8             0171*   backdrop_patch_ground_packet:
-042CD8 3A D1 2D 04 0172*       ld a,(backdrop_h0_x)
-042CDC 32 A5 2D 04 0173*       ld (backdrop_t0_x0),a
-042CE0 32 B7 2D 04 0174*       ld (backdrop_t1_x0),a
-042CE4 3A D2 2D 04 0175*       ld a,(backdrop_h0_x+1)
-042CE8 32 A6 2D 04 0176*       ld (backdrop_t0_x0+1),a
-042CEC 32 B8 2D 04 0177*       ld (backdrop_t1_x0+1),a
-042CF0 3A D3 2D 04 0178*       ld a,(backdrop_h0_y)
-042CF4 32 A7 2D 04 0179*       ld (backdrop_t0_y0),a
-042CF8 32 B9 2D 04 0180*       ld (backdrop_t1_y0),a
-042CFC 3A D4 2D 04 0181*       ld a,(backdrop_h0_y+1)
-042D00 32 A8 2D 04 0182*       ld (backdrop_t0_y0+1),a
-042D04 32 BA 2D 04 0183*       ld (backdrop_t1_y0+1),a
-042D08             0184*   
-042D08 3A D5 2D 04 0185*       ld a,(backdrop_h1_x)
-042D0C 32 AB 2D 04 0186*       ld (backdrop_t0_x1),a
-042D10 3A D6 2D 04 0187*       ld a,(backdrop_h1_x+1)
-042D14 32 AC 2D 04 0188*       ld (backdrop_t0_x1+1),a
-042D18 3A D7 2D 04 0189*       ld a,(backdrop_h1_y)
-042D1C 32 AD 2D 04 0190*       ld (backdrop_t0_y1),a
-042D20 3A D8 2D 04 0191*       ld a,(backdrop_h1_y+1)
-042D24 32 AE 2D 04 0192*       ld (backdrop_t0_y1+1),a
-042D28             0193*   
-042D28 3A E1 2D 04 0194*       ld a,(backdrop_g1_x)
-042D2C 32 B1 2D 04 0195*       ld (backdrop_t0_x2),a
-042D30 32 BD 2D 04 0196*       ld (backdrop_t1_x1),a
-042D34 3A E2 2D 04 0197*       ld a,(backdrop_g1_x+1)
-042D38 32 B2 2D 04 0198*       ld (backdrop_t0_x2+1),a
-042D3C 32 BE 2D 04 0199*       ld (backdrop_t1_x1+1),a
-042D40 3A E3 2D 04 0200*       ld a,(backdrop_g1_y)
-042D44 32 B3 2D 04 0201*       ld (backdrop_t0_y2),a
-042D48 32 BF 2D 04 0202*       ld (backdrop_t1_y1),a
-042D4C 3A E4 2D 04 0203*       ld a,(backdrop_g1_y+1)
-042D50 32 B4 2D 04 0204*       ld (backdrop_t0_y2+1),a
-042D54 32 C0 2D 04 0205*       ld (backdrop_t1_y1+1),a
-042D58             0206*   
-042D58 3A DD 2D 04 0207*       ld a,(backdrop_g0_x)
-042D5C 32 C3 2D 04 0208*       ld (backdrop_t1_x2),a
-042D60 3A DE 2D 04 0209*       ld a,(backdrop_g0_x+1)
-042D64 32 C4 2D 04 0210*       ld (backdrop_t1_x2+1),a
-042D68 3A DF 2D 04 0211*       ld a,(backdrop_g0_y)
-042D6C 32 C5 2D 04 0212*       ld (backdrop_t1_y2),a
-042D70 3A E0 2D 04 0213*       ld a,(backdrop_g0_y+1)
-042D74 32 C6 2D 04 0214*       ld (backdrop_t1_y2+1),a
-042D78 C9          0215*       ret
-042D79             0216*   
-042D79             0217*   backdrop_packet:
-042D79 12 00 2F    0218*       db 18,0,backdrop_sky_colour
-042D7C 19 04       0219*       db 25,backdrop_plot_move_absolute
-042D7E 00 00 00 00 0220*       dw 0,0
-042D82 19 04       0221*       db 25,backdrop_plot_move_absolute
-042D84 3F 01 00 00 0222*       dw viewport_width-1,0
-042D88 19 55       0223*       db 25,backdrop_plot_triangle_absolute
-042D8A 3F 01 EF 00 0224*       dw viewport_width-1,viewport_height-1
-042D8E 19 04       0225*       db 25,backdrop_plot_move_absolute
-042D90 00 00 00 00 0226*       dw 0,0
-042D94 19 04       0227*       db 25,backdrop_plot_move_absolute
-042D96 3F 01 EF 00 0228*       dw viewport_width-1,viewport_height-1
-042D9A 19 55       0229*       db 25,backdrop_plot_triangle_absolute
-042D9C 00 00 EF 00 0230*       dw 0,viewport_height-1
-042DA0             0231*   
-042DA0 12 00 08    0232*       db 18,0,backdrop_ground_colour
-042DA3 19 04       0233*       db 25,backdrop_plot_move_absolute
-042DA5 00 00       0234*   backdrop_t0_x0: dw 0
-042DA7 00 00       0235*   backdrop_t0_y0: dw 0
-042DA9 19 04       0236*       db 25,backdrop_plot_move_absolute
-042DAB 00 00       0237*   backdrop_t0_x1: dw 0
-042DAD 00 00       0238*   backdrop_t0_y1: dw 0
-042DAF 19 55       0239*       db 25,backdrop_plot_triangle_absolute
-042DB1 00 00       0240*   backdrop_t0_x2: dw 0
-042DB3 00 00       0241*   backdrop_t0_y2: dw 0
-042DB5 19 04       0242*       db 25,backdrop_plot_move_absolute
-042DB7 00 00       0243*   backdrop_t1_x0: dw 0
-042DB9 00 00       0244*   backdrop_t1_y0: dw 0
-042DBB 19 04       0245*       db 25,backdrop_plot_move_absolute
-042DBD 00 00       0246*   backdrop_t1_x1: dw 0
-042DBF 00 00       0247*   backdrop_t1_y1: dw 0
-042DC1 19 55       0248*       db 25,backdrop_plot_triangle_absolute
-042DC3 00 00       0249*   backdrop_t1_x2: dw 0
-042DC5 00 00       0250*   backdrop_t1_y2: dw 0
-042DC7             0251*   backdrop_packet_end:
-042DC7             0252*   
-042DC7 00 00       0253*   backdrop_horizon_y: dw 0
-042DC9 00 00       0254*   backdrop_pitch_word: dw 0
-042DCB 00 00       0255*   backdrop_roll_word: dw 0
-042DCD 00 00       0256*   backdrop_sin_r512: dw 0
-042DCF 00 00       0257*   backdrop_cos_r512: dw 0
-042DD1 00 00       0258*   backdrop_h0_x: dw 0
-042DD3 00 00       0259*   backdrop_h0_y: dw 0
-042DD5 00 00       0260*   backdrop_h1_x: dw 0
-042DD7 00 00       0261*   backdrop_h1_y: dw 0
-042DD9 00 00       0262*   backdrop_down_x: dw 0
-042DDB 00 00       0263*   backdrop_down_y: dw 0
-042DDD 00 00       0264*   backdrop_g0_x: dw 0
-042DDF 00 00       0265*   backdrop_g0_y: dw 0
-042DE1 00 00       0266*   backdrop_g1_x: dw 0
-042DE3 00 00       0267*   backdrop_g1_y: dw 0
+042AF3             0004*   ; Pingo clears untouched target pixels to transparent before each render.  The
+042AF3             0005*   ; completed target is composited over this solid canvas clear, so missing
+042AF3             0006*   ; scenery reveals one stable sky colour.  This deliberately has no horizon,
+042AF3             0007*   ; ground proxy, pitch, roll, or other camera-attitude dependency.
+042AF3             0008*   ; =============================================================================
+042AF3             0009*   
+042AF3             0010*   terrain_sky_plot_move_absolute: equ 04h
+042AF3             0011*   terrain_sky_plot_triangle_absolute: equ 55h
+042AF3             0012*   terrain_sky_colour: equ 47
+042AF3             0013*   
+042AF3             0014*   ; render-async.inc retains this historical callback name.  For this fixture it
+042AF3             0015*   ; means only "clear the visible render area before compositing the target".
+042AF3             0016*   draw_flight_backdrop:
+042AF3 21 FE 2A 04 0017*       ld hl,terrain_sky_clear_packet
+042AF7 01 27 00 00 0018*       ld bc,terrain_sky_clear_packet_end-terrain_sky_clear_packet
+042AFB 5B DF       0019*       rst.lil 18h
+042AFD C9          0020*       ret
+042AFE             0021*   
+042AFE             0022*   terrain_sky_clear_packet:
+042AFE 12 00 2F    0023*       db 18,0,terrain_sky_colour
+042B01 19 04       0024*       db 25,terrain_sky_plot_move_absolute
+042B03 00 00 00 00 0025*       dw 0,0
+042B07 19 04       0026*       db 25,terrain_sky_plot_move_absolute
+042B09 3F 01 00 00 0027*       dw viewport_width-1,0
+042B0D 19 55       0028*       db 25,terrain_sky_plot_triangle_absolute
+042B0F 3F 01 EF 00 0029*       dw viewport_width-1,viewport_height-1
+042B13 19 04       0030*       db 25,terrain_sky_plot_move_absolute
+042B15 00 00 00 00 0031*       dw 0,0
+042B19 19 04       0032*       db 25,terrain_sky_plot_move_absolute
+042B1B 3F 01 EF 00 0033*       dw viewport_width-1,viewport_height-1
+042B1F 19 55       0034*       db 25,terrain_sky_plot_triangle_absolute
+042B21 00 00 EF 00 0035*       dw 0,viewport_height-1
+042B25             0036*   terrain_sky_clear_packet_end:
+042B25             0037*   
+042B25             0038*   ; The superseded attitude backdrop occupied 704 more assembled bytes at this
+042B25             0039*   ; include boundary.  Preserve that space so the large generated hierarchy and
+042B25             0040*   ; manager retain their established debugger/listing addresses while this
+042B25             0041*   ; presentation experiment is under human review.
+042B25             0042*   terrain_sky_compatibility_reserve_bytes: equ 704
+042B25             0043*       ds terrain_sky_compatibility_reserve_bytes
 042DE5             0106        include "../../berkeley-flight-fdm/src/render-async.inc"
 042DE5             0001*   ; =============================================================================
 042DE5             0002*   ; Qualified Pingo render-completion callback support.
@@ -8029,6 +7639,182 @@ PC     Output      Line
 042DE5             0010*   setup_barrier_value: equ 0A5h
 042DE5             0011*   
 042DE5             0012*   initialize_render_state:
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
 042DE5 AF          0013*       xor a
 042DE6 32 CF 2F 04 0014*       ld (render_in_flight),a
 042DEA 32 D0 2F 04 0015*       ld (completion_ready),a
@@ -8143,7 +7929,7 @@ PC     Output      Line
 042EC1             0108*   ; Display only a completed target.  The attitude-aware sky/ground fallback is
 042EC1             0109*   ; painted first; Pingo's transparent untouched pixels then reveal it wherever
 042EC1             0110*   ; terrain is absent.  The graphics viewport protects the static cockpit panel.
-042EC1 CD 38 2B 04 0111*       call draw_flight_backdrop
+042EC1 CD F3 2A 04 0111*       call draw_flight_backdrop
 042EC5             0112*       DISPBMP tgtbmid,viewport_x,viewport_y
                        M1 Args: BMID=tgtbmid X=viewport_x Y=viewport_y 
 042EC5 21 D3 2E 04 0001*M1     ld hl,@beg
@@ -43252,9 +43038,9 @@ PC     Output      Line
        FF FF FF FF 
        FF FF FF FF 
        FF FF FF 
-05C2DE 21 0A C6 05 0119        ld hl,title
+05C2DE 21 21 C6 05 0119        ld hl,title
 05C2E2 CD 3B 02 04 0120        call printString
-05C2E6 CD 69 C4 05 0121        call load_scene_resources
+05C2E6 CD 6D C4 05 0121        call load_scene_resources
 05C2EA             0122        CTB2 tgtbmid,viewport_width,viewport_height
                        M1 Args: BMID=tgtbmid SCENE_WIDTH=viewport_width SCENE_HEIGHT=viewport_height 
 05C2EA 21 F8 C2 05 0001M1      ld hl,@beg
@@ -43288,319 +43074,337 @@ PC     Output      Line
 05C31E 21 FF FF 00 0124        ld hl,manager_survey_projection_far_units
 05C322 CD 9C 7A 04 0125        call pingo_set_projection_far_units
 05C326 CD 21 02 04 0126        call pingo_bind_flat_pattern_library
-05C32A CD BA 7A 04 0127        call manager_survey_establish_scene_slots
-05C32E             0128    
-05C32E             0129    ; Preserve the visually qualified regional-survey illumination.
-05C32E 01 00 00 00 0130        ld bc,0
-05C332 11 00 40 00 0131        ld de,16384
-05C336 FD 21 27 91 0132        ld iy,-28377
+05C32A             0127    ; Disable the scene illumination multiplier.  Flat-pattern faces therefore
+05C32A             0128    ; select the unity band, whose three accepted terrain patterns are solid Agon
+05C32A             0129    ; palette pixels rather than dithers.
+05C32A CD BD C4 05 0130        call manager_survey_disable_scene_illumination
+05C32E CD BA 7A 04 0131        call manager_survey_establish_scene_slots
+05C332             0132    
+05C332             0133    ; Retain the light settings as inert scene state so illumination can be
+05C332             0134    ; re-enabled later without rebuilding terrain or changing its material ABI.
+05C332 01 00 00 00 0135        ld bc,0
+05C336 11 00 40 00 0136        ld de,16384
+05C33A FD 21 27 91 0137        ld iy,-28377
        FF          
-05C33B CD 91 01 04 0133        call pingo_set_light_direction
-05C33F 3E 5F       0134        ld a,95
-05C341 CD C0 01 04 0135        call pingo_set_ambient_light
-05C345             0136    
-05C345 3E 88       0137        ld a,8+128
-05C347 CD E3 02 04 0138        call vdu_set_screen_mode
-05C34B AF          0139        xor a
-05C34C CD F4 02 04 0140        call vdu_set_scaling
-05C350 CD E0 C5 05 0141        call app_special_init
-05C354 CD D3 27 04 0142        call init_camera_survey
-05C358 CD B9 C4 05 0143        call initialize_regional_camera_attitude
-05C35C CD 7E 7C 04 0144        call manager_survey_initialize_radius_controls
-05C360 CD 9E B2 05 0145        call terrain_manager_initialize
-05C364 DA 1C C4 05 0146        jp c,@startup_failed
-05C368 01 50 00 00 0147        ld bc,manager_survey_start_q
-05C36C 11 7D 00 00 0148        ld de,manager_survey_start_r
-05C370 CD 67 B3 05 0149        call terrain_manager_submit_origin
-05C374 DA 1C C4 05 0150        jp c,@startup_failed
-05C378 3E 05       0151        ld a,manager_survey_default_radius
-05C37A CD 4E B4 05 0152        call terrain_manager_set_ring
-05C37E DA 1C C4 05 0153        jp c,@startup_failed
-05C382 CD F5 9D 05 0154        call terrain_provider_prepare_plan
-05C386 DA 1C C4 05 0155        jp c,@startup_failed
-05C38A             0156    
-05C38A             0157    ; Ordinal zero is the centre cell, providing one bounded first-frame barrier.
-05C38A             0158    ; Every other member of the selected disk is serviced between renders.
-05C38A CD 85 B4 05 0159        call terrain_manager_service_idle
-05C38E DA 1C C4 05 0160        jp c,@startup_failed
-05C392 CD FD C4 05 0161        call sync_camera_state
-05C396             0162    
-05C396             0163        MOSCALL mos_sysvars
+05C33F CD 91 01 04 0138        call pingo_set_light_direction
+05C343 3E 5F       0139        ld a,95
+05C345 CD C0 01 04 0140        call pingo_set_ambient_light
+05C349             0141    
+05C349 3E 88       0142        ld a,8+128
+05C34B CD E3 02 04 0143        call vdu_set_screen_mode
+05C34F AF          0144        xor a
+05C350 CD F4 02 04 0145        call vdu_set_scaling
+05C354 CD F7 C5 05 0146        call app_special_init
+05C358 CD D3 27 04 0147        call init_camera_survey
+05C35C CD D0 C4 05 0148        call initialize_regional_camera_attitude
+05C360 CD 7E 7C 04 0149        call manager_survey_initialize_radius_controls
+05C364 CD 9E B2 05 0150        call terrain_manager_initialize
+05C368 DA 20 C4 05 0151        jp c,@startup_failed
+05C36C 01 50 00 00 0152        ld bc,manager_survey_start_q
+05C370 11 7D 00 00 0153        ld de,manager_survey_start_r
+05C374 CD 67 B3 05 0154        call terrain_manager_submit_origin
+05C378 DA 20 C4 05 0155        jp c,@startup_failed
+05C37C 3E 05       0156        ld a,manager_survey_default_radius
+05C37E CD 4E B4 05 0157        call terrain_manager_set_ring
+05C382 DA 20 C4 05 0158        jp c,@startup_failed
+05C386 CD F5 9D 05 0159        call terrain_provider_prepare_plan
+05C38A DA 20 C4 05 0160        jp c,@startup_failed
+05C38E             0161    
+05C38E             0162    ; Ordinal zero is the centre cell, providing one bounded first-frame barrier.
+05C38E             0163    ; Every other member of the selected disk is serviced between renders.
+05C38E CD 85 B4 05 0164        call terrain_manager_service_idle
+05C392 DA 20 C4 05 0165        jp c,@startup_failed
+05C396 CD 14 C5 05 0166        call sync_camera_state
+05C39A             0167    
+05C39A             0168        MOSCALL mos_sysvars
                        M1 Args: function=mos_sysvars 
-05C396 3E 08       0001M1          ld a,function
-05C398 5B CF       0002M1          rst.lil 08h
-05C39A DD 22 CC 2F 0164        ld (sysvars_pointer),ix             ; ADL24 OK: native MOS sysvars pointer
+05C39A 3E 08       0001M1          ld a,function
+05C39C 5B CF       0002M1          rst.lil 08h
+05C39E DD 22 CC 2F 0169        ld (sysvars_pointer),ix             ; ADL24 OK: native MOS sysvars pointer
        04          
-05C39F CD 03 2E 04 0165        call wait_for_setup_barrier
-05C3A3 CD 50 C5 05 0166        call initialize_simulation_clock
-05C3A7 CD 87 00 04 0167        call reset_keys
-05C3AB CD E5 2D 04 0168        call initialize_render_state
-05C3AF CD F8 2E 04 0169        call install_render_callback
-05C3B3 CD 0E 2F 04 0170        call enable_render_notifications
-05C3B7 FB          0171        ei
-05C3B8 CD 27 2E 04 0172        call submit_current_render
-05C3BC             0173    
-05C3BC             0174    @loop:
-05C3BC CD 6C 00 04 0175        call set_keys
-05C3C0 CD CF C5 05 0176        call latch_exit_request
-05C3C4 CD 8E 7C 04 0177        call manager_survey_update_radius_keys
-05C3C8 CD 48 C4 05 0178        call manager_survey_apply_radius_request
-05C3CC 3A E8 2F 04 0179        ld a,(exit_requested)
-05C3D0 B7          0180        or a
-05C3D1 20 08       0181        jr nz,@service
-05C3D3 CD 5D C5 05 0182        call accumulate_simulation_time
-05C3D7 CD 7F C5 05 0183        call run_simulation_batch
-05C3DB             0184    @service:
-05C3DB 3A D0 2F 04 0185        ld a,(completion_ready)
-05C3DF B7          0186        or a
-05C3E0 C4 4A 2E 04 0187        call nz,consume_render_completion
-05C3E4 3A CF 2F 04 0188        ld a,(render_in_flight)
-05C3E8 B7          0189        or a
-05C3E9 20 D1       0190        jr nz,@loop
-05C3EB 3A E8 2F 04 0191        ld a,(exit_requested)
-05C3EF B7          0192        or a
-05C3F0 20 0E       0193        jr nz,@exit
-05C3F2             0194    
-05C3F2             0195    ; The manager alone owns reposition, one bounded publication/deactivation,
-05C3F2             0196    ; activation order, retry state, and stable residency between renders.
-05C3F2 CD 85 B4 05 0197        call terrain_manager_service_idle
-05C3F6 CD FD C4 05 0198        call sync_camera_state
-05C3FA CD 27 2E 04 0199        call submit_current_render
-05C3FE 18 BC       0200        jr @loop
-05C400             0201    
-05C400             0202    @exit:
-05C400 CD 33 B8 05 0203        call terrain_manager_shutdown_idle
-05C404 CD 23 2F 04 0204        call disable_render_notifications
-05C408 CD 03 2F 04 0205        call remove_render_callback
-05C40C AF          0206        xor a
-05C40D CD E3 02 04 0207        call vdu_set_screen_mode
-05C411 3E 01       0208        ld a,1
-05C413 CD F4 02 04 0209        call vdu_set_scaling
-05C417 CD 59 02 04 0210        call cursor_on
-05C41B C9          0211        ret
-05C41C             0212    
-05C41C             0213    @startup_failed:
-05C41C 32 D0 C6 05 0214        ld (startup_error),a
-05C420 CD 33 B8 05 0215        call terrain_manager_shutdown_idle
-05C424 AF          0216        xor a
-05C425 CD E3 02 04 0217        call vdu_set_screen_mode
-05C429 3E 01       0218        ld a,1
-05C42B CD F4 02 04 0219        call vdu_set_scaling
-05C42F CD 59 02 04 0220        call cursor_on
-05C433 21 70 C6 05 0221        ld hl,startup_failure_text
-05C437 CD 3B 02 04 0222        call printString
-05C43B 3A D0 C6 05 0223        ld a,(startup_error)
-05C43F CD F1 C5 05 0224        call print_hex_byte
-05C443 CD 50 02 04 0225        call printNewLine
-05C447 C9          0226        ret
-05C448             0227    
-05C448             0228    manager_survey_apply_radius_request:
-05C448 3A 09 7D 04 0229        ld a,(manager_survey_radius_pending)
-05C44C B7          0230        or a
-05C44D C8          0231        ret z
-05C44E AF          0232        xor a
-05C44F 32 09 7D 04 0233        ld (manager_survey_radius_pending),a
-05C453 3A 08 7D 04 0234        ld a,(manager_survey_radius_request)
-05C457 CD 4E B4 05 0235        call terrain_manager_set_ring
-05C45B D8          0236        ret c
-05C45C CD F5 9D 05 0237        call terrain_provider_prepare_plan
-05C460 D8          0238        ret c
-05C461             0239    ; Ring-only refinement changes have the same ancestor/descendant retirement
-05C461             0240    ; requirement as an origin change.  Reuse the manager's render-idle rebase
-05C461             0241    ; phase so every stale parent is inactive before a replacement is published.
-05C461 3E 01       0242        ld a,1
-05C463 32 DF B9 05 0243        ld (terrain_manager_origin_dirty),a
-05C467 AF          0244        xor a
-05C468 C9          0245        ret
-05C469             0246    
-05C469             0247    load_scene_resources:
-05C469 21 B8 0B 00 0248        ld hl,pingo_flat_patterns_buffer_id
-05C46D DD 21 E0 07 0249        ld ix,pingo_flat_patterns_bytes
+05C3A3 CD 03 2E 04 0170        call wait_for_setup_barrier
+05C3A7 CD 67 C5 05 0171        call initialize_simulation_clock
+05C3AB CD 87 00 04 0172        call reset_keys
+05C3AF CD E5 2D 04 0173        call initialize_render_state
+05C3B3 CD F8 2E 04 0174        call install_render_callback
+05C3B7 CD 0E 2F 04 0175        call enable_render_notifications
+05C3BB FB          0176        ei
+05C3BC CD 27 2E 04 0177        call submit_current_render
+05C3C0             0178    
+05C3C0             0179    @loop:
+05C3C0 CD 6C 00 04 0180        call set_keys
+05C3C4 CD E6 C5 05 0181        call latch_exit_request
+05C3C8 CD 8E 7C 04 0182        call manager_survey_update_radius_keys
+05C3CC CD 4C C4 05 0183        call manager_survey_apply_radius_request
+05C3D0 3A E8 2F 04 0184        ld a,(exit_requested)
+05C3D4 B7          0185        or a
+05C3D5 20 08       0186        jr nz,@service
+05C3D7 CD 74 C5 05 0187        call accumulate_simulation_time
+05C3DB CD 96 C5 05 0188        call run_simulation_batch
+05C3DF             0189    @service:
+05C3DF 3A D0 2F 04 0190        ld a,(completion_ready)
+05C3E3 B7          0191        or a
+05C3E4 C4 4A 2E 04 0192        call nz,consume_render_completion
+05C3E8 3A CF 2F 04 0193        ld a,(render_in_flight)
+05C3EC B7          0194        or a
+05C3ED 20 D1       0195        jr nz,@loop
+05C3EF 3A E8 2F 04 0196        ld a,(exit_requested)
+05C3F3 B7          0197        or a
+05C3F4 20 0E       0198        jr nz,@exit
+05C3F6             0199    
+05C3F6             0200    ; The manager alone owns reposition, one bounded publication/deactivation,
+05C3F6             0201    ; activation order, retry state, and stable residency between renders.
+05C3F6 CD 85 B4 05 0202        call terrain_manager_service_idle
+05C3FA CD 14 C5 05 0203        call sync_camera_state
+05C3FE CD 27 2E 04 0204        call submit_current_render
+05C402 18 BC       0205        jr @loop
+05C404             0206    
+05C404             0207    @exit:
+05C404 CD 33 B8 05 0208        call terrain_manager_shutdown_idle
+05C408 CD 23 2F 04 0209        call disable_render_notifications
+05C40C CD 03 2F 04 0210        call remove_render_callback
+05C410 AF          0211        xor a
+05C411 CD E3 02 04 0212        call vdu_set_screen_mode
+05C415 3E 01       0213        ld a,1
+05C417 CD F4 02 04 0214        call vdu_set_scaling
+05C41B CD 59 02 04 0215        call cursor_on
+05C41F C9          0216        ret
+05C420             0217    
+05C420             0218    @startup_failed:
+05C420 32 F0 C6 05 0219        ld (startup_error),a
+05C424 CD 33 B8 05 0220        call terrain_manager_shutdown_idle
+05C428 AF          0221        xor a
+05C429 CD E3 02 04 0222        call vdu_set_screen_mode
+05C42D 3E 01       0223        ld a,1
+05C42F CD F4 02 04 0224        call vdu_set_scaling
+05C433 CD 59 02 04 0225        call cursor_on
+05C437 21 87 C6 05 0226        ld hl,startup_failure_text
+05C43B CD 3B 02 04 0227        call printString
+05C43F 3A F0 C6 05 0228        ld a,(startup_error)
+05C443 CD 08 C6 05 0229        call print_hex_byte
+05C447 CD 50 02 04 0230        call printNewLine
+05C44B C9          0231        ret
+05C44C             0232    
+05C44C             0233    manager_survey_apply_radius_request:
+05C44C 3A 09 7D 04 0234        ld a,(manager_survey_radius_pending)
+05C450 B7          0235        or a
+05C451 C8          0236        ret z
+05C452 AF          0237        xor a
+05C453 32 09 7D 04 0238        ld (manager_survey_radius_pending),a
+05C457 3A 08 7D 04 0239        ld a,(manager_survey_radius_request)
+05C45B CD 4E B4 05 0240        call terrain_manager_set_ring
+05C45F D8          0241        ret c
+05C460 CD F5 9D 05 0242        call terrain_provider_prepare_plan
+05C464 D8          0243        ret c
+05C465             0244    ; Ring-only refinement changes have the same ancestor/descendant retirement
+05C465             0245    ; requirement as an origin change.  Reuse the manager's render-idle rebase
+05C465             0246    ; phase so every stale parent is inactive before a replacement is published.
+05C465 3E 01       0247        ld a,1
+05C467 32 DF B9 05 0248        ld (terrain_manager_origin_dirty),a
+05C46B AF          0249        xor a
+05C46C C9          0250        ret
+05C46D             0251    
+05C46D             0252    load_scene_resources:
+05C46D 21 B8 0B 00 0253        ld hl,pingo_flat_patterns_buffer_id
+05C471 DD 21 E0 07 0254        ld ix,pingo_flat_patterns_bytes
        00          
-05C472 FD 21 DB C6 0250        ld iy,terrain_patterns_file
+05C476 FD 21 FB C6 0255        ld iy,terrain_patterns_file
        05          
-05C477 CD 60 03 04 0251        call vdu_load_buffer_from_file
-05C47B 21 B8 0B 00 0252        ld hl,pingo_flat_patterns_buffer_id
-05C47F CD 45 03 04 0253        call vdu_consolidate_buffer
-05C483 21 B9 0B 00 0254        ld hl,pingo_flat_lookup_buffer_id
-05C487 DD 21 F0 00 0255        ld ix,pingo_flat_lookup_bytes
+05C47B CD 60 03 04 0256        call vdu_load_buffer_from_file
+05C47F 21 B8 0B 00 0257        ld hl,pingo_flat_patterns_buffer_id
+05C483 CD 45 03 04 0258        call vdu_consolidate_buffer
+05C487 21 B9 0B 00 0259        ld hl,pingo_flat_lookup_buffer_id
+05C48B DD 21 F0 00 0260        ld ix,pingo_flat_lookup_bytes
        00          
-05C48C FD 21 E7 C6 0256        ld iy,terrain_pattern_lookup_file
+05C490 FD 21 07 C7 0261        ld iy,terrain_pattern_lookup_file
        05          
-05C491 CD 60 03 04 0257        call vdu_load_buffer_from_file
-05C495 21 B9 0B 00 0258        ld hl,pingo_flat_lookup_buffer_id
-05C499 CD 45 03 04 0259        call vdu_consolidate_buffer
-05C49D 01 04 00 00 0260        ld bc,4
-05C4A1 11 04 00 00 0261        ld de,4
-05C4A5 21 00 01 00 0262        ld hl,terrain_bmid
-05C4A9 DD 21 10 00 0263        ld ix,16
+05C495 CD 60 03 04 0262        call vdu_load_buffer_from_file
+05C499 21 B9 0B 00 0263        ld hl,pingo_flat_lookup_buffer_id
+05C49D CD 45 03 04 0264        call vdu_consolidate_buffer
+05C4A1 01 04 00 00 0265        ld bc,4
+05C4A5 11 04 00 00 0266        ld de,4
+05C4A9 21 00 01 00 0267        ld hl,terrain_bmid
+05C4AD DD 21 10 00 0268        ld ix,16
        00          
-05C4AE FD 21 D1 C6 0264        ld iy,terrain_texture
+05C4B2 FD 21 F1 C6 0269        ld iy,terrain_texture
        05          
-05C4B3 3E 01       0265        ld a,1
-05C4B5 C3 B1 02 04 0266        jp vdu_load_img
-05C4B9             0267    
-05C4B9             0268    ; The shared camera-control include deliberately defaults to a zero Euler
-05C4B9             0269    ; pose.  This fixture then installs its reviewed regional attitude and rebuilds
-05C4B9             0270    ; the retained no-roll orientation before the first terrain publication.
-05C4B9             0271    initialize_regional_camera_attitude:
-05C4B9 21 E4 F8 FF 0272        ld hl,camera_initial_pitch
-05C4BD             0273        SURVEY_STORE_HL camera_state+p3d_camera_pingo_rotation+p3d_vec3_x
+05C4B7 3E 01       0270        ld a,1
+05C4B9 C3 B1 02 04 0271        jp vdu_load_img
+05C4BD             0272    
+05C4BD             0273    ; This scene-local wrapper deliberately avoids changing the shared historical
+05C4BD             0274    ; Pingo transport include and therefore preserves every older fixture binary.
+05C4BD             0275    manager_survey_disable_scene_illumination:
+05C4BD 21 C8 C4 05 0276        ld hl,@command
+05C4C1 01 08 00 00 0277        ld bc,@end-@command
+05C4C5 5B DF       0278        rst.lil 18h
+05C4C7 C9          0279        ret
+05C4C8             0280    @command:
+05C4C8 17 00 A0    0281        db 23,0,0A0h
+05C4CB C3 06       0282        dw sid
+05C4CD 49 2E 00    0283        db 49h,46,0
+05C4D0             0284    @end:
+05C4D0             0285    
+05C4D0             0286    ; The shared camera-control include deliberately defaults to a zero Euler
+05C4D0             0287    ; pose.  This fixture then installs its reviewed regional attitude and rebuilds
+05C4D0             0288    ; the retained no-roll orientation before the first terrain publication.
+05C4D0             0289    initialize_regional_camera_attitude:
+05C4D0 21 00 00 00 0290        ld hl,camera_initial_pitch
+05C4D4             0291        SURVEY_STORE_HL camera_state+p3d_camera_pingo_rotation+p3d_vec3_x
                        M1 Args: ADDRESS=camera_state+p3d_camera_pingo_rotation+p3d_vec3_x 
-05C4BD 7D          0001M1          ld a,l
-05C4BE 32 A8 C6 05 0002M1          ld (ADDRESS),a
-05C4C2 7C          0003M1          ld a,h
-05C4C3 32 A9 C6 05 0004M1          ld (ADDRESS+1),a
-05C4C7 21 00 20 00 0274        ld hl,camera_initial_yaw
-05C4CB             0275        SURVEY_STORE_HL camera_state+p3d_camera_pingo_rotation+p3d_vec3_y
+05C4D4 7D          0001M1          ld a,l
+05C4D5 32 C8 C6 05 0002M1          ld (ADDRESS),a
+05C4D9 7C          0003M1          ld a,h
+05C4DA 32 C9 C6 05 0004M1          ld (ADDRESS+1),a
+05C4DE 21 00 E0 FF 0292        ld hl,camera_initial_yaw
+05C4E2             0293        SURVEY_STORE_HL camera_state+p3d_camera_pingo_rotation+p3d_vec3_y
                        M1 Args: ADDRESS=camera_state+p3d_camera_pingo_rotation+p3d_vec3_y 
-05C4CB 7D          0001M1          ld a,l
-05C4CC 32 AA C6 05 0002M1          ld (ADDRESS),a
-05C4D0 7C          0003M1          ld a,h
-05C4D1 32 AB C6 05 0004M1          ld (ADDRESS+1),a
-05C4D5 AF          0276        xor a
-05C4D6 32 AC C6 05 0277        ld (camera_state+p3d_camera_pingo_rotation+p3d_vec3_z),a
-05C4DA 32 AD C6 05 0278        ld (camera_state+p3d_camera_pingo_rotation+p3d_vec3_z+1),a
-05C4DE DD 21 AE C6 0279        ld ix,camera_state+p3d_camera_orientation
+05C4E2 7D          0001M1          ld a,l
+05C4E3 32 CA C6 05 0002M1          ld (ADDRESS),a
+05C4E7 7C          0003M1          ld a,h
+05C4E8 32 CB C6 05 0004M1          ld (ADDRESS+1),a
+05C4EC AF          0294        xor a
+05C4ED 32 CC C6 05 0295        ld (camera_state+p3d_camera_pingo_rotation+p3d_vec3_z),a
+05C4F1 32 CD C6 05 0296        ld (camera_state+p3d_camera_pingo_rotation+p3d_vec3_z+1),a
+05C4F5 DD 21 CE C6 0297        ld ix,camera_state+p3d_camera_orientation
        05          
-05C4E3 FD 21 A8 C6 0280        ld iy,camera_state+p3d_camera_pingo_rotation
+05C4FA FD 21 C8 C6 0298        ld iy,camera_state+p3d_camera_pingo_rotation
        05          
-05C4E8 CD BF 12 04 0281        call p3d_camera_mat3_from_euler_fine16
-05C4EC DD 21 9E C6 0282        ld ix,camera_state
+05C4FF CD BF 12 04 0299        call p3d_camera_mat3_from_euler_fine16
+05C503 DD 21 BE C6 0300        ld ix,camera_state
        05          
-05C4F1 DD 7E 00    0283        ld a,(ix+p3d_camera_dirty)
-05C4F4 F6 02       0284        or p3d_camera_dirty_rotation
-05C4F6 DD 77 00    0285        ld (ix+p3d_camera_dirty),a
-05C4F9 C3 FD C4 05 0286        jp sync_camera_state
-05C4FD             0287    
-05C4FD             0288    sync_camera_state:
-05C4FD DD 21 9E C6 0289        ld ix,camera_state
+05C508 DD 7E 00    0301        ld a,(ix+p3d_camera_dirty)
+05C50B F6 02       0302        or p3d_camera_dirty_rotation
+05C50D DD 77 00    0303        ld (ix+p3d_camera_dirty),a
+05C510 C3 14 C5 05 0304        jp sync_camera_state
+05C514             0305    
+05C514             0306    sync_camera_state:
+05C514 DD 21 BE C6 0307        ld ix,camera_state
        05          
-05C502 DD CB 00 46 0290        bit 0,(ix+p3d_camera_dirty)
-05C506 28 21       0291        jr z,@rotation
-05C508 DD 4E 04    0292        ld c,(ix+p3d_camera_world_position+0)
-05C50B DD 46 05    0293        ld b,(ix+p3d_camera_world_position+1)
-05C50E DD 5E 06    0294        ld e,(ix+p3d_camera_world_position+2)
-05C511 DD 56 07    0295        ld d,(ix+p3d_camera_world_position+3)
-05C514 DD 6E 08    0296        ld l,(ix+p3d_camera_world_position+4)
-05C517 DD 66 09    0297        ld h,(ix+p3d_camera_world_position+5)
-05C51A E5          0298        push hl
-05C51B FD E1       0299        pop iy
-05C51D DD E5       0300        push ix
-05C51F CD BD 00 04 0301        call scdabs
-05C523 DD E1       0302        pop ix
-05C525 DD CB 00 86 0303        res 0,(ix+p3d_camera_dirty)
-05C529             0304    @rotation:
-05C529 DD CB 00 4E 0305        bit 1,(ix+p3d_camera_dirty)
-05C52D C8          0306        ret z
-05C52E DD 4E 0A    0307        ld c,(ix+p3d_camera_pingo_rotation+0)
-05C531 DD 46 0B    0308        ld b,(ix+p3d_camera_pingo_rotation+1)
-05C534 DD 5E 0C    0309        ld e,(ix+p3d_camera_pingo_rotation+2)
-05C537 DD 56 0D    0310        ld d,(ix+p3d_camera_pingo_rotation+3)
-05C53A DD 6E 0E    0311        ld l,(ix+p3d_camera_pingo_rotation+4)
-05C53D DD 66 0F    0312        ld h,(ix+p3d_camera_pingo_rotation+5)
-05C540 E5          0313        push hl
-05C541 FD E1       0314        pop iy
-05C543 DD E5       0315        push ix
-05C545 CD EC 00 04 0316        call scrabs
-05C549 DD E1       0317        pop ix
-05C54B DD CB 00 8E 0318        res 1,(ix+p3d_camera_dirty)
-05C54F C9          0319        ret
-05C550             0320    
-05C550             0321    initialize_simulation_clock:
-05C550 CD A0 00 04 0322        call timestamp_tick
-05C554 21 00 00 00 0323        ld hl,0
-05C558 22 CC C6 05 0324        ld (simulation_accumulator),hl      ; ADL24 OK: exact dl accumulator
-05C55C C9          0325        ret
-05C55D             0326    
-05C55D             0327    accumulate_simulation_time:
-05C55D CD A0 00 04 0328        call timestamp_tick
-05C561 ED 5B CC C6 0329        ld de,(simulation_accumulator)      ; ADL24 OK: exact dl accumulator
+05C519 DD CB 00 46 0308        bit 0,(ix+p3d_camera_dirty)
+05C51D 28 21       0309        jr z,@rotation
+05C51F DD 4E 04    0310        ld c,(ix+p3d_camera_world_position+0)
+05C522 DD 46 05    0311        ld b,(ix+p3d_camera_world_position+1)
+05C525 DD 5E 06    0312        ld e,(ix+p3d_camera_world_position+2)
+05C528 DD 56 07    0313        ld d,(ix+p3d_camera_world_position+3)
+05C52B DD 6E 08    0314        ld l,(ix+p3d_camera_world_position+4)
+05C52E DD 66 09    0315        ld h,(ix+p3d_camera_world_position+5)
+05C531 E5          0316        push hl
+05C532 FD E1       0317        pop iy
+05C534 DD E5       0318        push ix
+05C536 CD BD 00 04 0319        call scdabs
+05C53A DD E1       0320        pop ix
+05C53C DD CB 00 86 0321        res 0,(ix+p3d_camera_dirty)
+05C540             0322    @rotation:
+05C540 DD CB 00 4E 0323        bit 1,(ix+p3d_camera_dirty)
+05C544 C8          0324        ret z
+05C545 DD 4E 0A    0325        ld c,(ix+p3d_camera_pingo_rotation+0)
+05C548 DD 46 0B    0326        ld b,(ix+p3d_camera_pingo_rotation+1)
+05C54B DD 5E 0C    0327        ld e,(ix+p3d_camera_pingo_rotation+2)
+05C54E DD 56 0D    0328        ld d,(ix+p3d_camera_pingo_rotation+3)
+05C551 DD 6E 0E    0329        ld l,(ix+p3d_camera_pingo_rotation+4)
+05C554 DD 66 0F    0330        ld h,(ix+p3d_camera_pingo_rotation+5)
+05C557 E5          0331        push hl
+05C558 FD E1       0332        pop iy
+05C55A DD E5       0333        push ix
+05C55C CD EC 00 04 0334        call scrabs
+05C560 DD E1       0335        pop ix
+05C562 DD CB 00 8E 0336        res 1,(ix+p3d_camera_dirty)
+05C566 C9          0337        ret
+05C567             0338    
+05C567             0339    initialize_simulation_clock:
+05C567 CD A0 00 04 0340        call timestamp_tick
+05C56B 21 00 00 00 0341        ld hl,0
+05C56F 22 EC C6 05 0342        ld (simulation_accumulator),hl      ; ADL24 OK: exact dl accumulator
+05C573 C9          0343        ret
+05C574             0344    
+05C574             0345    accumulate_simulation_time:
+05C574 CD A0 00 04 0346        call timestamp_tick
+05C578 ED 5B EC C6 0347        ld de,(simulation_accumulator)      ; ADL24 OK: exact dl accumulator
        05          
-05C566 19          0330        add hl,de
-05C567 11 21 00 00 0331        ld de,simulation_max_backlog_ticks+1
-05C56B B7          0332        or a
-05C56C ED 52       0333        sbc hl,de
-05C56E 38 09       0334        jr c,@below
-05C570 21 20 00 00 0335        ld hl,simulation_max_backlog_ticks
-05C574 22 CC C6 05 0336        ld (simulation_accumulator),hl      ; ADL24 OK: exact dl accumulator
-05C578 C9          0337        ret
-05C579             0338    @below:
-05C579 19          0339        add hl,de
-05C57A 22 CC C6 05 0340        ld (simulation_accumulator),hl      ; ADL24 OK: exact dl accumulator
-05C57E C9          0341        ret
-05C57F             0342    
-05C57F             0343    run_simulation_batch:
-05C57F 3E 04       0344        ld a,simulation_max_steps_per_pass
-05C581 32 CF C6 05 0345        ld (simulation_steps_remaining),a
-05C585             0346    @next:
-05C585 CD BD C5 05 0347        call take_simulation_step
-05C589 D8          0348        ret c
-05C58A CD FC 27 04 0349        call simulate_camera_step
-05C58E DD 21 9E C6 0350        ld ix,camera_state
+05C57D 19          0348        add hl,de
+05C57E 11 21 00 00 0349        ld de,simulation_max_backlog_ticks+1
+05C582 B7          0350        or a
+05C583 ED 52       0351        sbc hl,de
+05C585 38 09       0352        jr c,@below
+05C587 21 20 00 00 0353        ld hl,simulation_max_backlog_ticks
+05C58B 22 EC C6 05 0354        ld (simulation_accumulator),hl      ; ADL24 OK: exact dl accumulator
+05C58F C9          0355        ret
+05C590             0356    @below:
+05C590 19          0357        add hl,de
+05C591 22 EC C6 05 0358        ld (simulation_accumulator),hl      ; ADL24 OK: exact dl accumulator
+05C595 C9          0359        ret
+05C596             0360    
+05C596             0361    run_simulation_batch:
+05C596 3E 04       0362        ld a,simulation_max_steps_per_pass
+05C598 32 EF C6 05 0363        ld (simulation_steps_remaining),a
+05C59C             0364    @next:
+05C59C CD D4 C5 05 0365        call take_simulation_step
+05C5A0 D8          0366        ret c
+05C5A1 CD FC 27 04 0367        call simulate_camera_step
+05C5A5 DD 21 BE C6 0368        ld ix,camera_state
        05          
-05C593 CD E0 B3 05 0351        call terrain_manager_update_position
-05C597 C4 F5 9D 05 0352        call nz,terrain_provider_prepare_plan
-05C59B CD 87 00 04 0353        call reset_keys
-05C59F CD 6C 00 04 0354        call set_keys
-05C5A3 CD CF C5 05 0355        call latch_exit_request
-05C5A7 CD 8E 7C 04 0356        call manager_survey_update_radius_keys
-05C5AB CD 48 C4 05 0357        call manager_survey_apply_radius_request
-05C5AF 3A E8 2F 04 0358        ld a,(exit_requested)
-05C5B3 B7          0359        or a
-05C5B4 C0          0360        ret nz
-05C5B5 21 CF C6 05 0361        ld hl,simulation_steps_remaining
-05C5B9 35          0362        dec (hl)
-05C5BA 20 C9       0363        jr nz,@next
-05C5BC C9          0364        ret
-05C5BD             0365    
-05C5BD             0366    take_simulation_step:
-05C5BD 2A CC C6 05 0367        ld hl,(simulation_accumulator)      ; ADL24 OK: exact dl accumulator
-05C5C1 11 04 00 00 0368        ld de,simulation_step_ticks
-05C5C5 B7          0369        or a
-05C5C6 ED 52       0370        sbc hl,de
-05C5C8 D8          0371        ret c
-05C5C9 22 CC C6 05 0372        ld (simulation_accumulator),hl      ; ADL24 OK: exact dl accumulator
-05C5CD B7          0373        or a
-05C5CE C9          0374        ret
-05C5CF             0375    
-05C5CF             0376    latch_exit_request:
-05C5CF DD 21 5C 00 0377        ld ix,keyboard_masks
+05C5AA CD E0 B3 05 0369        call terrain_manager_update_position
+05C5AE C4 F5 9D 05 0370        call nz,terrain_provider_prepare_plan
+05C5B2 CD 87 00 04 0371        call reset_keys
+05C5B6 CD 6C 00 04 0372        call set_keys
+05C5BA CD E6 C5 05 0373        call latch_exit_request
+05C5BE CD 8E 7C 04 0374        call manager_survey_update_radius_keys
+05C5C2 CD 4C C4 05 0375        call manager_survey_apply_radius_request
+05C5C6 3A E8 2F 04 0376        ld a,(exit_requested)
+05C5CA B7          0377        or a
+05C5CB C0          0378        ret nz
+05C5CC 21 EF C6 05 0379        ld hl,simulation_steps_remaining
+05C5D0 35          0380        dec (hl)
+05C5D1 20 C9       0381        jr nz,@next
+05C5D3 C9          0382        ret
+05C5D4             0383    
+05C5D4             0384    take_simulation_step:
+05C5D4 2A EC C6 05 0385        ld hl,(simulation_accumulator)      ; ADL24 OK: exact dl accumulator
+05C5D8 11 04 00 00 0386        ld de,simulation_step_ticks
+05C5DC B7          0387        or a
+05C5DD ED 52       0388        sbc hl,de
+05C5DF D8          0389        ret c
+05C5E0 22 EC C6 05 0390        ld (simulation_accumulator),hl      ; ADL24 OK: exact dl accumulator
+05C5E4 B7          0391        or a
+05C5E5 C9          0392        ret
+05C5E6             0393    
+05C5E6             0394    latch_exit_request:
+05C5E6 DD 21 5C 00 0395        ld ix,keyboard_masks
        04          
-05C5D4 DD CB 0E 46 0378        bit 0,(ix+14)
-05C5D8 C8          0379        ret z
-05C5D9 3E 01       0380        ld a,1
-05C5DB 32 E8 2F 04 0381        ld (exit_requested),a
-05C5DF C9          0382        ret
-05C5E0             0383    
-05C5E0             0384    app_special_init:
-05C5E0 CD 9B 02 04 0385        call vdu_clg
-05C5E4 CD 8D 02 04 0386        call vdu_flip
-05C5E8 CD 9B 02 04 0387        call vdu_clg
-05C5EC CD 67 02 04 0388        call cursor_off
-05C5F0 C9          0389        ret
-05C5F1             0390    
-05C5F1             0391    print_hex_byte:
-05C5F1 F5          0392        push af
-05C5F2 1F          0393        rra
-05C5F3 1F          0394        rra
-05C5F4 1F          0395        rra
-05C5F5 1F          0396        rra
-05C5F6 E6 0F       0397        and 0fh
-05C5F8 CD FF C5 05 0398        call print_hex_nibble
-05C5FC F1          0399        pop af
-05C5FD E6 0F       0400        and 0fh
-05C5FF             0401    print_hex_nibble:
-05C5FF C6 30       0402        add a,'0'
-05C601 FE 3A       0403        cp '9'+1
-05C603 38 02       0404        jr c,@emit
-05C605 C6 07       0405        add a,'A'-'9'-1
-05C607             0406    @emit:
-05C607 5B D7       0407        rst.lil 10h
-05C609 C9          0408        ret
-05C60A             0409    
-05C60A             0410    title:
-05C60A 4D 61 72 69 0411        db "Marina hierarchy: TRH N5 near, regular L1/L2/L4/L8 far; arrows look, WASD move, PgUp/PgDn rise/fall",13,10,0
+05C5EB DD CB 0E 46 0396        bit 0,(ix+14)
+05C5EF C8          0397        ret z
+05C5F0 3E 01       0398        ld a,1
+05C5F2 32 E8 2F 04 0399        ld (exit_requested),a
+05C5F6 C9          0400        ret
+05C5F7             0401    
+05C5F7             0402    app_special_init:
+05C5F7 CD 9B 02 04 0403        call vdu_clg
+05C5FB CD 8D 02 04 0404        call vdu_flip
+05C5FF CD 9B 02 04 0405        call vdu_clg
+05C603 CD 67 02 04 0406        call cursor_off
+05C607 C9          0407        ret
+05C608             0408    
+05C608             0409    print_hex_byte:
+05C608 F5          0410        push af
+05C609 1F          0411        rra
+05C60A 1F          0412        rra
+05C60B 1F          0413        rra
+05C60C 1F          0414        rra
+05C60D E6 0F       0415        and 0fh
+05C60F CD 16 C6 05 0416        call print_hex_nibble
+05C613 F1          0417        pop af
+05C614 E6 0F       0418        and 0fh
+05C616             0419    print_hex_nibble:
+05C616 C6 30       0420        add a,'0'
+05C618 FE 3A       0421        cp '9'+1
+05C61A 38 02       0422        jr c,@emit
+05C61C C6 07       0423        add a,'A'-'9'-1
+05C61E             0424    @emit:
+05C61E 5B D7       0425        rst.lil 10h
+05C620 C9          0426        ret
+05C621             0427    
+05C621             0428    title:
+05C621 4D 61 72 69 0429        db "Marina hierarchy: TRH N5 near, regular L1/L2/L4/L8 far; arrows look, WASD move, PgUp/PgDn rise/fall",13,10,0
        6E 61 20 68 
        69 65 72 61 
        72 63 68 79 
@@ -43626,23 +43430,26 @@ PC     Output      Line
        73 65 2F 66 
        61 6C 6C 0D 
        0A 00       
-05C670             0412    startup_failure_text:
-05C670 44 69 73 74 0413        db "Distance terrain manager startup error ",0
-       61 6E 63 65 
-       20 74 65 72 
-       72 61 69 6E 
-       20 6D 61 6E 
-       61 67 65 72 
-       20 73 74 61 
-       72 74 75 70 
-       20 65 72 72 
-       6F 72 20 00 
-05C698             0414    
-05C698             0415    camera_initial_position:
-05C698 B3 10 40 1F 0416        dw camera_initial_x,camera_initial_y,camera_initial_z
+05C687             0430    startup_failure_text:
+05C687 52 65 67 75 0431        db "Regular hierarchy terrain manager startup error ",0
+       6C 61 72 20 
+       68 69 65 72 
+       61 72 63 68 
+       79 20 74 65 
+       72 72 61 69 
+       6E 20 6D 61 
+       6E 61 67 65 
+       72 20 73 74 
+       61 72 74 75 
+       70 20 65 72 
+       72 6F 72 20 
+       00          
+05C6B8             0432    
+05C6B8             0433    camera_initial_position:
+05C6B8 B3 10 40 1F 0434        dw camera_initial_x,camera_initial_y,camera_initial_z
        D2 01       
-05C69E             0417    camera_state: ds p3d_camera_size
-05C6C2             0418    survey_translation_delta: ds p3d_vec3_size
+05C6BE             0435    camera_state: ds p3d_camera_size
+05C6E2             0436    survey_translation_delta: ds p3d_vec3_size
        FF FF FF FF 
        FF FF FF FF 
        FF FF FF FF 
@@ -43654,22 +43461,22 @@ PC     Output      Line
        FF FF FF FF 
        FF FF FF FF 
        FF FF 
-05C6C8 00 00       0419    survey_translation_rate: dw 0
-05C6CA 00          0420    survey_speed_keys_down: db 0
-05C6CB 00          0421    survey_rotation_changed: db 0
-05C6CC 00 00 00    0422    simulation_accumulator: dl 0
-05C6CF 00          0423    simulation_steps_remaining: db 0
-05C6D0 00          0424    startup_error: db 0
-05C6D1             0425    
-05C6D1 4D 41 54 49 0426    terrain_texture: db "MATID.RG2",0
+05C6E8 00 00       0437    survey_translation_rate: dw 0
+05C6EA 00          0438    survey_speed_keys_down: db 0
+05C6EB 00          0439    survey_rotation_changed: db 0
+05C6EC 00 00 00    0440    simulation_accumulator: dl 0
+05C6EF 00          0441    simulation_steps_remaining: db 0
+05C6F0 00          0442    startup_error: db 0
+05C6F1             0443    
+05C6F1 4D 41 54 49 0444    terrain_texture: db "MATID.RG2",0
        44 2E 52 47 
        32 00       
-05C6DB 50 41 54 54 0427    terrain_patterns_file: db "PATTERN.RG2",0
+05C6FB 50 41 54 54 0445    terrain_patterns_file: db "PATTERN.RG2",0
        45 52 4E 2E 
        52 47 32 00 
-05C6E7 50 41 54 4C 0428    terrain_pattern_lookup_file: db "PATLUT.BIN",0
+05C707 50 41 54 4C 0446    terrain_pattern_lookup_file: db "PATLUT.BIN",0
        55 54 2E 42 
        49 4E 00    
-05C6F2             0429    
-05C6F2             0430    ; MOS resource staging must remain beyond every live program datum.
-05C6F2             0431    filedata:
+05C712             0447    
+05C712             0448    ; MOS resource staging must remain beyond every live program datum.
+05C712             0449    filedata:
